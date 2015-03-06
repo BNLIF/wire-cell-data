@@ -5,3 +5,4 @@ waf-*
 build
 *Dict.cxx
 *Dict.h
+tools

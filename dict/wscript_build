@@ -1,8 +1,0 @@
-bld=bld
-bld(source="LinkDef.h",
-    target='WireCellDict.cxx',
-    rule='${ROOTCINT} -f ${TGT} -c ../data/WireCell/*.h ${SRC}')
-bld.shlib(source = 'WireCellDict.cxx',
-          target = 'WireCellDict', 
-          includes = [". ../data"],
-          use = 'ROOT')

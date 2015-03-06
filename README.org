@@ -9,7 +9,9 @@ This package provides two things.
 - a library providing objects geared toward holding representations of data related to wire-cell reconstruction
 - a prototype example of a package others in the group may replicate
 
-* Stand-alone
+* Build
+
+** Stand-alone
 
 This package can be built in a stand-alone manner
 
@@ -21,12 +23,16 @@ Clone this repository
   $ git clone git@github.com:BNLIF/waf-tools.git tools
 #+END_EXAMPLE
 
- Build:
+Then build like:
 
 #+BEGIN_EXAMPLE
   $ ./tools/waf configure build
 #+END_EXAMPLE
 
-* As part of a larger build
+** As part of a larger build
+
+t.b.d.
+
+* Use
 
 t.b.d.
