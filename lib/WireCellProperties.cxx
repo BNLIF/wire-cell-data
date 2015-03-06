@@ -1,13 +1,4 @@
-#include "WireCell/WireCell.h"
-
-WireCell::Id::Id(int cellid, const std::vector<int>& wireids)
-    : cell(cellid)
-    , wire(wireids)
-{
-}
-WireCell::Id::~Id()
-{
-}
+#include "WireCellProperties.h"
 
 WireCell::Properties::Properties(int id, float area_cm2, 
 				 const std::vector<float> &center_cm)
