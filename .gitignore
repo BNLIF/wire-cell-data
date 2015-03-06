@@ -1,0 +1,7 @@
+*~
+waf-*
+.waf-*
+.lock-waf*
+build
+*Dict.cxx
+*Dict.h

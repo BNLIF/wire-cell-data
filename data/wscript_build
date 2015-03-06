@@ -1,0 +1,4 @@
+bld=bld
+bld.shlib(source = bld.path.ant_glob('*.cxx'),
+          target = 'WireCell', 
+          includes = ["."])
