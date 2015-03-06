@@ -1,3 +1,13 @@
 #+TITLE: Data library for Wire Cell Reconstruction
 
 NOTE: this is not ready yet.
+
+* What is here
+
+This package provides two things.
+
+- a library providing objects geared toward holding representations of data related to wire-cell reconstruction
+- a prototype example of a package others in the group may replicate
+
+* Building
+
