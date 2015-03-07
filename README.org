@@ -36,3 +36,123 @@ t.b.d.
 * Use
 
 t.b.d.
+
+* Summary of parameters relevant to wire-cell
+
+This section gives a summary of per-APA parameters relevant to the
+wire-cell approach for the different LAr detectors.  The parameter
+values are given as triplets of numbers over the wire planes:
+
+#+BEGIN_EXAMPLE
+(collection, u-induction, v-induction)
+#+END_EXAMPLE
+
+Different detectors may label the collection plan differently, here
+"=Y=" is used for all and designates the axis parallel to these wires.
+
+The parameters collected (note: not all may be collected yet)
+
+- pitch :: the separation between wires in a plane, in mm.
+- angle :: the angles w.r.t the collection wires, in degrees.
+- number :: the number of wires in the planes.
+- extent :: shape and dimensions of the active area for each plane.
+            Width is perpendicular to the Y direction, height is
+            parallel.
+- what else :: ???
+
+Also listed are links to references for these numbers.
+
+** MicroBooNE
+
+Wires:
+
+|--------+------+------+------|
+| param  |    Y |    U |    V |
+|--------+------+------+------|
+| pitch  |    3 |    3 |    3 |
+| angle  |    0 |   60 |   60 |
+| number | 3456 | 4800 | 4800 |
+|--------+------+------+------|
+
+Extent:
+
+|------------+------|
+| width (m)  | 10.3 |
+| height (m) |  2.3 |
+|------------+------|
+
+*** References:
+
+ - [[http://www-microboone.fnal.gov/talks/APS_April_Grosso.pdf][APS talk from Grosso]]
+
+*** TODO assign signs to angles
+
+** LBNE 35t
+
+Wires:
+
+|------------+---------+--------+--------|
+| param      |       Y |      U |      V |
+|------------+---------+--------+--------|
+| pitch(mm)  |     4.5 |  4.888 |  5.012 |
+| angle(deg) |       0 | 45.707 | 44.275 |
+| number     |     224 |    144 |    144 |
+|------------+---------+--------+--------|
+
+
+Extent:
+
+|-------------+---------+---------+---------|
+|             |       Y |       U |       V |
+| width (mm)  | 498.441 | 515.240 | 508.929 |
+|-------------+---------+---------+---------|
+|             |    tall |  medium |   short |
+| height (mm) |  1957.7 |  1120.0 |   840.7 |
+|-------------+---------+---------+---------|
+
+
+
+*** Notes:
+
+ - U and V wires wrap around and are thus there are more exposed wire
+   segments than there are wires.
+
+
+*** References:
+
+ - [[http://lbne2-docdb.fnal.gov:8080/cgi-bin/ShowDocument?docid=7550][LBNE DocDB 7750]]
+
+*** TODO assign signs to angles
+
+** LBNE 5kt
+
+Wires:
+
+|--------+------+--------+--------|
+| param  |    Y |      U |      V |
+|--------+------+--------+--------|
+| pitch  | 4.79 |  4.677 |  4.667 |
+| angle  |    0 | 35.710 | 35.710 |
+| number |  960 |    800 |    800 |
+|--------+------+--------+--------|
+
+Extent:
+
+|------------+---------|
+| width (m)  | 2.29441 |
+| height (m) |     5.9 |
+|------------+---------|
+
+*** References
+
+- [[http://lbne2-docdb.fnal.gov:8080/cgi-bin/ShowDocument?docid=3383][LBNE DocDB 3383]]
+
+*** TODO assign signs to angles
+
+** ICARUS
+
+t.b.d.
+
+** CAPTAIN
+
+t.b.d.
