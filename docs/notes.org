@@ -1,0 +1,98 @@
+#+TITLE: Some notes from bv.
+
+Here are some notes I (bv) are maintaining.  They aren't coherent but
+layout quite a bit of what I need to do for this packages and a few
+that will immediately touch it in the dependency tree.
+
+* General workflow
+
+Here is the generic workflow or high-level algorithm steps that I see:
+
+1) Get data from some source
+2) Convert it into a WireCell compatible format, assume it comes in per-Wire time slices
+3) Sort wire time slices
+4) Bin wire times slices in like times
+5) Iterate over collections of like time bins across all wires.
+6) Start with full wire-cell ID matrix with each time bin
+7) Perform trivial reductions such as removing all rows/columns which have zero charge (maybe apply threshold to define "zero")
+8) Invert matrix to get hit cells
+
+Possible reductions:
+
+ - Split matrix based on disjoint wire segments
+
+* Code work
+
+Some thing that need to be done with the code in the very near term:
+
+- Rename API header files to drop wirecell prefix in their filenames
+- Install API headers under =include/WireCell/= directory
+- Add =wire-cell-base= library holding:
+  - units 
+  - simple algorithms: sort bin, decimate matrix
+- Add =WireProperties= class which may be used as a base class, for providing things like:
+  - the bounding wire IDs given a 2D x/y point, 
+  - wire end points given wire ID , 
+  - extent boundaries (how to handle non rectangular planes, what is origin).
+  - base can handle common case, subclass if needed. 
+- Ordered triplet enough of a structure to hold all planes of wire
+  data in a detector?
+- Wire data is TDC, ADC and wire-ID (WID) triplets.
+- A general wire data provider is needed. Give it wires of signals and it iterates over tdc
+ADC wid triplets.  Handle experiment-specific data either via subclass, mixin or by giving the provider a callable
+- The wire data provider iterates over triggers returning coincident wire ADC values across planes.
+- =wire-cell-base= depends on =wire-cell-data=, not vice versa.
+- Wire data types: run-length encoded: WID start time, time bin size (should be fixed for
+  detector, does it need to be included here), array of ADC
+  - Need a name for this chunk of data (RLE signal?, just "signal"? "blip"?). 
+  - Full wire signal is an ordered collection of these objects.
+  - Check what/if larsoft already provides this simple type and if so, emulate it.
+
+* Questions
+
+Some random questions, besides the few inlined elsewhere
+
+ - What happens about time calibration and time-matching between the
+   planes? One unit of charge takes time to pass from one plane to another so the corresponding time bins of each successive plane are further delayed.  At the level of this algorithm I think we want all the plane to have these delays removed.
+
+* Tests
+
+Some thoughts on tsting
+
+- Given a cell lattice, fill cells with unit charge in all possible
+  combinations or via MC method and count how many duplicate wire
+  patterns are found.
+
+- Do this gradually for larger regions: for 1+1+1 pairs of wires,
+  2+1+1, 2+2+1, etc to build up some kind of "degeneracy fraction"
+  metric and to get an understanding of what patterns in wires lead to
+  degeneracies in what hit cells may cause them.  These will be
+  sources of matrix inversion failures.
+
+To do this last one, some compact, invariant encoding of the
+collection of hit wires and cells are needed.  This is to allow
+detection of degeneracies as well as simply allowing storage and
+browsing of the results.
+
+** Unit tests
+
+Let's make lots of unit tests, and even try to let them lead development.  
+
+Before this can be started we need a unit test method to:
+
+ - Write, build and run tests
+ - Discover, collectively run tests in a low-effort manner
+ - For build/install tests will need to be able to "find" other packages 
+  - the build system needs this anyways
+- Kind of like the above, but will also need integration tests where
+  multiple packges's of code are brought together.  Maybe hold these
+  in higher-layer packages which themselves provide code that require
+  multiple packages of code.
+
+Some obvious unit tests:
+- Construction of all objects.
+- Python access to a library's C++ API.
+- Producing canned data to be used to test more complex code.
+
+
+
