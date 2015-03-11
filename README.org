@@ -13,20 +13,14 @@ This package provides two things.
 
 ** Stand-alone
 
-This package can be built in a stand-alone manner
-
-Clone this repository
+This package is built with =waf= using some tools in =waf-tools=:
 
 #+BEGIN_EXAMPLE
   $ git clone git@github.com:BNLIF/wire-cell-data.git
+  $ git clone git@github.com:BNLIF/waf-tools.git 
+  $ alias waf=`pwd`/waf-tools/waf
   $ cd wire-cell-data
-  $ git clone git@github.com:BNLIF/waf-tools.git tools
-#+END_EXAMPLE
-
-Then build like:
-
-#+BEGIN_EXAMPLE
-  $ ./tools/waf configure build
+  $ waf configure build
 #+END_EXAMPLE
 
 ** As part of a larger build

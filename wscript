@@ -5,7 +5,7 @@ def options(ctx):
 
 def configure(ctx):
     ctx.load('compiler_cxx')
-    ctx.load('find_root', tooldir='tools')
+    ctx.load('find_root', tooldir='.')
 #    ctx.check_cfg(path='root-config', args='--cflags --libs',
 #                  package='', uselib_store='ROOT')
 #    ctx.find_program('rootcint', var='ROOTCINT')
