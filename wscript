@@ -13,7 +13,7 @@ def configure(ctx):
 
 def build(bld):
     # main code library
-    bld.shlib(source = bld.path.ant_glob('lib/*.cxx'),
+    bld.shlib(source = bld.path.ant_glob('src/*.cxx'),
               target = 'WireCell', 
               includes = ["inc"],
               use = 'ROOTSYS')
