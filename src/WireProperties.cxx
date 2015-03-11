@@ -1,10 +1,10 @@
-#include "WireProperties.h"
+#include "WireCell/WireProperties.h"
 
-WireCell::WireProperties::WireProperties(int id, float angle_deg,
-					 const std::vector<float>& location_cm)
+WireCell::WireProperties::WireProperties(int id, float angle,
+					 const std::vector<float>& location)
     : id(id)
-    , angle_deg(angle_deg)
-    , location_cm(location_cm)
+    , angle(angle)
+    , location(location)
 {
 }
 WireCell::WireProperties::~WireProperties()

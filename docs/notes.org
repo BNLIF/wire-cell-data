@@ -25,28 +25,28 @@ Possible reductions:
 
 Some thing that need to be done with the code in the very near term:
 
-- Rename API header files to drop wirecell prefix in their filenames
-- Install API headers under =include/WireCell/= directory
-- Add =wire-cell-base= library holding:
-  - units 
-  - simple algorithms: sort bin, decimate matrix
-- Add =WireProperties= class which may be used as a base class, for providing things like:
-  - the bounding wire IDs given a 2D x/y point, 
-  - wire end points given wire ID , 
-  - extent boundaries (how to handle non rectangular planes, what is origin).
-  - base can handle common case, subclass if needed. 
-- Ordered triplet enough of a structure to hold all planes of wire
+- [X] Rename API header files to drop wirecell prefix in their filenames
+- [X] Install API headers under =include/WireCell/= directory
+- [ ] Add =wire-cell-base= library holding:
+  - [ ] units 
+  - [ ] simple algorithms: sort bin, decimate matrix
+- [ ] Add wire utility classes/functions for providing things like:
+  - [ ] the bounding wire IDs given a 2D x/y point, 
+  - [ ] wire end points given wire ID , 
+  - [ ] extent boundaries (how to handle non rectangular planes, what is origin).
+  - [ ] base can handle common case, subclass if needed. 
+- [ ] Ordered triplet enough of a structure to hold all planes of wire
   data in a detector?
-- Wire data is TDC, ADC and wire-ID (WID) triplets.
-- A general wire data provider is needed. Give it wires of signals and it iterates over tdc
+- [ ] Wire data is TDC, ADC and wire-ID (WID) triplets.
+- [ ] A general wire data provider is needed. Give it wires of signals and it iterates over tdc
 ADC wid triplets.  Handle experiment-specific data either via subclass, mixin or by giving the provider a callable
-- The wire data provider iterates over triggers returning coincident wire ADC values across planes.
-- =wire-cell-base= depends on =wire-cell-data=, not vice versa.
-- Wire data types: run-length encoded: WID start time, time bin size (should be fixed for
+- [ ] The wire data provider iterates over triggers returning coincident wire ADC values across planes.
+- [ ] =wire-cell-base= depends on =wire-cell-data=, not vice versa.
+- [ ] Wire data types: run-length encoded: WID start time, time bin size (should be fixed for
   detector, does it need to be included here), array of ADC
-  - Need a name for this chunk of data (RLE signal?, just "signal"? "blip"?). 
-  - Full wire signal is an ordered collection of these objects.
-  - Check what/if larsoft already provides this simple type and if so, emulate it.
+  - [ ] Need a name for this chunk of data (RLE signal?, just "signal"? "blip"?). 
+  - [ ] Full wire signal is an ordered collection of these objects.
+  - [ ] Check what/if larsoft already provides this simple type and if so, emulate it.
 
 * Questions
 

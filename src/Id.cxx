@@ -1,4 +1,4 @@
-#include "Id.h"
+#include "WireCell/Id.h"
 
 WireCell::Id::Id(int cellid, const std::vector<int>& wireids)
     : cell(cellid)

@@ -1,10 +1,10 @@
-#include "CellProperties.h"
+#include "WireCell/CellProperties.h"
 
-WireCell::CellProperties::CellProperties(int id, float area_cm2, 
-					 const std::vector<float> &center_cm)
+WireCell::CellProperties::CellProperties(int id, float area, 
+					 const std::vector<float> &center)
     : id(id)
-    , area_cm2(area_cm2)
-    , center_cm(center_cm)
+    , area(area)
+    , center(center)
 {
 }
 WireCell::CellProperties::~CellProperties()
