@@ -20,7 +20,9 @@ This package is built with =waf= using some tools in =waf-tools=:
   $ git clone git@github.com:BNLIF/waf-tools.git 
   $ alias waf=`pwd`/waf-tools/waf
   $ cd wire-cell-data
-  $ waf configure build
+  $ waf --prefix=../install configure
+  $ waf
+  $ waf install
 #+END_EXAMPLE
 
 ** As part of a larger build

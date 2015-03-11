@@ -17,6 +17,7 @@ def build(bld):
               target = 'WireCell', 
               includes = ["inc"],
               use = 'ROOTSYS')
+    bld.install_files('${PREFIX}/include/WireCell',bld.path.ant_glob('inc/*.h'))
 
 
     # generate rootcint dictionary and build a shared library

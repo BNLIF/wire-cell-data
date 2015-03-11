@@ -5,5 +5,6 @@
 #pragma link C++ nestedclasses;
 
 #pragma link C++ class WireCell::Id;
-#pragma link C++ class WireCell::Properties;
+#pragma link C++ class WireCell::CellProperties;
+#pragma link C++ class WireCell::WireProperties;
 #endif
