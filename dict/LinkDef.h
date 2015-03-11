@@ -6,6 +6,6 @@
 
 #pragma link C++ namespace units;
 #pragma link C++ class WireCell::Id;
-#pragma link C++ class WireCell::CellProperties;
-#pragma link C++ class WireCell::WireProperties;
+#pragma link C++ class WireCell::Cell;
+#pragma link C++ class WireCell::Wire;
 #endif

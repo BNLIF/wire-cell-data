@@ -27,8 +27,11 @@ Some thing that need to be done with the code in the very near term:
 
 - [X] Rename API header files to drop wirecell prefix in their filenames
 - [X] Install API headers under =include/WireCell/= directory
+- [-] build
+  - [X] Simplify waf build, defining package layout conventions
+  - [ ] package build dependencies
+- [X] Add units to =wire-cell-data=
 - [ ] Add =wire-cell-base= library holding:
-  - [ ] units 
   - [ ] simple algorithms: sort bin, decimate matrix
 - [ ] Add wire utility classes/functions for providing things like:
   - [ ] the bounding wire IDs given a 2D x/y point, 
