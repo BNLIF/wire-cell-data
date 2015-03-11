@@ -16,4 +16,7 @@ def build(bld):
     bld.rootcint_dictionary()
 
 
+    for testsrc in bld.path.ant_glob('test/test_*.cxx'):
+        bld.test_program([testsrc])
+
 
