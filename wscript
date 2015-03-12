@@ -15,7 +15,6 @@ def build(bld):
     bld.api_headers()
     bld.rootcint_dictionary()
 
-
     for testsrc in bld.path.ant_glob('test/test_*.cxx'):
         bld.test_program([testsrc])
 

@@ -6,3 +6,5 @@ build
 *Dict.cxx
 *Dict.h
 tools
+*.pyc
+cut.py
