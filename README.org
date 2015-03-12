@@ -13,6 +13,23 @@ This package provides two things.
 
 See instructions at [[https://github.com/BNLIF/waf-tools/][waf-tools]] at GitHub.
 
+** Test
+
+There are two types of tests of this package:
+
+ - main C++ programs
+ - Python unit tests
+
+The former are run as part of the build.  The latter expects a properly setup PyROOT environment and to be exercised using =nose= (or equivalent).  That can be installed easily like:
+
+#+BEGIN_EXAMPLE
+  $ virtualenv --system-site-packages venv
+  $ source venv/bin/activate
+  $ pip install nose
+#+END_EXAMPLE
+
+See notes in the comments of [[./tests/test_000.py]] for some details of how your PyROOT environment may be messed up.
+
 * Use
 
 t.b.d.
