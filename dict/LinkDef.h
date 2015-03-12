@@ -8,4 +8,7 @@
 #pragma link C++ class WireCell::Id;
 #pragma link C++ class WireCell::Cell;
 #pragma link C++ class WireCell::Wire;
+
+#pragma link C++ class WireCell::Point;
+#pragma link C++ class WireCell::PointVector;
 #endif
