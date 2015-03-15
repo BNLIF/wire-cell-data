@@ -6,15 +6,28 @@
 
 namespace WireCell {
 
+/** 
+    Collect information about one wire.
+ */
 struct Wire {
 
-    Wire(int id = 0, float angle = 0.0 * units::degree,
-	 const Point& location = Point());
+    Wire(int id = 0, 
+	 const Point& point1 = Point(),
+	 const Point& point2 = Point());
     ~Wire();
 
     int id;
-    float angle;
-    Point location;
+    Point point1, point2;
 };
+
+/**
+   A wire triple is simply one wire from each plane identified by their ID numbers.
+ */
+struct WireTriple {
+  int u, v, y;
+  WireTriple(int u, int v, int y) : u(u), v(v), y(y) {}
+};
+
+
 }
 #endif
