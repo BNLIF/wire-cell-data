@@ -1,9 +1,15 @@
 #include "WireCell/Wire.h"
 
-WireCell::Wire::Wire(int id, 
+WireCell::Wire::Wire(int ident, 
+		     int plane, 
+		     int index,
+		     int channel,
 		     const Point& point1,
 		     const Point& point2)
-    : id(id)
+    : ident(ident)
+    , plane(plane)
+    , index(index)
+    , channel(channel)
     , point1(point1)
     , point2(point2)
 {

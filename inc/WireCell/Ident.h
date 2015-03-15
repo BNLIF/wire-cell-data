@@ -5,10 +5,10 @@
 
 namespace WireCell {
 
-class Id {
+class Ident {
 public:
-    Id(int cellid = 0, const std::vector<int>& wireids = std::vector<int>());
-    ~Id();
+    Ident(int cellid = 0, const std::vector<int>& wireids = std::vector<int>());
+    ~Ident();
 
     // A number identifying a cell
     int cell;
