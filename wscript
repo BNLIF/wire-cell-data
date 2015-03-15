@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-APPNAME = 'WireCell'
+APPNAME = 'WireCellData'
 
 def options(ctx):
     ctx.load('find_package')
