@@ -1,10 +1,11 @@
 #include "WireCell/Wire.h"
 
-WireCell::Wire::Wire(int id, float angle,
-		     const Point& location)
+WireCell::Wire::Wire(int id, 
+		     const Point& point1,
+		     const Point& point2)
     : id(id)
-    , angle(angle)
-    , location(location)
+    , point1(point1)
+    , point2(point2)
 {
 }
 WireCell::Wire::~Wire()

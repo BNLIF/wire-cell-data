@@ -2,7 +2,7 @@
 #define WIRECELL_SLICE_H
 
 #include <map>
-#inlcude <vector>
+#include <vector>
 
 namespace WireCell {
 

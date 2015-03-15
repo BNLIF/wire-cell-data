@@ -1,6 +1,8 @@
 #ifndef WIRECELL_TRACE_H
 #define WIRECELL_TRACE_H
 
+#include <vector>
+
 namespace WireCell {
 
     /// A disembodied ordered sequence of charge.
