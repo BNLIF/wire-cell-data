@@ -1,10 +1,10 @@
-#ifndef WIRECELL_SLICE_H
-#define WIRECELL_SLICE_H
+#ifndef WIRECELLDATA_SLICE_H
+#define WIRECELLDATA_SLICE_H
 
 #include <map>
 #include <vector>
 
-namespace WireCell {
+namespace WireCellData {
 
     /// An association of wire ID and charge
     typedef std::pair<int,float> WireCharge;

@@ -1,13 +1,13 @@
-#include "WireCell/Cell.h"
+#include "WireCellData/Cell.h"
 
-WireCell::Cell::Cell(int ident, float area, const Point& center, 
-		     const PointVector& boundary)
+WireCellData::Cell::Cell(int ident, float area, const Point& center, 
+			 const PointVector& boundary)
     : ident(ident)
     , area(area)
     , center(center)
     , boundary(boundary)
 {
 }
-WireCell::Cell::~Cell()
+WireCellData::Cell::~Cell()
 {
 }

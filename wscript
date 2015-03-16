@@ -12,8 +12,8 @@ def configure(ctx):
 def build(bld):
     # main code library
     bld.shared_library()
-    bld.api_headers(name='WireCell')
-    bld.root_dictionary(headers = 'inc/WireCell/*.h')
+    bld.api_headers()
+    bld.root_dictionary()
 
     for testsrc in bld.path.ant_glob('test/test_*.cxx'):
         bld.test_program([testsrc])

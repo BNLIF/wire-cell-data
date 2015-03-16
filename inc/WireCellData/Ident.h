@@ -1,9 +1,9 @@
-#ifndef WireCellId_h
-#define WireCellId_h
+#ifndef WireCellData_Ident_h
+#define WireCellData_Ident_h
 
 #include <vector>
 
-namespace WireCell {
+namespace WireCellData {
 
 class Ident {
 public:

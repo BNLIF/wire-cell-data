@@ -1,12 +1,12 @@
-#ifndef WireCell_Wire_h
-#define WireCell_Wire_h
+#ifndef WireCellData_Wire_h
+#define WireCellData_Wire_h
 
 #include <vector>
 
-#include "WireCell/Units.h"
-#include "WireCell/Point.h"
+#include "WireCellData/Units.h"
+#include "WireCellData/Point.h"
 
-namespace WireCell {
+namespace WireCellData {
 
 /** 
     Collect information about one wire.

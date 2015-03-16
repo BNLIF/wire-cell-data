@@ -1,12 +1,12 @@
-#include "WireCell/Ident.h"
-#include "WireCell/Wire.h"
-#include "WireCell/Cell.h"
+#include "WireCellData/Ident.h"
+#include "WireCellData/Wire.h"
+#include "WireCellData/Cell.h"
 
 int main()
 {
-    WireCell::Ident ident();
-    WireCell::Wire wire();
-    WireCell::Cell cell();
+    WireCellData::Ident ident();
+    WireCellData::Wire wire();
+    WireCellData::Cell cell();
 
     return 0;
 }

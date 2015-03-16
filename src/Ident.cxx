@@ -1,11 +1,11 @@
-#include "WireCell/Ident.h"
+#include "WireCellData/Ident.h"
 
-WireCell::Ident::Ident(int cellid, const std::vector<int>& wireids)
+WireCellData::Ident::Ident(int cellid, const std::vector<int>& wireids)
     : cell(cellid)
     , wire(wireids)
 {
 }
-WireCell::Ident::~Ident()
+WireCellData::Ident::~Ident()
 {
 }
 

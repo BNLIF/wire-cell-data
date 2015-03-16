@@ -1,9 +1,9 @@
-#ifndef WIRECELL_TRACE_H
-#define WIRECELL_TRACE_H
+#ifndef WIRECELLDATA_TRACE_H
+#define WIRECELLDATA_TRACE_H
 
 #include <vector>
 
-namespace WireCell {
+namespace WireCellData {
 
     /// A disembodied ordered sequence of charge.
     typedef std::vector<float> ChargeSequence;

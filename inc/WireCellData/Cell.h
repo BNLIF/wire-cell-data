@@ -1,10 +1,10 @@
-#ifndef Cell_h
-#define Cell_h
+#ifndef WireCellData_Cell_h
+#define WireCellData_Cell_h
 
-#include "WireCell/Units.h"
-#include "WireCell/Point.h"
+#include "WireCellData/Units.h"
+#include "WireCellData/Point.h"
 
-namespace WireCell {
+namespace WireCellData {
 
 struct Cell {
 

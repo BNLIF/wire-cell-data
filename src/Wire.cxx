@@ -1,11 +1,11 @@
-#include "WireCell/Wire.h"
+#include "WireCellData/Wire.h"
 
-WireCell::Wire::Wire(int ident, 
-		     int plane, 
-		     int index,
-		     int channel,
-		     const Point& point1,
-		     const Point& point2)
+WireCellData::Wire::Wire(int ident, 
+			 int plane, 
+			 int index,
+			 int channel,
+			 const Point& point1,
+			 const Point& point2)
     : ident(ident)
     , plane(plane)
     , index(index)
@@ -14,7 +14,7 @@ WireCell::Wire::Wire(int ident,
     , point2(point2)
 {
 }
-WireCell::Wire::~Wire()
+WireCellData::Wire::~Wire()
 {
 }
 
