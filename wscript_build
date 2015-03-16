@@ -1,0 +1,12 @@
+# -*- python -*-
+
+bld.make_package('WireCellData')
+
+# bld.shared_library(name)
+# bld.api_headers(name)
+# bld.root_dictionary(name)
+
+# for testsrc in bld.path.ant_glob('test/test_*.cxx'):
+#     bld.test_program([testsrc])
+
+
