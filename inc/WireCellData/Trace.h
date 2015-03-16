@@ -16,8 +16,8 @@ namespace WireCellData {
      */
 
     struct Trace {
-	/// The ID number of the wire on which the trace was measured.
-	int wid;
+	/// The ID number of the electronics channel on which the trace was measured.
+	int chid;
 	
 	/// The time bin relative to some absolute time at which the first ADC/charge exists
 	int tbin;
