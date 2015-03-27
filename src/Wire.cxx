@@ -2,12 +2,14 @@
 
 #include <algorithm>    // std::sort
 
-WireCellData::Wire::Wire(int ident, 
-			 WirePlaneType_t plane,
-			 int index,
-			 int channel,
-			 const Point& point1,
-			 const Point& point2)
+using namespace WireCell;
+
+Wire::Wire(int ident, 
+	   WirePlaneType_t plane,
+	   int index,
+	   int channel,
+	   const Point& point1,
+	   const Point& point2)
     : ident(ident)
     , plane(plane)
     , index(index)
@@ -16,28 +18,28 @@ WireCellData::Wire::Wire(int ident,
     , point2(point2)
 {
 }
-WireCellData::Wire::~Wire()
+Wire::~Wire()
 {
 }
 
 
-static bool _by_planeindex(const WireCellData::Wire* a, const WireCellData::Wire* b)
+static bool _by_planeindex(const Wire* a, const Wire* b)
 {
     if (a->plane < b->plane) return true;
     return a->index < b->index;
 }
 
-void WireCellData::sort_by_planeindex(WireCellData::WireSelection& ws)
+void WireCell::sort_by_planeindex(WireSelection& ws)
 {
     std::sort(ws.begin(), ws.end(), _by_planeindex);
 }
 
-static bool _by_channel(const WireCellData::Wire* a, const WireCellData::Wire* b)
+static bool _by_channel(const Wire* a, const Wire* b)
 {
     return a->channel < b->channel;
 }
 
-void WireCellData::sort_by_channel(WireCellData::WireSelection& ws)
+void WireCell::sort_by_channel(WireSelection& ws)
 {
     std::sort(ws.begin(), ws.end(), _by_channel);
 }

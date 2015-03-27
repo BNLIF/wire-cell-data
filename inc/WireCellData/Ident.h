@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace WireCellData {
+namespace WireCell {
 
 class Ident {
 public:

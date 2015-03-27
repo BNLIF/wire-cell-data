@@ -7,9 +7,9 @@
 #include <list>
 #include <vector>
 
-namespace WireCellData {
+namespace WireCell {
 
-    /** WireCellData::Cell - information about one cell
+    /** WireCell::Cell - information about one cell
      */
     struct Cell {
 
@@ -30,9 +30,9 @@ namespace WireCellData {
     };
 
     /// Used to store definitive set of cells
-    typedef std::list<WireCellData::Cell> CellSet;
+    typedef std::list<WireCell::Cell> CellSet;
     /// Used to record some view into the set of cells
-    typedef std::vector<WireCellData::Cell*> CellSelection;
+    typedef std::vector<WireCell::Cell*> CellSelection;
 
 }
 #endif

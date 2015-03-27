@@ -4,7 +4,7 @@
 #include <map>
 #include <vector>
 
-namespace WireCellData {
+namespace WireCell {
 
     /// An association of wire ID and charge
     typedef std::pair<int,float> WireCharge;

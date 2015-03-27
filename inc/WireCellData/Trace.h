@@ -3,7 +3,7 @@
 
 #include <vector>
 
-namespace WireCellData {
+namespace WireCell {
 
     /// A disembodied ordered sequence of charge.
     typedef std::vector<float> ChargeSequence;

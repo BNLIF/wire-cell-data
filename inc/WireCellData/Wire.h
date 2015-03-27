@@ -7,7 +7,7 @@
 #include <list>
 #include <vector>
 
-namespace WireCellData {
+namespace WireCell {
 
     /// Wire set plane/direction types
     enum WirePlaneType_t {kUnknown = 0, kUtype, kVtype, kYtype};
@@ -15,7 +15,7 @@ namespace WireCellData {
     /// A pair of wire plane/direction type and index w/in that plane of wires
     typedef std::pair<WirePlaneType_t, int> WirePlaneIndex;
 
-    /** WireCellData::Wire - information about one wire.
+    /** WireCell::Wire - information about one wire.
     */
     struct Wire {
 
@@ -42,14 +42,14 @@ namespace WireCellData {
     };
 
     /// Used to store definitive set of wires
-    typedef std::list<WireCellData::Wire> WireSet;
+    typedef std::list<WireCell::Wire> WireSet;
     /// Used to record some view into the set of cells
-    typedef std::vector<const WireCellData::Wire*> WireSelection;
+    typedef std::vector<const WireCell::Wire*> WireSelection;
 
 
     // In-place sorts
-    void sort_by_planeindex(WireCellData::WireSelection& ws);
-    void sort_by_channel(WireCellData::WireSelection& ws);
+    void sort_by_planeindex(WireSelection& ws);
+    void sort_by_channel(WireSelection& ws);
 	
-}
+} // namespace WireCell
 #endif
