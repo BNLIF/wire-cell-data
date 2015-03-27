@@ -10,32 +10,36 @@
 namespace WireCell {
 
     /// Wire set plane/direction types
-    enum WirePlaneType_t {kUnknown = 0, kUtype, kVtype, kYtype};
+    enum WirePlaneType_t {kUtype, kVtype, kYtype, kUnknown = -1};
 
     /// A pair of wire plane/direction type and index w/in that plane of wires
     typedef std::pair<WirePlaneType_t, int> WirePlaneIndex;
 
     /** WireCell::Wire - information about one wire.
+
+	Any detector application of wire cell must provide wire
+	information with this struct and satisfy the requirements
+	given in the comments on its elements.
     */
     struct Wire {
 
-	Wire(int ident = 0,  	// 0 = illegal
+	Wire(int ident = -1,
 	     WirePlaneType_t plane = kUnknown,  
-	     int index = -1,	// 0-based index into one plane
-	     int channel = -1,	// electronics channel
+	     int index = -1,
+	     int channel = -1,
 	     const Point& point1 = Point(),
 	     const Point& point2 = Point());
 	~Wire();
 
-	/// globally unique ID (zero is illegal)
+	/// Detector-dependent, globally unique ID number.  Negative is illegal, not guaranteed consecutive.
 	int ident;
-	// the plane/direction type of the wire (zero is illegal)
+	// The plane/direction enum of the wire 
 	WirePlaneType_t plane;
-	// index into ordered sequence of wires in a plane
+	// Consecutive, zero-based index into ordered sequence of wires in their plane
 	int index;
-	// electronics channel connected
+	// Detector-dependent electronics channel number, negative is illegal.
 	int channel;
-	// End points of the wire
+	// End points of the wire, in System Of Units, no origin specified.
 	Point point1, point2;
 
 	WirePlaneIndex plane_index() const { return WirePlaneIndex(plane, index); }
