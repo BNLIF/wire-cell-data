@@ -8,15 +8,17 @@ namespace WireCell {
     /// A disembodied ordered sequence of charge.
     typedef std::vector<float> ChargeSequence;
 
-    /**
-       Hold a trace or signal as a function of time bins on one wire.
+    /** Trace - a charge/time waveform signal on a wire.
 
-       A trace is a portion of possibly a larger signal (eg, a segment
-       which is above some threshold or separated into frames).  
+	Note: zero-suppressed signals may be turned into an ordered
+	collection of traces to save memory.
+
+	See also Frame
      */
 
     struct Trace {
-	/// The ID number of the electronics channel on which the trace was measured.
+	/// The ID of the electronics channel from which this trace
+	/// was read.  Note: use GeomDataSource to resolve wire id.
 	int chid;
 	
 	/// The time bin relative to some absolute time at which the first ADC/charge exists
@@ -26,10 +28,7 @@ namespace WireCell {
 	ChargeSequence charge;
     };
 
-    /// A collection of traces, such as would be read out in a single
-    /// frame.  Multiple Traces from the same wire may be present in
-    /// the same frame (eg, due to zero suppression)
-    typedef std::vector<Trace> Frame;
+    typedef std::vector<Trace> TraceCollection;
 }
 
 #endif

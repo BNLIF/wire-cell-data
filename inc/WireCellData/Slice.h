@@ -14,8 +14,12 @@ namespace WireCell {
 
     /// A collection of wire charges at a given time bin
     struct Slice {
+	Slice(int tbin=-1, const WireChargeCollection& charge = WireChargeCollection());
+	void clear();
+
 	int tbin;
 	WireChargeCollection charge;
+
     };
 
 }
