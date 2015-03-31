@@ -32,7 +32,7 @@ namespace WireCell {
     /// Used to store definitive set of cells
     typedef std::list<WireCell::Cell> CellSet;
     /// Used to record some view into the set of cells
-    typedef std::vector<WireCell::Cell*> CellSelection;
+    typedef std::vector<const WireCell::Cell*> CellSelection;
 
 }
 #endif

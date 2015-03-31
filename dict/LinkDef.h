@@ -6,9 +6,17 @@
 
 #pragma link C++ namespace units;
 #pragma link C++ namespace WireCell;
-#pragma link C++ class WireCell::Ident;
+
 #pragma link C++ class WireCell::Cell;
+#pragma link C++ class WireCell::CellMap;
+#pragma link C++ class WireCell::CellSet;
+#pragma link C++ class WireCell::CellSelection;
+
 #pragma link C++ class WireCell::Wire;
+#pragma link C++ class WireCell::WireMap;
+#pragma link C++ class WireCell::WireSet;
+#pragma link C++ class WireCell::WireSelection;
+
 #pragma link C++ class WireCell::ChargeSequence;
 #pragma link C++ class WireCell::Trace;
 #pragma link C++ class WireCell::Frame;
