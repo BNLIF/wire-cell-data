@@ -2,14 +2,25 @@
 
 using namespace WireCell;
 
-Slice::Slice(int tbin, const WireChargeCollection& charge)
-    : tbin(tbin)
-    , charge(charge)
+Slice::Slice(int tbin, const Wire::Group& group)
+    : _tbin(tbin)
+    , _group(group)
 {
 }
 
+Slice::~Slice()
+{
+}
+
+
 void Slice::clear()
 {
-    tbin = -1;
-    charge.clear();
+    _tbin = -1;
+    _group.clear();
+}
+
+void Slice::reset(int tbin, const Wire::Group& group)
+{
+    _tbin = tbin;
+    _group = group;
 }
