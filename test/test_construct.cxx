@@ -8,7 +8,6 @@ using namespace WireCell;
 
 int main()
 {
-    Ident ident();
     Wire wire();
     Cell cell();
     Slice slice();
