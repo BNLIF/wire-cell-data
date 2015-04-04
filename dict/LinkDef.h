@@ -7,15 +7,17 @@
 #pragma link C++ namespace units;
 #pragma link C++ namespace WireCell;
 
-#pragma link C++ class WireCell::Cell;
-#pragma link C++ class WireCell::CellMap;
-#pragma link C++ class WireCell::CellSet;
-#pragma link C++ class WireCell::CellSelection;
+#pragma link C++ class WireCell::GeomCell;
+#pragma link C++ class WireCell::GeomCellMap;
+// apparently, rootcling doesn't like sets
+// #pragma link C++ class WireCell::GeomCellSet;
+#pragma link C++ class WireCell::GeomCellSelection;
 
-#pragma link C++ class WireCell::Wire;
-#pragma link C++ class WireCell::WireMap;
-#pragma link C++ class WireCell::WireSet;
-#pragma link C++ class WireCell::WireSelection;
+#pragma link C++ class WireCell::GeomWire;
+#pragma link C++ class WireCell::GeomWireMap;
+// apparently, rootcling doesn't like sets
+// #pragma link C++ class WireCell::GeomWireSet;
+#pragma link C++ class WireCell::GeomWireSelection;
 
 #pragma link C++ class WireCell::ChargeSequence;
 #pragma link C++ class WireCell::Trace;
