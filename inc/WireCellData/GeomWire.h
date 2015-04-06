@@ -72,6 +72,8 @@ namespace WireCell {
 	}
     };
 
+    typedef std::pair<const GeomWire*, const GeomWire*> GeomWirePair;
+
     /// Used to store definitive, ordered set of wires
     typedef std::set<GeomWire, GeomWireCompare> GeomWireSet;
 
