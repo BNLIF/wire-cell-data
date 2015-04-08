@@ -1,6 +1,9 @@
 #ifndef WIRECELL_CHANNELCHARGE_H
 #define WIRECELL_CHANNELCHARGE_H
 
+#include <map>			// for pair
+#include <vector>
+
 namespace WireCell {
 
     /// The Channel namespace holds types and functions related to a

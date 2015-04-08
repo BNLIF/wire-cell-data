@@ -1,7 +1,7 @@
 #ifndef WIRECELLDATA_SLICE_H
 #define WIRECELLDATA_SLICE_H
 
-#include "WireCellData/WireCharge.h"
+#include "WireCellData/ChannelCharge.h"
 
 #include <map>
 #include <vector>
@@ -9,21 +9,21 @@
 
 namespace WireCell {
 
-    /// A group of charges on wires at a given time bin
+    /// A group of charges measured in channels at a given time bin
     class Slice {
     public:
-	Slice(int tbin=-1, const Wire::Group& group = Wire::Group());
+	Slice(int tbin=-1, const Channel::Group& group = Channel::Group());
 	~Slice();
 
 	/// Forget the contents of the slice.
 	void clear();
 
 	/// Reset the values
-	void reset(int tbin, const Wire::Group& group);
+	void reset(int tbin, const Channel::Group& group);
 	
-        /// Access the Wire::Group
-        const Wire::Group& group() const { return _group; }
-	Wire::Group& group() { return _group; }
+        /// Access the Channel::Group
+        const Channel::Group& group() const { return _group; }
+	Channel::Group& group() { return _group; }
 
 	/// Access the associated time bin
 	int tbin() const { return _tbin; }
@@ -31,7 +31,7 @@ namespace WireCell {
     private:
 
 	int _tbin;
-	Wire::Group _group;
+	Channel::Group _group;
 
     };
 

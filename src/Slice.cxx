@@ -2,7 +2,7 @@
 
 using namespace WireCell;
 
-Slice::Slice(int tbin, const Wire::Group& group)
+Slice::Slice(int tbin, const Channel::Group& group)
     : _tbin(tbin)
     , _group(group)
 {
@@ -19,7 +19,7 @@ void Slice::clear()
     _group.clear();
 }
 
-void Slice::reset(int tbin, const Wire::Group& group)
+void Slice::reset(int tbin, const Channel::Group& group)
 {
     _tbin = tbin;
     _group = group;
