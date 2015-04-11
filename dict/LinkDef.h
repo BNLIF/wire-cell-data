@@ -28,4 +28,7 @@
 
 #pragma link C++ class WireCell::Point;
 #pragma link C++ class WireCell::PointVector;
+
+#pragma link C++ class WireCell::PointC;
+#pragma link C++ class WireCell::PointCVector;
 #endif
