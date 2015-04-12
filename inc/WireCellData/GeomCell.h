@@ -27,8 +27,10 @@ namespace WireCell {
 	Point center() const;
 	/// A list of point giving the outline of the cell.
 	PointVector boundary() const { return _boundary;}
+	
+	bool operator== (const GeomCell &b) const { return this->ident()==b.ident();}
 
-
+	
     private:
 	int _ident;
 	PointVector _boundary;
@@ -42,9 +44,10 @@ namespace WireCell {
 
     /// Compare ident
     struct GeomCellCompare {
-	bool operator() (const GeomCell& a, const GeomCell& b) const {
-	    return a.ident() < b.ident();
-	}
+      bool operator() (const GeomCell& a, const GeomCell& b) const {
+	return a.ident() < b.ident();
+      }
+      
     };
 
     /// Used to store a definitive, ordered set of cells
