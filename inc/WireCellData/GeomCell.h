@@ -26,11 +26,14 @@ namespace WireCell {
 	/// Unbiased "center of mass" of boundary points
 	Point center() const;
 	/// A list of point giving the outline of the cell.
-	PointVector boundary() const;
+	PointVector boundary() const { return _boundary;}
+
 
     private:
 	int _ident;
 	PointVector _boundary;
+	int order_boundary();
+	
 
         friend std::ostream & operator<<(std::ostream &os, const GeomCell& gc);
     };
