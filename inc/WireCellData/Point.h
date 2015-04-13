@@ -11,10 +11,7 @@ namespace WireCell {
     };
     typedef std::vector<WireCell::Point> PointVector;
 
-    struct PointC {
-    PointC(float x=0, float y=0, float z=0, float charge=0) : x(x), y(y), z(z), charge(charge){ }
-      float x, y, z, charge;
-    };
-    typedef std::vector<WireCell::PointC> PointCVector;
+    typedef std::pair<WireCell::Point, float> PointValue;
+    typedef std::vector<WireCell::PointValue> PointValueVector;
 }
 #endif
