@@ -5,14 +5,14 @@
 using namespace std;
 using namespace WireCell;
 
-MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell cell)
+MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
 {
   _ident = ident;
   _boundary = cell.boundary();
   cell_all.push_back(&cell);
 }
 
-MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell cell)
+MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
 {
   _ident = ident;
   _boundary = cell.boundary();
@@ -48,7 +48,7 @@ Point MergeGeomCell::center() const
 }
 
 
-int MergeGeomCell::AddCell(const WireCell::GeomCell cell){
+int MergeGeomCell::AddCell(const WireCell::GeomCell& cell){
   // check if there are too or more shared boundary points
   // if less than two shared points, not merge
   // if there are just two, and reduce two to one, and merge
@@ -75,7 +75,7 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell cell){
     
 }
 
-int MergeGeomCell::AddCell(WireCell::MergeGeomCell cell){
+int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell){
 
   // check if there are too or more shared boundary points
   // if less than two shared points, not merge
