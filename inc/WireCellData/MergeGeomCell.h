@@ -8,6 +8,7 @@ namespace WireCell{
     MergeGeomCell(int ident, const WireCell::GeomCell cell);
     
     int AddCell(const WireCell::GeomCell cell);
+    int AddCell(WireCell::MergeGeomCell cell);
 
     WireCell::GeomCellSelection get_allcell(){ return cell_all;}
   protected:
