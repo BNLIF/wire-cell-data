@@ -6,6 +6,7 @@ namespace WireCell{
   class MergeGeomCell : public WireCell::GeomCell {
   public: 
     MergeGeomCell(int ident, const WireCell::GeomCell cell);
+    MergeGeomCell(int ident, const WireCell::MergeGeomCell cell);
     
     double cross_section() const;
     Point center() const;
@@ -13,8 +14,8 @@ namespace WireCell{
     int AddCell(const WireCell::GeomCell cell);
     int AddCell(WireCell::MergeGeomCell cell);
 
-    WireCell::GeomCellSelection get_allcell(){ return cell_all;}
-  protected:
+    WireCell::GeomCellSelection get_allcell() const{ return cell_all;}
+    protected:
     WireCell::GeomCellSelection cell_all;
   };
 }
