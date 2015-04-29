@@ -31,7 +31,7 @@ namespace WireCell {
 	bool operator== (const GeomCell &b) const { return this->ident()==b.ident();}
 
 	
-    private:
+    protected:
 	int _ident;
 	PointVector _boundary;
 	int order_boundary();
