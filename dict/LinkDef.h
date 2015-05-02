@@ -22,13 +22,16 @@
 #pragma link C++ class WireCell::ChargeSequence;
 #pragma link C++ class WireCell::Trace;
 #pragma link C++ class WireCell::Frame;
-#pragma link C++ class WireCell::WireCharge;
-#pragma link C++ class WireCell::WireChargeCollection;
+//#pragma link C++ class WireCell::WireCharge;
+//#pragma link C++ class WireCell::WireChargeCollection;
 #pragma link C++ class WireCell::Slice;
 
 #pragma link C++ class WireCell::Point;
 #pragma link C++ class WireCell::PointVector;
 
-#pragma link C++ class WireCell::PointC;
-#pragma link C++ class WireCell::PointCVector;
+#pragma link C++ class WireCell::D3FloatVector;
+#pragma link C++ class WireCell::D3FloatVectorPair;
+
+#pragma link C++ function WireCell::box_intersection;
+
 #endif
