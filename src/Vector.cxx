@@ -2,7 +2,7 @@
 
 namespace instantiations {
 
-    WireCell::D3FloatVector d3floatvector(0,0,0);
-    WireCell::D3FloatVectorPair d3floatvectorpair(d3floatvector, d3floatvector);
+    WireCell::Vector d3floatvector(0,0,0);
+    WireCell::VectorPair d3floatvectorpair(d3floatvector, d3floatvector);
 
 }

@@ -28,11 +28,16 @@ namespace WireCell {
 	T x , y , z, bogus ;  
 
 	D3Vector( T a=0, T b=0, T c=0) : x(a), y(b), z(c) { }
+	// copy constructor
 	D3Vector( const D3Vector& o) : x(o.x), y(o.y), z(o.z) { }
+	// assignment
 	D3Vector& operator=(const D3Vector& o) {
 	    x = o.x; y = o.y, z = o.z;
 	    return *this;
 	}
+	// convert
+	template< class TT >
+	D3Vector( const D3Vector<TT>& o) : x(o.x), y(o.y), z(o.z) { }
  
 	T operator[](std::size_t index) const {
 	    if (index == 0) return x;
@@ -127,8 +132,8 @@ namespace WireCell {
 } // namespace WireCell
 
 namespace WireCell {
-    typedef WireCell::D3Vector<float> D3FloatVector;
-    typedef std::pair< WireCell::D3FloatVector, WireCell::D3FloatVector > D3FloatVectorPair;
+    typedef WireCell::D3Vector<double> Vector;
+    typedef std::pair< WireCell::Vector, WireCell::Vector > VectorPair;
 }
 
 #endif

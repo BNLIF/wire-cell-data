@@ -1,11 +1,16 @@
-#ifdef __CINT__
+#ifdef __ROOTCLING__
 #pragma link off all globals;
 #pragma link off all classes;
 #pragma link off all functions;
-#pragma link C++ nestedclasses;
+//#pragma link off all namespaces;
+#pragma link C++ nestedclass;
+
+#pragma link C++ namespace WireCell;
 
 #pragma link C++ namespace units;
-#pragma link C++ namespace WireCell;
+#pragma link C++ defined_in namespace units;
+#pragma link C++ global units::*;
+
 
 #pragma link C++ class WireCell::GeomCell;
 #pragma link C++ class WireCell::GeomCellMap;
@@ -29,8 +34,8 @@
 #pragma link C++ class WireCell::Point;
 #pragma link C++ class WireCell::PointVector;
 
-#pragma link C++ class WireCell::D3FloatVector;
-#pragma link C++ class WireCell::D3FloatVectorPair;
+#pragma link C++ class WireCell::Vector;
+#pragma link C++ class WireCell::VectorPair;
 
 #pragma link C++ function WireCell::box_intersection;
 

@@ -9,12 +9,12 @@ using namespace WireCell;
 
 /// Return 0 if no hit, 1 if hit1, 2 if hit2, 3 if both
 int WireCell::hit_square(int axis0, 
-			 const D3FloatVector& bmin, 
-			 const D3FloatVector& bmax, 
-			 const D3FloatVector& point, 
-			 const D3FloatVector& dir,
-			 D3FloatVector& hit1, 
-			 D3FloatVector& hit2)
+			 const Vector& bmin, 
+			 const Vector& bmax, 
+			 const Vector& point, 
+			 const Vector& dir,
+			 Vector& hit1, 
+			 Vector& hit2)
 {
     int hitmask = 0;
 
@@ -26,11 +26,11 @@ int WireCell::hit_square(int axis0,
     int axis2 = (axis1 + 1)%3;
 
     { // toward the min intercept
-	float intercept = bmin[axis0];
-	float scale = (intercept - point[axis0])/dir[axis0];
+	double intercept = bmin[axis0];
+	double scale = (intercept - point[axis0])/dir[axis0];
 
-	float one = point[axis1] + scale*dir[axis1];
-	float two = point[axis2] + scale*dir[axis2];
+	double one = point[axis1] + scale*dir[axis1];
+	double two = point[axis2] + scale*dir[axis2];
 
 	cerr << "MIN: " << axis0 << " scale=" << scale
 	     << " one:" << one << " in:[" << bmin[axis1] << "," << bmax[axis1] << "]"
@@ -48,11 +48,11 @@ int WireCell::hit_square(int axis0,
     }
 
     { // toward the max intercept
-	float intercept = bmax[axis0];
-	float scale = (intercept - point[axis0])/dir[axis0];
+	double intercept = bmax[axis0];
+	double scale = (intercept - point[axis0])/dir[axis0];
 
-	float one = point[axis1] + scale*dir[axis1];
-	float two = point[axis2] + scale*dir[axis2];
+	double one = point[axis1] + scale*dir[axis1];
+	double two = point[axis2] + scale*dir[axis2];
 
 	cerr << "MAX: " << axis0 << " scale=" << scale
 	     << " one:" << one << " in:[" << bmin[axis1] << "," << bmax[axis1] << "]"
@@ -73,17 +73,17 @@ int WireCell::hit_square(int axis0,
 }
 		
 /// Return 0 if no hit, 1 if hit1, 2 if hit2, 3 if both
-int WireCell::box_intersection(const D3FloatVector& bmin, 
-			       const D3FloatVector& bmax, 
-			       const D3FloatVector& point, 
-			       const D3FloatVector& dir,
-			       D3FloatVector& hit1, 
-			       D3FloatVector& hit2)
+int WireCell::box_intersection(const Vector& bmin, 
+			       const Vector& bmax, 
+			       const Vector& point, 
+			       const Vector& dir,
+			       Vector& hit1, 
+			       Vector& hit2)
 {
-    std::vector<D3FloatVector> results;
+    std::vector<Vector> results;
 
     for (int axis=0; axis<3; ++axis) {
-	D3FloatVector h1, h2;
+	Vector h1, h2;
 	int got = hit_square(axis, bmin, bmax, point, dir, h1, h2);
 	if (got&1) {
 	    results.push_back(h1);
@@ -94,16 +94,16 @@ int WireCell::box_intersection(const D3FloatVector& bmin,
     }
 
     if (results.size() > 2) {
-	cerr << "ERROR: crossed box more than twice" << endl;
+	cerr << "ERROR: crossed box " << results.size() << " times." << endl;
     }
 
     int hitmask = 0;
     for (int ind=0; ind < results.size() && ind < 2; ++ind) {
-	D3FloatVector& hit = results[ind];
-	D3FloatVector hitdir = hit - point;
-	float dot = hitdir.norm().dot(dir);
+	Vector& hit = results[ind];
+	Vector hitdir = hit - point;
+	double dot = hitdir.norm().dot(dir);
 
-	cerr << "DOT: " << dot << " " << hitdir<< dir << hit << point << endl;
+	//cerr << "DOT: " << dot << " " << hitdir<< dir << hit << point << endl;
 
 	if (dot > 0) {		// really should be +/- 1 w/in tollerance
 	    hit1 = hit;

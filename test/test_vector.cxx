@@ -17,14 +17,14 @@ int main()
     cout << "a . b x c : " << a.triplescal( b , c ) << endl ;
     cout << "a x b x c : " << a.triplevec( b , c ) << endl ;
 
-    D3FloatVector b1(0,0,0), b2(1,1,1), ray(1,1,1);
+    Vector b1(0,0,0), b2(1,1,1), ray(1,1,1);
     ray = ray.norm();
 
-    for (float x = -1.1; x <= 1; x+=0.5) {
-	for (float y = -1.1; y <= 1; y+=0.5) {
-	    for (float z = -1.0; z <= 1; z+=0.5) {
-		D3FloatVector point(x,y,z);
-		D3FloatVector hit1(-111,-111,-111), hit2(-222,-222,-222);
+    for (double x = -1.1; x <= 1; x+=0.5) {
+	for (double y = -1.1; y <= 1; y+=0.5) {
+	    for (double z = -1.0; z <= 1; z+=0.5) {
+		Vector point(x,y,z);
+		Vector hit1(-111,-111,-111), hit2(-222,-222,-222);
 
 		int hitmask = box_intersection(b1, b2, point, ray, hit1, hit2);
 		cerr << "RESULT: " 
