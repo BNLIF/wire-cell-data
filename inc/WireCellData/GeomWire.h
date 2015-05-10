@@ -52,7 +52,7 @@ namespace WireCell {
 	/// Return the plane+index pair.
 	WirePlaneIndex plane_index() const { return WirePlaneIndex(_plane, _index); }
 
-    private:
+    protected:
 	int _ident;
 	WirePlaneType_t _plane;
 	int _index;
