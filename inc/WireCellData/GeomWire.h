@@ -80,6 +80,8 @@ namespace WireCell {
     /// Used to temporarily construct some sub-set of cells
     typedef std::vector<const GeomWire*> GeomWireSelection;
 
+    typedef std::map<const GeomWire*, float> WireChargeMap; 
+
     /// Sort a GeomWireSelection by plane+index
     void sort_by_planeindex(GeomWireSelection& ws);
 
