@@ -32,10 +32,10 @@ int WireCell::hit_square(int axis0,
 	double one = point[axis1] + scale*dir[axis1];
 	double two = point[axis2] + scale*dir[axis2];
 
-	cerr << "MIN: " << axis0 << " scale=" << scale
-	     << " one:" << one << " in:[" << bmin[axis1] << "," << bmax[axis1] << "]"
-	     << " two:" << two << " in:[" << bmin[axis2] << "," << bmax[axis2] << "]"
-	     <<endl;
+	// cerr << "MIN: " << axis0 << " scale=" << scale
+	//      << " one:" << one << " in:[" << bmin[axis1] << "," << bmax[axis1] << "]"
+	//      << " two:" << two << " in:[" << bmin[axis2] << "," << bmax[axis2] << "]"
+	//      <<endl;
     
 	if (bmin[axis1] <= one && one <= bmax[axis1] &&
 	    bmin[axis2] <= two && two <= bmax[axis2]) { 
@@ -43,7 +43,7 @@ int WireCell::hit_square(int axis0,
 	    hit1[axis0] = intercept;
 	    hit1[axis1] = one;
 	    hit1[axis2] = two;
-	    cerr << "HIT1:" << hit1 << endl;
+	    //cerr << "HIT1:" << hit1 << endl;
 	}
     }
 
@@ -54,10 +54,10 @@ int WireCell::hit_square(int axis0,
 	double one = point[axis1] + scale*dir[axis1];
 	double two = point[axis2] + scale*dir[axis2];
 
-	cerr << "MAX: " << axis0 << " scale=" << scale
-	     << " one:" << one << " in:[" << bmin[axis1] << "," << bmax[axis1] << "]"
-	     << " two:" << two << " in:[" << bmin[axis2] << "," << bmax[axis2] << "]"
-	     <<endl;
+	// cerr << "MAX: " << axis0 << " scale=" << scale
+	//      << " one:" << one << " in:[" << bmin[axis1] << "," << bmax[axis1] << "]"
+	//      << " two:" << two << " in:[" << bmin[axis2] << "," << bmax[axis2] << "]"
+	//      <<endl;
 
 	if (bmin[axis1] <= one && one <= bmax[axis1] && 
 	    bmin[axis2] <= two && two <= bmax[axis2]) {
@@ -65,7 +65,7 @@ int WireCell::hit_square(int axis0,
 	    hit2[axis0] = intercept;
 	    hit2[axis1] = one;
 	    hit2[axis2] = two;
-	    cerr << "HIT2:" << hit2 << endl;
+	    //cerr << "HIT2:" << hit2 << endl;
 	}
     }
 		
