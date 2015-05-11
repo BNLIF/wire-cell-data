@@ -7,7 +7,8 @@ namespace WireCell{
   public: 
     MergeGeomCell(int ident, const WireCell::GeomCell& cell);
     MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell);
-    
+    ~MergeGeomCell();
+
     double cross_section() const;
     Point center() const;
 
@@ -15,6 +16,7 @@ namespace WireCell{
     int AddCell(WireCell::MergeGeomCell& cell);
 
     WireCell::GeomCellSelection get_allcell() const{ return cell_all;}
+
     protected:
     WireCell::GeomCellSelection cell_all;
   };

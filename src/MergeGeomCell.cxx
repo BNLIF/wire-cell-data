@@ -19,6 +19,10 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
   cell_all = cell.get_allcell();
 }
 
+MergeGeomCell::~MergeGeomCell(){
+  cell_all.clear();
+}
+
 double MergeGeomCell::cross_section() const
 {
   double area = 0;
