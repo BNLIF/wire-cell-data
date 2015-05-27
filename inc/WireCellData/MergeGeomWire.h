@@ -12,11 +12,14 @@ namespace WireCell{
 
     int AddWire(const WireCell::GeomWire& wire);
     int AddWire(WireCell::MergeGeomWire& wire);
+    int GetTimeSlice(){ return time_slice;};
+    void SetTimeSlice(int time){time_slice = time;};
     
     WireCell::GeomWireSelection get_allwire() const{ return wire_all;}
 
   protected:
     WireCell::GeomWireSelection wire_all;
+    int time_slice;
   };
 }
 

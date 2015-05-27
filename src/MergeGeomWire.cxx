@@ -14,8 +14,11 @@ MergeGeomWire::MergeGeomWire(int ident, const WireCell::GeomWire& wire)
   _channel = -1;
   _point1 = Point();
   _point2 = Point();
+  
+  time_slice = -1;
 
   wire_all.push_back(&wire);
+  
 }
 
 MergeGeomWire::MergeGeomWire(int ident, const WireCell::MergeGeomWire& wire)
@@ -27,6 +30,8 @@ MergeGeomWire::MergeGeomWire(int ident, const WireCell::MergeGeomWire& wire)
   _channel = -1;
   _point1 = Point();
   _point2 = Point();
+
+  time_slice = -1;
 
   wire_all = wire.get_allwire();
 }

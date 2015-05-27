@@ -10,6 +10,9 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
   _ident = ident;
   _boundary = cell.boundary();
   cell_all.push_back(&cell);
+  time_slice = -1;
+
+  contain_truth = false;
 }
 
 MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
@@ -17,6 +20,9 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
   _ident = ident;
   _boundary = cell.boundary();
   cell_all = cell.get_allcell();
+  time_slice = -1;
+
+  contain_truth = false;
 }
 
 MergeGeomCell::~MergeGeomCell(){
@@ -107,3 +113,15 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell){
   return 0;
 }
 
+
+
+bool MergeGeomCell::CheckContainTruthCell(WireCell::CellChargeMap &ccmap){
+  for (auto it = ccmap.begin();it!=ccmap.end(); it++){
+    auto itt = find(cell_all.begin(),cell_all.end(),it->first);
+    if (itt!=cell_all.end()){
+      truth_cells.push_back(*itt);
+      contain_truth = true;
+    }
+  }
+  return contain_truth;
+}
