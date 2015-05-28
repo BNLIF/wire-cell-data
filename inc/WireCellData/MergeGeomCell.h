@@ -14,9 +14,10 @@ namespace WireCell{
 
     int AddCell(const WireCell::GeomCell& cell);
     int AddCell(WireCell::MergeGeomCell& cell);
-    int GetTimeSlice(){ return time_slice;};
+    int GetTimeSlice() const { return time_slice;};
     void SetTimeSlice(int time){time_slice = time;};
 
+    bool Overlap(const WireCell::MergeGeomCell& cell) const;
     bool GetContainTruthCell(){return contain_truth;};
 
     WireCell::GeomCellSelection get_allcell() const{ return cell_all;}
