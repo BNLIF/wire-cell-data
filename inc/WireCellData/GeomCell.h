@@ -55,5 +55,7 @@ namespace WireCell {
     /// Used to temporarily collect some subset
     typedef std::vector<const WireCell::GeomCell*> GeomCellSelection;
     typedef std::map<const GeomCell*, float> CellChargeMap; 
+
+    typedef std::map<const GeomCell*, int> CellIndexMap;
 }
 #endif

@@ -82,6 +82,8 @@ namespace WireCell {
 
     typedef std::map<const GeomWire*, float> WireChargeMap; 
 
+    typedef std::map<const GeomWire*, int> WireIndexMap;
+
     /// Sort a GeomWireSelection by plane+index
     void sort_by_planeindex(GeomWireSelection& ws);
 
