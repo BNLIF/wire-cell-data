@@ -138,10 +138,12 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell){
 
 
 bool MergeGeomCell::CheckContainTruthCell(WireCell::CellChargeMap &ccmap){
+  truth_charge = 0;
   for (auto it = ccmap.begin();it!=ccmap.end(); it++){
     auto itt = find(cell_all.begin(),cell_all.end(),it->first);
     if (itt!=cell_all.end()){
       truth_cells.push_back(*itt);
+      truth_charge += it->second;
       contain_truth = true;
     }
   }

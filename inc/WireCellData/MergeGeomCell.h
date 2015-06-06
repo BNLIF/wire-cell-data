@@ -19,6 +19,7 @@ namespace WireCell{
 
     bool Overlap(const WireCell::MergeGeomCell& cell) const;
     bool GetContainTruthCell(){return contain_truth;};
+    float GetTruthCharge(){return truth_charge;};
 
     WireCell::GeomCellSelection get_allcell() const{ return cell_all;}
     WireCell::GeomCellSelection get_truthcell() const{return truth_cells;}
@@ -30,6 +31,7 @@ namespace WireCell{
     
     int time_slice; // illustrate which time slice this is
     bool contain_truth; // whether it contain truth, default is not
+    float truth_charge;
 
     WireCell::GeomCellSelection truth_cells;
   };
