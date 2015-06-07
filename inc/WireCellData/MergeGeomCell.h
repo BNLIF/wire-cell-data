@@ -35,5 +35,16 @@ namespace WireCell{
 
     WireCell::GeomCellSelection truth_cells;
   };
+
+   /// Compare ident
+    struct MergeGeomCellCompare {
+      bool operator() (const MergeGeomCell* a, const MergeGeomCell* b) const {
+	return a->cross_section() < b->cross_section();
+      }
+      
+    };
+
+    /// Used to store a definitive, ordered set of cells
+    typedef std::set<WireCell::MergeGeomCell*, MergeGeomCellCompare> MergeGeomCellSet;
 }
 #endif

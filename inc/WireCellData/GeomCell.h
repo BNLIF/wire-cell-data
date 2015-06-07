@@ -52,6 +52,7 @@ namespace WireCell {
 
     /// Used to store a definitive, ordered set of cells
     typedef std::set<WireCell::GeomCell, GeomCellCompare> GeomCellSet;
+    
     /// Used to temporarily collect some subset
     typedef std::vector<const WireCell::GeomCell*> GeomCellSelection;
     typedef std::map<const GeomCell*, float> CellChargeMap; 
