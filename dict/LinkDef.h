@@ -13,16 +13,32 @@
 
 
 #pragma link C++ class WireCell::GeomCell;
+#pragma link C++ class WireCell::MergeGeomCell;
+#pragma link C++ class WireCell::MergeGeomCellSet;
 #pragma link C++ class WireCell::GeomCellMap;
+#pragma link C++ class WireCell::GeomCellSet;
+#pragma link C++ class WireCell::CellChargeMap;
+#pragma link C++ class WireCell::CellIndexMap;
 // apparently, rootcling doesn't like sets
 // #pragma link C++ class WireCell::GeomCellSet;
 #pragma link C++ class WireCell::GeomCellSelection;
 
 #pragma link C++ class WireCell::GeomWire;
+#pragma link C++ class WireCell::GeomWireSet;
+#pragma link C++ class WireCell::WireChargeMap;
+#pragma link C++ class WireCell::WireIndexMap;
+#pragma link C++ class WireCell::MergeGeomWire;
 #pragma link C++ class WireCell::GeomWireMap;
+#pragma link C++ class WireCell::GeomWireWireMap;
+#pragma link C++ class WireCell::GeomWireWiresMap;
 // apparently, rootcling doesn't like sets
 // #pragma link C++ class WireCell::GeomWireSet;
 #pragma link C++ class WireCell::GeomWireSelection;
+
+#pragma link C++ class WireCell::MergeCellCluster;
+#pragma link C++ class WireCell::GeomCluster;
+#pragma link C++ class WireCell::GeomClusterSet;
+
 
 #pragma link C++ class WireCell::ChargeSequence;
 #pragma link C++ class WireCell::Trace;
