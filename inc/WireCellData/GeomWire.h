@@ -72,10 +72,19 @@ namespace WireCell {
 	}
     };
 
+    struct GeomWireCompare1 {
+	bool operator() (const GeomWire* a, const GeomWire* b) const {
+	    if (a->plane() < b->plane()) return true;
+	    return a->index() < b->index();
+	}
+    };
+
     typedef std::pair<const GeomWire*, const GeomWire*> GeomWirePair;
 
     /// Used to store definitive, ordered set of wires
     typedef std::set<GeomWire, GeomWireCompare> GeomWireSet;
+    
+    typedef std::set<const GeomWire*, GeomWireCompare1> GeomWireSet1;
 
     /// Used to temporarily construct some sub-set of cells
     typedef std::vector<const GeomWire*> GeomWireSelection;
