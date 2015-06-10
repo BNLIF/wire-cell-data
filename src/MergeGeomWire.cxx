@@ -5,6 +5,8 @@
 using namespace std;
 using namespace WireCell;
 
+
+
 MergeGeomWire::MergeGeomWire(int ident, const WireCell::GeomWire& wire)
 {
   _ident = ident;
@@ -31,7 +33,7 @@ MergeGeomWire::MergeGeomWire(int ident, const WireCell::MergeGeomWire& wire)
   _point1 = Point();
   _point2 = Point();
 
-  time_slice = -1;
+  time_slice = wire.GetTimeSlice();
 
   wire_all = wire.get_allwire();
 }

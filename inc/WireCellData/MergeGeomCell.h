@@ -18,8 +18,8 @@ namespace WireCell{
     void SetTimeSlice(int time){time_slice = time;};
 
     bool Overlap(const WireCell::MergeGeomCell& cell) const;
-    bool GetContainTruthCell(){return contain_truth;};
-    float GetTruthCharge(){return truth_charge;};
+    bool GetContainTruthCell()const {return contain_truth;};
+    float GetTruthCharge() const {return truth_charge;};
 
     WireCell::GeomCellSelection get_allcell() const{ return cell_all;}
     WireCell::GeomCellSelection get_truthcell() const{return truth_cells;}

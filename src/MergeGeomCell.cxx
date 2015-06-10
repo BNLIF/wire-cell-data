@@ -5,6 +5,8 @@
 using namespace std;
 using namespace WireCell;
 
+
+
 bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
   for (int i=0;i!=cell_all.size();i++){
     const GeomCell *cell1 = cell_all[i];
@@ -40,10 +42,14 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
 {
   _ident = ident;
   _boundary = cell.boundary();
-  cell_all = cell.get_allcell();
-  time_slice = -1;
+  
+  time_slice = cell.GetTimeSlice();
 
-  contain_truth = false;
+  contain_truth = cell.GetContainTruthCell();
+  truth_charge = cell.GetTruthCharge();
+
+  cell_all = cell.get_allcell();
+  truth_cells = cell.get_truthcell();
 }
 
 MergeGeomCell::~MergeGeomCell(){
