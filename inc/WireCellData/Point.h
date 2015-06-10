@@ -14,5 +14,13 @@ namespace WireCell {
     typedef std::pair<WireCell::Point, float> PointValue;
     typedef std::vector<WireCell::PointValue> PointValueVector;
 
+    /* bool operator==(const WireCell::Point& a, const WireCell::Point& b){ */
+    /*   if (a.x==b.x && a.y==b.y && a.z==b.z){ */
+    /* 	return true; */
+    /*   }else{ */
+    /* 	return false; */
+    /*   } */
+    /* } */
+
 }
 #endif

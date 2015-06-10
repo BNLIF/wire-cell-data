@@ -2,10 +2,48 @@
 
 #include <vector>
 #include <cmath>
+#include <list>
 using namespace std;
 using namespace WireCell;
 
+void MergeGeomCell::FindEdges(){
+  std::list<const Edge*> edgelist;
+  EdgeCellMap ecmap;
 
+  for (int i=0;i!=cell_all.size();i++){
+    const EdgeVector* evector = cell_all[i]->redge();  
+    
+    for (int j=0;j!=evector->size();j++){
+      int flag = 0;
+      // std::cout << i << " " << j << " " << evector->at(j).first.x << " "
+      // 		<< evector->at(j).first.y << " " << evector->at(j).first.z << " "
+      // 		<< evector->at(j).second.x << " "
+      // 		<< evector->at(j).second.y << " " << evector->at(j).second.z << " "  
+      // 		<< std::endl;
+      for (auto it = edgelist.begin(); it!=edgelist.end();it++){
+      	if (CompareEdge(*(*it),evector->at(j))){
+       	  flag = 1;
+       	  edgelist.erase(it);
+       	  break;
+       	}
+      }
+      if (flag==0){
+	edgelist.push_back(&(evector->at(j)));
+	ecmap[&(evector->at(j))] = cell_all[i];
+      } 
+    }
+  }
+
+  for (auto it = edgelist.begin(); it!=edgelist.end();it++){
+    auto it2 = find(edge_cells.begin(),edge_cells.end(),ecmap[*it]);
+    if (it2==edge_cells.end()){
+      edge_cells.push_back(ecmap[*it]);
+    }
+  }
+  
+  // std::cout << edgelist.size() << " " << ecmap.size() << " " << cell_all.size() << " " << edge_cells.size() << std::endl;
+  
+}
 
 bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
   for (int i=0;i!=cell_all.size();i++){
@@ -32,6 +70,7 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
 {
   _ident = ident;
   _boundary = cell.boundary();
+  _edge = cell.edge();
   cell_all.push_back(&cell);
   time_slice = -1;
 
@@ -42,6 +81,7 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
 {
   _ident = ident;
   _boundary = cell.boundary();
+  _edge = cell.edge();
   
   time_slice = cell.GetTimeSlice();
 
@@ -92,7 +132,7 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell& cell){
   // if there are just two, and reduce two to one, and merge
   // This part can be improved, now the boundary of the merged cell are not correct
   PointVector boundary = cell.boundary();
-  
+  EdgeVector edge = cell.edge();
   int nshare = 0;
   for (int i=0;i!=boundary.size();i++){
     Point p = boundary[i];
@@ -102,6 +142,7 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell& cell){
   	nshare ++;
 	if (nshare==2){
 	  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
+	  _edge.insert(_edge.end(),edge.begin(),edge.end());
 	  cell_all.push_back(&cell);
 	  return 1;
 	}
@@ -120,7 +161,7 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell){
   // if there are just two, and reduce two to one, and merge
   // This part can be improved, now the boundary of the merged cell are not correct
   PointVector boundary = cell.boundary();
-  
+  EdgeVector edge = cell.edge();
   int nshare = 0;
   for (int i=0;i!=boundary.size();i++){
     Point p = boundary[i];
@@ -130,6 +171,7 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell){
   	nshare ++;
 	if (nshare==2){
 	  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
+	  _edge.insert(_edge.end(),edge.begin(),edge.end());
 	  WireCell::GeomCellSelection temp = cell.get_allcell();
 	  cell_all.insert(cell_all.end(),temp.begin(),temp.end());
 	  return 1;

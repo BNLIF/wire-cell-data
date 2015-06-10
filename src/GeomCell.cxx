@@ -11,7 +11,16 @@ GeomCell::GeomCell(int ident, const PointVector& boundary)
     , _boundary(boundary)
 {
   order_boundary();
+  if (boundary.size()>2){
+    for (int i=0;i<boundary.size()-1;i++){
+      Edge a(_boundary.at(i),_boundary.at(i+1));
+      _edge.push_back(a);
+    }
+    Edge a(_boundary.at(boundary.size()-1),_boundary.at(0));
+    _edge.push_back(a);
+  }
 }
+
 GeomCell::~GeomCell()
 {
 }

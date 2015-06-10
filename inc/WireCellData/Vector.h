@@ -35,6 +35,8 @@ namespace WireCell {
 	    x = o.x; y = o.y, z = o.z;
 	    return *this;
 	}
+	// compare
+	
 	// convert
 	template< class TT >
 	D3Vector( const D3Vector<TT>& o) : x(o.x), y(o.y), z(o.z) { }
@@ -117,6 +119,16 @@ namespace WireCell {
     D3Vector<T> operator*(const D3Vector<T> a, T s) {
 	return D3Vector<T>(a.x*s, a.y*s, a.z*s);
     }
+    
+    template< class T >
+    bool operator==(const D3Vector<T>& a,const D3Vector<T>& b){
+      if (a.x==b.x&& a.y==b.y && a.z==b.z){
+	return true;
+      }else{
+	return false;
+      }
+    }
+    
     template< class T >
     D3Vector<T> operator*(T s, const D3Vector<T> a) {
 	return a*s;

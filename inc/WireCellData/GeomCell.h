@@ -3,6 +3,7 @@
 
 #include "WireCellData/Units.h"
 #include "WireCellData/Point.h"
+#include "WireCellData/Edge.h"
 
 #include <set>
 #include <vector>
@@ -27,13 +28,16 @@ namespace WireCell {
 	Point center() const;
 	/// A list of point giving the outline of the cell.
 	PointVector boundary() const { return _boundary;}
-	
+	EdgeVector edge() const {return _edge;}
+	const EdgeVector* redge() const { return &_edge;}
+
 	bool operator== (const GeomCell &b) const { return this->ident()==b.ident();}
 
 	
     protected:
 	int _ident;
 	PointVector _boundary;
+	EdgeVector _edge;
 	int order_boundary();
 	
 
@@ -58,5 +62,6 @@ namespace WireCell {
     typedef std::map<const GeomCell*, float> CellChargeMap; 
 
     typedef std::map<const GeomCell*, int> CellIndexMap;
+    typedef std::map<const Edge*, const GeomCell*> EdgeCellMap;
 }
 #endif

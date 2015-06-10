@@ -20,14 +20,17 @@ namespace WireCell{
     bool Overlap(const WireCell::MergeGeomCell& cell) const;
     bool GetContainTruthCell()const {return contain_truth;};
     float GetTruthCharge() const {return truth_charge;};
+    void FindEdges();
 
     WireCell::GeomCellSelection get_allcell() const{ return cell_all;}
+    WireCell::GeomCellSelection get_edgecells() const{ return edge_cells;}
     WireCell::GeomCellSelection get_truthcell() const{return truth_cells;}
 
     bool CheckContainTruthCell(WireCell::CellChargeMap &ccmap);
 
   protected:
     WireCell::GeomCellSelection cell_all;
+    WireCell::GeomCellSelection edge_cells;
     
     int time_slice; // illustrate which time slice this is
     bool contain_truth; // whether it contain truth, default is not
