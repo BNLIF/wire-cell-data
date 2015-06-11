@@ -2,6 +2,8 @@
 #define GeomWireCellData_MergeCell_h
 
 #include "WireCellData/GeomCell.h"
+#include "WireCellData/GeomWireCellMap.h"
+
 namespace WireCell{
   class MergeGeomCell : public WireCell::GeomCell {
   public: 
@@ -22,15 +24,24 @@ namespace WireCell{
     float GetTruthCharge() const {return truth_charge;};
     void FindEdges();
 
+    //function to find out corner cells, 
+    void FindCorners(WireCell::GeomCellMap& cmap, WireCell::GeomWireMap& wmap);
+
     WireCell::GeomCellSelection get_allcell() const{ return cell_all;}
     WireCell::GeomCellSelection get_edgecells() const{ return edge_cells;}
     WireCell::GeomCellSelection get_truthcell() const{return truth_cells;}
+    WireCell::GeomCellSelection get_cornercells()const { return corner_cells;}
+    std::vector<int>& get_cornercells_index() {return corner_cells_index;}
 
     bool CheckContainTruthCell(WireCell::CellChargeMap &ccmap);
 
   protected:
     WireCell::GeomCellSelection cell_all;
     WireCell::GeomCellSelection edge_cells;
+
+    WireCell::GeomWireSelection edge_wires;
+    WireCell::GeomCellSelection corner_cells;
+    std::vector<int> corner_cells_index;
     
     int time_slice; // illustrate which time slice this is
     bool contain_truth; // whether it contain truth, default is not

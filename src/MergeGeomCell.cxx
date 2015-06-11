@@ -6,6 +6,55 @@
 using namespace std;
 using namespace WireCell;
 
+void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
+  // find edge wires
+  GeomWireSet1 wires_u, wires_v, wires_w;
+  for (int i=0;i!=cell_all.size();i++){
+    const GeomCell *cell = cell_all.at(i);
+    const GeomWireSelection wires = cmap[cell];
+    for (int j=0;j!=wires.size();j++){
+      WirePlaneType_t plane = wires.at(j)->plane();
+      if (plane==0){
+	wires_u.insert(wires.at(j));
+      }else if (plane==1){
+	wires_v.insert(wires.at(j));
+      }else{
+	wires_w.insert(wires.at(j));
+      }
+    }
+  }
+  edge_wires.clear();
+  edge_wires.push_back(*wires_u.begin());
+  auto it = wires_u.end();
+  it--;
+  edge_wires.push_back(*it);
+  edge_wires.push_back(*wires_v.begin());
+  it = wires_v.end(); 
+  it --;
+  edge_wires.push_back(*it);
+  edge_wires.push_back(*wires_w.begin());
+  it = wires_w.end();
+  it --;
+  edge_wires.push_back(*it);
+  
+  // loop through all cells, and find how many of the wires are inside the edge wires, if larger than two push, and put in counter as well.
+  for (int i=0;i!=cell_all.size();i++){
+     const GeomCell *cell = cell_all.at(i);
+     const GeomWireSelection wires = cmap[cell];
+     int index = 0;
+     for (int j=0;j!=wires.size();j++){
+       auto it = find(edge_wires.begin(),edge_wires.end(),wires.at(j));
+       if (it!=edge_wires.end()){
+	 index ++;
+       }
+     }
+     if (index >=2){
+       corner_cells.push_back(cell);
+       corner_cells_index.push_back(index);
+     }
+  }
+}
+
 void MergeGeomCell::FindEdges(){
   std::list<const Edge*> edgelist;
   EdgeCellMap ecmap;
