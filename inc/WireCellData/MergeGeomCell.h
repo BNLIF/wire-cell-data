@@ -34,7 +34,8 @@ namespace WireCell{
     std::vector<int>& get_cornercells_index() {return corner_cells_index;}
 
     bool CheckContainTruthCell(WireCell::CellChargeMap &ccmap);
-
+    bool IsBlob(){return blob;};
+    
   protected:
     WireCell::GeomCellSelection cell_all;
     WireCell::GeomCellSelection edge_cells;
@@ -46,6 +47,7 @@ namespace WireCell{
     int time_slice; // illustrate which time slice this is
     bool contain_truth; // whether it contain truth, default is not
     float truth_charge;
+    bool blob;
 
     WireCell::GeomCellSelection truth_cells;
   };

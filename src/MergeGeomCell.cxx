@@ -48,7 +48,7 @@ void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
 	 index ++;
        }
      }
-     if (index >=3){
+     if (index >=2){
        corner_cells.push_back(cell);
        corner_cells_index.push_back(index);
      }
@@ -89,7 +89,12 @@ void MergeGeomCell::FindEdges(){
       edge_cells.push_back(ecmap[*it]);
     }
   }
-  
+
+  if (edge_cells.size() + 9 < cell_all.size()){
+    blob = true;
+  }else{
+    blob = false;
+  }
   // std::cout << edgelist.size() << " " << ecmap.size() << " " << cell_all.size() << " " << edge_cells.size() << std::endl;
   
 }
@@ -117,6 +122,7 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
 
 MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
 {
+  blob = false;
   _ident = ident;
   _boundary = cell.boundary();
   _edge = cell.edge();
@@ -128,6 +134,7 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
 
 MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
 {
+  blob = false;
   _ident = ident;
   _boundary = cell.boundary();
   _edge = cell.edge();
