@@ -48,7 +48,7 @@ void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
 	 index ++;
        }
      }
-     if (index >=2){
+     if (index >=3){
        corner_cells.push_back(cell);
        corner_cells_index.push_back(index);
      }
