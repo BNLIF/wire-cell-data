@@ -26,7 +26,9 @@ GeomWire::~GeomWire()
 
 std::ostream & WireCell::operator<<(std::ostream &os, const GeomWire& gw)
 {
-    return os << "<WireCell::GeomWire " << gw.ident() << ">";
+    return os << "<WireCell::GeomWire " << gw.ident()
+	      << " " << gw.plane() << "/" << gw.channel()
+	      << ">";
 }
 
 

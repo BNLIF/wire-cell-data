@@ -1,3 +1,10 @@
+/** A 3D point of floats
+ *
+ * See also WireCell::Vector.
+ *
+ * Use Vector unless you need the smaller memory footprint of floats.
+ */ 
+
 #ifndef WireCellData_Point_h
 #define WireCellData_Point_h
 

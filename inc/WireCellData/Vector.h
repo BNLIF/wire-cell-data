@@ -1,6 +1,6 @@
-/** Vector.
+/** Vector a 3-vector of double.
  *
- * See also Point.
+ * See also WireCell::Point.
  */
 
 #ifndef WIRECELLDATA_VECTOR
