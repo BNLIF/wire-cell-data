@@ -31,8 +31,10 @@ namespace WireCell{
     WireCell::GeomCellSelection get_edgecells() const{ return edge_cells;}
     WireCell::GeomCellSelection get_truthcell() const{return truth_cells;}
     WireCell::GeomCellSelection get_cornercells()const { return corner_cells;}
-    std::vector<int>& get_cornercells_index() {return corner_cells_index;}
-
+    //std::vector<int>& get_cornercells_index() {return corner_cells_index;}
+    WireCell::GeomCellSelection get_cornercells(int index)const { return corner_cells_group[index];}
+    CellIndexMap get_cornercells_index(){return corner_cells_index;}
+      
     bool CheckContainTruthCell(WireCell::CellChargeMap &ccmap);
     bool IsBlob(){return blob;};
     
@@ -42,7 +44,9 @@ namespace WireCell{
 
     WireCell::GeomWireSelection edge_wires;
     WireCell::GeomCellSelection corner_cells;
-    std::vector<int> corner_cells_index;
+    WireCell::GeomCellSelection corner_cells_group[6];
+    //std::vector<int> corner_cells_index;
+    CellIndexMap corner_cells_index;
     
     int time_slice; // illustrate which time slice this is
     bool contain_truth; // whether it contain truth, default is not

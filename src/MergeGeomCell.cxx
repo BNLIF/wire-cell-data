@@ -38,6 +38,7 @@ void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
   edge_wires.push_back(*it);
   
   // loop through all cells, and find how many of the wires are inside the edge wires, if larger than two push, and put in counter as well.
+  int wire_save[3];
   for (int i=0;i!=cell_all.size();i++){
      const GeomCell *cell = cell_all.at(i);
      const GeomWireSelection wires = cmap[cell];
@@ -45,12 +46,17 @@ void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
      for (int j=0;j!=wires.size();j++){
        auto it = find(edge_wires.begin(),edge_wires.end(),wires.at(j));
        if (it!=edge_wires.end()){
+	 wire_save[index] = j;
 	 index ++;
        }
      }
      if (index >=2){
+       for (int j=0;j!=index;j++){
+	 corner_cells_group[wire_save[index]].push_back(cell);
+       }
        corner_cells.push_back(cell);
-       corner_cells_index.push_back(index);
+       corner_cells_index[cell] = index;
+       //corner_cells_index.push_back(index);
      }
   }
 }
