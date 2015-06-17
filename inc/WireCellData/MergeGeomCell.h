@@ -37,7 +37,9 @@ namespace WireCell{
       
     bool CheckContainTruthCell(WireCell::CellChargeMap &ccmap);
     bool IsBlob(){return blob;};
-    
+    bool IsSimpleBlob(){return simple_blob;};
+    void SetSimpleBlob(bool value){simple_blob = value;};
+
   protected:
     WireCell::GeomCellSelection cell_all;
     WireCell::GeomCellSelection edge_cells;
@@ -52,6 +54,7 @@ namespace WireCell{
     bool contain_truth; // whether it contain truth, default is not
     float truth_charge;
     bool blob;
+    bool simple_blob;
     bool flag_corner;
     bool flag_edge;
 

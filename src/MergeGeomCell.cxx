@@ -106,6 +106,7 @@ void MergeGeomCell::FindEdges(){
     }else{
       blob = false;
     }
+    
     // std::cout << edgelist.size() << " " << ecmap.size() << " " << cell_all.size() << " " << edge_cells.size() << std::endl;
   }
 }
