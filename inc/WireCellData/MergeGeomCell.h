@@ -52,6 +52,8 @@ namespace WireCell{
     bool contain_truth; // whether it contain truth, default is not
     float truth_charge;
     bool blob;
+    bool flag_corner;
+    bool flag_edge;
 
     WireCell::GeomCellSelection truth_cells;
   };

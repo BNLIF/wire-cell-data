@@ -8,101 +8,106 @@ using namespace WireCell;
 
 void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
   // find edge wires
-  GeomWireSet1 wires_u, wires_v, wires_w;
-  for (int i=0;i!=cell_all.size();i++){
-    const GeomCell *cell = cell_all.at(i);
-    const GeomWireSelection wires = cmap[cell];
-    for (int j=0;j!=wires.size();j++){
-      WirePlaneType_t plane = wires.at(j)->plane();
-      if (plane==0){
-	wires_u.insert(wires.at(j));
-      }else if (plane==1){
-	wires_v.insert(wires.at(j));
-      }else{
-	wires_w.insert(wires.at(j));
+  if (flag_corner == false){
+    flag_corner = true;
+    GeomWireSet1 wires_u, wires_v, wires_w;
+    for (int i=0;i!=cell_all.size();i++){
+      const GeomCell *cell = cell_all.at(i);
+      const GeomWireSelection wires = cmap[cell];
+      for (int j=0;j!=wires.size();j++){
+	WirePlaneType_t plane = wires.at(j)->plane();
+	if (plane==0){
+	  wires_u.insert(wires.at(j));
+	}else if (plane==1){
+	  wires_v.insert(wires.at(j));
+	}else{
+	  wires_w.insert(wires.at(j));
+	}
       }
     }
-  }
-  edge_wires.clear();
-  edge_wires.push_back(*wires_u.begin());
-  auto it = wires_u.end();
-  it--;
-  edge_wires.push_back(*it);
-  edge_wires.push_back(*wires_v.begin());
-  it = wires_v.end(); 
-  it --;
-  edge_wires.push_back(*it);
-  edge_wires.push_back(*wires_w.begin());
-  it = wires_w.end();
-  it --;
-  edge_wires.push_back(*it);
-  
-  // loop through all cells, and find how many of the wires are inside the edge wires, if larger than two push, and put in counter as well.
-  int wire_save[3];
-  for (int i=0;i!=cell_all.size();i++){
-     const GeomCell *cell = cell_all.at(i);
-     const GeomWireSelection wires = cmap[cell];
-     int index = 0;
-     for (int j=0;j!=wires.size();j++){
-       auto it = find(edge_wires.begin(),edge_wires.end(),wires.at(j));
-       if (it!=edge_wires.end()){
-	 wire_save[index] = j;
-	 index ++;
-       }
-     }
-     if (index >=2){
-       for (int j=0;j!=index;j++){
-	 corner_cells_group[wire_save[index]].push_back(cell);
-       }
-       corner_cells.push_back(cell);
-       corner_cells_index[cell] = index;
-       //corner_cells_index.push_back(index);
-     }
+    edge_wires.clear();
+    edge_wires.push_back(*wires_u.begin());
+    auto it = wires_u.end();
+    it--;
+    edge_wires.push_back(*it);
+    edge_wires.push_back(*wires_v.begin());
+    it = wires_v.end(); 
+    it --;
+    edge_wires.push_back(*it);
+    edge_wires.push_back(*wires_w.begin());
+    it = wires_w.end();
+    it --;
+    edge_wires.push_back(*it);
+    
+    // loop through all cells, and find how many of the wires are inside the edge wires, if larger than two push, and put in counter as well.
+    int wire_save[3];
+    for (int i=0;i!=cell_all.size();i++){
+      const GeomCell *cell = cell_all.at(i);
+      const GeomWireSelection wires = cmap[cell];
+      int index = 0;
+      for (int j=0;j!=wires.size();j++){
+	auto it = find(edge_wires.begin(),edge_wires.end(),wires.at(j));
+	if (it!=edge_wires.end()){
+	  wire_save[index] = j;
+	  index ++;
+	}
+      }
+      if (index >=2){
+	for (int j=0;j!=index;j++){
+	  corner_cells_group[wire_save[index]].push_back(cell);
+	}
+	corner_cells.push_back(cell);
+	corner_cells_index[cell] = index;
+	//corner_cells_index.push_back(index);
+      }
+    }
   }
 }
 
 void MergeGeomCell::FindEdges(){
-  std::list<const Edge*> edgelist;
-  EdgeCellMap ecmap;
-
-  for (int i=0;i!=cell_all.size();i++){
-    const EdgeVector* evector = cell_all[i]->redge();  
+  if (flag_edge == false){
+    flag_edge = true;
+    std::list<const Edge*> edgelist;
+    EdgeCellMap ecmap;
     
-    for (int j=0;j!=evector->size();j++){
-      int flag = 0;
-      // std::cout << i << " " << j << " " << evector->at(j).first.x << " "
-      // 		<< evector->at(j).first.y << " " << evector->at(j).first.z << " "
-      // 		<< evector->at(j).second.x << " "
-      // 		<< evector->at(j).second.y << " " << evector->at(j).second.z << " "  
-      // 		<< std::endl;
-      for (auto it = edgelist.begin(); it!=edgelist.end();it++){
-      	if (CompareEdge(*(*it),evector->at(j))){
-       	  flag = 1;
-       	  edgelist.erase(it);
-       	  break;
-       	}
+    for (int i=0;i!=cell_all.size();i++){
+      const EdgeVector* evector = cell_all[i]->redge();  
+      
+      for (int j=0;j!=evector->size();j++){
+	int flag = 0;
+	// std::cout << i << " " << j << " " << evector->at(j).first.x << " "
+	// 		<< evector->at(j).first.y << " " << evector->at(j).first.z << " "
+	// 		<< evector->at(j).second.x << " "
+	// 		<< evector->at(j).second.y << " " << evector->at(j).second.z << " "  
+	// 		<< std::endl;
+	for (auto it = edgelist.begin(); it!=edgelist.end();it++){
+	  if (CompareEdge(*(*it),evector->at(j))){
+	    flag = 1;
+	    edgelist.erase(it);
+	    break;
+	  }
+	}
+	if (flag==0){
+	  edgelist.push_back(&(evector->at(j)));
+	  ecmap[&(evector->at(j))] = cell_all[i];
+	} 
       }
-      if (flag==0){
-	edgelist.push_back(&(evector->at(j)));
-	ecmap[&(evector->at(j))] = cell_all[i];
-      } 
     }
-  }
-
-  for (auto it = edgelist.begin(); it!=edgelist.end();it++){
-    auto it2 = find(edge_cells.begin(),edge_cells.end(),ecmap[*it]);
-    if (it2==edge_cells.end()){
-      edge_cells.push_back(ecmap[*it]);
+    
+    for (auto it = edgelist.begin(); it!=edgelist.end();it++){
+      auto it2 = find(edge_cells.begin(),edge_cells.end(),ecmap[*it]);
+      if (it2==edge_cells.end()){
+	edge_cells.push_back(ecmap[*it]);
+      }
     }
+    
+    if (edge_cells.size() + 9 < cell_all.size()){
+      blob = true;
+    }else{
+      blob = false;
+    }
+    // std::cout << edgelist.size() << " " << ecmap.size() << " " << cell_all.size() << " " << edge_cells.size() << std::endl;
   }
-
-  if (edge_cells.size() + 9 < cell_all.size()){
-    blob = true;
-  }else{
-    blob = false;
-  }
-  // std::cout << edgelist.size() << " " << ecmap.size() << " " << cell_all.size() << " " << edge_cells.size() << std::endl;
-  
 }
 
 bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
@@ -128,6 +133,8 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
 
 MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
 {
+  flag_corner = false;
+  flag_edge = false;
   blob = false;
   _ident = ident;
   _boundary = cell.boundary();
@@ -140,6 +147,8 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
 
 MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
 {
+  flag_corner = false;
+  flag_edge = false;
   blob = false;
   _ident = ident;
   _boundary = cell.boundary();
