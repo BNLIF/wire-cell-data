@@ -32,7 +32,7 @@ namespace WireCell{
     WireCell::GeomCellSelection get_truthcell() const{return truth_cells;}
     WireCell::GeomCellSelection get_cornercells()const { return corner_cells;}
     //std::vector<int>& get_cornercells_index() {return corner_cells_index;}
-    WireCell::GeomCellSelection get_cornercells(int index)const { return corner_cells_group[index];}
+    WireCell::GeomCellSelection get_cornercells(int index1,int index2)const { return corner_cells_group[index1][index2];}
     CellIndexMap get_cornercells_index(){return corner_cells_index;}
       
     bool CheckContainTruthCell(WireCell::CellChargeMap &ccmap);
@@ -45,8 +45,10 @@ namespace WireCell{
     WireCell::GeomCellSelection edge_cells;
 
     WireCell::GeomWireSelection edge_wires;
+
     WireCell::GeomCellSelection corner_cells;
-    WireCell::GeomCellSelection corner_cells_group[6];
+    WireCell::GeomCellSelection corner_cells_group[6][6];
+
     //std::vector<int> corner_cells_index;
     CellIndexMap corner_cells_index;
     

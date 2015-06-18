@@ -53,9 +53,16 @@ void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
 	}
       }
       if (index >=2){
-	for (int j=0;j!=index;j++){
-	  corner_cells_group[wire_save[index-1]].push_back(cell);
+	if (index ==2){
+	  corner_cells_group[wire_save[0]][wire_save[1]].push_back(cell);
+	}else{
+	  corner_cells_group[wire_save[0]][wire_save[1]].push_back(cell);
+	  corner_cells_group[wire_save[0]][wire_save[2]].push_back(cell);
+	  corner_cells_group[wire_save[1]][wire_save[2]].push_back(cell);
 	}
+	//	for (int j=0;j!=index;j++){
+	  //
+	//}
 	corner_cells.push_back(cell);
 	corner_cells_index[cell] = index;
 	//corner_cells_index.push_back(index);
