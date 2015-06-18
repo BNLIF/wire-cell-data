@@ -44,7 +44,9 @@ MergeGeomWire::~MergeGeomWire(){
 
 int MergeGeomWire::AddWire(const WireCell::GeomWire& wire){
   if (wire.plane() == _plane){
-    wire_all.push_back(&wire);
+    auto it = find(wire_all.begin(),wire_all.end(),&wire);
+    if (it == wire_all.end())
+      wire_all.push_back(&wire);
     return 1;
   }else{
     return 0;
