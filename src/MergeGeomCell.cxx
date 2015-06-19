@@ -221,6 +221,7 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
 	for (int j1=0;j1!=cell2->boundary().size();j1++){
 	  Point p1 = (cell2->boundary())[j1];
 	  if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*4){
+	    // std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << std::endl;
 	    return true;
 	  }
 	}
@@ -230,6 +231,29 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
   }
   return false;
 }
+
+bool MergeGeomCell::Overlap1(const MergeGeomCell &cell) const{
+  for (int i=0;i!=cell_all.size();i++){
+    const GeomCell *cell1 = cell_all[i];
+    for (int j=0;j!=cell.get_allcell().size();j++){
+      const GeomCell *cell2 = cell.get_allcell().at(j);
+      
+      for (int i1=0;i1!=cell1->boundary().size();i1++){
+	Point p = (cell1->boundary())[i1];
+	for (int j1=0;j1!=cell2->boundary().size();j1++){
+	  Point p1 = (cell2->boundary())[j1];
+	  if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*0.1){
+	    // std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << std::endl;
+	    return true;
+	  }
+	}
+      }
+
+    }
+  }
+  return false;
+}
+
 
 MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
 {
