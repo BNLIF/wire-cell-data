@@ -43,8 +43,13 @@ namespace WireCell{
     int index(int index1, int index2);
     int index1(int index);
     int index2(int index);
+
+    //hack for now
+    std::set<int> ewires;
     
   protected:
+
+
     WireCell::GeomCellSelection cell_all;
     WireCell::GeomCellSelection edge_cells;
 
