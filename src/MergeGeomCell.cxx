@@ -48,12 +48,13 @@ void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
       for (int j=0;j!=wires.size();j++){
 	auto it = find(edge_wires.begin(),edge_wires.end(),wires.at(j));
 	if (it!=edge_wires.end()){
-	  wire_save[index] = j;
+	  wire_save[index] = it - edge_wires.begin();
 	  index ++;
 	}
       }
       if (index >=2){
-	if (index ==2){
+	//std::cout << index << " " << wire_save[0] << " " << wire_save[1] << " " << wire_save[2] << std::endl;
+	if (index==2){
 	  corner_cells_group[wire_save[0]][wire_save[1]].push_back(cell);
 	}else{
 	  corner_cells_group[wire_save[0]][wire_save[1]].push_back(cell);
@@ -68,7 +69,98 @@ void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
 	//corner_cells_index.push_back(index);
       }
     }
+    
+    //
   }
+}
+
+int MergeGeomCell::index(int index1, int index2){
+  int val;
+  if (index1 == 0 && index2 ==2){
+    val = 0;
+  }else if (index1 == 0 && index2 ==3){
+    val = 1;
+  }else if (index1 == 0 && index2 ==4){
+    val = 2;
+  }else if (index1 == 0 && index2 ==5){
+    val = 3;
+  }else if (index1 == 1 && index2 ==2){
+    val = 4;
+  }else if (index1 == 1 && index2 ==3){
+    val = 5;
+  }else if (index1 == 1 && index2 ==4){
+    val = 6;
+  }else if (index1 == 1 && index2 ==5){
+    val = 7;
+  }else if (index1 == 2 && index2 ==4){
+    val = 8;
+  }else if (index1 == 2 && index2 ==5){
+    val = 9;
+  }else if (index1 == 3 && index2 ==4){
+    val = 10;
+  }else if (index1 == 3 && index2 ==5){
+    val = 11;
+  }
+  
+  return val;
+}
+int MergeGeomCell::index1(int index){
+  int val;
+  if (index ==0){
+    val = 0;
+  }else if (index==1){
+    val = 0;
+  }else if (index==2){
+    val = 0;
+  }else if (index==3){
+    val = 0;
+  }else if (index==4){
+    val = 1;
+  }else if (index==5){
+    val = 1;
+  }else if (index==6){
+    val = 1;
+  }else if (index==7){
+    val = 1;
+  }else if (index==8){
+    val = 2;
+  }else if (index==9){
+    val = 2;
+  }else if (index==10){
+    val = 3;
+  }else if (index==11){
+    val = 3;
+  }
+  return val;
+}
+int MergeGeomCell::index2(int index){
+   int val;
+  if (index ==0){
+    val = 2;
+  }else if (index==1){
+    val = 3;
+  }else if (index==2){
+    val = 4;
+  }else if (index==3){
+    val = 5;
+  }else if (index==4){
+    val = 2;
+  }else if (index==5){
+    val = 3;
+  }else if (index==6){
+    val = 4;
+  }else if (index==7){
+    val = 5;
+  }else if (index==8){
+    val = 4;
+  }else if (index==9){
+    val = 5;
+  }else if (index==10){
+    val = 4;
+  }else if (index==11){
+    val = 5;
+  }
+  return val;
 }
 
 void MergeGeomCell::FindEdges(){

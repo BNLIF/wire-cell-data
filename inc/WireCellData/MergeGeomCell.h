@@ -40,6 +40,10 @@ namespace WireCell{
     bool IsSimpleBlob(){return simple_blob;};
     void SetSimpleBlob(bool value){simple_blob = value;};
 
+    int index(int index1, int index2);
+    int index1(int index);
+    int index2(int index);
+    
   protected:
     WireCell::GeomCellSelection cell_all;
     WireCell::GeomCellSelection edge_cells;
