@@ -311,10 +311,10 @@ Point MergeGeomCell::center() const
   double sum_area = 0;
   for (int i=0;i!=cell_all.size();i++){
     Point pc = cell_all[i]->center();
-    double area = cell_all[i]->cross_section();
-    ret.x = pc.x * area;
-    ret.y = pc.z * area;
-    ret.z = pc.y * area;
+    double area = fabs(cell_all[i]->cross_section());
+    ret.x += pc.x * area;
+    ret.y += pc.z * area;
+    ret.z += pc.y * area;
     sum_area += area;
   }
   
