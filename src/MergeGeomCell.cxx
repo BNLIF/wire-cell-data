@@ -200,7 +200,7 @@ void MergeGeomCell::FindEdges(){
       }
     }
     
-    if (edge_cells.size() + 9 < cell_all.size()){
+    if (edge_cells.size() + 25 < cell_all.size()){
       blob = true;
     }else{
       blob = false;
