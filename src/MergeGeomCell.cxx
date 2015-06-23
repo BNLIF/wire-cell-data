@@ -259,6 +259,17 @@ int MergeGeomCell::Overlap1(const MergeGeomCell &cell) const{
   return val;
 }
 
+MergeGeomCell::MergeGeomCell()
+{
+  flag_corner = false;
+  flag_edge = false;
+  blob = false;
+  _ident = 0;
+  
+  time_slice = -1;
+
+  contain_truth = false;
+}
 
 MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
 {

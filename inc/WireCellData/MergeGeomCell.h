@@ -7,6 +7,7 @@
 namespace WireCell{
   class MergeGeomCell : public WireCell::GeomCell {
   public: 
+    MergeGeomCell();
     MergeGeomCell(int ident, const WireCell::GeomCell& cell);
     MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell);
     ~MergeGeomCell();
