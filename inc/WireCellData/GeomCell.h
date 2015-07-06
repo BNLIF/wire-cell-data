@@ -49,6 +49,7 @@ namespace WireCell {
     /// Compare ident
     struct GeomCellCompare {
       bool operator() (const GeomCell& a, const GeomCell& b) const {
+	
 	return a.ident() < b.ident();
       }
       

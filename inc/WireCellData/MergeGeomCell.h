@@ -77,6 +77,9 @@ namespace WireCell{
    /// Compare ident
     struct MergeGeomCellCompare {
       bool operator() (const MergeGeomCell* a, const MergeGeomCell* b) const {
+	if (a->cross_section() == b->cross_section()) {
+	  return a<b;
+	}
 	return a->cross_section() < b->cross_section();
       }
       
