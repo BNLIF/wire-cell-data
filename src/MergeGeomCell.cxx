@@ -10,34 +10,28 @@ void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
   // find edge wires
   if (flag_corner == false){
     flag_corner = true;
-    GeomWireSet1 wires_u, wires_v, wires_w;
+    GeomWireSet wires_u, wires_v, wires_w;
     for (int i=0;i!=cell_all.size();i++){
       const GeomCell *cell = cell_all.at(i);
       const GeomWireSelection wires = cmap[cell];
       for (int j=0;j!=wires.size();j++){
 	WirePlaneType_t plane = wires.at(j)->plane();
 	if (plane==0){
-	  wires_u.insert(wires.at(j));
+	  wires_u.insert(*wires.at(j));
 	}else if (plane==1){
-	  wires_v.insert(wires.at(j));
+	  wires_v.insert(*wires.at(j));
 	}else{
-	  wires_w.insert(wires.at(j));
+	  wires_w.insert(*wires.at(j));
 	}
       }
     }
     edge_wires.clear();
-    edge_wires.push_back(*wires_u.begin());
-    auto it = wires_u.end();
-    it--;
-    edge_wires.push_back(*it);
-    edge_wires.push_back(*wires_v.begin());
-    it = wires_v.end(); 
-    it --;
-    edge_wires.push_back(*it);
-    edge_wires.push_back(*wires_w.begin());
-    it = wires_w.end();
-    it --;
-    edge_wires.push_back(*it);
+    edge_wires.push_back(&*wires_u.begin());
+    edge_wires.push_back(&*wires_u.rbegin());
+    edge_wires.push_back(&*wires_v.begin());
+    edge_wires.push_back(&*wires_v.rbegin());
+    edge_wires.push_back(&*wires_w.begin());
+    edge_wires.push_back(&*wires_w.rbegin());
     
     // loop through all cells, and find how many of the wires are inside the edge wires, if larger than two push, and put in counter as well.
     int wire_save[3];
@@ -170,7 +164,7 @@ void MergeGeomCell::FindEdges(){
     EdgeCellMap ecmap;
     
     for (int i=0;i!=cell_all.size();i++){
-      const EdgeVector* evector = cell_all[i]->redge();  
+      const EdgeVector* evector = &cell_all[i]->edge();  
       
       for (int j=0;j!=evector->size();j++){
 	int flag = 0;

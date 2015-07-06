@@ -28,11 +28,14 @@ namespace WireCell {
 	Point center() const;
 	/// A list of point giving the outline of the cell.
 	PointVector boundary() const { return _boundary;}
-	EdgeVector edge() const {return _edge;}
-	const EdgeVector* redge() const { return &_edge;}
+
+	const EdgeVector& edge() const {return _edge;}
 
 	bool operator== (const GeomCell &b) const { return this->ident()==b.ident();}
 
+	bool operator<(const GeomCell& rhs) const {
+	    return _ident < rhs._ident;
+	}
 	
     protected:
 	int _ident;
@@ -44,18 +47,20 @@ namespace WireCell {
         friend std::ostream & operator<<(std::ostream &os, const GeomCell& gc);
     };
 
+
+
     std::ostream & operator<<(std::ostream &os, const GeomCell& gc);
 
     /// Compare ident
-    struct GeomCellCompare {
-      bool operator() (const GeomCell& a, const GeomCell& b) const {
-	return a.ident() < b.ident();
-      }
-      
-    };
+//    struct GeomCellCompare {
+//	bool operator() (const GeomCell& a, const GeomCell& b) const {
+//	    return a.ident() < b.ident();
+//	}
+//    };
 
-    /// Used to store a definitive, ordered set of cells
-    typedef std::set<WireCell::GeomCell, GeomCellCompare> GeomCellSet;
+/// Used to store a definitive, ordered set of cells
+//typedef std::set<WireCell::GeomCell, GeomCellCompare> GeomCellSet;
+    typedef std::set<WireCell::GeomCell> GeomCellSet;
     
     /// Used to temporarily collect some subset
     typedef std::vector<const WireCell::GeomCell*> GeomCellSelection;

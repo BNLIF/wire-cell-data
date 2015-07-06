@@ -97,6 +97,14 @@ namespace WireCell {
 	    return dot( a.cross( b ) ) ;
 	}
  
+	bool operator< (const D3Vector& rhs) const {
+	    if (z < rhs.z) return true;
+	    if (y < rhs.y) return true;
+	    if (x < rhs.x) return true;
+	    return false;
+	}
+
+
     } ;
  
     template< class T >

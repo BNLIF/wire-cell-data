@@ -39,6 +39,7 @@ namespace WireCell {
 	int ident() const { return _ident; }
 	/// The plane/direction enum of the wire 
 	WirePlaneType_t plane() const { return _plane; }
+	int iplane() const { return static_cast<int>(_plane); }
 	/// Consecutive, zero-based index into ordered sequence of wires in their plane
 	int index() const { return _index; }
 	/// Detector-dependent electronics channel number, negative is illegal.
@@ -52,6 +53,12 @@ namespace WireCell {
 	/// Return the plane+index pair.
 	WirePlaneIndex plane_index() const { return WirePlaneIndex(_plane, _index); }
 
+	bool operator<(const GeomWire& rhs) const {
+	    if (_plane < rhs._plane) return true;
+	    return _index < rhs._index;
+	}
+
+
     protected:
 	int _ident;
 	WirePlaneType_t _plane;
@@ -64,29 +71,13 @@ namespace WireCell {
 
     std::ostream & operator<<(std::ostream &os, const GeomWire& gw);
 
-    /// Compare plane+index 
-    struct GeomWireCompare {
-	bool operator() (const GeomWire& a, const GeomWire& b) const {
-	    if (a.plane() < b.plane()) return true;
-	    return a.index() < b.index();
-	}
-    };
-
-    struct GeomWireCompare1 {
-	bool operator() (const GeomWire* a, const GeomWire* b) const {
-	    if (a->plane() < b->plane()) return true;
-	    return a->index() < b->index();
-	}
-    };
-
     typedef std::pair<const GeomWire*, const GeomWire*> GeomWirePair;
 
-    /// Used to store definitive, ordered set of wires
-    typedef std::set<GeomWire, GeomWireCompare> GeomWireSet;
+    /// Used to store definitive, ordered set of wires.
+    //  note: operator<() is defined in the class.
+    typedef std::set<GeomWire> GeomWireSet;
     
-    typedef std::set<const GeomWire*, GeomWireCompare1> GeomWireSet1;
-
-    /// Used to temporarily construct some sub-set of cells
+    /// Used to temporarily construct some non-owning sub-set of cells
     typedef std::vector<const GeomWire*> GeomWireSelection;
 
     typedef std::map<const GeomWire*, float> WireChargeMap; 
