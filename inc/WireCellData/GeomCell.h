@@ -8,6 +8,7 @@
 #include <set>
 #include <vector>
 #include <iostream>
+#include <list>
 
 namespace WireCell {
 
@@ -61,7 +62,7 @@ namespace WireCell {
     /// Used to temporarily collect some subset
     typedef std::vector<const WireCell::GeomCell*> GeomCellSelection;
     typedef std::vector<WireCell::GeomCellSelection> GeomCellSelectionV;
-
+    typedef std::list<const WireCell::GeomCell*> GeomCellList;
 
     typedef std::map<const GeomCell*, float> CellChargeMap; 
 

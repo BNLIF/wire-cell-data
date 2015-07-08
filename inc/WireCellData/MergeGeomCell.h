@@ -15,6 +15,9 @@ namespace WireCell{
     double cross_section() const;
     Point center() const;
 
+    bool Connected(const WireCell::GeomCell& cell1,const WireCell::GeomCell& cell2);
+    void AddNewCell(const WireCell::GeomCell& cell);
+    
     int AddCell(const WireCell::GeomCell& cell);
     int AddCell(WireCell::MergeGeomCell& cell);
     int GetTimeSlice() const { return time_slice;};

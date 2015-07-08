@@ -336,6 +336,31 @@ Point MergeGeomCell::center() const
   return ret;
 }
 
+bool MergeGeomCell::Connected(const WireCell::GeomCell& cell1,const WireCell::GeomCell& cell2){
+  PointVector bd1 = cell1.boundary();
+  PointVector bd2 = cell2.boundary();
+  int nshare=0;
+  for (int i=0;i!=bd1.size();i++){
+    Point p = bd1[i];
+    for (int j=0;j!=bd2.size();j++){
+      Point p1 = bd2[j];
+      if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.0002)
+	nshare ++;
+      if (nshare == 2)
+	return true;
+    }
+  }
+  return false;
+}
+
+void MergeGeomCell::AddNewCell(const WireCell::GeomCell& cell){
+  PointVector boundary = cell.boundary();
+  EdgeVector edge = cell.edge();
+  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
+  _edge.insert(_edge.end(),edge.begin(),edge.end());
+  cell_all.push_back(&cell);
+}
+
 
 int MergeGeomCell::AddCell(const WireCell::GeomCell& cell){
   // check if there are too or more shared boundary points
