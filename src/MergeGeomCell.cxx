@@ -215,6 +215,11 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
     const GeomCell *cell1 = cell_all[i];
     for (int j=0;j!=cell.get_allcell().size();j++){
       const GeomCell *cell2 = cell.get_allcell().at(j);
+
+      Point c1 = cell1->center();
+      Point c2 = cell2->center();
+      if (fabs(c1.y-c2.y) > 2.5*units::cm) break;
+      if (fabs(c1.z-c2.z) > 2.5*units::cm) break;
       
       for (int i1=0;i1!=cell1->boundary().size();i1++){
 	Point p = (cell1->boundary())[i1];
@@ -227,6 +232,7 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
 	}
       }
 
+
     }
   }
   return false;
@@ -238,6 +244,11 @@ int MergeGeomCell::Overlap1(const MergeGeomCell &cell) const{
     const GeomCell *cell1 = cell_all[i];
     for (int j=0;j!=cell.get_allcell().size();j++){
       const GeomCell *cell2 = cell.get_allcell().at(j);
+
+      Point c1 = cell1->center();
+      Point c2 = cell2->center();
+      if (fabs(c1.y-c2.y) > 1*units::cm) break;
+      if (fabs(c1.z-c2.z) > 1*units::cm) break;
 
       int flag = 0;
       for (int i1=0;i1!=cell1->boundary().size();i1++){
