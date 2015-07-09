@@ -269,6 +269,13 @@ MergeGeomCell::MergeGeomCell()
   time_slice = -1;
 
   contain_truth = false;
+
+  flag_center = 0;
+  flag_cross_section = 0;
+  ret.x = 0;
+  ret.y = 0;
+  ret.z = 0;
+  area = 0;
 }
 
 MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
@@ -283,6 +290,12 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
   time_slice = -1;
 
   contain_truth = false;
+  flag_center = 0;
+  flag_cross_section = 0;
+  ret.x = 0;
+  ret.y = 0;
+  ret.z = 0;
+  area = 0;
 }
 
 MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
@@ -309,34 +322,47 @@ MergeGeomCell::~MergeGeomCell(){
 
 double MergeGeomCell::cross_section() const
 {
-  double area = 0;
-  for (int i=0;i!=cell_all.size();i++){
-    area += cell_all[i]->cross_section();
+  //double area = 0;
+  if (flag_cross_section == 0){
+    flag_cross_section = 1;
+    for (int i=0;i!=cell_all.size();i++){
+      area += cell_all[i]->cross_section();
+    }
   }
   return area;
 }
 
 Point MergeGeomCell::center() const
 {
-  Point ret(0,0,0);
-  double sum_area = 0;
-  for (int i=0;i!=cell_all.size();i++){
-    Point pc = cell_all[i]->center();
-    double area = fabs(cell_all[i]->cross_section());
-    ret.x += pc.x * area;
-    ret.y += pc.y * area;
-    ret.z += pc.z * area;
-    sum_area += area;
+  //Point ret(0,0,0);
+  if (flag_center ==0){
+    flag_center = 1;
+    double sum_area = 0;
+    for (int i=0;i!=cell_all.size();i++){
+      Point pc = cell_all[i]->center();
+      double area = fabs(cell_all[i]->cross_section());
+      ret.x += pc.x * area;
+      ret.y += pc.y * area;
+      ret.z += pc.z * area;
+      sum_area += area;
+    }
+    
+    
+    ret.x/=sum_area;
+    ret.y/=sum_area;
+    ret.z/=sum_area;
   }
-  
-  
-  ret.x/=sum_area;
-  ret.y/=sum_area;
-  ret.z/=sum_area;
   return ret;
 }
 
 bool MergeGeomCell::Connected(const WireCell::GeomCell& cell1,const WireCell::GeomCell& cell2){
+  Point c1 = cell1.center();
+  Point c2 = cell2.center();
+  if (fabs(c1.x-c2.x) > 1*units::cm) return false;
+  if (fabs(c1.y-c2.y) > 1*units::cm) return false;
+  if (fabs(c1.z-c2.z) > 1*units::cm) return false;
+  
+
   PointVector bd1 = cell1.boundary();
   PointVector bd2 = cell2.boundary();
   int nshare=0;

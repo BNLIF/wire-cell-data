@@ -19,6 +19,12 @@ GeomCell::GeomCell(int ident, const PointVector& boundary)
     Edge a(_boundary.at(boundary.size()-1),_boundary.at(0));
     _edge.push_back(a);
   }
+  flag_center = 0;
+  flag_cross_section = 0;
+  ret.x = 0;
+  ret.y = 0;
+  ret.z = 0;
+  area = 0;
 }
 
 GeomCell::~GeomCell()
@@ -32,39 +38,42 @@ std::ostream & WireCell::operator<<(std::ostream &os, const GeomCell& gc)
 
 double GeomCell::cross_section() const
 {
-    double area = 0.0;
+  // double area = 0.0;
+  if (flag_cross_section == 0){
     const size_t npoints = _boundary.size();
     int prev = npoints - 1;
-
+    
     for (int ind = 0; ind < npoints; ++ind) {
-	double z = _boundary.at(prev).z + _boundary.at(ind).z;
-	double y = _boundary.at(prev).y - _boundary.at(ind).y;
-	area += y*z;
-	prev = ind;
+      double z = _boundary.at(prev).z + _boundary.at(ind).z;
+      double y = _boundary.at(prev).y - _boundary.at(ind).y;
+      area += y*z;
+      prev = ind;
     }
     area /= 2.0;
-
-    return fabs(area);
+    flag_cross_section = 1;
+  }
+  return fabs(area);
 
 }
 
 Point GeomCell::center() const
 {
-  Point ret(0,0,0);
-  
-  const size_t npoints = _boundary.size();
-  for (size_t ipoint=0; ipoint < npoints; ++ipoint) {
-    const Point& point = _boundary[ipoint];
-    ret.x += point.x;
-    ret.y += point.y;
-    ret.z += point.z;
-    //std::cout << "qx1 " << point.y << " " << ret.y << std::endl;
+  //Point ret(0,0,0);
+  if (flag_center ==0){
+    const size_t npoints = _boundary.size();
+    for (size_t ipoint=0; ipoint < npoints; ++ipoint) {
+      const Point& point = _boundary[ipoint];
+      ret.x += point.x;
+      ret.y += point.y;
+      ret.z += point.z;
+      //std::cout << "qx1 " << point.y << " " << ret.y << std::endl;
+    }
+    
+    ret.x /= npoints;
+    ret.y /= npoints;
+    ret.z /= npoints;
+    flag_center = 1;
   }
- 
-  ret.x /= npoints;
-  ret.y /= npoints;
-  ret.z /= npoints;
-  
   
   return ret;
 }

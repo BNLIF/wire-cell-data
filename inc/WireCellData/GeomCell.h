@@ -40,7 +40,10 @@ namespace WireCell {
 	PointVector _boundary;
 	EdgeVector _edge;
 	int order_boundary();
-	
+	mutable int flag_center;
+	mutable int flag_cross_section;
+	mutable Point ret;
+	mutable double area;
 
         friend std::ostream & operator<<(std::ostream &os, const GeomCell& gc);
     };

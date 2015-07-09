@@ -74,6 +74,11 @@ namespace WireCell{
     bool flag_corner;
     bool flag_edge;
 
+    mutable int flag_center;
+    mutable int flag_cross_section;
+    mutable double area;
+    mutable Point ret;
+
     WireCell::GeomCellSelection truth_cells;
   };
 
