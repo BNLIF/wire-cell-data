@@ -398,7 +398,7 @@ void MergeGeomCell::AddNewCell(const WireCell::GeomCell& cell){
 }
 
 
-int MergeGeomCell::AddCell(const WireCell::GeomCell& cell){
+int MergeGeomCell::AddCell(const WireCell::GeomCell& cell, double dis){
   // check if there are too or more shared boundary points
   // if less than two shared points, not merge
   // if there are just two, and reduce two to one, and merge
@@ -410,7 +410,12 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell& cell){
     Point p = boundary[i];
     for (int j=0;j!=_boundary.size();j++){
       Point p1 = _boundary[j];
-      if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.0002){
+      
+      if (fabs(p.x-p1.x) > dis ) break;
+      if (fabs(p.y-p1.y) > dis ) break;
+      if (fabs(p.z-p1.z) > dis ) break;
+
+      if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))<dis){
   	nshare ++;
 	if (nshare==2){
 	  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
@@ -419,6 +424,8 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell& cell){
 	  return 1;
 	}
       }
+
+
     }
   }
  
@@ -426,7 +433,7 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell& cell){
     
 }
 
-int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell){
+int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell, double dis){
 
   // check if there are too or more shared boundary points
   // if less than two shared points, not merge
@@ -439,7 +446,12 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell){
     Point p = boundary[i];
     for (int j=0;j!=_boundary.size();j++){
       Point p1 = _boundary[j];
-      if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.0002){
+      
+      if (fabs(p.x-p1.x) > dis ) break;
+      if (fabs(p.y-p1.y) > dis ) break;
+      if (fabs(p.z-p1.z) > dis ) break;
+
+      if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))<dis){
   	nshare ++;
 	if (nshare==2){
 	  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());

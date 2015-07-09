@@ -18,8 +18,10 @@ namespace WireCell{
     bool Connected(const WireCell::GeomCell& cell1,const WireCell::GeomCell& cell2);
     void AddNewCell(const WireCell::GeomCell& cell);
     
-    int AddCell(const WireCell::GeomCell& cell);
-    int AddCell(WireCell::MergeGeomCell& cell);
+    int AddCell(const WireCell::GeomCell& cell, double dis = 0.0002 * units::m);
+    int AddCell(WireCell::MergeGeomCell& cell, double dis = 0.0002 * units::m);
+
+
     int GetTimeSlice() const { return time_slice;};
     void SetTimeSlice(int time){time_slice = time;};
 
