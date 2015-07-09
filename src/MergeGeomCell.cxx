@@ -358,7 +358,6 @@ Point MergeGeomCell::center() const
 bool MergeGeomCell::Connected(const WireCell::GeomCell& cell1,const WireCell::GeomCell& cell2){
   Point c1 = cell1.center();
   Point c2 = cell2.center();
-  if (fabs(c1.x-c2.x) > 1*units::cm) return false;
   if (fabs(c1.y-c2.y) > 1*units::cm) return false;
   if (fabs(c1.z-c2.z) > 1*units::cm) return false;
   
@@ -370,7 +369,7 @@ bool MergeGeomCell::Connected(const WireCell::GeomCell& cell1,const WireCell::Ge
     Point p = bd1[i];
     for (int j=0;j!=bd2.size();j++){
       Point p1 = bd2[j];
-      if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.0002)
+      if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.0003)
 	nshare ++;
       if (nshare == 2)
 	return true;
