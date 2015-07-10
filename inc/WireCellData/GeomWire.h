@@ -10,12 +10,6 @@
 
 namespace WireCell {
 
-    /// Wire set plane/direction types
-    enum WirePlaneType_t {kUwire, kVwire, kYwire, kUnknownWirePlaneType = -1};
-
-    /// A pair of wire plane/direction type and index w/in that plane of wires
-    typedef std::pair<WirePlaneType_t, int> WirePlaneIndex;
-
 
     /** WireCell::GeomWire - geometry information about one wire.
 
