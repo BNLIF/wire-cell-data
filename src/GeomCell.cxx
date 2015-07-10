@@ -29,6 +29,8 @@ GeomCell::GeomCell(int ident, const PointVector& boundary)
 
 GeomCell::~GeomCell()
 {
+  _boundary.clear();
+  _edge.clear();
 }
 
 std::ostream & WireCell::operator<<(std::ostream &os, const GeomCell& gc)

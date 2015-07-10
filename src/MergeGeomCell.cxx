@@ -329,6 +329,17 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
 
 MergeGeomCell::~MergeGeomCell(){
   cell_all.clear();
+  edge_cells.clear();
+  edge_wires.clear();
+  corner_cells.clear();
+  corner_cells_index.clear();
+  truth_cells.clear();
+  for (int i=0;i!=6;i++){
+    for (int j=0;j!=6;j++){
+      corner_cells_group[i][j].clear();
+    }
+  }
+
 }
 
 double MergeGeomCell::cross_section() const
