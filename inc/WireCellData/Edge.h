@@ -15,6 +15,7 @@ namespace WireCell {
       return false;
     }
   }
+
   static bool CompareEdge(const WireCell::Edge& a, const WireCell::Edge& b){
     double dis1,dis2,dis3,dis4;
     dis1 = sqrt(pow(a.first.x-b.first.x,2)+pow(a.first.y-b.first.y,2)+pow(a.first.z-b.first.z,2))/units::m;
@@ -27,6 +28,16 @@ namespace WireCell {
       return false;
     }
   }
+  
+  static bool ComparePoint(const WireCell::Point& a, const WireCell::Point& b){
+    double dis = sqrt(pow(a.x-b.x,2)+pow(a.y-b.y,2)+pow(a.z-b.z,2))/units::m;
+    if (dis < 0.0002){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
   
 }
 

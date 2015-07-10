@@ -42,6 +42,8 @@ namespace WireCell{
     WireCell::GeomCellSelection get_cornercells(int index1,int index2)const { return corner_cells_group[index1][index2];}
     CellIndexMap get_cornercells_index(){return corner_cells_index;}
       
+    void Organize_edge_boundary();
+
     bool CheckContainTruthCell(WireCell::CellChargeMap &ccmap);
     bool IsBlob(){return blob;};
     bool IsSimpleBlob(){return simple_blob;};

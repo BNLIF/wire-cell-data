@@ -295,8 +295,10 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
   flag_edge = false;
   blob = false;
   _ident = ident;
+  //this is good, as the first cell 
   _boundary = cell.boundary();
   _edge = cell.edge();
+  //
   cell_all.push_back(&cell);
   time_slice = -1;
 
@@ -315,8 +317,11 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
   flag_edge = false;
   blob = false;
   _ident = ident;
+
+  // this is good 
   _boundary = cell.boundary();
   _edge = cell.edge();
+  // 
   
   time_slice = cell.GetTimeSlice();
 
@@ -403,8 +408,11 @@ bool MergeGeomCell::Connected(const WireCell::GeomCell& cell1,const WireCell::Ge
 void MergeGeomCell::AddNewCell(const WireCell::GeomCell& cell){
   PointVector boundary = cell.boundary();
   EdgeVector edge = cell.edge();
+  // Need to improve
   _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
   _edge.insert(_edge.end(),edge.begin(),edge.end());
+  // 
+
   cell_all.push_back(&cell);
 }
 
@@ -429,8 +437,11 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell& cell, double dis){
       if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))<dis){
   	nshare ++;
 	if (nshare==2){
+	  // Need to improve
 	  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
 	  _edge.insert(_edge.end(),edge.begin(),edge.end());
+	  // Need to improve
+
 	  cell_all.push_back(&cell);
 	  return 1;
 	}
@@ -465,8 +476,10 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell, double dis){
       if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))<dis){
   	nshare ++;
 	if (nshare==2){
+	  // Need to improve
 	  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
 	  _edge.insert(_edge.end(),edge.begin(),edge.end());
+	  // en
 	  WireCell::GeomCellSelection temp = cell.get_allcell();
 	  cell_all.insert(cell_all.end(),temp.begin(),temp.end());
 	  return 1;
@@ -492,3 +505,79 @@ bool MergeGeomCell::CheckContainTruthCell(WireCell::CellChargeMap &ccmap){
   }
   return contain_truth;
 }
+
+void MergeGeomCell::Organize_edge_boundary(){
+  // organize edge
+  std::list<Edge> edgelist;
+  for (int i=0;i!=_edge.size();i++){
+    int flag = 0;
+    for (auto it = edgelist.begin();it!=edgelist.end();it++){
+      if (CompareEdge(*it,_edge.at(i))){
+	edgelist.erase(it);
+ 	flag = 1;
+ 	break;
+      }
+    }
+    if (flag==0){
+      edgelist.push_back(_edge.at(i));
+    }
+  }
+  _edge.clear();
+  _edge.insert(_edge.begin(),edgelist.begin(),edgelist.end());
+
+  //organize boundary
+  std::list<Point> pointlist;
+  for (int i=0;i!=_edge.size();i++){
+    for (int j=0;j!=2;j++){
+      Point p;
+      if (j==0){
+	p = _edge.at(i).first;
+      }else if (j==1){
+	p = _edge.at(i).second;
+      }
+      
+      int flag = 0;
+      for (auto it = pointlist.begin();it!=pointlist.end();it++){
+	if (ComparePoint(*it,p)){
+	  flag = 1;
+	  break;
+	}
+      }
+      if (flag==0){
+	pointlist.push_back(p);
+      }
+      
+    }
+  }
+  _boundary.clear();
+  _boundary.insert(_boundary.begin(),pointlist.begin(),pointlist.end());
+
+}
+
+// void MergeGeomCell::Insert(const EdgeVector& edge, const PointVector& boundary){
+//   // _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
+//   // 	  _edge.insert(_edge.end(),edge.begin(),edge.end());
+  
+//   std::list<Edge> edgelist(_edge.begin(),_edge.end());
+//   for (int i=0;i!=edge.size();i++){
+//     int flag = 0;
+//     for (auto it=edgelist.begin();it!=edgelist.end();it++){
+//       if (CompareEdge(*it,edge.at(i))){
+// 	edgelist.erase(it);
+// 	flag = 1;
+// 	break;
+//       }
+//     }
+//     if (flag==0){
+//       edgelist.push_back(edge.at(i));
+//     }
+//   }
+//   _edge.clear();
+//   _edge.insert(_edge.begin(),edgelist.begin(),edgelist.end());
+  
+//   // if (CompareEdge(*(*it),evector->at(j))){
+//   // 	    flag = 1;
+//   // 	    edgelist.erase(it);
+//   // 	    break;
+//   // 	  }
+// }
