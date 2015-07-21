@@ -6,6 +6,20 @@ using namespace std;
 using namespace WireCell;
 
 
+double WireCell::directional_dot(const Vector& dir1, const Vector& dir2)
+{
+    return dir1.norm().dot(dir2.norm());
+}
+
+double WireCell::dist_to_plane(const Vector& point, const Vector& dir, const Vector& plane)
+{
+    const Vector norm = plane.norm();
+    return norm.dot(point - plane) / directional_dot(plane, dir);
+}
+
+
+
+
 
 /// Return 0 if no hit, 1 if hit1, 2 if hit2, 3 if both
 int WireCell::hit_square(int axis0, 
