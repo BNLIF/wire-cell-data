@@ -32,13 +32,15 @@ GeomWire::~GeomWire()
 
 std::ostream & WireCell::operator<<(std::ostream &os, const GeomWire& gw)
 {
-    return os << "<WireCell::GeomWire "
+    char plane_name[] = {'U', 'V', 'W'};
+    return os << "<WireCell::GeomWire"
+	      << " " << plane_name[gw.iplane()] << " "
 	      << "id:" << gw.ident() << " "
 	      << "ch:" << gw.channel() << " "
-	      << gw.apa() << "/"
-	      << gw.face() << "/"
-	      << gw.plane() << "/"
-	      << gw.segment() << ">";
+	      << "a:" << gw.apa() << " "
+	      << "f:" << gw.face() << " "
+	      << "i:" << gw.index() << " "
+	      << "s:" << gw.segment() << ">";
 }
 
 

@@ -42,6 +42,8 @@ namespace WireCell {
 	int ident() const { return _ident; }
 	/// The plane/direction enum of the wire 
 	WirePlaneType_t plane() const { return _plane; }
+	int iplane() const { return (int)_plane; }
+
 	/// Consecutive, zero-based index into ordered sequence of wires in their plane
 	int index() const { return _index; }
 	/// Detector-dependent electronics channel number, negative is illegal.
