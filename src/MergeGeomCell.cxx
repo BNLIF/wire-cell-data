@@ -10,7 +10,7 @@ void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
   // find edge wires
   if (flag_corner == false){
     flag_corner = true;
-    GeomWireSet1 wires_u, wires_v, wires_w;
+    GeomWirePtrSet wires_u, wires_v, wires_w;
     for (int i=0;i!=cell_all.size();i++){
       const GeomCell *cell = cell_all.at(i);
       const GeomWireSelection wires = cmap[cell];

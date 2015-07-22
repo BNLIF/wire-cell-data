@@ -10,13 +10,19 @@ GeomWire::GeomWire(int ident,
 		   int index,
 		   int channel,
 		   const Point& point1,
-		   const Point& point2)
+		   const Point& point2,
+		   char segment,
+		   char face,
+		   short apa)
     : _ident(ident)
     , _plane(plane)
     , _index(index)
     , _channel(channel)
     , _point1(point1)
     , _point2(point2)
+    , _segment(segment)
+    , _face(face)
+    , _apa(apa)
 {
 }
 
@@ -26,9 +32,13 @@ GeomWire::~GeomWire()
 
 std::ostream & WireCell::operator<<(std::ostream &os, const GeomWire& gw)
 {
-    return os << "<WireCell::GeomWire " << gw.ident()
-	      << " " << gw.plane() << "/" << gw.channel()
-	      << ">";
+    return os << "<WireCell::GeomWire "
+	      << "id:" << gw.ident() << " "
+	      << "ch:" << gw.channel() << " "
+	      << gw.apa() << "/"
+	      << gw.face() << "/"
+	      << gw.plane() << "/"
+	      << gw.segment() << ">";
 }
 
 
