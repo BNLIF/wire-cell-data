@@ -53,14 +53,16 @@ namespace WireCell {
 	Point point2() const { return _point2; }
 
 	/// Return the number of wire segments between the channel
-	/// input and this wire.
-	char segment() const { return _segment; }
+	/// input and this wire.  Wire directly attached to channel
+	/// input is segment==0.
+	int segment() const { return _segment; }
 
-	/// Return which side of the APA this wire exists
-	char face() const { return _face; }
+	/// Return which side of the APA this wire exists.  Nominal or
+	/// "front" face is 0, other or "back" face is 1.
+	int face() const { return _face; }
 
 	/// Return the APA number associated with this wire.
-	short apa() const { return _apa; }
+	int apa() const { return _apa; }
 
 	/// Return the plane+index pair.
 	WirePlaneIndex plane_index() const { return WirePlaneIndex(_plane, _index); }
