@@ -16,7 +16,7 @@
 namespace WireCell {
 
     typedef D3Vector<float> Point;
-
+    
     typedef std::vector<WireCell::Point> PointVector;
     typedef std::pair<WireCell::Point, float> PointValue;
     typedef std::vector<WireCell::PointValue> PointValueVector;
