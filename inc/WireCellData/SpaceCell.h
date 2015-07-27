@@ -16,23 +16,23 @@ namespace WireCell {
      */
     class SpaceCell {
     public:
-      SpaceCell(int ncluster, GeomCell& cell, float x, float q, float thickness);
+      SpaceCell(int ncluster, const GeomCell& cell, double x, double q, double thickness);
 
       ~SpaceCell();
 	
-      float x(){return _x;};
-      float y(){return _y;};
-      float z(){return _z;};
-      float q(){return _q;};
-      float area(){return _area;};
+      double x(){return _x;};
+      double y(){return _y;};
+      double z(){return _z;};
+      double q(){return _q;};
+      double area(){return _area;};
       int ncluster(){return _ncluster;};
-      float thickness(){return _thickness;};
+      double thickness(){return _thickness;};
       PointVector& boundary(){return _boundary;};
 	
     protected:
-      float _x,_y,_z,_q;
-      float _thickness;
-      float _area;
+      double _x,_y,_z,_q;
+      double _thickness;
+      double _area;
       PointVector _boundary;
       int _ncluster;
       

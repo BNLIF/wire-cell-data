@@ -2,7 +2,7 @@
 #include <vector>
 using namespace WireCell;
 
-SpaceCell::SpaceCell(int ncluster, GeomCell& cell, float x, float q, float thickness)
+SpaceCell::SpaceCell(int ncluster, const GeomCell& cell, double x, double q, double thickness)
   : _x(x),
     _q(q),
     _thickness(thickness),
