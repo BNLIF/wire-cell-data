@@ -3,10 +3,9 @@
 #include "WireCellData/Point.h"
 #include "WireCellData/SpaceCell.h"
 
-#include <set>
+
 #include <vector>
-#include <iostream>
-#include <list>
+#include <map>
 
 namespace WireCell {
 
@@ -20,6 +19,8 @@ namespace WireCell {
       void AddSpaceCell(SpaceCell* cell){all_spacecell.push_back(cell);};
       SpaceCellSelection& Get_all_spacecell(){return all_spacecell;};
       
+      bool Overlap(MergeSpaceCell& mcell, float num = 0.1);
+
       Point& Get_Center();
 
     protected:
@@ -31,5 +32,8 @@ namespace WireCell {
     
     /// Used to temporarily collect some subset
     typedef std::vector<WireCell::MergeSpaceCell*> MergeSpaceCellSelection;
+    typedef std::map<MergeSpaceCell*, MergeSpaceCellSelection> MergeSpaceCellMap;
+    
+    
 }
 #endif
