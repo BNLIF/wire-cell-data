@@ -14,8 +14,8 @@ namespace WireCell {
      */
     class MergeSpaceCell {
     public:
-      MergeSpaceCell();
-      ~MergeSpaceCell();
+      MergeSpaceCell(){};
+      ~MergeSpaceCell(){};
 	
       void AddSpaceCell(SpaceCell* cell){all_spacecell.push_back(cell);};
       SpaceCellSelection& Get_all_spacecell(){return all_spacecell;};
