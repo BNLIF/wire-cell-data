@@ -23,6 +23,7 @@ namespace WireCell {
 
   };
   
+  typedef std::vector<ClusterTrack*> ClusterTrackSelection;
 }
 
 #endif
