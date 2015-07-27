@@ -25,8 +25,8 @@ namespace WireCell{
     int GetTimeSlice() const { return time_slice;};
     void SetTimeSlice(int time){time_slice = time;};
 
-    bool Overlap(const WireCell::MergeGeomCell& cell) const;
-    int  Overlap1(const WireCell::MergeGeomCell& cell) const;
+    bool Overlap(const WireCell::MergeGeomCell& cell, float num = 0.1) const;
+    int  Overlap1(const WireCell::MergeGeomCell& cell, float num = 0.1) const;
     bool GetContainTruthCell()const {return contain_truth;};
     float GetTruthCharge() const {return truth_charge;};
     void FindEdges();

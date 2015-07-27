@@ -210,7 +210,7 @@ void MergeGeomCell::FindEdges(){
   }
 }
 
-bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
+bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
   for (int i=0;i!=cell_all.size();i++){
     const GeomCell *cell1 = cell_all[i];
     for (int j=0;j!=cell.get_allcell().size();j++){
@@ -225,7 +225,7 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
 	Point p = (cell1->boundary())[i1];
 	for (int j1=0;j1!=cell2->boundary().size();j1++){
 	  Point p1 = (cell2->boundary())[j1];
-	  if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*4){
+	  if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
 	    // std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << std::endl;
 	    return true;
 	  }
@@ -238,7 +238,7 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell) const{
   return false;
 }
 
-int MergeGeomCell::Overlap1(const MergeGeomCell &cell) const{
+int MergeGeomCell::Overlap1(const MergeGeomCell &cell, float num) const{
   int val = 0;
   for (int i=0;i!=cell_all.size();i++){
     const GeomCell *cell1 = cell_all[i];
@@ -255,7 +255,7 @@ int MergeGeomCell::Overlap1(const MergeGeomCell &cell) const{
 	Point p = (cell1->boundary())[i1];
 	for (int j1=0;j1!=cell2->boundary().size();j1++){
 	  Point p1 = (cell2->boundary())[j1];
-	  if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*0.1){
+	  if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
 	    flag  = 1;
 	    val ++;
 	    break;
