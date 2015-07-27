@@ -16,7 +16,7 @@ namespace WireCell {
     MergeSpaceCellSelection& Get_allmcells(){return all_mcells;};
 
     MergeSpaceCell* Get_FirstMSCell(){return all_mcells.front();};
-    MergeSpaceCell* Get_LastMSCel(){return all_mcells.back();};
+    MergeSpaceCell* Get_LastMSCell(){return all_mcells.back();};
 
   protected:
     MergeSpaceCellSelection all_mcells;
