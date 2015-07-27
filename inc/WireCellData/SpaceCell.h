@@ -40,6 +40,5 @@ namespace WireCell {
     
     /// Used to temporarily collect some subset
     typedef std::vector<WireCell::SpaceCell*> SpaceCellSelection;
-
 }
 #endif
