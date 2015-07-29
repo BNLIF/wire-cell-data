@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <map>
+#include <list>
 
 namespace WireCell {
 
@@ -35,6 +36,7 @@ namespace WireCell {
     /// Used to temporarily collect some subset
     typedef std::vector<WireCell::MergeSpaceCell*> MergeSpaceCellSelection;
     typedef std::map<MergeSpaceCell*, MergeSpaceCellSelection> MergeSpaceCellMap;
+    typedef std::list<WireCell::MergeSpaceCell*> MergeSpaceCellList;
     typedef std::map<MergeSpaceCell*, int> MergeSpaceCellCounter;
     
     
