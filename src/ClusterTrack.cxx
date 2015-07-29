@@ -20,6 +20,7 @@ void ClusterTrack::AddMSCell(MergeSpaceCell *cell){
 
 
 void ClusterTrack::SC_Hough(Point& p, float dis){
+  hough->Reset();
   double x0 = p.x;
   double y0 = p.y;
   double z0 = p.z;
