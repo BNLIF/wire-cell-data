@@ -3,6 +3,7 @@
 
 #include "WireCellData/MergeSpaceCell.h"
 #include "WireCellData/ClusterTrack.h"
+#include <vector>
 
 namespace WireCell{
   class MergeClusterTrack{
@@ -24,6 +25,9 @@ namespace WireCell{
     MergeSpaceCellList all_mcells_list; // temporary one ... 
 
   };
+
+  typedef std::vector<MergeClusterTrack*> MergeClusterTrackSelection;
+  
 }
 
 #endif
