@@ -12,6 +12,19 @@ MergeClusterTrack::MergeClusterTrack(ClusterTrack *ctrack){
   Update();
 }
 
+ClusterTrack* MergeClusterTrack::GetClusterTrack(MergeSpaceCell* vertex){
+  ClusterTrack* result = 0;
+
+  for (int i=0;i!=ctracks.size();i++){
+    result = ctracks.at(i);
+    if (result->Get_FirstMSCell() == vertex 
+	|| result->Get_LastMSCell() == vertex)
+      break;
+  }
+  
+  return result;
+}
+
 void MergeClusterTrack::Add(ClusterTrack *ctrack, MergeSpaceCell *mcell1){
   ctracks.push_back(ctrack);
   int flag_insert_direction=1; 

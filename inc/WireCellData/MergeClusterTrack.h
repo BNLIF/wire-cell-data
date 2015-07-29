@@ -16,6 +16,9 @@ namespace WireCell{
     
     MergeSpaceCellSelection& Get_allmcells(){return all_mcells;};
     void Update();
+
+    ClusterTrack* GetClusterTrack(MergeSpaceCell* vertex);
+
     MergeSpaceCell* Get_FirstMSCell(){return all_mcells.front();};
     MergeSpaceCell* Get_LastMSCell(){return all_mcells.back();};
 
