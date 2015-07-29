@@ -10,7 +10,7 @@ namespace WireCell{
     MergeClusterTrack(ClusterTrack *ctrack);
     ~MergeClusterTrack();
     
-    void Add(ClusterTrack *ctrack);
+    void Add(ClusterTrack *ctrack, MergeSpaceCell *mcell1);
 
     
     MergeSpaceCellSelection& Get_allmcells(){return all_mcells;};
