@@ -13,7 +13,7 @@ ClusterTrack::~ClusterTrack(){
   delete hough;
 }
 
-void ClusterTrack::SC_IterativeHough(Point &p, float dis){
+Point ClusterTrack::SC_IterativeHough(Point &p, float dis){
   // do three times Hough
   //first hough
   SC_Hough(p,dis);
@@ -28,17 +28,24 @@ void ClusterTrack::SC_IterativeHough(Point &p, float dis){
   SC_Hough(p1,p,dis);
   theta = Get_Theta();
   phi = Get_Phi();
-  p1.x = p.x + dis * sin(theta) * cos(phi);
-  p1.y = p.y + dis * sin(theta) * sin(phi);
-  p1.z = p.z + dis * cos(theta);
+  p1.x = p1.x + dis * sin(theta) * cos(phi);
+  p1.y = p1.y + dis * sin(theta) * sin(phi);
+  p1.z = p1.z + dis * cos(theta);
 
   //third hough
   SC_Hough(p1,p,dis);
-  
+  theta = Get_Theta();
+  phi = Get_Phi();
+  p1.x = p1.x + dis * sin(theta) * cos(phi);
+  p1.y = p1.y + dis * sin(theta) * sin(phi);
+  p1.z = p1.z + dis * cos(theta);
+
+    
+  return p1;
 }
 
-bool ClusterTrack::CrossAll(Point &p, float theta, float phi){
-  bool result = true;
+int ClusterTrack::CrossNum(Point &p, float theta, float phi){
+  int result = 0;
 
   float x1 = p.x;
   float y1 = p.y;
@@ -53,7 +60,10 @@ bool ClusterTrack::CrossAll(Point &p, float theta, float phi){
   for (int i=0;i!=all_mcells.size();i++){
     MergeSpaceCell *mcell = all_mcells.at(i);
 
-    result = false;
+    bool result1 = false;
+    
+    double min_dis = 1e9;
+  
     for (int j=0;j!=mcell->Get_all_spacecell().size();j++){
       SpaceCell *cell = mcell->Get_all_spacecell().at(j);
       
@@ -71,15 +81,20 @@ bool ClusterTrack::CrossAll(Point &p, float theta, float phi){
       TVector3 v4 = v1.Cross(v2);
       dis = v4.Mag()/v3.Mag();
       
+      if (dis < min_dis ) min_dis = dis;
+      //std::cout << "Xin1: " << dis/units::mm << std::endl;
 
+     
       if (dis < 3*units::mm){
-	result = true;
+	result1 = true;
 	break;
       }
     }
     
-    if (!result)
-      break;
+    //std::cout << i << " " << result1 << " " << min_dis/units::mm << std::endl;
+    if (result1)
+      result ++;
+    
   }
   
   return result;
@@ -174,4 +189,55 @@ float ClusterTrack::Get_Phi(){
   int a,b,c;
   hough->GetBinXYZ(maxbin,a,b,c);
   return hough->GetYaxis()->GetBinCenter(b);
+}
+
+
+float ClusterTrack::Get_CTheta(Point &p){
+  double x0 = p.x;
+  double y0 = p.y;
+  double z0 = p.z;
+
+  Point p1 = all_mcells.front()->Get_Center();
+  Point p2 = all_mcells.back()->Get_Center();
+  
+  double x,y,z;
+  
+  if (sqrt(pow(p1.x-x0,2)+pow(p1.y-y0,2)+pow(p1.z-z0,2))<
+      sqrt(pow(p2.x-x0,2)+pow(p2.y-y0,2)+pow(p2.z-z0,2))){
+    x = p2.x;
+    y = p2.y;
+    z = p2.z;
+  }else{
+    x = p1.x;
+    y = p1.y;
+    z = p1.z;
+  }
+  TVector3 vec(x-x0,y-y0,z-z0);
+  return vec.Theta();
+  
+  
+}
+
+float ClusterTrack::Get_CPhi(Point &p){
+  double x0 = p.x;
+  double y0 = p.y;
+  double z0 = p.z;
+
+  Point p1 = all_mcells.front()->Get_Center();
+  Point p2 = all_mcells.back()->Get_Center();
+  
+  double x,y,z;
+  
+  if (sqrt(pow(p1.x-x0,2)+pow(p1.y-y0,2)+pow(p1.z-z0,2))<
+      sqrt(pow(p2.x-x0,2)+pow(p2.y-y0,2)+pow(p2.z-z0,2))){
+    x = p2.x;
+    y = p2.y;
+    z = p2.z;
+  }else{
+    x = p1.x;
+    y = p1.y;
+    z = p1.z;
+  }
+  TVector3 vec(x-x0,y-y0,z-z0);
+  return vec.Phi();
 }

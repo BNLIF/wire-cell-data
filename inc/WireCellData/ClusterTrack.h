@@ -23,13 +23,15 @@ namespace WireCell {
     void SC_Hough(Point& p, float dis = -1);
     void SC_Hough(Point& p1, Point&p, float dis = -1);
     
-    void SC_IterativeHough(Point &p, float dis = 3 * units::cm);
+    Point SC_IterativeHough(Point &p, float dis = 3 * units::cm);
 
-    bool CrossAll(Point &p, float theta, float phi);
+    int CrossNum(Point &p, float theta, float phi);
 
     float Get_Theta();
     float Get_Phi();
 
+    float Get_CTheta(Point &p);
+    float Get_CPhi(Point &p);
 
   protected:
     MergeSpaceCellSelection all_mcells;
