@@ -45,7 +45,7 @@ bool ClusterTrack::CrossAll(Point &p, float theta, float phi){
   float z1 = p.z;
  
   float x2 = x1 + sin(theta) * cos(phi);
-  float y2 = x1 + sin(theta) * sin(phi);
+  float y2 = y1 + sin(theta) * sin(phi);
   float z2 = z1 + cos(theta);
 
   
