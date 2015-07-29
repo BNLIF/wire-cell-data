@@ -2,6 +2,7 @@
 #define ClusterTrack_h
 
 #include "WireCellData/MergeSpaceCell.h"
+#include "TH2F.h"
 #include <vector>
 #include <map>
 
@@ -19,8 +20,18 @@ namespace WireCell {
     MergeSpaceCell* Get_FirstMSCell(){return all_mcells.front();};
     MergeSpaceCell* Get_LastMSCell(){return all_mcells.back();};
 
+    void SC_Hough(Point& p, float dis = -1);
+
+    float Get_Theta();
+    float Get_Phi();
+
+
   protected:
     MergeSpaceCellSelection all_mcells;
+    TH2F *hough;
+    /* std::vector<double> sc_theta; */
+    /* std::vector<double> sc_phi; */
+    /* std::vector<double> sc_q; */
 
   };
   
