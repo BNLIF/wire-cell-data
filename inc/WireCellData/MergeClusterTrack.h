@@ -14,9 +14,13 @@ namespace WireCell{
     ~MergeClusterTrack();
     
     void Add(ClusterTrack *ctrack, MergeSpaceCell *mcell1);
-
+    
+    void Add(MergeSpaceCell *mcell, int flag);
+    void Add(MergeClusterTrack *mctrack, MergeSpaceCell *mcell, int flag);
     
     MergeSpaceCellSelection& Get_allmcells(){return all_mcells;};
+    ClusterTrackSelection& Get_ctracks(){return ctracks;};
+    
     void Update();
 
     void SC_Hough(Point& p, float dis = -1);

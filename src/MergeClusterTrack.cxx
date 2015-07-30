@@ -152,6 +152,76 @@ ClusterTrack* MergeClusterTrack::GetClusterTrack(MergeSpaceCell* vertex){
   return result;
 }
 
+void MergeClusterTrack::Add(MergeSpaceCell *mcell, int flag){
+  // flag == -1 front
+  if (flag == -1){
+    all_mcells_list.push_front(mcell);
+  }else if (flag == 1){
+    all_mcells_list.push_back(mcell);
+  }
+  Update();
+}
+
+void MergeClusterTrack::Add(MergeClusterTrack *mctrack, MergeSpaceCell *mcell1, int flag_insert_direction){
+  
+  int flag_loop_direction=1;
+  
+  auto it = find(mctrack->Get_allmcells().begin(),mctrack->Get_allmcells().end(),mcell1);
+  if (it - mctrack->Get_allmcells().begin() >= mctrack->Get_allmcells().end() -1 - it){ // close to the end
+    flag_loop_direction = -1;
+  }
+  
+  for (int i=0;i!=mctrack->Get_ctracks().size();i++){
+    auto it =find(ctracks.begin(),ctracks.end(),mctrack->Get_ctracks().at(i));
+    if (it == ctracks.end()){
+      ctracks.push_back(mctrack->Get_ctracks().at(i));
+    }
+  }
+
+
+  
+
+  if (flag_loop_direction == 1 && flag_insert_direction == 1){
+    for (int i=0;i!=mctrack->Get_allmcells().size();i++){
+      MergeSpaceCell *mcell = mctrack->Get_allmcells().at(i);
+      auto it = find(all_mcells_list.begin(),all_mcells_list.end(),mcell);
+      if (it == all_mcells_list.end()){
+	all_mcells_list.push_back(mcell);
+      }
+    }
+  }else if (flag_loop_direction == -1 && flag_insert_direction == 1){
+    for (int i=mctrack->Get_allmcells().size()-1;i>-1;i--){
+      MergeSpaceCell *mcell = mctrack->Get_allmcells().at(i);
+      auto it = find(all_mcells_list.begin(),all_mcells_list.end(),mcell);
+      if (it == all_mcells_list.end()){
+	all_mcells_list.push_back(mcell);
+      }
+    }
+  }else if (flag_loop_direction == 1 && flag_insert_direction == -1){
+    for (int i=0;i!=mctrack->Get_allmcells().size();i++){
+      MergeSpaceCell *mcell = mctrack->Get_allmcells().at(i);
+      auto it = find(all_mcells_list.begin(),all_mcells_list.end(),mcell);
+      if (it == all_mcells_list.end()){
+	all_mcells_list.push_front(mcell);
+      }
+    }
+  }else{
+    for (int i=mctrack->Get_allmcells().size()-1;i>-1;i--){
+      MergeSpaceCell *mcell = mctrack->Get_allmcells().at(i);
+      auto it = find(all_mcells_list.begin(),all_mcells_list.end(),mcell);
+      if (it == all_mcells_list.end()){
+	all_mcells_list.push_front(mcell);
+      }
+    }
+  }
+
+
+  Update();
+
+
+  
+}
+
 void MergeClusterTrack::Add(ClusterTrack *ctrack, MergeSpaceCell *mcell1){
   ctracks.push_back(ctrack);
   int flag_insert_direction=1; 

@@ -26,6 +26,8 @@ namespace WireCell {
 
       double thickness(){return all_spacecell.front()->thickness();};
 
+      bool CrossCell(Point &p, float theta, float phi);
+      
     protected:
       int center_flag;
       Point center;
