@@ -5,6 +5,7 @@
 #include "WireCellData/ClusterTrack.h"
 #include "TH2F.h"
 #include <vector>
+#include <map>
 
 namespace WireCell{
   class MergeClusterTrack{
@@ -28,7 +29,7 @@ namespace WireCell{
     MergeSpaceCell* Get_FirstMSCell(){return all_mcells.front();};
     MergeSpaceCell* Get_LastMSCell(){return all_mcells.back();};
 
-      float Get_Theta();
+    float Get_Theta();
     float Get_Phi();
 
 
@@ -42,7 +43,7 @@ namespace WireCell{
   };
 
   typedef std::vector<MergeClusterTrack*> MergeClusterTrackSelection;
-  
+  typedef std::map<MergeSpaceCell*, MergeClusterTrackSelection> MSC_MCT_Map;
 }
 
 #endif

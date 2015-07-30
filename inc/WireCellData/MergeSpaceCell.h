@@ -2,7 +2,7 @@
 #define MergeSpaceWireCellData_Cell_h
 #include "WireCellData/Point.h"
 #include "WireCellData/SpaceCell.h"
-
+//#include "WireCellData/MergeClusterTrack.h"
 
 #include <vector>
 #include <map>
@@ -39,6 +39,7 @@ namespace WireCell {
     typedef std::list<WireCell::MergeSpaceCell*> MergeSpaceCellList;
     typedef std::map<MergeSpaceCell*, int> MergeSpaceCellCounter;
     
+    // typedef std::map<MergeSpaceCell*, MergeClusterTrackSelection> MSC_MCT_Map;
     
 }
 #endif
