@@ -33,6 +33,8 @@ namespace WireCell{
     MergeSpaceCell* Get_FirstMSCell(){return all_mcells.front();};
     MergeSpaceCell* Get_LastMSCell(){return all_mcells.back();};
 
+    bool CheckCell(MergeSpaceCell* scell);
+
     float Get_Theta();
     float Get_Phi();
 

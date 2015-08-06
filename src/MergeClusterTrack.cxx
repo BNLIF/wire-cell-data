@@ -297,3 +297,18 @@ void MergeClusterTrack::Update(){
     all_mcells.push_back(*it);
   }
 }
+
+
+bool MergeClusterTrack::CheckCell(MergeSpaceCell *scell){
+  if (scell == all_mcells.front())
+    return true;
+  if (scell == all_mcells.back())
+    return true;
+  if (all_mcells.size()>=2){
+    if (scell == all_mcells.at(1))
+      return true;
+    if (scell == all_mcells.at(all_mcells.size()-2))
+      return true;
+  }
+  return false;
+}
