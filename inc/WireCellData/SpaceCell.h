@@ -20,7 +20,7 @@ namespace WireCell {
 
       ~SpaceCell();
 	
-      double x(){return cell->center().x;};
+      double x(){return _x;};
       double y(){return cell->center().y;};
       double z(){return cell->center().z;};
       float q(){return _q;};
@@ -30,10 +30,22 @@ namespace WireCell {
       PointVector boundary() const{return cell->boundary();};
       const GeomCell* get_cell(){return cell;};
 
+      /* double x(){return _x;}; */
+      /* double y(){return _y;}; */
+      /* double z(){return ;}; */
+      /* float q(){return _q;}; */
+      /* double area(){return cell->cross_section();}; */
+      /* //   int ncluster(){return _ncluster;}; */
+      /* float thickness(){return _thickness;}; */
+      /* PointVector boundary() const{return cell->boundary();}; */
+      /* const GeomCell* get_cell(){return cell;}; */
+            
+
     protected:
       const GeomCell *cell;
       float _q;
       float _thickness;
+      double _x;
       // int _ncluster;    
 
 

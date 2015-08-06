@@ -16,9 +16,10 @@ using namespace WireCell;
 
 
 
-SpaceCell::SpaceCell(int ncluster, const GeomCell& cell, double x, double q, double thickness)
-  : cell(&cell),
+SpaceCell::SpaceCell(int ncluster, const GeomCell& cell1, double x, double q, double thickness)
+  : cell(&cell1),
     _q(q),
+    _x(x),
     _thickness(thickness)
     // _ncluster(ncluster)
 {

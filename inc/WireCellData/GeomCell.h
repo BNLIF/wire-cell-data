@@ -18,6 +18,7 @@ namespace WireCell {
     public:
 	GeomCell(int ident = 0, 
 		 const PointVector& boundary = PointVector());
+	GeomCell(const GeomCell *cell);
 
 	~GeomCell();
 	
