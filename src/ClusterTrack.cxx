@@ -6,11 +6,11 @@ using namespace WireCell;
 
 ClusterTrack::ClusterTrack(MergeSpaceCell *cell){
   all_mcells.push_back(cell);
-  hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
+  
 }
 
 ClusterTrack::~ClusterTrack(){
-  delete hough;
+  // delete hough;
 }
 
 Point ClusterTrack::SC_IterativeHough(Point &p, float dis){
@@ -106,7 +106,8 @@ void ClusterTrack::AddMSCell(MergeSpaceCell *cell){
 }
 
 void ClusterTrack::SC_Hough(Point&p1, Point&p, float dis){
-  hough->Reset();
+  TH2F *hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
+  
   double x0 = p.x;
   double y0 = p.y;
   double z0 = p.z;
@@ -141,11 +142,18 @@ void ClusterTrack::SC_Hough(Point&p1, Point&p, float dis){
     }
   }
   
+  int maxbin = hough->GetMaximumBin();
+  int a,b,c;
+  hough->GetBinXYZ(maxbin,a,b,c);
+  theta_hough = hough->GetXaxis()->GetBinCenter(a);
+  phi_hough = hough->GetYaxis()->GetBinCenter(b);
+  
+  delete hough;
 }
 
 
 void ClusterTrack::SC_Hough(Point& p, float dis){
-  hough->Reset();
+  TH2F *hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
   double x0 = p.x;
   double y0 = p.y;
   double z0 = p.z;
@@ -174,21 +182,26 @@ void ClusterTrack::SC_Hough(Point& p, float dis){
       }
     }
   }
-}
 
-float ClusterTrack::Get_Theta(){
   int maxbin = hough->GetMaximumBin();
   int a,b,c;
   hough->GetBinXYZ(maxbin,a,b,c);
-  return hough->GetXaxis()->GetBinCenter(a);
+  theta_hough = hough->GetXaxis()->GetBinCenter(a);
+  phi_hough = hough->GetYaxis()->GetBinCenter(b);
+
+
+  delete hough;
+  
+}
+
+float ClusterTrack::Get_Theta(){
+  return theta_hough;
 }
 
 
 float ClusterTrack::Get_Phi(){
-  int maxbin = hough->GetMaximumBin();
-  int a,b,c;
-  hough->GetBinXYZ(maxbin,a,b,c);
-  return hough->GetYaxis()->GetBinCenter(b);
+  
+  return phi_hough;
 }
 
 

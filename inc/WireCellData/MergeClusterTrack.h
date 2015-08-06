@@ -42,7 +42,9 @@ namespace WireCell{
     MergeSpaceCellSelection all_mcells; // save all the merged cells
     MergeSpaceCellList all_mcells_list; // temporary one ... 
     
-    TH2F *hough;
+    float theta_hough;
+    float phi_hough;
+    //TH2F *hough;
     
   };
 

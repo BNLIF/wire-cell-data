@@ -10,26 +10,21 @@ MergeClusterTrack::MergeClusterTrack(ClusterTrack *ctrack){
   all_mcells_list.assign(ctrack->Get_allmcells().begin(),ctrack->Get_allmcells().end());
 
   Update();
-  hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
+  
 }
 
 MergeClusterTrack::~MergeClusterTrack(){
-  delete hough;
+  //delete hough;
 }
 
 float MergeClusterTrack::Get_Theta(){
-  int maxbin = hough->GetMaximumBin();
-  int a,b,c;
-  hough->GetBinXYZ(maxbin,a,b,c);
-  return hough->GetXaxis()->GetBinCenter(a);
+  return theta_hough;
 }
 
 
 float MergeClusterTrack::Get_Phi(){
-  int maxbin = hough->GetMaximumBin();
-  int a,b,c;
-  hough->GetBinXYZ(maxbin,a,b,c);
-  return hough->GetYaxis()->GetBinCenter(b);
+ 
+  return phi_hough;
 }
 
 
@@ -66,7 +61,7 @@ Point MergeClusterTrack::SC_IterativeHough(Point &p, float dis){
 }
 
 void MergeClusterTrack::SC_Hough(Point&p1, Point&p, float dis){
-  hough->Reset();
+  TH2F* hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
   double x0 = p.x;
   double y0 = p.y;
   double z0 = p.z;
@@ -100,12 +95,19 @@ void MergeClusterTrack::SC_Hough(Point&p1, Point&p, float dis){
       }
     }
   }
-  
+  int maxbin = hough->GetMaximumBin();
+  int a,b,c;
+  hough->GetBinXYZ(maxbin,a,b,c);
+  theta_hough =  hough->GetXaxis()->GetBinCenter(a);
+  phi_hough = hough->GetYaxis()->GetBinCenter(b);
+
+  delete hough;
 }
 
 
 void MergeClusterTrack::SC_Hough(Point& p, float dis){
-  hough->Reset();
+  TH2F *hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
+  //  hough->Reset();
   double x0 = p.x;
   double y0 = p.y;
   double z0 = p.z;
@@ -134,6 +136,13 @@ void MergeClusterTrack::SC_Hough(Point& p, float dis){
       }
     }
   }
+
+  int maxbin = hough->GetMaximumBin();
+  int a,b,c;
+  hough->GetBinXYZ(maxbin,a,b,c);
+  theta_hough =  hough->GetXaxis()->GetBinCenter(a);
+  phi_hough = hough->GetYaxis()->GetBinCenter(b);
+  delete hough;
 }
 
 

@@ -35,9 +35,11 @@ namespace WireCell {
 
   protected:
     MergeSpaceCellSelection all_mcells;
-    
+   
+    float theta_hough;
+    float phi_hough;
 
-    TH2F *hough;
+    //    TH2F *hough;
     /* std::vector<double> sc_theta; */
     /* std::vector<double> sc_phi; */
     /* std::vector<double> sc_q; */

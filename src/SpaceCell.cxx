@@ -19,7 +19,7 @@ using namespace WireCell;
 SpaceCell::SpaceCell(int ncluster, const GeomCell& cell, double x, double q, double thickness)
   : cell(&cell),
     _q(q),
-    _thickness(thickness),
-    _ncluster(ncluster)
+    _thickness(thickness)
+    // _ncluster(ncluster)
 {
 }

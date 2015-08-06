@@ -23,18 +23,18 @@ namespace WireCell {
       double x(){return cell->center().x;};
       double y(){return cell->center().y;};
       double z(){return cell->center().z;};
-      double q(){return _q;};
+      float q(){return _q;};
       double area(){return cell->cross_section();};
-      int ncluster(){return _ncluster;};
-      double thickness(){return _thickness;};
+      //   int ncluster(){return _ncluster;};
+      float thickness(){return _thickness;};
       PointVector boundary() const{return cell->boundary();};
       const GeomCell* get_cell(){return cell;};
 
     protected:
       const GeomCell *cell;
-      double _q;
-      double _thickness;
-      int _ncluster;    
+      float _q;
+      float _thickness;
+      // int _ncluster;    
 
 
       /* double _x,_y,_z,_q; */

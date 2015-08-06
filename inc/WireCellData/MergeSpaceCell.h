@@ -24,7 +24,7 @@ namespace WireCell {
 
       Point& Get_Center();
 
-      double thickness(){return all_spacecell.front()->thickness();};
+      float thickness(){return all_spacecell.front()->thickness();};
 
       bool CrossCell(Point &p, float theta, float phi);
       
