@@ -29,7 +29,7 @@ namespace WireCell {
   };
 
   typedef std::set<GeomCluster*> GeomClusterSet;
-  
+  typedef std::list<GeomCluster*> GeomClusterList;
 };
 
 #endif

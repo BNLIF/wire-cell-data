@@ -95,6 +95,10 @@ int GeomCluster::AddCell(MergeGeomCell &cell){
   int curr_time = (*it)->GetTimeSlice();
   int time = cell.GetTimeSlice();
 
+  
+  //std::cout << time << " " << curr_time << std::endl;
+
+
   if (time - curr_time > 1){ // there is an empty time slot
     return 0; // do not add this cell
   }else if (time - curr_time == 0 ){ // same time slice

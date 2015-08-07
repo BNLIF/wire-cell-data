@@ -46,21 +46,20 @@ bool MergeSpaceCell::Overlap(MergeSpaceCell& mcell,float num){
       SpaceCell *cell2 = mcell.Get_all_spacecell().at(j);
 
       
-      if (fabs(cell1->y()-cell2->y()) > 2.5*units::cm) break;
-      if (fabs(cell1->z()-cell2->z()) > 2.5*units::cm) break;
+      if (fabs(cell1->y()-cell2->y()) <  2.5*units::cm && fabs(cell1->z()-cell2->z()) < 2.5*units::cm) {
       
-      for (int i1=0;i1!=cell1->boundary().size();i1++){
-	Point p = (cell1->boundary())[i1];
-	for (int j1=0;j1!=cell2->boundary().size();j1++){
-	  Point p1 = (cell2->boundary())[j1];
-	  if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
-	    // std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << std::endl;
-	    return true;
+	for (int i1=0;i1!=cell1->boundary().size();i1++){
+	  Point p = (cell1->boundary())[i1];
+	  for (int j1=0;j1!=cell2->boundary().size();j1++){
+	    Point p1 = (cell2->boundary())[j1];
+	    if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
+	      // std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << std::endl;
+	      return true;
+	    }
 	  }
 	}
+	
       }
-
-
     }
   }
   return false;
