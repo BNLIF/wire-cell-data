@@ -3,6 +3,16 @@
 
 using namespace WireCell;
 
+float MergeSpaceCell::Get_Charge(){
+  float sum = 0;
+  for (int j=0;j!=all_spacecell.size();j++){
+    SpaceCell *cell = all_spacecell.at(j);
+    sum += cell->q();
+  }
+  return sum;
+}
+
+
 bool MergeSpaceCell::CrossCell(Point &p, float theta, float phi){
     
   float x1 = p.x;

@@ -23,13 +23,12 @@ namespace WireCell{
     
     void Update();
 
-    void SC_Hough(Point& p, float dis = -1);
-    void SC_Hough(Point& p1, Point&p, float dis = -1);
+    void SC_Hough(Point& p, float dis = -1, int flag = 1);
+    void SC_Hough(Point& p1, Point&p, float dis = -1, int flag = 1);
+    Point SC_IterativeHough(Point &p, float dis = 3 * units::cm, int flag = 1);
     
-    Point SC_IterativeHough(Point &p, float dis = 3 * units::cm);
 
     ClusterTrack* GetClusterTrack(MergeSpaceCell* vertex);
-
     MergeSpaceCell* Get_FirstMSCell(){return all_mcells.front();};
     MergeSpaceCell* Get_LastMSCell(){return all_mcells.back();};
 

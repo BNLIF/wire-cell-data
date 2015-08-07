@@ -24,6 +24,7 @@ namespace WireCell {
       bool Overlap(MergeSpaceCell& mcell, float num = 0.1);
 
       Point& Get_Center();
+      float Get_Charge();
 
       float thickness(){return all_spacecell.front()->thickness();};
 
