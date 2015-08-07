@@ -211,9 +211,12 @@ void MergeGeomCell::FindEdges(){
 }
 
 bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
-  for (int i=0;i!=cell_all.size();i++){
+  // FindEdges();
+  // cell.FindEdges();
+
+  for (int i=0;i!=edge_cells.size();i++){
     const GeomCell *cell1 = cell_all[i];
-    for (int j=0;j!=cell.get_allcell().size();j++){
+    for (int j=0;j!=cell.get_edgecells().size();j++){
       const GeomCell *cell2 = cell.get_allcell().at(j);
 
       Point c1 = cell1->center();
