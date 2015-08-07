@@ -215,6 +215,7 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
   // FindEdges();
   // cell.FindEdges();
 
+  
   for (int i=0;i!=edge_cells.size();i++){
     const GeomCell *cell1 = edge_cells[i];
     for (int j=0;j!=cell.get_edgecells().size();j++){
