@@ -219,23 +219,22 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
       Point c1 = cell1->center();
       Point c2 = cell2->center();
       //std::cout << (c1.y-c2.y)/units::cm << " " << (c1.z-c2.z)/units::cm << " " << cell_all.size() << " " << cell.get_allcell().size() << " " << i << " " << j << std::endl;
-      if (fabs(c1.y-c2.y) < 2.5*units::cm && fabs(c1.z-c2.z) < 2.5*units::cm) {
+      if (fabs(c1.y-c2.y) > 2.5*units::cm) continue;
+      if ( fabs(c1.z-c2.z) > 2.5*units::cm) continue;
 	
-	for (int i1=0;i1!=cell1->boundary().size();i1++){
-	  Point p = (cell1->boundary())[i1];
-	  for (int j1=0;j1!=cell2->boundary().size();j1++){
-	    Point p1 = (cell2->boundary())[j1];
-	    
-	    //std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << " " << sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m << std::endl;
-	    
+      for (int i1=0;i1!=cell1->boundary().size();i1++){
+	Point p = (cell1->boundary())[i1];
+	for (int j1=0;j1!=cell2->boundary().size();j1++){
+	  Point p1 = (cell2->boundary())[j1];
+	  
+	  //std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << " " << sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m << std::endl;
+	  
 	  if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
 	    
 	    return true;
 	  }
-	  }
 	}
       }
-
     }
   }
   return false;
@@ -251,24 +250,24 @@ int MergeGeomCell::Overlap1(const MergeGeomCell &cell, float num) const{
       Point c1 = cell1->center();
       Point c2 = cell2->center();
 
-      if (fabs(c1.y-c2.y) < 1*units::cm && fabs(c1.z-c2.z) < 1*units::cm){
-	int flag = 0;
-	for (int i1=0;i1!=cell1->boundary().size();i1++){
-	  Point p = (cell1->boundary())[i1];
-	  for (int j1=0;j1!=cell2->boundary().size();j1++){
-	    Point p1 = (cell2->boundary())[j1];
-	    if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
-	      flag  = 1;
-	      val ++;
-	      break;
-	    }
+      if (fabs(c1.y-c2.y) > 1*units::cm) continue;
+      if (fabs(c1.z-c2.z) > 1*units::cm) continue;
+      int flag = 0;
+      for (int i1=0;i1!=cell1->boundary().size();i1++){
+	Point p = (cell1->boundary())[i1];
+	for (int j1=0;j1!=cell2->boundary().size();j1++){
+	  Point p1 = (cell2->boundary())[j1];
+	  if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
+	    flag  = 1;
+	    val ++;
+	    break;
 	  }
-	  if (flag==1) break;
-	}
+	  }
+	if (flag==1) break;
       }
     }
   }
-
+  
   return val;
 }
 
@@ -432,23 +431,23 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell& cell, double dis){
     for (int j=0;j!=_boundary.size();j++){
       Point p1 = _boundary[j];
       
-      if (fabs(p.x-p1.x) < dis && fabs(p.y-p1.y) < dis && fabs(p.z-p1.z) < dis ){
- 
-	if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))<dis){
-	  nshare ++;
-	  if (nshare==2){
-	    // Need to improve
-	    _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
-	    _edge.insert(_edge.end(),edge.begin(),edge.end());
-	    // Need to improve
-	    
-	    cell_all.push_back(&cell);
-	    return 1;
-	  }
+      if (fabs(p.x-p1.x) > dis) continue;
+      if ( fabs(p.y-p1.y) > dis) continue; 
+      if (fabs(p.z-p1.z) > dis ) continue;
+      
+      if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))<dis){
+	nshare ++;
+	if (nshare==2){
+	  // Need to improve
+	  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
+	  _edge.insert(_edge.end(),edge.begin(),edge.end());
+	  // Need to improve
+	  
+	  cell_all.push_back(&cell);
+	  return 1;
 	}
       }
-
-
+      
     }
   }
  
@@ -469,19 +468,20 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell, double dis){
     Point p = boundary[i];
     for (int j=0;j!=_boundary.size();j++){
       Point p1 = _boundary[j];
-      
-      if (fabs(p.x-p1.x) < dis && fabs(p.y-p1.y) < dis && fabs(p.z-p1.z) < dis){ 
-	if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))<dis){
-	  nshare ++;
-	  if (nshare==2){
-	    // Need to improve
-	    _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
-	    _edge.insert(_edge.end(),edge.begin(),edge.end());
-	    // en
-	    WireCell::GeomCellSelection temp = cell.get_allcell();
-	    cell_all.insert(cell_all.end(),temp.begin(),temp.end());
-	    return 1;
-	  }
+     
+      if (fabs(p.x-p1.x) > dis) continue; 
+      if (fabs(p.y-p1.y) > dis) continue; 
+      if (fabs(p.z-p1.z) > dis) continue; 
+      if (sqrt(pow(p.x-p1.x,2)+pow(p.y-p1.y,2)+pow(p.z-p1.z,2))<dis){
+	nshare ++;
+	if (nshare==2){
+	  // Need to improve
+	  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
+	  _edge.insert(_edge.end(),edge.begin(),edge.end());
+	  // en
+	  WireCell::GeomCellSelection temp = cell.get_allcell();
+	  cell_all.insert(cell_all.end(),temp.begin(),temp.end());
+	  return 1;
 	}
       }
     }
