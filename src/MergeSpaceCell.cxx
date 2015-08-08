@@ -100,3 +100,10 @@ Point& MergeSpaceCell::Get_Center(){
     return center;
   }
 }
+
+
+MergeSpaceCell::~MergeSpaceCell(){
+  for (int i=0;i!=all_spacecell.size();i++){
+    delete all_spacecell.at(i);
+  }
+}

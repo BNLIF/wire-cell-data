@@ -18,7 +18,7 @@ namespace WireCell {
     public:
       SpaceCell(int ncluster, const GeomCell& cell, double x, double q, double thickness);
 
-      ~SpaceCell();
+      ~SpaceCell(){};
 	
       double x(){return _x;};
       double y(){return cell->center().y;};

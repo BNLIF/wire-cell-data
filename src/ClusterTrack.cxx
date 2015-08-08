@@ -11,6 +11,9 @@ ClusterTrack::ClusterTrack(MergeSpaceCell *cell){
 
 ClusterTrack::~ClusterTrack(){
   // delete hough;
+  for (int i =0; i!=all_mcells.size();i++){
+    delete all_mcells.at(i);
+  }
 }
 
 Point ClusterTrack::SC_IterativeHough(Point &p, float dis, int flag){
