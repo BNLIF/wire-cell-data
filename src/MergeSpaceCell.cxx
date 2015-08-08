@@ -103,7 +103,9 @@ Point& MergeSpaceCell::Get_Center(){
 
 
 MergeSpaceCell::~MergeSpaceCell(){
-  for (int i=0;i!=all_spacecell.size();i++){
-    delete all_spacecell.at(i);
-  }
+  mcell = 0;
+  // for (int i=0;i!=all_spacecell.size();i++){
+  //   delete all_spacecell.at(i);
+  // }
+  // all_spacecell.clear();
 }
