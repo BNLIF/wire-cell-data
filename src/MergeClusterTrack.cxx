@@ -28,6 +28,41 @@ float MergeClusterTrack::Get_Phi(){
 }
 
 
+int MergeClusterTrack::Get_TimeLength(){
+  for (int i=0;i!=all_mcells.size();i++){
+    MergeSpaceCell *smcell = all_mcells.at(i);
+    const MergeGeomCell *mcell = smcell->get_mcell();
+    
+    int time;
+    if (mcell!=0){
+      time = mcell->GetTimeSlice();
+    }else{
+      time = round(((smcell->Get_Center().x)/units::cm + 256)/0.32);
+    }
+
+    auto it = find(times.begin(),times.end(),time);
+    if (it == times.end()){
+      MergeSpaceCellSelection cells;
+      cells.push_back(smcell);
+      times.push_back(time);
+      times_mcells.push_back(cells);
+    }else{
+      times_mcells.at(it-times.begin()).push_back(smcell);
+    }
+    
+  }
+  // std::set<int> times;
+  // for (int i=0;i!=all_mcells.size();i++){
+  //   const MergeGeomCell *mcell = all_mcells.at(i)->get_mcell();
+  //   times.insert(mcell->GetTimeSlice());
+  // }
+  return times.size();
+}
+
+MergeSpaceCellSelection& MergeClusterTrack::Get_MSCS(int time){
+  return times_mcells.at(time);
+}
+
 
 Point MergeClusterTrack::SC_IterativeHough(Point &p, float dis, int flag){
   // do three times Hough

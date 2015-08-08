@@ -41,11 +41,17 @@ namespace WireCell{
     float Get_Theta();
     float Get_Phi();
 
+    int Get_TimeLength();
+    MergeSpaceCellSelection& Get_MSCS(int time);
+    int Get_Time(int time){return times.at(time);};
 
   protected:
     ClusterTrackSelection ctracks; // save merged clusters ... 
     MergeSpaceCellSelection all_mcells; // save all the merged cells
     MergeSpaceCellList all_mcells_list; // temporary one ... 
+
+    std::vector<MergeSpaceCellSelection> times_mcells;
+    std::vector<int> times;
     
     float theta_hough;
     float phi_hough;
