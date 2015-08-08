@@ -15,6 +15,9 @@ MergeClusterTrack::MergeClusterTrack(ClusterTrack *ctrack){
 
 MergeClusterTrack::~MergeClusterTrack(){
   //delete hough;
+  for (int i=0;i!=ctracks.size();i++){
+    delete ctracks.at(i);
+  }
 }
 
 float MergeClusterTrack::Get_Theta(){
