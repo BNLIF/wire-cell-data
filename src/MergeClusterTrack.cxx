@@ -209,6 +209,33 @@ void MergeClusterTrack::Add(MergeSpaceCell *mcell, int flag){
   Update();
 }
 
+void MergeClusterTrack::AddTrack(MergeClusterTrack *mctrack){
+  for (int i=0;i!=mctrack->Get_allmcells().size();i++){
+    MergeSpaceCell *mcell = mctrack->Get_allmcells().at(i);
+    auto it = find(all_mcells.begin(),all_mcells.end(),mcell);
+    if (it == all_mcells.end()){
+      all_mcells.push_back(mcell);
+      all_mcells_list.push_back(mcell);
+    }
+  }
+}
+
+void MergeClusterTrack::Organize(){
+  MergeSpaceCellSet MSC_set;
+  for (int i=0;i!=all_mcells.size();i++){
+    MergeSpaceCell *mcell = all_mcells.at(i);
+    MSC_set.insert(mcell);
+  }
+  
+  all_mcells.clear();
+  all_mcells_list.clear();
+  for (auto it = MSC_set.begin();it!=MSC_set.end();it++){
+    all_mcells.push_back(*it);
+    all_mcells_list.push_back(*it);
+  }
+  
+}
+
 void MergeClusterTrack::Add(MergeClusterTrack *mctrack, MergeSpaceCell *mcell1, int flag_insert_direction){
   
   int flag_loop_direction=1;

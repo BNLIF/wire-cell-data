@@ -6,6 +6,7 @@
 #include "TH2F.h"
 #include <vector>
 #include <map>
+#include <set>
 
 namespace WireCell{
   class MergeClusterTrack{
@@ -18,6 +19,9 @@ namespace WireCell{
     void Add(MergeSpaceCell *mcell, int flag);
     void Add(MergeClusterTrack *mctrack, MergeSpaceCell *mcell, int flag);
     
+    void AddTrack(MergeClusterTrack *mctrack);
+    void Organize();
+
     MergeSpaceCellSelection& Get_allmcells(){return all_mcells;};
     ClusterTrackSelection& Get_ctracks(){return ctracks;};
     
@@ -49,8 +53,18 @@ namespace WireCell{
     
   };
 
+  struct MergeClusterTrackCompare {
+    bool operator() (MergeClusterTrack* a, MergeClusterTrack* b) const{
+      if (a->Get_allmcells().size() == b->Get_allmcells().size()){
+	return a > b;
+      }
+      return a->Get_allmcells().size() > b->Get_allmcells().size();
+    }
+  };
+
   typedef std::vector<MergeClusterTrack*> MergeClusterTrackSelection;
   typedef std::map<MergeSpaceCell*, MergeClusterTrackSelection> MSC_MCT_Map;
+  typedef std::set<MergeClusterTrack*, MergeClusterTrackCompare> MergeClusterTrackSet;
 }
 
 #endif

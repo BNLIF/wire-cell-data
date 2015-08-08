@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <list>
+#include <set>
 
 namespace WireCell {
 
@@ -40,11 +41,25 @@ namespace WireCell {
       
 };
     
+    struct MergeSpaceCellCompare{
+      bool operator() (MergeSpaceCell *a, MergeSpaceCell *b) const {
+	
+	if (a->Get_Center().x == b->Get_Center().x){
+	  if (a->Get_all_spacecell().size()==b->Get_all_spacecell().size()){
+	    return a > b;
+	  }
+	  return a->Get_all_spacecell().size() > b->Get_all_spacecell().size();
+	}
+	return a->Get_Center().x < b->Get_Center().x;
+      }
+    };
+
     /// Used to temporarily collect some subset
     typedef std::vector<WireCell::MergeSpaceCell*> MergeSpaceCellSelection;
     typedef std::map<MergeSpaceCell*, MergeSpaceCellSelection> MergeSpaceCellMap;
     typedef std::list<WireCell::MergeSpaceCell*> MergeSpaceCellList;
     typedef std::map<MergeSpaceCell*, int> MergeSpaceCellCounter;
+    typedef std::set<MergeSpaceCell*, MergeSpaceCellCompare> MergeSpaceCellSet;
     
     // typedef std::map<MergeSpaceCell*, MergeClusterTrackSelection> MSC_MCT_Map;
     
