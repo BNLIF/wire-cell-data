@@ -25,6 +25,17 @@ WCTrack::~WCTrack(){
 
 
 int WCTrack::TrackType(MergeSpaceCell& cell){
-  int result = 0;
-  return result;
+  int type = 0;
+  // type == 1: short tracks
+  // type == 2: straight tracks
+  // type == 3: wiggle tracks 
+  
+  int time_length = mct.Get_TimeLength();
+  if (time_length < 5){
+    type = 1;
+  }else{
+    
+  }
+  
+  return type;
 }
