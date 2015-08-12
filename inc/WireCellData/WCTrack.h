@@ -18,6 +18,8 @@ namespace WireCell {
   protected:
     MergeClusterTrack& mct;
     MergeSpaceCellSelection end_scells;
+    
+    
 
   };
 
