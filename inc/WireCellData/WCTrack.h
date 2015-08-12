@@ -2,15 +2,22 @@
 #define WCTrack_h
 
 #include "WireCellData/MergeClusterTrack.h"
+#include <vector>
 
 namespace WireCell {
   class WCTrack{
   public:
     WCTrack(MergeClusterTrack& mct);
+    MergeClusterTrack& get_mct(){return mct;};
+    
+    int TrackType(MergeSpaceCell& cell);
+    
   protected:
-    int track_type;
     MergeClusterTrack& mct;
+
   };
+
+  typedef std::vector<WCTrack*> WCTrackSelection;
 }
 
 #endif

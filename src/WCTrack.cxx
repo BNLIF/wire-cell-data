@@ -6,3 +6,4 @@ WCTrack::WCTrack(MergeClusterTrack& mct)
   : mct(mct)
 {
 }
+

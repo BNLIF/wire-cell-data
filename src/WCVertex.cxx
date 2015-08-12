@@ -2,6 +2,11 @@
 
 using namespace WireCell;
 
+WCVertex::WCVertex(MergeSpaceCell& msc)
+  : msc(msc)
+{
+}
+
 Point WCVertex::Center(){
   return center;
 }
