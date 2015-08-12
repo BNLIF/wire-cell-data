@@ -8,6 +8,7 @@ namespace WireCell {
   class WCTrack{
   public:
     WCTrack(MergeClusterTrack& mct);
+    ~WCTrack();
     MergeClusterTrack& get_mct(){return mct;};
     
     int TrackType(MergeSpaceCell& cell);

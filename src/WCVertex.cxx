@@ -7,6 +7,10 @@ WCVertex::WCVertex(MergeSpaceCell& msc)
 {
 }
 
+WCVertex::~WCVertex(){
+}
+
+
 Point WCVertex::Center(){
   return center;
 }

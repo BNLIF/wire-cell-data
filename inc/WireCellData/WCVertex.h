@@ -8,6 +8,7 @@
 namespace WireCell {
   class WCVertex {
     WCVertex(MergeSpaceCell& msc);
+    ~WCVertex();
   public:
     Point Center();
 

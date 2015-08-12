@@ -7,3 +7,5 @@ WCTrack::WCTrack(MergeClusterTrack& mct)
 {
 }
 
+WCTrack::~WCTrack(){
+}
