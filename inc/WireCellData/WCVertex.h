@@ -10,11 +10,12 @@
 
 namespace WireCell {
   class WCVertex {
-    WCVertex(MergeSpaceCell& msc);
-    ~WCVertex();
+    
   public:
     Point Center();
-
+    WCVertex(MergeSpaceCell& msc);
+    ~WCVertex();
+    
   protected:
     Point center;
     MergeSpaceCell& msc;
