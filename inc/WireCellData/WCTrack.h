@@ -2,7 +2,7 @@
 #define WCTrack_h
 
 #include "WireCellData/MergeClusterTrack.h"
-#include "WireCellData/WCVertex.h"
+//#include "WireCellData/WCVertex.h"
 #include <vector>
 #include <map>
 
@@ -12,12 +12,13 @@ namespace WireCell {
     WCTrack(MergeClusterTrack& mct);
     ~WCTrack();
     MergeClusterTrack& get_mct(){return mct;};
-    
     int TrackType(MergeSpaceCell& cell);
+    MergeSpaceCellSelection& get_end_scells(){return end_scells;};
     
   protected:
     MergeClusterTrack& mct;
-    
+    MergeSpaceCellSelection end_scells;
+
   };
 
   typedef std::vector<WCTrack*> WCTrackSelection;
