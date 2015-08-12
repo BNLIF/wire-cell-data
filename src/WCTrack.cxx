@@ -9,3 +9,9 @@ WCTrack::WCTrack(MergeClusterTrack& mct)
 
 WCTrack::~WCTrack(){
 }
+
+
+int WCTrack::TrackType(MergeSpaceCell& cell){
+  int result = 0;
+  return result;
+}
