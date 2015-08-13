@@ -48,7 +48,8 @@ bool WCVertex::AddVertex(WCVertex *vertex){
   MergeSpaceCell *msc1 = &msc;
   MergeSpaceCell *msc2 = vertex->get_msc();
   
-  if (fabs(msc1->Get_Center().x/units::mm-msc2->Get_Center().x/units::mm)<0.5){
+  if (fabs(msc1->Get_Center().x/units::mm-msc2->Get_Center().x/units::mm)<5){
+    // std::cout <<  fabs(msc1->Get_Center().x/units::mm-msc2->Get_Center().x/units::mm) << " " << msc1->Overlap(*msc2) << std::endl;
     if (msc1->Overlap(*msc2)){
       for (int i=0;i!=tracks.size();i++){
 	WCTrack *track1 = tracks.at(i);
@@ -56,6 +57,13 @@ bool WCVertex::AddVertex(WCVertex *vertex){
 	if (it != vertex->get_tracks().end()){
 	  result = true;
 	  
+	  for (int j=0;j!=vertex->get_tracks().size();j++){
+	    WCTrack *track2 = vertex->get_tracks().at(j);
+	    auto it1 = find(tracks.begin(),tracks.end(),track2);
+	    if (it1 == tracks.end()){
+	      tracks.push_back(track2);
+	    }
+	  }
 	  break;
 	}
 	
