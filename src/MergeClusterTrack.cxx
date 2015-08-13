@@ -68,6 +68,30 @@ MergeSpaceCellSelection& MergeClusterTrack::Get_MSCS(int time){
   return times_mcells.at(time);
 }
 
+Point MergeClusterTrack::SC_2Hough(Point &p, float dis, int flag){
+  SC_Hough(p,dis, flag);
+  float theta = Get_Theta();
+  float phi = Get_Phi();
+  Point p1;
+  p1.x = p.x + dis * sin(theta) * cos(phi);
+  p1.y = p.y + dis * sin(theta) * sin(phi);
+  p1.z = p.z + dis * cos(theta);
+
+  //second hough
+  SC_Hough(p1,p,dis, flag);
+  theta = Get_Theta();
+  phi = Get_Phi();
+  p1.x = p1.x + dis * sin(theta) * cos(phi);
+  p1.y = p1.y + dis * sin(theta) * sin(phi);
+  p1.z = p1.z + dis * cos(theta);
+
+  // std::cout << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << " " 
+  // 	    << p1.x/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm << std::endl;
+
+  return p1;
+}
+
+
 
 Point MergeClusterTrack::SC_IterativeHough(Point &p, float dis, int flag){
   // do three times Hough
@@ -151,6 +175,26 @@ void MergeClusterTrack::SC_Hough(Point&p1, Point&p, float dis, int flag){
 	  if (sqrt(pow(x-x0,2)+pow(y-y0,2)+pow(z-z0,2))<dis)
 	    hough->Fill(vec.Theta(),vec.Phi(),q);
 	}
+    }else if (flag == 3){
+      for (int j=0;j!=mcell->Get_all_spacecell().size();j++){
+	SpaceCell *cell = mcell->Get_all_spacecell().at(j);
+	x = cell->x();
+	y = cell->y();
+	z = cell->z();
+	q = cell->q();
+	TVector3 vec(x-x1,y-y1,z-z1);
+	// sc_theta.push_back(vec.Theta());
+	// sc_phi.push_back(vec.Phi());
+	// sc_q.push_back(q);
+	if (fabs(x-x1)>1*units::cm){
+	  if (dis <= 0){
+	    hough->Fill(vec.Theta(),vec.Phi(),q);
+	  }else{
+	    if (sqrt(pow(x-x0,2)+pow(y-y0,2)+pow(z-z0,2))<dis)
+	      hough->Fill(vec.Theta(),vec.Phi(),q);
+	  }
+	}
+      }
     }
   }
   int maxbin = hough->GetMaximumBin();
@@ -211,6 +255,30 @@ void MergeClusterTrack::SC_Hough(Point& p, float dis, int flag){
       }else{
 	if (sqrt(pow(x-x0,2)+pow(y-y0,2)+pow(z-z0,2))<dis)
 	  hough->Fill(vec.Theta(),vec.Phi(),q);
+      }
+    }else if (flag==3){
+      for (int j=0;j!=mcell->Get_all_spacecell().size();j++){
+	SpaceCell *cell = mcell->Get_all_spacecell().at(j);
+	
+	x = cell->x();
+	y = cell->y();
+	z = cell->z();
+	q = cell->q();
+	
+	
+	
+	TVector3 vec(x-x0,y-y0,z-z0);
+	// sc_theta.push_back(vec.Theta());
+	// sc_phi.push_back(vec.Phi());
+	// sc_q.push_back(q);
+	if (fabs(x-x0)>1.0 * units::cm){
+	  if (dis <= 0){
+	    hough->Fill(vec.Theta(),vec.Phi(),q);
+	  }else{
+	    if (sqrt(pow(x-x0,2)+pow(y-y0,2)+pow(z-z0,2))<dis)
+	      hough->Fill(vec.Theta(),vec.Phi(),q);
+	  }
+	}
       }
     }
   }

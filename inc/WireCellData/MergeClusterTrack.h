@@ -30,7 +30,8 @@ namespace WireCell{
     void SC_Hough(Point& p, float dis = -1, int flag = 1);
     void SC_Hough(Point& p1, Point&p, float dis = -1, int flag = 1);
     Point SC_IterativeHough(Point &p, float dis = 3 * units::cm, int flag = 1);
-    
+   
+    Point SC_2Hough(Point &p, float dis = 3 * units::cm, int flag = 1);
 
     ClusterTrack* GetClusterTrack(MergeSpaceCell* vertex);
     MergeSpaceCell* Get_FirstMSCell(){return all_mcells.front();};

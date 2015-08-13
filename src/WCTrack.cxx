@@ -34,10 +34,13 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
   if (time_length < 5){
     type = 1;
   }else{
-    Point p = cell.Get_Center();
-    mct.SC_Hough(p);
+    Point p = mct.SC_2Hough(cell.Get_Center(),5*units::cm,3);
+    mct.SC_Hough(p,-1,3);
     float theta = mct.Get_Theta();
     float phi = mct.Get_Phi();
+
+    
+
     //std::cout << theta << " " << phi << std::endl;
     int flag;
     Point p1 = mct.Get_FirstMSCell()->Get_Center();
@@ -45,11 +48,13 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
 
     float dis1 = sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2));
     float dis2 = sqrt(pow(p.y-p2.y,2)+pow(p.z-p2.z,2));
+    
     if (dis1 < dis2){
       flag = 1;
     }else{
       flag = -1;
     }
+
 
     type = 2;
     
