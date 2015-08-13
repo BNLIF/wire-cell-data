@@ -20,6 +20,8 @@ namespace WireCell {
     WCTrackSelection& get_tracks(){return tracks;};
     MergeSpaceCell* get_msc(){return &msc;};
 
+    int IsInside(WCVertex *vertex);
+
   protected:
     Point center;
     MergeSpaceCell& msc;
