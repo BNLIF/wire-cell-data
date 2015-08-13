@@ -272,14 +272,14 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
     for (int i1=0;i1!=cell1->boundary().size();i1++){
       Point p = (cell1->boundary())[i1];
       for (int j1=0;j1!=cell2->boundary().size();j1++){
-	Point p1 = (cell2->boundary())[j1];
+  	Point p1 = (cell2->boundary())[j1];
 	
-	//std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << " " << sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m << std::endl;
+  	//std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << " " << sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m << std::endl;
 	
-	if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
+  	if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
 	  
-	  return true;
-	}
+  	  return true;
+  	}
       }
     }
   }
