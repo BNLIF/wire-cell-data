@@ -15,6 +15,9 @@ namespace WireCell {
     int TrackType(MergeSpaceCell& cell);
     MergeSpaceCellSelection& get_end_scells(){return end_scells;};
     
+    void replace_end_scells(MergeSpaceCell* cell);
+    
+
   protected:
     MergeClusterTrack& mct;
     MergeSpaceCellSelection end_scells;

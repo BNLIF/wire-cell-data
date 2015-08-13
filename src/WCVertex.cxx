@@ -20,7 +20,18 @@ void WCVertex::Add(WCTrack* track){
   tracks.push_back(track);
 }
 
-void WCVertex::OrganizeTracks(WCTrackSelection& tracks){
+void WCVertex::OrganizeTracks(WCTrackSelection& tracks1){
+  
+  for (int i = 0; i!=tracks.size();i++){
+    auto it = find(tracks.at(i)->get_end_scells().begin(),
+		   tracks.at(i)->get_end_scells().end(),
+		   &msc);
+    
+    if (it == tracks.at(i)->get_end_scells().end()){
+      tracks.at(i)->replace_end_scells(&msc);
+    }
+  }
+ 
   
 }
 

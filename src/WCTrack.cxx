@@ -24,6 +24,28 @@ WCTrack::~WCTrack(){
 }
 
 
+void WCTrack::replace_end_scells(MergeSpaceCell *cell2){
+  Point p0 = cell2->Get_Center();
+  Point p1 = end_scells.at(0)->Get_Center();
+  Point p2 = end_scells.at(1)->Get_Center();
+      
+  float dis1 = sqrt(pow(p1.x-p0.x,2)+pow(p1.y-p0.y,2)+pow(p1.z-p0.z,2));
+  float dis2 = sqrt(pow(p2.x-p0.x,2)+pow(p2.y-p0.y,2)+pow(p2.z-p0.z,2));
+
+  if (dis1 > dis2){
+    end_scells.pop_back();
+    end_scells.push_back(cell2);
+  }else{
+    MergeSpaceCell *cell1 = end_scells.at(1);
+    end_scells.clear();
+    end_scells.push_back(cell2);
+    end_scells.push_back(cell1);
+  }
+
+}
+
+
+
 int WCTrack::TrackType(MergeSpaceCell& cell){
   int type = 0;
   // type == 1: short tracks
