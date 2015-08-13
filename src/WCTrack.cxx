@@ -34,13 +34,8 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
   if (time_length < 5){
     type = 1;
   }else{
-    Point p = mct.SC_2Hough(cell.Get_Center(),5*units::cm,3);
-    mct.SC_Hough(p,-1,3);
-    float theta = mct.Get_Theta();
-    float phi = mct.Get_Phi();
-
+    Point p = cell.Get_Center();
     
-
     //std::cout << theta << " " << phi << std::endl;
     int flag;
     Point p1 = mct.Get_FirstMSCell()->Get_Center();
@@ -54,34 +49,48 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
     }else{
       flag = -1;
     }
-
-
-    type = 2;
     
-    for (int i=0;i!=5;i++){
-      MergeSpaceCellSelection cells;
-      if (flag == 1){
-	cells = mct.Get_MSCS(i);
+
+    for (int k=0;k!=5;k++){
+
+      Point p3;
+      if (flag==1){
+	p3 =  mct.Get_MSCS(k).at(0)->Get_Center();
       }else{
-	cells = mct.Get_MSCS(time_length-1-i);
+	p3 =  mct.Get_MSCS(time_length-1-k).at(0)->Get_Center();
       }
-      int flag1 = 0;
-      for (int j=0;j!=cells.size();j++){
-	MergeSpaceCell *cell = cells.at(j);
-	if (cell->CrossCell(p,theta,phi)){
-	  flag1 = 1;
+    
+      mct.SC_Hough(p3,p,10*units::cm,3);
+      float theta = mct.Get_Theta();
+      float phi = mct.Get_Phi();
+
+      type = 2;
+      
+      for (int i=0;i!=5;i++){
+	MergeSpaceCellSelection cells;
+	if (flag == 1){
+	  cells = mct.Get_MSCS(i);
+	}else{
+	  cells = mct.Get_MSCS(time_length-1-i);
+	}
+	int flag1 = 0;
+	for (int j=0;j!=cells.size();j++){
+	  MergeSpaceCell *cell = cells.at(j);
+	  if (cell->CrossCell(p3,theta,phi)){
+	    flag1 = 1;
+	    break;
+	  }
+	}
+	
+	if (flag1==0){
+	  type = 3;
 	  break;
 	}
+	
       }
-
-      if (flag1==0){
-	type = 3;
-	break;
-      }
-
+      
+      if (type==2) break;
     }
-    
-    
   }
   
   return type;

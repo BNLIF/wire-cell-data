@@ -186,7 +186,7 @@ void MergeClusterTrack::SC_Hough(Point&p1, Point&p, float dis, int flag){
 	// sc_theta.push_back(vec.Theta());
 	// sc_phi.push_back(vec.Phi());
 	// sc_q.push_back(q);
-	if (fabs(x-x1)>1*units::cm){
+	if (fabs(x-x0)>1*units::cm){
 	  if (dis <= 0){
 	    hough->Fill(vec.Theta(),vec.Phi(),q);
 	  }else{
