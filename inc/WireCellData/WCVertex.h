@@ -15,7 +15,6 @@ namespace WireCell {
     Point Center();
     WCVertex(MergeSpaceCell& msc);
     ~WCVertex();
-    
   protected:
     Point center;
     MergeSpaceCell& msc;

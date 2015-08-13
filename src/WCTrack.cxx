@@ -34,6 +34,48 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
   if (time_length < 5){
     type = 1;
   }else{
+    Point p = cell.Get_Center();
+    mct.SC_Hough(p);
+    float theta = mct.Get_Theta();
+    float phi = mct.Get_Phi();
+    //std::cout << theta << " " << phi << std::endl;
+    int flag;
+    Point p1 = mct.Get_FirstMSCell()->Get_Center();
+    Point p2 = mct.Get_LastMSCell()->Get_Center();
+
+    float dis1 = sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2));
+    float dis2 = sqrt(pow(p.y-p2.y,2)+pow(p.z-p2.z,2));
+    if (dis1 < dis2){
+      flag = 1;
+    }else{
+      flag = -1;
+    }
+
+    type = 2;
+    
+    for (int i=0;i!=5;i++){
+      MergeSpaceCellSelection cells;
+      if (flag == 1){
+	cells = mct.Get_MSCS(i);
+      }else{
+	cells = mct.Get_MSCS(time_length-1-i);
+      }
+      int flag1 = 0;
+      for (int j=0;j!=cells.size();j++){
+	MergeSpaceCell *cell = cells.at(j);
+	if (cell->CrossCell(p,theta,phi)){
+	  flag1 = 1;
+	  break;
+	}
+      }
+
+      if (flag1==0){
+	type = 3;
+	break;
+      }
+
+    }
+    
     
   }
   
