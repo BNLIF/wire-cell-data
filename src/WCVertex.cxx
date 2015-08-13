@@ -20,6 +20,10 @@ void WCVertex::Add(WCTrack* track){
   tracks.push_back(track);
 }
 
+void WCVertex::OrganizeTracks(WCTrackSelection& tracks){
+  
+}
+
 
 int WCVertex::IsInside(WCVertex *vertex){
   int result = 1;

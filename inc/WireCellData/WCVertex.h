@@ -23,6 +23,8 @@ namespace WireCell {
     int IsInside(WCVertex *vertex);
     bool AddVertex(WCVertex *vertex);
 
+    void OrganizeTracks(WCTrackSelection& tracks);
+
   protected:
     Point center;
     MergeSpaceCell& msc;
