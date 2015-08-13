@@ -22,10 +22,11 @@ namespace WireCell {
 
     int IsInside(WCVertex *vertex);
     bool AddVertex(WCVertex *vertex);
-    
     bool CheckContain(MergeSpaceCell *cell);
-
     void OrganizeTracks();
+    WCTrackSelection BreakTracks();
+    void ProcessTracks(WCTrackSelection& break_tracks);
+    void OrganizeEnds();
 
   protected:
     Point center;
