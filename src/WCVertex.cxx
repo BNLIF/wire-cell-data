@@ -15,3 +15,7 @@ WCVertex::~WCVertex(){
 Point WCVertex::Center(){
   return center;
 }
+
+void WCVertex::Add(WCTrack* track){
+  tracks.push_back(track);
+}

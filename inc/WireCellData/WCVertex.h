@@ -3,7 +3,7 @@
 
 #include "WireCellData/Point.h"
 #include "WireCellData/MergeSpaceCell.h"
-//#include "WireCellData/WCTrack.h"
+#include "WireCellData/WCTrack.h"
 
 #include <vector>
 #include <map>
@@ -15,9 +15,15 @@ namespace WireCell {
     Point Center();
     WCVertex(MergeSpaceCell& msc);
     ~WCVertex();
+    void Add(WCTrack* track);
+    int get_ntracks(){return tracks.size();};
+    WCTrackSelection& get_tracks(){return tracks;};
+    MergeSpaceCell* get_msc(){return &msc;};
+
   protected:
     Point center;
     MergeSpaceCell& msc;
+    WCTrackSelection tracks;
   };
   
   typedef std::vector<WCVertex*> WCVertexSelection;
