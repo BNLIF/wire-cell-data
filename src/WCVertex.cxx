@@ -40,3 +40,28 @@ int WCVertex::IsInside(WCVertex *vertex){
 
   return result;
 }
+
+
+bool WCVertex::AddVertex(WCVertex *vertex){
+  bool result = false;
+  
+  MergeSpaceCell *msc1 = &msc;
+  MergeSpaceCell *msc2 = vertex->get_msc();
+  
+  if (fabs(msc1->Get_Center().x/units::mm-msc2->Get_Center().x/units::mm)<0.5){
+    if (msc1->Overlap(*msc2)){
+      for (int i=0;i!=tracks.size();i++){
+	WCTrack *track1 = tracks.at(i);
+	auto it = find(vertex->get_tracks().begin(),vertex->get_tracks().end(),track1);
+	if (it != vertex->get_tracks().end()){
+	  result = true;
+	  
+	  break;
+	}
+	
+      }
+    }
+  }
+
+  return result;
+}

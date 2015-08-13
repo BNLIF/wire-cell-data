@@ -21,6 +21,7 @@ namespace WireCell {
     MergeSpaceCell* get_msc(){return &msc;};
 
     int IsInside(WCVertex *vertex);
+    bool AddVertex(WCVertex *vertex);
 
   protected:
     Point center;
