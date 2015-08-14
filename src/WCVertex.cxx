@@ -212,6 +212,17 @@ void WCVertex::OrganizeEnds(){
   	  fabs(cell2->Get_Center().x - msc.Get_Center().x)/units::cm > 1.0 ){
   	removed.push_back(tracks.at(i));
   	//i = tracks.erase(tracks.begin()+i);
+      }else{
+	auto it1 = find(tracks.at(i)->get_mct().Get_allmcells().begin(),
+	 		tracks.at(i)->get_mct().Get_allmcells().end(),
+	 		&msc);
+	float dis1 = tracks.at(i)->get_end_scells().at(0)->Get_Center().x - msc.Get_Center().x;
+	float dis2 = tracks.at(i)->get_end_scells().at(1)->Get_Center().x - msc.Get_Center().x;
+
+	
+	if (it1 == tracks.at(i)->get_mct().Get_allmcells().end() && dis1*dis2 < 0){
+	  removed.push_back(tracks.at(i));
+	}
       }
     }
   }
