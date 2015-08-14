@@ -200,6 +200,30 @@ void WCVertex::ProcessTracks(WCTrackSelection& break_tracks){
 
 
 void WCVertex::OrganizeEnds(){
+  WCTrackSelection removed;
+  for (int i = 0;i!=tracks.size();i++){
+    auto it = find(tracks.at(i)->get_end_scells().begin(),
+  		   tracks.at(i)->get_end_scells().end(),
+  		   &msc);
+    if (it == tracks.at(i)->get_end_scells().end()){
+      MergeSpaceCell *cell1 = tracks.at(i)->get_end_scells().at(0);
+      MergeSpaceCell *cell2 = tracks.at(i)->get_end_scells().at(1);
+      if (fabs(cell1->Get_Center().x - msc.Get_Center().x)/units::cm > 1.0 &&
+  	  fabs(cell2->Get_Center().x - msc.Get_Center().x)/units::cm > 1.0 ){
+  	removed.push_back(tracks.at(i));
+  	//i = tracks.erase(tracks.begin()+i);
+      }
+    }
+  }
+
+  for (int i=0;i!=removed.size();i++){
+    auto it = find(tracks.begin(),tracks.end(),removed.at(i));
+    tracks.erase(it);
+  }
+
+
+
+
   for (int i = 0; i!=tracks.size();i++){
     auto it = find(tracks.at(i)->get_end_scells().begin(),
   		   tracks.at(i)->get_end_scells().end(),
@@ -269,7 +293,7 @@ bool WCVertex::AddVertex(WCVertex *vertex){
   MergeSpaceCell *msc1 = &msc;
   MergeSpaceCell *msc2 = vertex->get_msc();
   
-  if (fabs(msc1->Get_Center().x/units::mm-msc2->Get_Center().x/units::mm)<5){
+  if (fabs(msc1->Get_Center().x/units::mm-msc2->Get_Center().x/units::mm)<7){
     // std::cout <<  fabs(msc1->Get_Center().x/units::mm-msc2->Get_Center().x/units::mm) << " " << msc1->Overlap(*msc2) << std::endl;
     if (msc1->Overlap(*msc2)){
       for (int i=0;i!=tracks.size();i++){
@@ -279,13 +303,25 @@ bool WCVertex::AddVertex(WCVertex *vertex){
 	  result = true;
 	  
 	  for (int j=0;j!=vertex->get_tracks().size();j++){
-	    WCTrack *track2 = vertex->get_tracks().at(j);
-	    auto it1 = find(tracks.begin(),tracks.end(),track2);
-	    if (it1 == tracks.end()){
-	      tracks.push_back(track2);
+	    WCTrack *track = vertex->get_tracks().at(i);
+	    auto it = find(track->get_mct().Get_allmcells().begin(),track->get_mct().Get_allmcells().end(),&msc);
+	    if (it == track->get_mct().Get_allmcells().end()){
+	      result = false;
+	      break;
 	    }
 	  }
-	  break;
+	  
+
+	  if (result){
+	    for (int j=0;j!=vertex->get_tracks().size();j++){
+	      WCTrack *track2 = vertex->get_tracks().at(j);
+	      auto it1 = find(tracks.begin(),tracks.end(),track2);
+	      if (it1 == tracks.end()){
+		tracks.push_back(track2);
+	      }
+	    }
+	    break;
+	  }
 	}
 	
       }

@@ -34,21 +34,37 @@ MergeSpaceCell* WCTrack::replace_end_scells(MergeSpaceCell *cell2){
       
   float dis1 = sqrt(pow(p1.x-p0.x,2)+pow(p1.y-p0.y,2)+pow(p1.z-p0.z,2));
   float dis2 = sqrt(pow(p2.x-p0.x,2)+pow(p2.y-p0.y,2)+pow(p2.z-p0.z,2));
-
   
-  std::cout << p1.x/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm
-	    << " " << p2.x/units::cm << " " << p2.y/units::cm <<  " " << p2.z/units::cm << " " << p0.x/units::cm << " " << p0.y/units::cm << " " << p0.z/units::cm << " " << dis1 << " " << dis2 << std::endl;
+  float dis10 = fabs(p1.x-p0.x);
+  float dis20 = fabs(p2.x-p0.x);
+  
+  // std::cout << p1.x/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm
+  // 	    << " " << p2.x/units::cm << " " << p2.y/units::cm <<  " " << p2.z/units::cm << " " << p0.x/units::cm << " " << p0.y/units::cm << " " << p0.z/units::cm << " " << dis1 << " " << dis2 << std::endl;
 
-  if (dis1 > dis2){
+
+
+  if (dis10 > dis20){
     end_scells.pop_back();
     end_scells.push_back(cell2);
     return cellb;
-  }else{
+  }else if (dis10 < dis20){
     MergeSpaceCell *cell1 = end_scells.at(1);
     end_scells.clear();
     end_scells.push_back(cell2);
     end_scells.push_back(cell1);
     return cella;
+  }else{
+    if (dis1 > dis2){
+      end_scells.pop_back();
+      end_scells.push_back(cell2);
+      return cellb;
+    }else{
+      MergeSpaceCell *cell1 = end_scells.at(1);
+      end_scells.clear();
+      end_scells.push_back(cell2);
+      end_scells.push_back(cell1);
+      return cella;
+    }
   }
   
   
