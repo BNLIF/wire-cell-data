@@ -21,12 +21,12 @@ namespace WireCell {
     MergeSpaceCell* get_msc(){return &msc;};
 
     int IsInside(WCVertex *vertex);
-    bool AddVertex(WCVertex *vertex);
+    bool AddVertex(WCVertex *vertex, int flag = 1);
     bool CheckContain(MergeSpaceCell *cell);
     void OrganizeTracks();
     WCTrackSelection BreakTracks();
     void ProcessTracks(WCTrackSelection& break_tracks);
-    void OrganizeEnds();
+    void OrganizeEnds(MergeSpaceCellSelection& cells);
 
   protected:
     Point center;

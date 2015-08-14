@@ -199,7 +199,7 @@ void WCVertex::ProcessTracks(WCTrackSelection& break_tracks){
 }
 
 
-void WCVertex::OrganizeEnds(){
+void WCVertex::OrganizeEnds(MergeSpaceCellSelection& cells1){
   WCTrackSelection removed;
   for (int i = 0;i!=tracks.size();i++){
     auto it = find(tracks.at(i)->get_end_scells().begin(),
@@ -208,19 +208,19 @@ void WCVertex::OrganizeEnds(){
     if (it == tracks.at(i)->get_end_scells().end()){
       MergeSpaceCell *cell1 = tracks.at(i)->get_end_scells().at(0);
       MergeSpaceCell *cell2 = tracks.at(i)->get_end_scells().at(1);
-      if (fabs(cell1->Get_Center().x - msc.Get_Center().x)/units::cm > 1.0 &&
-  	  fabs(cell2->Get_Center().x - msc.Get_Center().x)/units::cm > 1.0 ){
+      if (fabs(cell1->Get_Center().x - msc.Get_Center().x)/units::cm > 0.65 &&
+  	  fabs(cell2->Get_Center().x - msc.Get_Center().x)/units::cm > 0.65 ){
   	removed.push_back(tracks.at(i));
   	//i = tracks.erase(tracks.begin()+i);
       }else{
-	auto it1 = find(tracks.at(i)->get_mct().Get_allmcells().begin(),
-	 		tracks.at(i)->get_mct().Get_allmcells().end(),
+	auto it1 = find(tracks.at(i)->get_all_cells().begin(),
+	 		tracks.at(i)->get_all_cells().end(),
 	 		&msc);
 	float dis1 = tracks.at(i)->get_end_scells().at(0)->Get_Center().x - msc.Get_Center().x;
 	float dis2 = tracks.at(i)->get_end_scells().at(1)->Get_Center().x - msc.Get_Center().x;
 
 	
-	if (it1 == tracks.at(i)->get_mct().Get_allmcells().end() && dis1*dis2 < 0){
+	if (it1 == tracks.at(i)->get_all_cells().end() && dis1*dis2 < 0){
 	  removed.push_back(tracks.at(i));
 	}
       }
@@ -240,7 +240,8 @@ void WCVertex::OrganizeEnds(){
   		   tracks.at(i)->get_end_scells().end(),
   		   &msc);
     if (it == tracks.at(i)->get_end_scells().end()){
-      tracks.at(i)->replace_end_scells(&msc);
+      tracks.at(i)->replace_end_scells(&msc,&cells1);
+      tracks.at(i)->ModifyCells();
     }
   }
 }
@@ -251,8 +252,8 @@ bool WCVertex::CheckContain(MergeSpaceCell *cell){
   bool result = true;
   for (int i=0;i!=tracks.size();i++){
     WCTrack *track = tracks.at(i);
-    MergeClusterTrack& mct = track->get_mct();
-    MergeSpaceCellSelection &cells = mct.Get_allmcells();
+    //MergeClusterTrack& mct = track->get_mct();
+    MergeSpaceCellSelection &cells = track->get_all_cells();
     auto it = find(cells.begin(),cells.end(),cell);
     if (it == cells.end()){
       result = false;
@@ -280,8 +281,8 @@ int WCVertex::IsInside(WCVertex *vertex){
   if (result == 1){    
     for (int i = 0; i!=tracks.size();i++){
       WCTrack *track = tracks.at(i);
-      auto it = find(track->get_mct().Get_allmcells().begin(),track->get_mct().Get_allmcells().end(),vertex->get_msc());
-      if (it == track->get_mct().Get_allmcells().end()){
+      auto it = find(track->get_all_cells().begin(),track->get_all_cells().end(),vertex->get_msc());
+      if (it == track->get_all_cells().end()){
 	result = -1;
 	break;
       }
@@ -298,7 +299,7 @@ int WCVertex::IsInside(WCVertex *vertex){
 }
 
 
-bool WCVertex::AddVertex(WCVertex *vertex){
+bool WCVertex::AddVertex(WCVertex *vertex, int flag){
   bool result = false;
   
   MergeSpaceCell *msc1 = &msc;
@@ -313,13 +314,21 @@ bool WCVertex::AddVertex(WCVertex *vertex){
 	if (it != vertex->get_tracks().end()){
 	  result = true;
 	  
-	  for (int j=0;j!=vertex->get_tracks().size();j++){
-	    WCTrack *track = vertex->get_tracks().at(i);
-	    auto it = find(track->get_mct().Get_allmcells().begin(),track->get_mct().Get_allmcells().end(),&msc);
-	    if (it == track->get_mct().Get_allmcells().end()){
-	      result = false;
-	      break;
+	  if (flag == 1){
+	    for (int j=0;j!=vertex->get_tracks().size();j++){
+	      WCTrack *track = vertex->get_tracks().at(i);
+	      auto it = find(track->get_all_cells().begin(),track->get_all_cells().end(),&msc);
+	      if (it == track->get_all_cells().end()){
+		result = false;
+		break;
+	      }
 	    }
+	  }else{
+	    auto it1 = find(track1->get_end_scells().begin(),
+			    track1->get_end_scells().end(),
+			    &msc);
+	    if (it1 == track1->get_end_scells().end())
+	      result = false;
 	  }
 	  
 

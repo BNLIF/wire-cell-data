@@ -18,13 +18,37 @@ WCTrack::WCTrack(MergeClusterTrack& mct)
     }
   }
 
+  for (int i=0;i!=mcells.size();i++){
+    all_cells.push_back(mcells.at(i));
+  }
+
+
 }
 
 WCTrack::~WCTrack(){
 }
 
+void WCTrack::ModifyCells(){
+  MergeSpaceCellSelection temp;
+  MergeSpaceCell *cell1 = end_scells.at(0);
+  MergeSpaceCell *cell2 = end_scells.at(1);
 
-MergeSpaceCell* WCTrack::replace_end_scells(MergeSpaceCell *cell2){
+  for (int i=0;i!=all_cells.size();i++){
+    MergeSpaceCell *cell = all_cells.at(i);
+    if ((cell->Get_Center().x >= cell1->Get_Center().x && 
+	 cell->Get_Center().x <= cell2->Get_Center().x) ||
+	(cell->Get_Center().x <= cell1->Get_Center().x && 
+	 cell->Get_Center().x >= cell2->Get_Center().x)){
+      temp.push_back(cell);
+    }
+  }
+  all_cells.clear();
+  all_cells = temp;
+  
+}
+
+
+MergeSpaceCell* WCTrack::replace_end_scells(MergeSpaceCell *cell2, MergeSpaceCellSelection* cells){
   Point p0 = cell2->Get_Center();
   MergeSpaceCell *cella = end_scells.at(0);
   MergeSpaceCell *cellb = end_scells.at(1);
@@ -44,10 +68,20 @@ MergeSpaceCell* WCTrack::replace_end_scells(MergeSpaceCell *cell2){
 
 
   if (dis10 > dis20){
+    if (cells!=0){
+      auto it = find(cells->begin(),cells->end(),cellb);
+      if (it!=cells->end())
+	return 0;
+    }
     end_scells.pop_back();
     end_scells.push_back(cell2);
     return cellb;
   }else if (dis10 < dis20){
+    if (cells!=0){
+      auto it = find(cells->begin(),cells->end(),cella);
+      if (it!=cells->end())
+	return 0;
+    }
     MergeSpaceCell *cell1 = end_scells.at(1);
     end_scells.clear();
     end_scells.push_back(cell2);
@@ -55,10 +89,20 @@ MergeSpaceCell* WCTrack::replace_end_scells(MergeSpaceCell *cell2){
     return cella;
   }else{
     if (dis1 > dis2){
+      if (cells!=0){
+	auto it = find(cells->begin(),cells->end(),cellb);
+	if (it!=cells->end())
+	  return 0;
+      }
       end_scells.pop_back();
       end_scells.push_back(cell2);
       return cellb;
     }else{
+      if (cells!=0){
+	auto it = find(cells->begin(),cells->end(),cella);
+	if (it!=cells->end())
+	  return 0;
+      }
       MergeSpaceCell *cell1 = end_scells.at(1);
       end_scells.clear();
       end_scells.push_back(cell2);
