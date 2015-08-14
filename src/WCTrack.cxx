@@ -9,6 +9,7 @@ WCTrack::WCTrack(MergeClusterTrack& mct)
   end_scells.push_back(mcells.front());
   
   MergeSpaceCell* last_cell = mct.Get_LastMSCell();
+  // end_scells.push_back(last_cell);
 
   for (int i = mct.Get_allmcells().size()-1;i>=0; i--){
     MergeSpaceCell *cell = mct.Get_allmcells().at(i);
@@ -27,6 +28,32 @@ WCTrack::WCTrack(MergeClusterTrack& mct)
 
 WCTrack::~WCTrack(){
 }
+
+bool WCTrack::Grow(MergeSpaceCell *cell, int flag){
+  MergeSpaceCell *cell1 = end_scells.at(0);
+  MergeSpaceCell *cell2 = end_scells.at(1);
+
+  //test with the first cell
+  if ((cell->Get_Center().x - cell1->Get_Center().x)/units::cm >0.4 && cell->Overlap(*cell1)){
+    if (flag == 0){
+      end_scells.at(0) = cell;
+      all_cells.insert(all_cells.begin(),cell);
+    }
+    return true;
+  }
+
+  //test with the last cell
+  if ((cell->Get_Center().x - cell2->Get_Center().x)/units::cm <0.4 && cell->Overlap(*cell2)){
+    if (flag == 0){
+      end_scells.at(1) = cell;
+      all_cells.push_back(cell);    
+    }
+    return true;
+  }
+
+  return false;
+}
+
 
 void WCTrack::ModifyCells(){
   MergeSpaceCellSelection temp;
@@ -114,6 +141,16 @@ MergeSpaceCell* WCTrack::replace_end_scells(MergeSpaceCell *cell2, MergeSpaceCel
   
 }
 
+
+void WCTrack::ReplaceEndCell(MergeSpaceCell *cell1, MergeSpaceCell *cell2){
+  if (end_scells.at(0) == cell1){
+    end_scells.at(0) = cell2;
+  }
+  if (end_scells.at(1) == cell1){
+    end_scells.at(1) = cell2;
+  }
+
+}
 
 
 int WCTrack::TrackType(MergeSpaceCell& cell){

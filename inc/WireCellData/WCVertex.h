@@ -18,7 +18,7 @@ namespace WireCell {
     void Add(WCTrack* track);
     int get_ntracks(){return tracks.size();};
     WCTrackSelection& get_tracks(){return tracks;};
-    MergeSpaceCell* get_msc(){return &msc;};
+    MergeSpaceCell* get_msc(){return msc;};
 
     int IsInside(WCVertex *vertex);
     bool AddVertex(WCVertex *vertex, int flag = 1);
@@ -26,11 +26,12 @@ namespace WireCell {
     void OrganizeTracks();
     WCTrackSelection BreakTracks();
     void ProcessTracks(WCTrackSelection& break_tracks);
-    void OrganizeEnds(MergeSpaceCellSelection& cells);
+    void OrganizeEnds(MergeSpaceCellSelection& cells, int flag = 1);
+
 
   protected:
     Point center;
-    MergeSpaceCell& msc;
+    MergeSpaceCell *msc;
     WCTrackSelection tracks;
   };
   

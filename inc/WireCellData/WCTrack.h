@@ -17,8 +17,9 @@ namespace WireCell {
     MergeSpaceCellSelection& get_all_cells(){return all_cells;};
 
     MergeSpaceCell* replace_end_scells(MergeSpaceCell* cell, MergeSpaceCellSelection* cells=0);
-    void    ModifyCells();
-
+    void ModifyCells();
+    void ReplaceEndCell(MergeSpaceCell *cell1, MergeSpaceCell *cell2);
+    bool Grow(MergeSpaceCell *cell, int flag = 1); 
 
   protected:
     MergeClusterTrack& mct;
