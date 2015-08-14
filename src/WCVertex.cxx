@@ -242,6 +242,18 @@ int WCVertex::IsInside(WCVertex *vertex){
     }
   }
   
+  if (result == 1){    
+    for (int i = 0; i!=tracks.size();i++){
+      WCTrack *track = tracks.at(i);
+      auto it = find(track->get_mct().Get_allmcells().begin(),track->get_mct().Get_allmcells().end(),vertex->get_msc());
+      if (it == track->get_mct().Get_allmcells().end()){
+	result = -1;
+	break;
+      }
+    }
+  }
+
+  
   if (result == 1 && tracks.size() == temp_tracks.size()){
     result = 0;
   }
