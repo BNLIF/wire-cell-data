@@ -141,14 +141,17 @@ WCTrackSelection WCVertex::BreakTracks(){
     }
 
     for (int i = 0;i!=tracks.size();i++){
+      MergeSpaceCell *cell1 = tracks.at(i)->get_end_scells().at(0);
+      MergeSpaceCell *cell2 = tracks.at(i)->get_end_scells().at(1);
+      float dis1 = cell1->Get_Center().x - msc.Get_Center().x;
+      float dis2 = cell2->Get_Center().x - msc.Get_Center().x;
       auto it = find(tracks.at(i)->get_end_scells().begin(),
 		     tracks.at(i)->get_end_scells().end(),
 		     &msc);
       if (it == tracks.at(i)->get_end_scells().end()){
-	MergeSpaceCell *cell1 = tracks.at(i)->get_end_scells().at(0);
-	MergeSpaceCell *cell2 = tracks.at(i)->get_end_scells().at(1);
-	if (fabs(cell1->Get_Center().x - msc.Get_Center().x)/units::cm > 1.25 &&
-	    fabs(cell2->Get_Center().x - msc.Get_Center().x)/units::cm > 1.25 && length > 2.0){
+	
+	if (fabs(dis1)/units::cm > 0.65 &&
+	    fabs(dis2)/units::cm > 0.65 && length > 2.0){
 	  
 	  WCTrack* primary_track = tracks.at(i);
 	  WCTrack* secondary_track = new WCTrack(primary_track->get_mct());
@@ -211,18 +214,19 @@ void WCVertex::OrganizeEnds(MergeSpaceCellSelection& cells1){
       if (fabs(cell1->Get_Center().x - msc.Get_Center().x)/units::cm > 0.65 &&
   	  fabs(cell2->Get_Center().x - msc.Get_Center().x)/units::cm > 0.65 ){
   	removed.push_back(tracks.at(i));
-  	//i = tracks.erase(tracks.begin()+i);
       }else{
+
 	auto it1 = find(tracks.at(i)->get_all_cells().begin(),
 	 		tracks.at(i)->get_all_cells().end(),
 	 		&msc);
 	float dis1 = tracks.at(i)->get_end_scells().at(0)->Get_Center().x - msc.Get_Center().x;
 	float dis2 = tracks.at(i)->get_end_scells().at(1)->Get_Center().x - msc.Get_Center().x;
-
-	
 	if (it1 == tracks.at(i)->get_all_cells().end() && dis1*dis2 < 0){
 	  removed.push_back(tracks.at(i));
 	}
+
+
+	
       }
     }
   }
