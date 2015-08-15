@@ -120,12 +120,22 @@ bool ClusterTrack::AddMSCell(MergeSpaceCell *cell){
 
     float theta1_new = atan((p3.y-p2.y)/(p3.x-p2.x))/3.1415926*180.;
     float theta2_new = atan((p3.z-p2.z)/(p3.x-p2.x))/3.1415926*180.;
-    if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2))<20.){
+    // if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2))<360.){
+    //   result = true;
+    //   all_mcells.push_back(cell);
+    // }else{
+    //   result = false;
+    // }
+
+    if (cell->Get_all_spacecell().size()<3*all_mcells.at(all_mcells.size()-1)->Get_all_spacecell().size()){
       result = true;
       all_mcells.push_back(cell);
     }else{
       result = false;
     }
+
+
+
   }
   return result;
 }
