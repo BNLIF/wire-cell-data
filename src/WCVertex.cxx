@@ -57,6 +57,8 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
     for (int j=0;j!=cells.size();j++){
       MergeSpaceCell *mscell = cells.at(j);
       double xc = mscell->Get_Center().x;
+
+      auto it = find(track->get_end_scells().begin(),track->get_end_scells().end(),mscell);
       
       int flag = 0;
       if (ntracks==1){
@@ -65,48 +67,70 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
       }else if (ntracks>1){
 	if (fabs(xc-x0)/units::cm > 0.7 && fabs(xc-x0)/units::cm < 5)
 	  flag = 1;
-	
       }
+
+      if (it != track->get_end_scells().end()){
+	flag = 0;
+      }
+
       
-      if (flag == 1 ){
-	// 1.0-5 cm
+      if (flag == 1){
+	double x1 = mscell->Get_Center().x;
+	double y1 = mscell->Get_Center().y;
+	double z1 = mscell->Get_Center().z;
+	double q = mscell->Get_Charge();
 	
-	//std::cout << xc/units::cm << " " << x0/units::cm << std::endl;
-
-	SpaceCellSelection scells = mscell->Get_all_spacecell();
-	for (int k=0;k!=scells.size();k++){
-	  double x1 = scells.at(k)->x();
-	  double y1 = scells.at(k)->y();
-	  double z1 = scells.at(k)->z();
-	  double q = scells.at(k)->q();
-
-	  double a,b,c,d;
-	  
-	  a = y - ky[i]*x;
-	  b = ky[i];
-	  c = z - kz[i]*x;
-	  d = kz[i];
-
-	  double x2 = (-a*b-c*d+b*y1+d*z1+x1)/(1+b*b+d*d);
-	  double y2 = a + b*x2;
-	  double z2 = c + d*x2;
-
-	  // std::cout << x1/units::cm << " " << x2/units::cm << " " << 
-	  //   y1/units::cm << " " << y2/units::cm << " " << 
-	  //   z1/units::cm << " " << z2/units::cm << " " <<  q << 
-	  //   std::endl;
-
-	  
-
-	  // TVector3 n(1,ky[i],kz[i]);
-	  // TVector3 p(x-x1,y-x1,z-x1);
-	  // TVector3 v = p.Cross(n);
-	  // double dis = v.Mag()/n.Mag();
-	  
-	  chi2 += (pow(x2-x1,2)+pow(y2-y1,2)+pow(z2-z1,2))*q/0.15/0.15*3./units::cm/units::cm;
-	  charge += q;
-	}
+	double a,b,c,d;
+	
+	a = y - ky[i]*x;
+	b = ky[i];
+	c = z - kz[i]*x;
+	d = kz[i];
+	
+	double x2 = (-a*b-c*d+b*y1+d*z1+x1)/(1+b*b+d*d);
+	double y2 = a + b*x2;
+	double z2 = c + d*x2;
+	
+	chi2 += (pow(x2-x1,2)+pow(y2-y1,2)+pow(z2-z1,2))*q/0.15/0.15*3./units::cm/units::cm;
+	charge += q;
+	
       }
+      // if (flag == 1 ){
+      // 	// 1.0-5 cm
+	
+      // 	//std::cout << xc/units::cm << " " << x0/units::cm << std::endl;
+
+      // 	SpaceCellSelection scells = mscell->Get_all_spacecell();
+      // 	for (int k=0;k!=scells.size();k++){
+      // 	  double x1 = scells.at(k)->x();
+      // 	  double y1 = scells.at(k)->y();
+      // 	  double z1 = scells.at(k)->z();
+      // 	  double q = scells.at(k)->q();
+
+      // 	  double a,b,c,d;
+	  
+      // 	  a = y - ky[i]*x;
+      // 	  b = ky[i];
+      // 	  c = z - kz[i]*x;
+      // 	  d = kz[i];
+
+      // 	  double x2 = (-a*b-c*d+b*y1+d*z1+x1)/(1+b*b+d*d);
+      // 	  double y2 = a + b*x2;
+      // 	  double z2 = c + d*x2;
+
+      // 	  // std::cout << x1/units::cm << " " << x2/units::cm << " " << 
+      // 	  //   y1/units::cm << " " << y2/units::cm << " " << 
+      // 	  //   z1/units::cm << " " << z2/units::cm << " " <<  q << 
+      // 	  //   std::endl;
+      // 	  // TVector3 n(1,ky[i],kz[i]);
+      // 	  // TVector3 p(x-x1,y-x1,z-x1);
+      // 	  // TVector3 v = p.Cross(n);
+      // 	  // double dis = v.Mag()/n.Mag();
+	  
+      // 	  chi2 += (pow(x2-x1,2)+pow(y2-y1,2)+pow(z2-z1,2))*q/0.15/0.15*3./units::cm/units::cm;
+      // 	  charge += q;
+      // 	}
+      //}
     }
   }
 
