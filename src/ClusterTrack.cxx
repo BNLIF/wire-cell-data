@@ -105,8 +105,29 @@ int ClusterTrack::CrossNum(Point &p, float theta, float phi){
 }
 
 
-void ClusterTrack::AddMSCell(MergeSpaceCell *cell){
-  all_mcells.push_back(cell);
+bool ClusterTrack::AddMSCell(MergeSpaceCell *cell){
+  bool result = false;
+  if (all_mcells.size()==1){
+    all_mcells.push_back(cell);
+    result = true;
+  }else{
+    Point p1 = all_mcells.at(all_mcells.size()-2)->Get_Center();
+    Point p2 = all_mcells.at(all_mcells.size()-1)->Get_Center();
+    Point p3 = cell->Get_Center();
+
+    float theta1_old = atan((p2.y-p1.y)/(p2.x-p1.x))/3.1415926*180.;
+    float theta2_old = atan((p2.z-p1.z)/(p2.x-p1.x))/3.1415926*180.;
+
+    float theta1_new = atan((p3.y-p2.y)/(p3.x-p2.x))/3.1415926*180.;
+    float theta2_new = atan((p3.z-p2.z)/(p3.x-p2.x))/3.1415926*180.;
+    if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2))<30.){
+      result = true;
+      all_mcells.push_back(cell);
+    }else{
+      result = false;
+    }
+  }
+  return result;
 }
 
 void ClusterTrack::SC_Hough(Point&p1, Point&p, float dis, int flag){
