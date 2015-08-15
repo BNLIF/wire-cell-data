@@ -33,11 +33,18 @@ namespace WireCell {
       const MergeGeomCell* get_mcell(){return mcell;}
       void set_mcell(const MergeGeomCell *cell){mcell = cell;};
 
+      void CalMinMax();
+      double get_dy(){return fabs(max_y-min_y)/2.;};
+      double get_dz(){return fabs(max_z-min_z)/2.;};
+
     protected:
       const MergeGeomCell* mcell;
       int center_flag;
       Point center;
       SpaceCellSelection all_spacecell;
+
+      double max_y, min_y;
+      double max_z, min_z;
       
 };
     

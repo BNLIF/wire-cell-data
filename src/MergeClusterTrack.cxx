@@ -144,8 +144,8 @@ void MergeClusterTrack::SC_Hough(Point&p1, Point&p, float dis, int flag){
 	x = cell->x();
 	y = cell->y();
 	z = cell->z();
-	q = cell->q();
-	
+	//q = cell->q();
+	q = 1;
 	
 	
 	TVector3 vec(x-x1,y-y1,z-z1);
@@ -163,7 +163,8 @@ void MergeClusterTrack::SC_Hough(Point&p1, Point&p, float dis, int flag){
       	x = mcell->Get_Center().x;
 	y = mcell->Get_Center().y;
 	z = mcell->Get_Center().z;
-	q = mcell->Get_Charge();
+	//q = mcell->Get_Charge();
+        q = mcell->Get_all_spacecell().size();
 		
 	TVector3 vec(x-x1,y-y1,z-z1);
 	// sc_theta.push_back(vec.Theta());
@@ -181,7 +182,8 @@ void MergeClusterTrack::SC_Hough(Point&p1, Point&p, float dis, int flag){
 	x = cell->x();
 	y = cell->y();
 	z = cell->z();
-	q = cell->q();
+	//q = cell->q();
+	q = 1;
 	TVector3 vec(x-x1,y-y1,z-z1);
 	// sc_theta.push_back(vec.Theta());
 	// sc_phi.push_back(vec.Phi());
@@ -223,8 +225,8 @@ void MergeClusterTrack::SC_Hough(Point& p, float dis, int flag){
 	x = cell->x();
 	y = cell->y();
 	z = cell->z();
-	q = cell->q();
-	
+	//q = cell->q();
+	q = 1;
 	
 	
 	TVector3 vec(x-x0,y-y0,z-z0);
@@ -242,8 +244,8 @@ void MergeClusterTrack::SC_Hough(Point& p, float dis, int flag){
       x = mcell->Get_Center().x;
       y = mcell->Get_Center().y;
       z = mcell->Get_Center().z;
-      q = mcell->Get_Charge();
-      
+      //q = mcell->Get_Charge();
+      q = mcell->Get_all_spacecell().size();
       
       
       TVector3 vec(x-x0,y-y0,z-z0);
@@ -263,8 +265,8 @@ void MergeClusterTrack::SC_Hough(Point& p, float dis, int flag){
 	x = cell->x();
 	y = cell->y();
 	z = cell->z();
-	q = cell->q();
-	
+	//q = cell->q();
+	q = 1;
 	
 	
 	TVector3 vec(x-x0,y-y0,z-z0);

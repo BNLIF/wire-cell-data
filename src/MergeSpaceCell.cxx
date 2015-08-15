@@ -13,6 +13,27 @@ float MergeSpaceCell::Get_Charge(){
 }
 
 
+void MergeSpaceCell::CalMinMax(){
+  max_y = -1e9;
+  min_y = 1e9;
+  
+  max_z = -1e9;
+  min_z = 1e9;
+  
+  for (int i=0;i!=all_spacecell.size();i++){
+    SpaceCell *cell = all_spacecell.at(i);
+    float y = cell->y();
+    float z = cell->z();
+
+    if (y > max_y) max_y = y;
+    if (z > max_z) max_z = z;
+    if (y < min_y) min_y = y;
+    if (z < min_z) min_z = z;
+    
+  }
+}
+
+
 bool MergeSpaceCell::CrossCell(Point &p, float theta, float phi){
     
   float x1 = p.x;

@@ -60,26 +60,35 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 
       auto it = find(track->get_end_scells().begin(),track->get_end_scells().end(),mscell);
       
-      int flag = 0;
-      if (ntracks==1){
-	if (fabs(xc-x0)/units::cm > 0.1 && fabs(xc-x0)/units::cm < 5)
-	  flag = 1;
-      }else if (ntracks>1){
-	if (fabs(xc-x0)/units::cm > 0.7 && fabs(xc-x0)/units::cm < 5)
-	  flag = 1;
-      }
+      int flag = 1;
+      // if (ntracks==1){
+      // 	if (fabs(xc-x0)/units::cm > 0.1 && fabs(xc-x0)/units::cm < 5)
+      // 	  flag = 1;
+      // }else if (ntracks>1){
+      // 	if (fabs(xc-x0)/units::cm > 0.7 && fabs(xc-x0)/units::cm < 5)
+      // 	  flag = 1;
+      // }
 
-      if (it != track->get_end_scells().end()){
-	flag = 0;
-      }
+      // if (it != track->get_end_scells().end()){
+      // 	flag = 0;
+      // }
 
       
       if (flag == 1){
 	double x1 = mscell->Get_Center().x;
 	double y1 = mscell->Get_Center().y;
 	double z1 = mscell->Get_Center().z;
-	double q = mscell->Get_Charge();
+	//double q = mscell->Get_Charge();
+	double q = 1;
+
+	double dy = mscell->get_dy();
+	double dz = mscell->get_dz();
 	
+	if (dy == 0) dy = 0.3 * units::cm/2.;
+	if (dz == 0) dz = 0.3 * units::cm/2.;
+
+	//	std::cout << dy << " " << dz << std::endl;
+
 	double a,b,c,d;
 	
 	a = y - ky[i]*x;
@@ -91,7 +100,13 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 	double y2 = a + b*x2;
 	double z2 = c + d*x2;
 	
-	chi2 += (pow(x2-x1,2)+pow(y2-y1,2)+pow(z2-z1,2))*q/0.15/0.15*3./units::cm/units::cm;
+	//	chi2 += (pow(x2-x1,2)+pow(y2-y1,2)+pow(z2-z1,2))*q/0.15/0.15*3./units::cm/units::cm;
+	
+	chi2 += (pow(x2-x1,2)/0.16/0.16*3./units::cm/units::cm +  
+		 pow(y2-y1,2)/pow(dy,2)*3 +
+		 pow(z2-z1,2)/pow(dz,2)*3
+		 )*q;
+
 	charge += q;
 	
       }
