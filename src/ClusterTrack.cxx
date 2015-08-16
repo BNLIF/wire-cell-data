@@ -127,7 +127,8 @@ bool ClusterTrack::AddMSCell(MergeSpaceCell *cell){
     //   result = false;
     // }
 
-    if (cell->Get_all_spacecell().size()<3*all_mcells.at(all_mcells.size()-1)->Get_all_spacecell().size()){
+    if (cell->Get_all_spacecell().size()<3*all_mcells.at(all_mcells.size()-1)->Get_all_spacecell().size() 
+        ){
       result = true;
       all_mcells.push_back(cell);
     }else{

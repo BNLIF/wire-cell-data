@@ -618,6 +618,10 @@ WCTrackSelection WCVertex::BreakTracks(){
 	  
 
 	  tracks.push_back(secondary_track);
+
+	  primary_track->ModifyCells();
+	  secondary_track->ModifyCells();
+
 	  result_tracks.push_back(primary_track);
 	  result_tracks.push_back(secondary_track);
 
@@ -637,6 +641,9 @@ WCTrackSelection WCVertex::BreakTracks(){
 void WCVertex::ProcessTracks(WCTrackSelection& break_tracks){
   WCTrack* primary_track = break_tracks.at(0);
   WCTrack* secondary_track = break_tracks.at(1);
+
+  // primary_track->ModifyCells();
+  // secondary_track->ModifyCells();
 
   auto it = find(tracks.begin(),tracks.end(),primary_track);
   if (it != tracks.end()){
