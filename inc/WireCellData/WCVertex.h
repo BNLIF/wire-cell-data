@@ -31,6 +31,8 @@ namespace WireCell {
     bool CheckContain(MergeSpaceCell *cell);
     void OrganizeTracks();
     WCTrackSelection BreakTracks();
+    WCTrackSelection BreakTracksAngle(WCTrackSelection& finished_tracks);
+
     void ProcessTracks(WCTrackSelection& break_tracks);
     void OrganizeEnds(MergeSpaceCellSelection& cells, int flag = 1);
     // static double dis2(const double *xx);

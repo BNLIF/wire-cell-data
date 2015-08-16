@@ -22,6 +22,8 @@ WCVertex::~WCVertex(){
 
 
 
+
+
 //   return 0;
 // }
 
@@ -60,9 +62,12 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 
       auto it = find(track->get_end_scells().begin(),track->get_end_scells().end(),mscell);
       
-      int flag = 1;
+      int flag = 0;
+      if (fabs(xc-x0)/units::cm < 5){
+	flag = 1;
+      }
       // if (ntracks==1){
-      // 	if (fabs(xc-x0)/units::cm > 0.1 && fabs(xc-x0)/units::cm < 5)
+      // 	if (fabs(xc-x0)/units::cm > 0.1 && )
       // 	  flag = 1;
       // }else if (ntracks>1){
       // 	if (fabs(xc-x0)/units::cm > 0.7 && fabs(xc-x0)/units::cm < 5)
@@ -87,6 +92,8 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 	if (dy == 0) dy = 0.3 * units::cm/2.;
 	if (dz == 0) dz = 0.3 * units::cm/2.;
 
+	// std::cout << x1/units::cm << " " << y1/units::cm << " " << z1/units::cm <<
+	//   " " << dy << " " << dz << std::endl;
 	//	std::cout << dy << " " << dz << std::endl;
 
 	double a,b,c,d;
@@ -250,15 +257,7 @@ int WCVertex::FindVertex(){
     }
   }
   
-  // // variable[0] = 62.0792 * units::cm;
-  // // variable[1] = 35 * units::cm;
-  // // variable[2] = 636*units::cm;
-
-  // std::vector<double> variable1;
-  // variable1.push_back(state.Value(0));
-  // variable1.push_back(state.Value(1));
-  // variable1.push_back(state.Value(2));
-  // variable1.push_back(state.Value(3));
+  
 
   // output
   //  std::cout << fcn.get_chi2(variable) << " Minimum: " << min.Fval() << " " << state.Value(0)/units::cm << " " <<state.Value(1)/units::cm << " " << state.Value(2)/units::cm << std::endl;
@@ -372,12 +371,123 @@ void WCVertex::OrganizeTracks(){
     
   }
   
-
-
-  
- 
-  
 }
+
+WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
+  WCTrackSelection result_tracks;
+
+  for (int i=0;i!=tracks.size();i++){
+    WCTrack *track = tracks.at(i);
+
+    auto it = find(finished_tracks.begin(),finished_tracks.end(),track);
+    if (it == finished_tracks.end()){
+      finished_tracks.push_back(track);
+
+      MergeSpaceCellSelection all_cells = track->get_all_cells();
+      float dis1 = fabs(msc->Get_Center().x - all_cells.at(0)->Get_Center().x);
+      float dis2 = fabs(msc->Get_Center().x - all_cells.at(all_cells.size()-1)->Get_Center().x);
+      
+
+      // try to find all the break points
+      MergeSpaceCellSelection break_cells;
+      //int prev_break_point = 0;
+
+      MergeSpaceCell *start_cell = all_cells.front();
+      MergeSpaceCell *end_cell = all_cells.back();
+      MergeSpaceCell *prev_break_cell = all_cells.front();
+
+      for (int j=0;j!=all_cells.size();j++){
+	
+	MergeSpaceCell* curr_cell;
+	MergeSpaceCell* next_cell;
+	MergeSpaceCell* prev_cell;
+	
+	if (dis1 < dis2){
+	  curr_cell = all_cells.at(j);
+	  
+	}else{
+	  curr_cell = all_cells.at(all_cells.size()-1-j);
+	  
+	}
+	
+
+	if (fabs(curr_cell->Get_Center().x - start_cell->Get_Center().x) >=4 * 0.31*units::cm 
+	    && fabs(curr_cell->Get_Center().x - end_cell->Get_Center().x) >=4 * 0.31*units::cm 
+	    && fabs(curr_cell->Get_Center().x - prev_break_cell->Get_Center().x) >=4 * 0.31*units::cm ){
+	  
+	  if (dis1 < dis2){
+	    prev_cell = all_cells.at(j-1);
+	    next_cell = all_cells.at(j+1);
+	  }else{
+	    prev_cell = all_cells.at(all_cells.size()-1-j+1);
+	    next_cell = all_cells.at(all_cells.size()-1-j-1);
+	  }
+
+	  Point p1 = prev_cell->Get_Center();
+	  Point p2 = curr_cell->Get_Center();
+	  Point p3 = next_cell->Get_Center();
+	  
+	  float theta1_old = atan((p2.y-p1.y)/(p2.x-p1.x))/3.1415926*180.;
+	  float theta2_old = atan((p2.z-p1.z)/(p2.x-p1.x))/3.1415926*180.;
+
+	  float theta1_new = atan((p3.y-p2.y)/(p3.x-p2.x))/3.1415926*180.;
+	  float theta2_new = atan((p3.z-p2.z)/(p3.x-p2.x))/3.1415926*180.;
+
+	  if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2))>180.){
+	    prev_break_cell = curr_cell;
+	    break_cells.push_back(curr_cell);
+
+	    std::cout << "Break Angle: " << sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2)) << " " << 
+	      curr_cell->Get_Center().x/units::cm << " " << curr_cell->Get_Center().y/units::cm << 
+	      " " << curr_cell->Get_Center().z/units::cm << " " <<  prev_break_cell->Get_Center().x/units::cm << std::endl;
+	  }
+	}
+      }
+
+     
+      if (break_cells.size() > 0){
+	track->get_end_scells().clear();
+	track->get_all_cells().clear();
+	
+	//      std::cout << all_cells.size() << std::endl;
+	WCTrack *track1 = track;
+	result_tracks.push_back(track1);
+	
+	// use break points to form tracks
+	for (int j=0;j!=all_cells.size();j++){
+	  MergeSpaceCell *curr_cell;
+	  if (dis1 < dis2){
+	    curr_cell = all_cells.at(j);
+	  }else{
+	    curr_cell = all_cells.at(all_cells.size()-1-j);
+	  }
+	  
+	  // push any way
+	  if (j==0 || j == all_cells.size()-1){
+	    track1->get_end_scells().push_back(curr_cell);
+	  }
+	  
+	  track1->get_all_cells().push_back(curr_cell);
+	  auto it = find(break_cells.begin(),break_cells.end(),curr_cell);
+	  if (it != break_cells.end() ){
+	    track1->get_end_scells().push_back(curr_cell);
+	    track1 = new WCTrack(track->get_mct());
+	    finished_tracks.push_back(track1);
+	    result_tracks.push_back(track1);
+	    track1->get_end_scells().push_back(curr_cell);
+	    track1->get_all_cells().push_back(curr_cell);
+	  }	
+	}
+	
+      }
+    }
+    
+  }
+  
+
+  return result_tracks;
+}
+
 
 WCTrackSelection WCVertex::BreakTracks(){
   WCTrackSelection result_tracks;
