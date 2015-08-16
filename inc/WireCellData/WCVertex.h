@@ -5,6 +5,7 @@
 #include "WireCellData/MergeSpaceCell.h"
 #include "WireCellData/WCTrack.h"
 
+
 //#include "Minuit2/Minuit2Minimizer.h"
 //#include "Math/Functor.h"
 #include "Minuit2/FCNBase.h"
@@ -36,10 +37,11 @@ namespace WireCell {
     void ProcessTracks(WCTrackSelection& break_tracks);
     void OrganizeEnds(MergeSpaceCellSelection& cells, int flag = 1);
     // static double dis2(const double *xx);
-    int FindVertex();
+    double FindVertex();
     
     double get_ky(int i){return tracks_ky.at(i);}
     double get_kz(int i){return tracks_kz.at(i);}
+
     
 
   protected:

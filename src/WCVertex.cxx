@@ -58,14 +58,35 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
     MergeSpaceCellSelection cells = track->get_all_cells();
     for (int j=0;j!=cells.size();j++){
       MergeSpaceCell *mscell = cells.at(j);
+      MergeSpaceCell *prev_mscell = mscell;
+      MergeSpaceCell *next_mscell = mscell;
+      
+      if (cells.size()>=3){
+	if (j==0){
+	  prev_mscell = cells.at(2);
+	  next_mscell = cells.at(1);
+	}else if (j==cells.size()-1){
+	  prev_mscell = cells.at(cells.size()-2);
+	  next_mscell = cells.at(cells.size()-3);
+	}else{
+	  prev_mscell = cells.at(j-1);
+	  next_mscell = cells.at(j+1);
+	}
+      }
+
+
       double xc = mscell->Get_Center().x;
 
       auto it = find(track->get_end_scells().begin(),track->get_end_scells().end(),mscell);
       
       int flag = 0;
-      if (fabs(xc-x0)/units::cm < 5){
-	flag = 1;
+      if ( (fabs(xc-x0)/units::cm < 5 && ntracks < 3) 
+	   || (fabs(xc-x0)/units::cm < 5 && fabs(xc-x0)/units::cm > 0.5 && ntracks >=3)){
+      	flag = 1;
       }
+
+      
+
       // if (ntracks==1){
       // 	if (fabs(xc-x0)/units::cm > 0.1 && )
       // 	  flag = 1;
@@ -86,13 +107,17 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 	//double q = mscell->Get_Charge();
 	double q = 1;
 
+	// double dy = sqrt((pow(mscell->get_dy(),2) + pow(prev_mscell->get_dy(),2) + pow(next_mscell->get_dy(),2))/3.);
+	// double dz = sqrt((pow(mscell->get_dz(),2) + pow(prev_mscell->get_dz(),2) + pow(next_mscell->get_dz(),2))/3.);
+
 	double dy = mscell->get_dy();
 	double dz = mscell->get_dz();
+
 	
 	if (dy == 0) dy = 0.3 * units::cm/2.;
 	if (dz == 0) dz = 0.3 * units::cm/2.;
 
-	//std::cout << i << " " << x1/units::cm << " " << y1/units::cm << " " << z1/units::cm <<
+	// std::cout << i << " " << x1/units::cm << " " << y1/units::cm << " " << z1/units::cm <<
 	//  " " << dy << " " << dz << std::endl;
 	//std::cout << dy << " " << dz << std::endl;
 
@@ -167,8 +192,17 @@ double MyFCN::operator() (const std::vector<double> & xx) const{
 } 
 
 
-int WCVertex::FindVertex(){
+double WCVertex::FindVertex(){
 
+  // hack ...
+  // if (tracks.size()>3){
+  //   //    tracks.erase(tracks.begin()+4);
+  //   tracks.erase(tracks.begin()+3);
+  //   tracks.erase(tracks.begin()+2);
+  //   tracks.erase(tracks.begin()+1);
+  //   tracks.erase(tracks.begin()+0);
+    
+  // }
 
 
   MyFCN fcn(this);
@@ -176,6 +210,11 @@ int WCVertex::FindVertex(){
   
   std::vector<double> variable;
   int npar;
+
+
+  
+
+
   
   if (ntracks == 1){
     // 4 parameters, (2 for vertex y,z) and two directions
@@ -263,13 +302,13 @@ int WCVertex::FindVertex(){
   //  std::cout << fcn.get_chi2(variable) << " Minimum: " << min.Fval() << " " << state.Value(0)/units::cm << " " <<state.Value(1)/units::cm << " " << state.Value(2)/units::cm << std::endl;
   // std::cout << "abc1: " << min.Fval() << " " << fcn.get_chi2(variable) << " " << fcn.get_chi2(variable1) << " " << state.Value(0)/units::cm << " " <<state.Value(1)/units::cm  << " " << state.Value(2) << " " << state.Value(3) << std::endl;
 
-  // std::cout << fcn.get_chi2(variable) << std::endl;
+  //std::cout << fcn.get_chi2(variable) << std::endl;
 
 
   
 
  
-   return 0;
+  return min.Fval();
 }
 
 
@@ -372,6 +411,10 @@ void WCVertex::OrganizeTracks(){
   }
   
 }
+
+
+
+
 
 WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
   WCTrackSelection result_tracks;
@@ -510,7 +553,17 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	  float theta1_new = atan((p3.y-p2.y)/(p3.x-p2.x))/3.1415926*180.;
 	  float theta2_new = atan((p3.z-p2.z)/(p3.x-p2.x))/3.1415926*180.;
 
-	  if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2))>30. && dis_sigma2 > 3){
+	  if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2))>30. && dis_sigma2 > 3
+	      && 3*curr_cell->get_dy() > prev_cell->get_dy() 
+	      && 3*curr_cell->get_dy() > next_cell->get_dy() 
+	      && 3*curr_cell->get_dz() > prev_cell->get_dz() 
+	      && 3*curr_cell->get_dz() > next_cell->get_dz() 
+	      ){
+	    // std::cout << curr_cell->get_dy() << " " << prev_cell->get_dy()  << " " << next_cell->get_dy()
+	    // 	      << " " << curr_cell->get_dz() << " " << prev_cell->get_dz()  << " " << next_cell->get_dz()
+	    // 	      << std::endl;
+
+
 	    prev_break_cell = curr_cell;
 	    break_cells.push_back(curr_cell);
 
