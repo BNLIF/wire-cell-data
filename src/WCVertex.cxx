@@ -92,9 +92,9 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 	if (dy == 0) dy = 0.3 * units::cm/2.;
 	if (dz == 0) dz = 0.3 * units::cm/2.;
 
-	// std::cout << x1/units::cm << " " << y1/units::cm << " " << z1/units::cm <<
-	//   " " << dy << " " << dz << std::endl;
-	//	std::cout << dy << " " << dz << std::endl;
+	//std::cout << i << " " << x1/units::cm << " " << y1/units::cm << " " << z1/units::cm <<
+	//  " " << dy << " " << dz << std::endl;
+	//std::cout << dy << " " << dz << std::endl;
 
 	double a,b,c,d;
 	
@@ -263,7 +263,7 @@ int WCVertex::FindVertex(){
   //  std::cout << fcn.get_chi2(variable) << " Minimum: " << min.Fval() << " " << state.Value(0)/units::cm << " " <<state.Value(1)/units::cm << " " << state.Value(2)/units::cm << std::endl;
   // std::cout << "abc1: " << min.Fval() << " " << fcn.get_chi2(variable) << " " << fcn.get_chi2(variable1) << " " << state.Value(0)/units::cm << " " <<state.Value(1)/units::cm  << " " << state.Value(2) << " " << state.Value(3) << std::endl;
 
-  //std::cout << fcn.get_chi2(variable) << std::endl;
+  // std::cout << fcn.get_chi2(variable) << std::endl;
 
 
   
@@ -411,21 +411,80 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	}
 	
 
-	if (fabs(curr_cell->Get_Center().x - start_cell->Get_Center().x) >=4 * 0.31*units::cm 
-	    && fabs(curr_cell->Get_Center().x - end_cell->Get_Center().x) >=4 * 0.31*units::cm 
-	    && fabs(curr_cell->Get_Center().x - prev_break_cell->Get_Center().x) >=4 * 0.31*units::cm ){
-	  
+	if (fabs(curr_cell->Get_Center().x - start_cell->Get_Center().x) >=5 * 0.31*units::cm 
+	    && fabs(curr_cell->Get_Center().x - end_cell->Get_Center().x) >=5 * 0.31*units::cm 
+	    && fabs(curr_cell->Get_Center().x - prev_break_cell->Get_Center().x) >=5 * 0.31*units::cm ){
+
+	  MergeSpaceCellSelection temp_msc;
+
 	  if (dis1 < dis2){
-	    prev_cell = all_cells.at(j-1);
-	    next_cell = all_cells.at(j+1);
+	    
+	    temp_msc.push_back(all_cells.at(j-1));
+	    temp_msc.push_back(all_cells.at(j-2));
+	    temp_msc.push_back(all_cells.at(j-3));
+	    prev_cell = all_cells.at(j-4);
+	    int k = 0;
+	    while(fabs(prev_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
+	      k++;
+	      temp_msc.push_back(prev_cell);
+	      prev_cell = all_cells.at(j-4-k);
+	    }
+
+
+	    temp_msc.push_back(all_cells.at(j+1));
+	    temp_msc.push_back(all_cells.at(j+2));
+	    temp_msc.push_back(all_cells.at(j+3));
+	    next_cell = all_cells.at(j+4);
+	    
+	    k = 0;
+	    while(fabs(next_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
+	      k++;
+	      temp_msc.push_back(next_cell);
+	      next_cell = all_cells.at(j+4+k);
+	    }
+	    
+
 	  }else{
-	    prev_cell = all_cells.at(all_cells.size()-1-j+1);
-	    next_cell = all_cells.at(all_cells.size()-1-j-1);
+	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j+1));
+	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j+2));
+	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j+3));
+	    prev_cell = all_cells.at(all_cells.size()-1-j+4);
+	    int k=0;
+	    while(fabs(prev_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
+	      k++;
+	      temp_msc.push_back(prev_cell);
+	      prev_cell = all_cells.at(all_cells.size()-1-j+4+k);
+	    }
+	    
+	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j-1));
+	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j-2));
+	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j-3));
+	    next_cell = all_cells.at(all_cells.size()-1-j-4);
+	    k = 0;
+	     while(fabs(next_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
+	      k++;
+	      temp_msc.push_back(next_cell);
+	      prev_cell = all_cells.at(all_cells.size()-1-j-4-k);
+	    }
 	  }
 
 	  Point p1 = prev_cell->Get_Center();
 	  Point p2 = curr_cell->Get_Center();
 	  Point p3 = next_cell->Get_Center();
+	  
+	  double ky = (p3.y-p1.y)/(p3.x-p1.x);
+	  double kz = (p3.z-p1.z)/(p3.x-p1.x);
+
+	  double yp = ky * (p2.x-p1.x) + p1.y;
+	  double zp = kz * (p2.x-p1.x) + p1.z;
+
+	  double dy = (curr_cell->get_dy()+prev_cell->get_dy()+next_cell->get_dy())/3.;
+	  double dz = (curr_cell->get_dz()+prev_cell->get_dy()+next_cell->get_dy())/3.;
+	  
+	  if (dy == 0) dy = 0.3 * units::cm;
+	  if (dz == 0) dz = 0.3 * units::cm;
+
+	  double_t dis_sigma2 = pow(yp-p2.y,2)/pow(dy,2)+pow(zp-p2.z,2)/pow(dz,2);
 	  
 	  float theta1_old = atan((p2.y-p1.y)/(p2.x-p1.x))/3.1415926*180.;
 	  float theta2_old = atan((p2.z-p1.z)/(p2.x-p1.x))/3.1415926*180.;
@@ -433,14 +492,26 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	  float theta1_new = atan((p3.y-p2.y)/(p3.x-p2.x))/3.1415926*180.;
 	  float theta2_new = atan((p3.z-p2.z)/(p3.x-p2.x))/3.1415926*180.;
 
-	  if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2))>180.){
+	  if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2))>30. && dis_sigma2 > 3){
 	    prev_break_cell = curr_cell;
 	    break_cells.push_back(curr_cell);
 
-	    std::cout << "Break Angle: " << sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2)) << " " << 
+	    std::cout << "Break Angle: " << sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2)) << " " << dis_sigma2 << " " << 
 	      curr_cell->Get_Center().x/units::cm << " " << curr_cell->Get_Center().y/units::cm << 
 	      " " << curr_cell->Get_Center().z/units::cm << " " <<  prev_break_cell->Get_Center().x/units::cm << std::endl;
 	  }
+
+
+	  // for (int k=0;k!= temp_msc.size();k++){
+	  //   Point p = temp_msc.at(k)->Get_Center();
+	  //   double yp1 = ky * (p.x-p1.x) + p1.y;
+	  //   double zp1 = kz * (p.x-p1.x) + p1.z;
+	    
+	  //   double_t dis_sigma1 = sqrt(pow(yp-p.y,2)/pow(dy,2)+pow(zp-p.z,2)/pow(dz,2));
+	  // }
+	  
+	  
+
 	}
       }
 
@@ -472,6 +543,9 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	  if (it != break_cells.end() ){
 	    track1->get_end_scells().push_back(curr_cell);
 	    track1 = new WCTrack(track->get_mct());
+	    track1->get_end_scells().clear();
+	    track1->get_all_cells().clear();
+	    
 	    finished_tracks.push_back(track1);
 	    result_tracks.push_back(track1);
 	    track1->get_end_scells().push_back(curr_cell);
@@ -479,6 +553,15 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	  }	
 	}
 	
+	
+	//test
+	// for (int j = 0; j!= result_tracks.size();j++){
+	//   std::cout << result_tracks.at(j)->get_end_scells().at(0)->Get_Center().x/units::cm << " " 
+	// 	    << result_tracks.at(j)->get_end_scells().at(1)->Get_Center().x/units::cm << " " 
+	// 	    << std::endl;
+	// }
+	
+
       }
     }
     
