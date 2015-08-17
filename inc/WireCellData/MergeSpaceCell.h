@@ -36,6 +36,11 @@ namespace WireCell {
       void CalMinMax();
       double get_dy(){return fabs(max_y-min_y)/2.;};
       double get_dz(){return fabs(max_z-min_z)/2.;};
+      double get_maxy(){return max_y;};
+      double get_maxz(){return max_z;};
+      double get_miny(){return min_y;};
+      double get_minz(){return min_z;};
+
 
     protected:
       const MergeGeomCell* mcell;
