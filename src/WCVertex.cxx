@@ -80,8 +80,8 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
       auto it = find(track->get_end_scells().begin(),track->get_end_scells().end(),mscell);
       
       int flag = 0;
-      if ( (fabs(xc-x0)/units::cm < 5 && ntracks < 3) 
-	   || (fabs(xc-x0)/units::cm < 5 && fabs(xc-x0)/units::cm > 0.5 && ntracks >=3)){
+      if ( (fabs(xc-x0)/units::cm < 5 && ntracks < 2) 
+	   || (fabs(xc-x0)/units::cm < 5 && fabs(xc-x0)/units::cm > 0.5 && ntracks >=2)){
       	flag = 1;
       }
 
@@ -680,6 +680,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	      " " << curr_cell->Get_Center().z/units::cm << " " <<  curr_cell->get_dy() << " " 
 		      << curr_cell->get_dz() << " "  << 
 	      prev_cells.size() << " " << curr_cells.size() << " " << next_cells.size() << " " << 
+	      all_cells.at(0)->Get_Center().x/units::cm << " " << all_cells.back()->Get_Center().x/units::cm << " " << 
 	      // prev_cell->Get_Center().x/units::cm << " " << prev_cell->Get_Center().y/units::cm << 
 	      // " " << prev_cell->Get_Center().z/units::cm << " " <<  prev_cell->get_dy() << " " 
 	      // 	      << prev_cell->get_dz() << " "  << 
