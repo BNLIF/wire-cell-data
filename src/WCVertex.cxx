@@ -107,11 +107,11 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 	//double q = mscell->Get_Charge();
 	double q = 1;
 
-	// double dy = sqrt((pow(mscell->get_dy(),2) + pow(prev_mscell->get_dy(),2) + pow(next_mscell->get_dy(),2))/3.);
-	// double dz = sqrt((pow(mscell->get_dz(),2) + pow(prev_mscell->get_dz(),2) + pow(next_mscell->get_dz(),2))/3.);
+	double dy = sqrt((pow(mscell->get_dy(),2) + pow(prev_mscell->get_dy(),2) + pow(next_mscell->get_dy(),2))/3.);
+	double dz = sqrt((pow(mscell->get_dz(),2) + pow(prev_mscell->get_dz(),2) + pow(next_mscell->get_dz(),2))/3.);
 
-	double dy = mscell->get_dy();
-	double dz = mscell->get_dz();
+	// double dy = mscell->get_dy();
+	// double dz = mscell->get_dz();
 
 	
 	if (dy == 0) dy = 0.3 * units::cm/2.;
@@ -444,27 +444,39 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	MergeSpaceCell* curr_cell;
 	MergeSpaceCell* next_cell;
 	MergeSpaceCell* prev_cell;
+
+	MergeSpaceCellSelection curr_cells;
+	MergeSpaceCellSelection prev_cells;
+	MergeSpaceCellSelection next_cells;
 	
 	if (dis1 < dis2){
 	  curr_cell = all_cells.at(j);
-	  
 	}else{
 	  curr_cell = all_cells.at(all_cells.size()-1-j);
-	  
 	}
+	
+	//	curr_cells.push_back(curr_cell);
+	for (int k=-5;k!=5;k++){
+	  int num = j+k;
+	  if (num >=0&&num <= all_cells.size()-1){
+	    if (all_cells.at(num)->Get_Center().x == curr_cell->Get_Center().x){
+	      curr_cells.push_back(all_cells.at(num));
+	    }
+	  }
+	}
+
 	
 
 	if (fabs(curr_cell->Get_Center().x - start_cell->Get_Center().x) >=5 * 0.31*units::cm 
 	    && fabs(curr_cell->Get_Center().x - end_cell->Get_Center().x) >=5 * 0.31*units::cm 
 	    && fabs(curr_cell->Get_Center().x - prev_break_cell->Get_Center().x) >=5 * 0.31*units::cm ){
 
-	  MergeSpaceCellSelection temp_msc;
+	  // MergeSpaceCellSelection temp_msc;
 
 	  if (dis1 < dis2){
-	    
-	    temp_msc.push_back(all_cells.at(j-1));
-	    temp_msc.push_back(all_cells.at(j-2));
-	    temp_msc.push_back(all_cells.at(j-3));
+	    // temp_msc.push_back(all_cells.at(j-1));
+	    // temp_msc.push_back(all_cells.at(j-2));
+	    // temp_msc.push_back(all_cells.at(j-3));
 	    prev_cell = all_cells.at(j-4);
 	    int k = 0;
 	    while(fabs(prev_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
@@ -474,13 +486,22 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	      }else{
 		break;
 	      }
-	      temp_msc.push_back(prev_cell);
+	      // temp_msc.push_back(prev_cell);
+	    }
+
+	    for( int kk = -5;kk!=5;kk++){
+	      int num = j-4-k+kk;
+	      if (num >=0&&num <= all_cells.size()-1){
+		if (fabs(all_cells.at(num)->Get_Center().x- prev_cell->Get_Center().x)<0.1*units::cm){
+		  prev_cells.push_back(all_cells.at(num));
+		}
+	      }
 	    }
 
 
-	    temp_msc.push_back(all_cells.at(j+1));
-	    temp_msc.push_back(all_cells.at(j+2));
-	    temp_msc.push_back(all_cells.at(j+3));
+	    // temp_msc.push_back(all_cells.at(j+1));
+	    // temp_msc.push_back(all_cells.at(j+2));
+	    // temp_msc.push_back(all_cells.at(j+3));
 	    next_cell = all_cells.at(j+4);
 	    
 	    k = 0;
@@ -491,14 +512,23 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	      }else{
 		break;
 	      }
-	      temp_msc.push_back(next_cell);
+	      //temp_msc.push_back(next_cell);
 	    }
 	    
+	    for( int kk = -5;kk!=5;kk++){
+	      int num = j+4+k+kk;
+	      if (num >=0&&num <= all_cells.size()-1){
+		if (fabs(all_cells.at(num)->Get_Center().x - next_cell->Get_Center().x)<0.1*units::cm){
+		  next_cells.push_back(all_cells.at(num));
+		}
+	      }
+	    }
+
 
 	  }else{
-	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j+1));
-	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j+2));
-	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j+3));
+	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j+1));
+	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j+2));
+	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j+3));
 	    prev_cell = all_cells.at(all_cells.size()-1-j+4);
 	    int k=0;
 	    while(fabs(prev_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
@@ -508,13 +538,23 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	      }else{
 		break;
 	      }
-	      temp_msc.push_back(prev_cell);
+	      //temp_msc.push_back(prev_cell);
 	      
 	    }
 	    
-	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j-1));
-	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j-2));
-	    temp_msc.push_back(all_cells.at(all_cells.size()-1-j-3));
+	    for( int kk = -5;kk!=5;kk++){
+	      int num = all_cells.size()-1-j+4+k+kk;
+	      if (num >=0&&num <= all_cells.size()-1){
+		if (fabs(all_cells.at(num)->Get_Center().x - prev_cell->Get_Center().x)<0.1*units::cm){
+		  prev_cells.push_back(all_cells.at(num));
+		}
+	      }
+	    }
+
+
+	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j-1));
+	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j-2));
+	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j-3));
 	    next_cell = all_cells.at(all_cells.size()-1-j-4);
 	    k = 0;
 	     while(fabs(next_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
@@ -524,14 +564,72 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	      }else{
 		break;
 	      }
-	      temp_msc.push_back(next_cell);
+	      //temp_msc.push_back(next_cell);
 	      
+	     }
+
+	     for( int kk = -5;kk!=5;kk++){
+	      int num = all_cells.size()-1-j-4-k+kk;
+	      if (num >=0&&num <= all_cells.size()-1){
+		if (fabs(all_cells.at(num)->Get_Center().x - next_cell->Get_Center().x)<0.1*units::cm){
+		  next_cells.push_back(all_cells.at(num));
+		}
+	      }
 	    }
+
 	  }
 
-	  Point p1 = prev_cell->Get_Center();
-	  Point p2 = curr_cell->Get_Center();
-	  Point p3 = next_cell->Get_Center();
+
+
+
+	  Point p1;
+	  p1.x = 0; p1.y = 0; p1.z = 0;
+	  int np1=0;
+
+	  for (int kk=0;kk!=prev_cells.size();kk++){
+	    p1.x += prev_cells.at(kk)->Get_Center().x * prev_cells.at(kk)->Get_all_spacecell().size();
+	    p1.y += prev_cells.at(kk)->Get_Center().y * prev_cells.at(kk)->Get_all_spacecell().size();
+	    p1.z += prev_cells.at(kk)->Get_Center().z * prev_cells.at(kk)->Get_all_spacecell().size();
+	    np1 += prev_cells.at(kk)->Get_all_spacecell().size();
+	  }
+	  p1.x/=np1;
+	  p1.y/=np1;
+	  p1.z/=np1;
+
+	  
+	  Point p2;
+	  p2.x = 0; p2.y = 0; p2.z = 0;
+	  int np2=0;
+
+	  for (int kk=0;kk!=curr_cells.size();kk++){
+	    p2.x += curr_cells.at(kk)->Get_Center().x * curr_cells.at(kk)->Get_all_spacecell().size();
+	    p2.y += curr_cells.at(kk)->Get_Center().y * curr_cells.at(kk)->Get_all_spacecell().size();
+	    p2.z += curr_cells.at(kk)->Get_Center().z * curr_cells.at(kk)->Get_all_spacecell().size();
+	    np2 += curr_cells.at(kk)->Get_all_spacecell().size();
+	  }
+	  p2.x/=np2;
+	  p2.y/=np2;
+	  p2.z/=np2;
+
+
+	  Point p3;
+	  p3.x = 0; p3.y = 0; p3.z = 0;
+	  int np3=0;
+
+	  for (int kk=0;kk!=next_cells.size();kk++){
+	    p3.x += next_cells.at(kk)->Get_Center().x * next_cells.at(kk)->Get_all_spacecell().size();
+	    p3.y += next_cells.at(kk)->Get_Center().y * next_cells.at(kk)->Get_all_spacecell().size();
+	    p3.z += next_cells.at(kk)->Get_Center().z * next_cells.at(kk)->Get_all_spacecell().size();
+	    np3 += next_cells.at(kk)->Get_all_spacecell().size();
+	  }
+	  p3.x/=np3;
+	  p3.y/=np3;
+	  p3.z/=np3;
+
+	  
+
+	  // Point p2 = curr_cell->Get_Center();
+	  // Point p3 = next_cell->Get_Center();
 	  
 	  double ky = (p3.y-p1.y)/(p3.x-p1.x);
 	  double kz = (p3.z-p1.z)/(p3.x-p1.x);
@@ -539,14 +637,21 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	  double yp = ky * (p2.x-p1.x) + p1.y;
 	  double zp = kz * (p2.x-p1.x) + p1.z;
 
-	  double dy = (curr_cell->get_dy()+prev_cell->get_dy()+next_cell->get_dy())/3.;
-	  double dz = (curr_cell->get_dz()+prev_cell->get_dy()+next_cell->get_dy())/3.;
+	  double dy = sqrt((pow(curr_cell->get_dy(),2)+pow(prev_cell->get_dy(),2)+pow(next_cell->get_dy(),2))/3.);
+	  double dz = sqrt((pow(curr_cell->get_dz(),2)+pow(prev_cell->get_dz(),2)+pow(next_cell->get_dz(),2))/3.);
 	  
+
+
+
 	  if (dy == 0) dy = 0.3 * units::cm;
 	  if (dz == 0) dz = 0.3 * units::cm;
 
 	  dy = sqrt(dy*dy + pow(0.3*units::cm,2));
 	  dz = sqrt(dz*dz + pow(0.3*units::cm,2));
+
+
+
+
 
 	  double_t dis_sigma2 = pow(yp-p2.y,2)/pow(dy,2)+pow(zp-p2.z,2)/pow(dz,2);
 	  
@@ -572,7 +677,16 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 
 	    std::cout << "Break Angle: " << sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2)) << " " << dis_sigma2 << " " << 
 	      curr_cell->Get_Center().x/units::cm << " " << curr_cell->Get_Center().y/units::cm << 
-	      " " << curr_cell->Get_Center().z/units::cm << " " <<  prev_break_cell->Get_Center().x/units::cm << std::endl;
+	      " " << curr_cell->Get_Center().z/units::cm << " " <<  curr_cell->get_dy() << " " 
+		      << curr_cell->get_dz() << " "  << 
+	      prev_cells.size() << " " << curr_cells.size() << " " << next_cells.size() << " " << 
+	      // prev_cell->Get_Center().x/units::cm << " " << prev_cell->Get_Center().y/units::cm << 
+	      // " " << prev_cell->Get_Center().z/units::cm << " " <<  prev_cell->get_dy() << " " 
+	      // 	      << prev_cell->get_dz() << " "  << 
+	      // next_cell->Get_Center().x/units::cm << " " << next_cell->Get_Center().y/units::cm << 
+	      // " " << next_cell->Get_Center().z/units::cm << " " <<  next_cell->get_dy() << " " 
+	      // 	      << next_cell->get_dz() << " "  << 
+	      std::endl;
 	  }
 
 
