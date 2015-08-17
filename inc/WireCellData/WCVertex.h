@@ -42,7 +42,8 @@ namespace WireCell {
     double get_ky(int i){return tracks_ky.at(i);}
     double get_kz(int i){return tracks_kz.at(i);}
     int get_fit_type(){return fit_type;};
-    
+    bool get_fit_success(){return fit_success;};
+    bool get_fit_chi2(){return fit_chi2;};
 
   protected:
     int fit_type;
