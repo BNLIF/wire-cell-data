@@ -545,6 +545,9 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	  if (dy == 0) dy = 0.3 * units::cm;
 	  if (dz == 0) dz = 0.3 * units::cm;
 
+	  dy = sqrt(dy*dy + pow(0.3*units::cm,2));
+	  dz = sqrt(dz*dz + pow(0.3*units::cm,2));
+
 	  double_t dis_sigma2 = pow(yp-p2.y,2)/pow(dy,2)+pow(zp-p2.z,2)/pow(dz,2);
 	  
 	  float theta1_old = atan((p2.y-p1.y)/(p2.x-p1.x))/3.1415926*180.;
@@ -553,7 +556,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	  float theta1_new = atan((p3.y-p2.y)/(p3.x-p2.x))/3.1415926*180.;
 	  float theta2_new = atan((p3.z-p2.z)/(p3.x-p2.x))/3.1415926*180.;
 
-	  if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2))>30. && dis_sigma2 > 3
+	  if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta1_old,2))>30. && dis_sigma2 > 1.4
 	      && 3*curr_cell->get_dy() > prev_cell->get_dy() 
 	      && 3*curr_cell->get_dy() > next_cell->get_dy() 
 	      && 3*curr_cell->get_dz() > prev_cell->get_dz() 
