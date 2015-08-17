@@ -47,6 +47,9 @@ namespace WireCell {
   protected:
     int fit_type;
 
+    bool fit_success;
+    double fit_chi2;
+
     Point center;
     MergeSpaceCell *msc;
     WCTrackSelection tracks;

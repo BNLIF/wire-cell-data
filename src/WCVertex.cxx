@@ -368,6 +368,8 @@ bool WCVertex::FindVertex(){
   //std::cout << fcn.get_chi2(variable) << std::endl;
 
 
+  fit_success = min.IsValid();
+  fit_chi2 = min.Fval();
   
 
   //return 0;
