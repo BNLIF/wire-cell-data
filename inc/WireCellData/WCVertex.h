@@ -38,7 +38,10 @@ namespace WireCell {
     void OrganizeEnds(MergeSpaceCellSelection& cells, int flag = 1);
     // static double dis2(const double *xx);
     bool FindVertex();
+
     
+
+
     double get_ky(int i){return tracks_ky.at(i);}
     double get_kz(int i){return tracks_kz.at(i);}
     int get_fit_type(){return fit_type;};

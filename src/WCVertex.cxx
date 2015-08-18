@@ -24,6 +24,7 @@ WCVertex::~WCVertex(){
 
 
 
+
 //   return 0;
 // }
 
