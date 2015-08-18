@@ -34,6 +34,27 @@ void MergeSpaceCell::CalMinMax(){
 }
 
 
+double MergeSpaceCell::ClosestDis(Point& p){
+  double dis = 1e9;
+  double x1 = p.x;
+  double y1 = p.y;
+  double z1 = p.z;
+  
+  for (int j=0;j!=Get_all_spacecell().size();j++){
+    SpaceCell *cell = Get_all_spacecell().at(j);
+    double x,y,z;
+    x = cell->x();
+    y = cell->y();
+    z = cell->z();
+    
+    double dis1 = sqrt(pow(x-x1,2)+pow(y-y1,2)+pow(z-z1,2));
+    if (dis1 < dis) dis = dis1;
+  }
+
+  return dis;
+
+}
+
 bool MergeSpaceCell::CrossCell(Point &p, float theta, float phi){
     
   float x1 = p.x;

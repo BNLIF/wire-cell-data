@@ -30,6 +30,8 @@ namespace WireCell {
       float thickness(){return all_spacecell.front()->thickness();};
 
       bool CrossCell(Point &p, float theta, float phi);
+      double ClosestDis(Point &p);
+
       const MergeGeomCell* get_mcell(){return mcell;}
       void set_mcell(const MergeGeomCell *cell){mcell = cell;};
 

@@ -30,6 +30,7 @@ namespace WireCell {
       PointVector boundary() const{return cell->boundary();};
       const GeomCell* get_cell(){return cell;};
 
+      
       /* double x(){return _x;}; */
       /* double y(){return _y;}; */
       /* double z(){return ;}; */
