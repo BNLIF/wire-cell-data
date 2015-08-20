@@ -129,5 +129,9 @@ namespace WireCell {
     /// Sort a GeomWireSelection by channel
     void sort_by_channel(GeomWireSelection& ws);
 	
+    typedef std::vector<int> WireSelection;
+    typedef std::vector<WireSelection> WireSelectionV;
+    typedef std::map<int,WireSelection> WireMap;
+
 } // namespace WireCell
 #endif
