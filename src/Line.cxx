@@ -41,3 +41,10 @@ void Line::UpdatePoint(int flag, Point &p3){
     p2.z = p3.z;
   }
 }
+
+void Line::ReverseDir(){
+  Point p3;
+  p3 = p1;
+  p1 = p2;
+  p2 = p3;
+}

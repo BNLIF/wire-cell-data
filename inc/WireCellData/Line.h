@@ -15,6 +15,7 @@ namespace WireCell {
     double closest_dis(Point &p3);
     void update_dir();
     TVector3& vec(){return dir;};
+    void ReverseDir();
 
   protected:
     Point p1;

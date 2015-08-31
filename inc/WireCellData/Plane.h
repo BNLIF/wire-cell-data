@@ -7,6 +7,11 @@ namespace WireCell {
   class Plane{
   public:
     Plane(Point &p1, Point &p2, Point &p3);
+    
+    bool sameline();
+    
+    /* Line& */ 
+
     ~Plane();
   protected:
     Point p1;
