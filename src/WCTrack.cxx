@@ -2,6 +2,30 @@
 
 using namespace WireCell;
 
+void WCTrack::fine_tracking(Point &p1, Point &p2){
+  PointVector centerVP;
+  PointVector frontVP;
+  PointVector backVP;
+
+  //initial filling of the center vector
+  for (int i=0; i!=all_cells.size();i++){
+    Point p;
+    p.x = all_cells.at(i)->Get_Center().x;
+    p.y = all_cells.at(i)->Get_Center().y;
+    p.z = all_cells.at(i)->Get_Center().z;
+    centerVP.push_back(p);
+  }
+  
+  
+  for (int i=0;i!=centerVP.size();i++){
+    // go through each of the merge blob
+    
+
+  }
+
+
+}
+
 WCTrack::WCTrack(MergeClusterTrack& mct)
   : mct(mct)
 {
