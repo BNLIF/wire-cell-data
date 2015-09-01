@@ -1,9 +1,13 @@
 #include "WireCellData/WCTrack.h"
+#include "WireCellData/Plane.h"
 
 using namespace WireCell;
 
-void WCTrack::fine_tracking(Point &p1, Point &p2){
-  PointVector centerVP;
+bool WCTrack::fine_tracking(Point &p1, Point &p2){
+  //if (fine_tracking_flag==1) return false;
+  fine_tracking_flag = 1;
+
+  centerVP.clear();
   PointVector frontVP;
   PointVector backVP;
 
@@ -14,21 +18,90 @@ void WCTrack::fine_tracking(Point &p1, Point &p2){
     p.y = all_cells.at(i)->Get_Center().y;
     p.z = all_cells.at(i)->Get_Center().z;
     centerVP.push_back(p);
+    frontVP.push_back(p);
+    backVP.push_back(p);
   }
   
+  for (int k=0;k!=1;k++){
   
-  for (int i=0;i!=centerVP.size();i++){
-    // go through each of the merge blob
+    for (int i=0;i!=centerVP.size();i++){
     
+      // go through each of the merge blob
+      Plane plane1(centerVP.at(i),p1,p2);
+      if (plane1.sameline()){
+	plane1.get_p1().y += 0.1*units::mm; // move the center a little bit
+      }
+      
+      //get the plane
+      Point pp1=centerVP.at(i);
+      Point pp2=centerVP.at(i);
+      pp1.y = pp1.y+1*units::cm;
+      pp2.z = pp2.z+1*units::cm;
+      Plane plane2(centerVP.at(i),pp1,pp2);
+      
+      //find the intersection line
+      Line l1(p1,p2);
+      Line& l2 = plane1.CrossLineCommonPoint(plane2);
+      TVector3& v1 = l1.vec();
+      TVector3& v2 = l2.vec();
+      if (v1.Dot(v2)<0){
+	l2.ReverseDir();
+      }
+      
+      //Now loop through all the cells to find the one satisfy the cuts
+      for (int j=0;j!=all_cells.at(i)->Get_all_spacecell().size();j++){
+	SpaceCell *cell = all_cells.at(i)->Get_all_spacecell().at(j);
+	Point p;
+	p.x = cell->x();
+	p.y = cell->y();
+	p.z = cell->z();
+	double dis = l2.closest_dis(p);
+	if (dis < 4.5 * units::mm){
+	  TVector3 v3(p.x-centerVP.at(i).x,p.y-centerVP.at(i).y,p.z-centerVP.at(i).z);
+	  TVector3 v4(frontVP.at(i).x-centerVP.at(i).x,frontVP.at(i).y-centerVP.at(i).y,frontVP.at(i).z-centerVP.at(i).z);
+	  TVector3 v5(backVP.at(i).x-centerVP.at(i).x,backVP.at(i).y-centerVP.at(i).y,backVP.at(i).z-centerVP.at(i).z);
+	  
+	  double dis1 = v1.Dot(v3);
+	  double dis2 = v1.Dot(v4);
+	  double dis3 = v1.Dot(v5);
+	  
+	  if (dis1 > dis2){
+	    frontVP.at(i).x = p.x;
+	    frontVP.at(i).y = p.y;
+	    frontVP.at(i).z = p.z;
+	  }else if (dis < dis3){
+	    backVP.at(i).x = p.x;
+	    backVP.at(i).y = p.y;
+	    backVP.at(i).z = p.z;
+	  }
+	}
+      }
+    }
+  
+    // //Now recalculate the center
+    // for (int i=0;i!=centerVP.size();i++){
+    //   if (centerVP.size()==1){
+    // 	centerVP.at(i).x = (frontVP.at(i).x + backVP.at(i).x)/2.;
+    // 	centerVP.at(i).y = (frontVP.at(i).y + backVP.at(i).y)/2.;
+    // 	centerVP.at(i).z = (frontVP.at(i).z + backVP.at(i).z)/2.;
+    //   }else{
+    // 	if (i==0){
+    // 	}else if (i==centerVP.size()-1){
+    // 	}else{
+    // 	}
+    //   }
+    // }
 
   }
 
+  return true;
 
 }
 
 WCTrack::WCTrack(MergeClusterTrack& mct)
   : mct(mct)
 {
+  fine_tracking_flag = 0;
   MergeSpaceCellSelection& mcells = mct.Get_allmcells();
   end_scells.push_back(mcells.front());
   

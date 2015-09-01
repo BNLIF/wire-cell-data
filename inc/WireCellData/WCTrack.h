@@ -21,13 +21,15 @@ namespace WireCell {
     void ReplaceEndCell(MergeSpaceCell *cell1, MergeSpaceCell *cell2);
     bool Grow(MergeSpaceCell *cell, int flag = 1); 
 
-    void fine_tracking(Point &p1, Point &p2);
+    bool fine_tracking(Point &p1, Point &p2);
+    PointVector& get_centerVP(){return centerVP;};
 
   protected:
     MergeClusterTrack& mct;
     MergeSpaceCellSelection end_scells;
     MergeSpaceCellSelection all_cells;
-    
+    PointVector centerVP;
+    int fine_tracking_flag;
 
   };
 

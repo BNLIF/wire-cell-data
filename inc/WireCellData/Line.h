@@ -7,7 +7,7 @@
 namespace WireCell {
   class Line {
   public:
-    Line(Point& p1, Point &p2);
+    Line(Point p1, Point p2);
     ~Line();
 
     void UpdatePoint(int flag, Point &p3);
