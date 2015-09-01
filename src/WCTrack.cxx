@@ -6,7 +6,7 @@ using namespace WireCell;
 bool WCTrack::fine_tracking(Point &p1, Point &p2){
   //if (fine_tracking_flag==1) return false;
   fine_tracking_flag = 1;
-
+  
   centerVP.clear();
   PointVector frontVP;
   PointVector backVP;
@@ -21,24 +21,38 @@ bool WCTrack::fine_tracking(Point &p1, Point &p2){
     frontVP.push_back(p);
     backVP.push_back(p);
   }
+
+  // judge if first cell is closer to p1 or p2
+  // if front, loop over back from first cell, loop over front from the last cell
+  // if back, loop over back from last celll, loop over front from the first cell
+  Point pf;
+  pf.x = all_cells.at(0)->Get_Center().x;
+  pf.y = all_cells.at(0)->Get_Center().y;
+  pf.z = all_cells.at(0)->Get_Center().z;
+  float dis1 = pow(pf.x-p1.x,2);
+  float dis2 = pow(pf.x-p2.x,2);
+  int order;
+  if (dis1<dis2){
+    order = 1;
+  }else{
+    order = 2;
+  }
+
   
   for (int k=0;k!=1;k++){
   
     for (int i=0;i!=centerVP.size();i++){
-    
       // go through each of the merge blob
       Plane plane1(centerVP.at(i),p1,p2);
       if (plane1.sameline()){
 	plane1.get_p1().y += 0.1*units::mm; // move the center a little bit
       }
-      
       //get the plane
       Point pp1=centerVP.at(i);
       Point pp2=centerVP.at(i);
       pp1.y = pp1.y+1*units::cm;
       pp2.z = pp2.z+1*units::cm;
       Plane plane2(centerVP.at(i),pp1,pp2);
-      
       //find the intersection line
       Line l1(p1,p2);
       Line& l2 = plane1.CrossLineCommonPoint(plane2);
@@ -79,18 +93,19 @@ bool WCTrack::fine_tracking(Point &p1, Point &p2){
     }
   
     // //Now recalculate the center
-    // for (int i=0;i!=centerVP.size();i++){
-    //   if (centerVP.size()==1){
-    // 	centerVP.at(i).x = (frontVP.at(i).x + backVP.at(i).x)/2.;
-    // 	centerVP.at(i).y = (frontVP.at(i).y + backVP.at(i).y)/2.;
-    // 	centerVP.at(i).z = (frontVP.at(i).z + backVP.at(i).z)/2.;
-    //   }else{
-    // 	if (i==0){
-    // 	}else if (i==centerVP.size()-1){
-    // 	}else{
-    // 	}
-    //   }
-    // }
+    
+    //for (int i=0;i!=centerVP.size();i++){
+    // //   if (centerVP.size()==1){
+    // // 	centerVP.at(i).x = (frontVP.at(i).x + backVP.at(i).x)/2.;
+      // // centerVP.at(i).y = (frontVP.at(i).y + backVP.at(i).y)/2.;
+      // // centerVP.at(i).z = (frontVP.at(i).z + backVP.at(i).z)/2.;
+    // //   }else{
+    // // 	if (i==0){
+    // // 	}else if (i==centerVP.size()-1){
+    // // 	}else{
+    // // 	}
+    // //   }
+    //}
 
   }
 
