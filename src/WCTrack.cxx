@@ -194,7 +194,19 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
 
   }
 
-  // construct the differential angle ... 
+  // construct the differential angles ... 
+  for (int i=0;i!=centerVP.size()-1;i++){
+    TVector3 dir(centerVP.at(i+1).x-centerVP.at(i).x,
+		 centerVP.at(i+1).y-centerVP.at(i).y,
+		 centerVP.at(i+1).z-centerVP.at(i).z);
+    centerVP_theta.push_back(dir.Theta());
+    centerVP_phi.push_back(dir.Phi());
+    if (i==centerVP.size()-2){
+      centerVP_theta.push_back(dir.Theta());
+      centerVP_phi.push_back(dir.Phi());
+    }
+  }
+  
 
 
   return true;

@@ -23,8 +23,13 @@ namespace WireCell {
 
     bool fine_tracking(Point &p1, double ky1, double kz1, 
 		       Point &p2, double ky2, double kz2);
-    PointVector& get_centerVP(){return centerVP;};
 
+    PointVector& get_centerVP(){return centerVP;};
+    MergeSpaceCellSelection& get_centerVP_cells(){return centerVP_cells;};
+    std::vector<double>& get_centerVP_theta(){return centerVP_theta;};
+    std::vector<double>& get_centerVP_phi(){return centerVP_phi;};
+    int get_fine_tracking_flag(){return fine_tracking_flag;};
+    
   protected:
     MergeClusterTrack& mct;
     MergeSpaceCellSelection end_scells;
