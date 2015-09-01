@@ -41,7 +41,8 @@ namespace WireCell {
     bool FindVertex();
 
    
-
+    double get_ky(WCTrack *track);
+    double get_kz(WCTrack *track);
 
     double get_ky(int i){return tracks_ky.at(i);}
     double get_kz(int i){return tracks_kz.at(i);}

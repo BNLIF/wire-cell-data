@@ -21,8 +21,15 @@ WCVertex::~WCVertex(){
 }
 
 
+double WCVertex::get_ky(WCTrack *track){
+  auto it = find(tracks.begin(),tracks.end(),track);
+  return tracks_ky.at(it-tracks.begin());
+}
 
-
+double WCVertex::get_kz(WCTrack *track){
+  auto it = find(tracks.begin(),tracks.end(),track);
+  return tracks_kz.at(it-tracks.begin());
+}
 
 
 //   return 0;

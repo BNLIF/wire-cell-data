@@ -3,7 +3,7 @@
 
 using namespace WireCell;
 
-bool WCTrack::fine_tracking(Point &p1, Point &p2){
+bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double ky2, double kz2){
   //if (fine_tracking_flag==1) return false;
   fine_tracking_flag = 1;
   
@@ -23,8 +23,6 @@ bool WCTrack::fine_tracking(Point &p1, Point &p2){
   }
 
   // judge if first cell is closer to p1 or p2
-  // if front, loop over back from first cell, loop over front from the last cell
-  // if back, loop over back from last celll, loop over front from the first cell
   Point pf;
   pf.x = all_cells.at(0)->Get_Center().x;
   pf.y = all_cells.at(0)->Get_Center().y;
@@ -33,79 +31,146 @@ bool WCTrack::fine_tracking(Point &p1, Point &p2){
   float dis2 = pow(pf.x-p2.x,2);
   int order;
   if (dis1<dis2){
-    order = 1;
+    order = 1;  // firt cell closer to p1, 
   }else{
-    order = 2;
+    order = 2;  // first cell closer to p2,
   }
 
-  
-  for (int k=0;k!=1;k++){
-  
+  // iteration procedure ... 
+  for (int k=0;k!=3;k++){
+    
+    // if (order == 1){
+	  
     for (int i=0;i!=centerVP.size();i++){
-      // go through each of the merge blob
-      Plane plane1(centerVP.at(i),p1,p2);
-      if (plane1.sameline()){
-	plane1.get_p1().y += 0.1*units::mm; // move the center a little bit
-      }
-      //get the plane
-      Point pp1=centerVP.at(i);
-      Point pp2=centerVP.at(i);
-      pp1.y = pp1.y+1*units::cm;
-      pp2.z = pp2.z+1*units::cm;
-      Plane plane2(centerVP.at(i),pp1,pp2);
-      //find the intersection line
-      Line l1(p1,p2);
-      Line& l2 = plane1.CrossLineCommonPoint(plane2);
-      TVector3& v1 = l1.vec();
-      TVector3& v2 = l2.vec();
-      if (v1.Dot(v2)<0){
-	l2.ReverseDir();
-      }
-      
-      //Now loop through all the cells to find the one satisfy the cuts
-      for (int j=0;j!=all_cells.at(i)->Get_all_spacecell().size();j++){
-	SpaceCell *cell = all_cells.at(i)->Get_all_spacecell().at(j);
-	Point p;
-	p.x = cell->x();
-	p.y = cell->y();
-	p.z = cell->z();
-	double dis = l2.closest_dis(p);
-	if (dis < 4.5 * units::mm){
-	  TVector3 v3(p.x-centerVP.at(i).x,p.y-centerVP.at(i).y,p.z-centerVP.at(i).z);
-	  TVector3 v4(frontVP.at(i).x-centerVP.at(i).x,frontVP.at(i).y-centerVP.at(i).y,frontVP.at(i).z-centerVP.at(i).z);
-	  TVector3 v5(backVP.at(i).x-centerVP.at(i).x,backVP.at(i).y-centerVP.at(i).y,backVP.at(i).z-centerVP.at(i).z);
-	  
-	  double dis1 = v1.Dot(v3);
-	  double dis2 = v1.Dot(v4);
-	  double dis3 = v1.Dot(v5);
-	  
-	  if (dis1 > dis2){
-	    frontVP.at(i).x = p.x;
-	    frontVP.at(i).y = p.y;
-	    frontVP.at(i).z = p.z;
-	  }else if (dis < dis3){
-	    backVP.at(i).x = p.x;
-	    backVP.at(i).y = p.y;
-	    backVP.at(i).z = p.z;
+      if (fabs(centerVP.at(i).x - p1.x) < 0.65*units::cm){ // twice the time difference
+	double min_dis = 1e9;
+	Point min_point;
+	Point p3;
+	p3.x = p1.x + 1;
+	p3.y = p1.y + ky1;
+	p3.z = p1.z + kz1;
+	Line l1(p1,p3);
+
+	for (int j=0;j!=all_cells.at(i)->Get_all_spacecell().size();j++){
+	  SpaceCell *cell = all_cells.at(i)->Get_all_spacecell().at(j);
+	  Point p;
+	  p.x = cell->x();
+	  p.y = cell->y();
+	  p.z = cell->z();
+	  double dis = l1.closest_dis(p);
+	  if (dis < min_dis){
+	    min_dis = dis;
+	    min_point = p;
+	  }
+	}
+	
+	if (min_dis > 3*units::mm){
+	  frontVP.at(i) = centerVP.at(i);
+	  backVP.at(i) = centerVP.at(i);
+	}else{
+	  centerVP.at(i) = min_point;
+	  frontVP.at(i) = centerVP.at(i);
+	  backVP.at(i) = centerVP.at(i);
+	}
+	
+      }else if (fabs(centerVP.at(i).x-p2.x) < 0.65*units::cm){ // twice the time difference
+	double min_dis = 1e9;
+	Point min_point;
+	Point p3;
+	p3.x = p2.x + 1;
+	p3.y = p2.y + ky2;
+	p3.z = p2.z + kz2;
+	Line l1(p1,p3);
+
+	for (int j=0;j!=all_cells.at(i)->Get_all_spacecell().size();j++){
+	  SpaceCell *cell = all_cells.at(i)->Get_all_spacecell().at(j);
+	  Point p;
+	  p.x = cell->x();
+	  p.y = cell->y();
+	  p.z = cell->z();
+	  double dis = l1.closest_dis(p);
+	  if (dis < min_dis){
+	    min_dis = dis;
+	    min_point = p;
+	  }
+	}
+	
+	if (min_dis > 3*units::mm){
+	  frontVP.at(i) = centerVP.at(i);
+	  backVP.at(i) = centerVP.at(i);
+	}else{
+	  centerVP.at(i) = min_point;
+	  frontVP.at(i) = centerVP.at(i);
+	  backVP.at(i) = centerVP.at(i);
+	}
+      }else{
+	// go through each of the merge blob
+	Plane plane1(centerVP.at(i),p1,p2);
+	if (plane1.sameline()){
+	  plane1.get_p1().y += 0.1*units::mm; // move the center a little bit
+	}
+	//get the plane
+	Point pp1=centerVP.at(i);
+	Point pp2=centerVP.at(i);
+	pp1.y = pp1.y+1*units::cm;
+	pp2.z = pp2.z+1*units::cm;
+	Plane plane2(centerVP.at(i),pp1,pp2);
+	//find the intersection line
+	Line l1(p1,p2);
+	Line& l2 = plane1.CrossLineCommonPoint(plane2);
+	TVector3& v1 = l1.vec();
+	TVector3& v2 = l2.vec();
+	if (v1.Dot(v2)<0){
+	  l2.ReverseDir();
+	}
+	
+	//Now loop through all the cells to find the one satisfy the cuts
+	for (int j=0;j!=all_cells.at(i)->Get_all_spacecell().size();j++){
+	  SpaceCell *cell = all_cells.at(i)->Get_all_spacecell().at(j);
+	  Point p;
+	  p.x = cell->x();
+	  p.y = cell->y();
+	  p.z = cell->z();
+	  double dis = l2.closest_dis(p);
+	  if (dis < 4.5 * units::mm){
+	    TVector3 v3(p.x-centerVP.at(i).x,p.y-centerVP.at(i).y,p.z-centerVP.at(i).z);
+	    TVector3 v4(frontVP.at(i).x-centerVP.at(i).x,frontVP.at(i).y-centerVP.at(i).y,frontVP.at(i).z-centerVP.at(i).z);
+	    TVector3 v5(backVP.at(i).x-centerVP.at(i).x,backVP.at(i).y-centerVP.at(i).y,backVP.at(i).z-centerVP.at(i).z);
+	    
+	    double dist1 = v1.Dot(v3);
+	    double dist2 = v1.Dot(v4);
+	    double dist3 = v1.Dot(v5);
+	    
+	    if (dist1 > dist2){
+	      frontVP.at(i).x = p.x;
+	      frontVP.at(i).y = p.y;
+	      frontVP.at(i).z = p.z;
+	    }else if (dist1 < dist3){
+	      backVP.at(i).x = p.x;
+	      backVP.at(i).y = p.y;
+	      backVP.at(i).z = p.z;
+	    }
 	  }
 	}
       }
-    }
+    } // for loop
+    
+    //} // end order ... 
   
     // //Now recalculate the center
     
-    //for (int i=0;i!=centerVP.size();i++){
+    for (int i=0;i!=centerVP.size();i++){
     // //   if (centerVP.size()==1){
     // // 	centerVP.at(i).x = (frontVP.at(i).x + backVP.at(i).x)/2.;
-      // // centerVP.at(i).y = (frontVP.at(i).y + backVP.at(i).y)/2.;
-      // // centerVP.at(i).z = (frontVP.at(i).z + backVP.at(i).z)/2.;
+      centerVP.at(i).y = (frontVP.at(i).y + backVP.at(i).y)/2.;
+      centerVP.at(i).z = (frontVP.at(i).z + backVP.at(i).z)/2.;
     // //   }else{
     // // 	if (i==0){
     // // 	}else if (i==centerVP.size()-1){
     // // 	}else{
     // // 	}
     // //   }
-    //}
+    }
 
   }
 
