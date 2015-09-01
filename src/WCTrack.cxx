@@ -17,16 +17,36 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
     p.x = all_cells.at(i)->Get_Center().x;
     p.y = all_cells.at(i)->Get_Center().y;
     p.z = all_cells.at(i)->Get_Center().z;
-    centerVP.push_back(p);
-    frontVP.push_back(p);
-    backVP.push_back(p);
+    
+    //std::cout << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
+    
+    if (i==0){
+      centerVP.push_back(p);
+      frontVP.push_back(p);
+      backVP.push_back(p);
+      centerVP_cells.push_back(all_cells.at(i));
+    }else{
+      if (fabs(p.x-centerVP.at(centerVP.size()-1).x)>0.1*units::mm){
+     	centerVP.push_back(p);
+    	frontVP.push_back(p);
+    	backVP.push_back(p);
+    	centerVP_cells.push_back(all_cells.at(i));
+      }else{
+    	if (all_cells.at(i)->Get_all_spacecell().size() > centerVP_cells.at(centerVP_cells.size()-1)->Get_all_spacecell().size()){
+    	  centerVP.at(centerVP_cells.size()-1) = p;
+    	  frontVP.at(centerVP_cells.size()-1) = p;
+    	  backVP.at(centerVP_cells.size()-1) = p;
+    	  centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+    	}
+      }
+    }
   }
 
   // judge if first cell is closer to p1 or p2
   Point pf;
-  pf.x = all_cells.at(0)->Get_Center().x;
-  pf.y = all_cells.at(0)->Get_Center().y;
-  pf.z = all_cells.at(0)->Get_Center().z;
+  pf.x = centerVP_cells.at(0)->Get_Center().x;
+  pf.y = centerVP_cells.at(0)->Get_Center().y;
+  pf.z = centerVP_cells.at(0)->Get_Center().z;
   float dis1 = pow(pf.x-p1.x,2);
   float dis2 = pow(pf.x-p2.x,2);
   int order;
@@ -51,8 +71,8 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
 	p3.z = p1.z + kz1;
 	Line l1(p1,p3);
 
-	for (int j=0;j!=all_cells.at(i)->Get_all_spacecell().size();j++){
-	  SpaceCell *cell = all_cells.at(i)->Get_all_spacecell().at(j);
+	for (int j=0;j!=centerVP_cells.at(i)->Get_all_spacecell().size();j++){
+	  SpaceCell *cell = centerVP_cells.at(i)->Get_all_spacecell().at(j);
 	  Point p;
 	  p.x = cell->x();
 	  p.y = cell->y();
@@ -82,8 +102,8 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
 	p3.z = p2.z + kz2;
 	Line l1(p1,p3);
 
-	for (int j=0;j!=all_cells.at(i)->Get_all_spacecell().size();j++){
-	  SpaceCell *cell = all_cells.at(i)->Get_all_spacecell().at(j);
+	for (int j=0;j!=centerVP_cells.at(i)->Get_all_spacecell().size();j++){
+	  SpaceCell *cell = centerVP_cells.at(i)->Get_all_spacecell().at(j);
 	  Point p;
 	  p.x = cell->x();
 	  p.y = cell->y();
@@ -125,8 +145,8 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
 	}
 	
 	//Now loop through all the cells to find the one satisfy the cuts
-	for (int j=0;j!=all_cells.at(i)->Get_all_spacecell().size();j++){
-	  SpaceCell *cell = all_cells.at(i)->Get_all_spacecell().at(j);
+	for (int j=0;j!=centerVP_cells.at(i)->Get_all_spacecell().size();j++){
+	  SpaceCell *cell = centerVP_cells.at(i)->Get_all_spacecell().at(j);
 	  Point p;
 	  p.x = cell->x();
 	  p.y = cell->y();
@@ -173,6 +193,9 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
     }
 
   }
+
+  // construct the differential angle ... 
+
 
   return true;
 

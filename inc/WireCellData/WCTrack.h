@@ -29,7 +29,13 @@ namespace WireCell {
     MergeClusterTrack& mct;
     MergeSpaceCellSelection end_scells;
     MergeSpaceCellSelection all_cells;
+
     PointVector centerVP;
+    MergeSpaceCellSelection centerVP_cells;
+    std::vector<double> centerVP_theta;
+    std::vector<double> centerVP_phi;
+    
+
     int fine_tracking_flag;
 
   };
