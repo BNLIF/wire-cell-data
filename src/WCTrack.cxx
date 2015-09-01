@@ -195,6 +195,7 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
   }
 
   // construct the differential angles ... 
+  range = 0;
   for (int i=0;i!=centerVP.size()-1;i++){
     TVector3 dir(centerVP.at(i+1).x-centerVP.at(i).x,
 		 centerVP.at(i+1).y-centerVP.at(i).y,
@@ -205,9 +206,71 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
       centerVP_theta.push_back(dir.Theta());
       centerVP_phi.push_back(dir.Phi());
     }
+    range += dir.Mag();
+
+  }
+
+
+  // Now need to calculate energy ... global dE/dx, and sum of energies 
+  centerVP_energy.resize(centerVP.size(),0);
+  centerVP_dedx.resize(centerVP.size(),0);
+  
+  //What about the energy lost in the selecting biggest cell process??? 
+  for (int i=0;i!=centerVP.size();i++){
+    if (fabs(centerVP.at(i).x - p1.x) < 0.65*units::cm){ // twice the time difference
+      //crawl to the back
+      for (int j=i+1;j<centerVP.size();j++){
+	if (fabs(centerVP.at(j).x - p1.x) > 0.65*units::cm){
+	  float de = centerVP_cells.at(j)->Get_Charge();
+	  float dx = 1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.;
+	  centerVP_energy.at(i) = de;
+	  centerVP_dedx.at(i) = de/dx;
+	  break;
+	}
+      }
+      //crawl to the front
+      for (int j=0;j<i;j++){
+	if (fabs(centerVP.at(j).x - p1.x) > 0.65*units::cm){
+	  float de = centerVP_cells.at(j)->Get_Charge();
+	  float dx = 1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.;
+	  centerVP_energy.at(i) = de;
+	  centerVP_dedx.at(i) = de/dx;
+	  break;
+	}
+      }
+    }else if (fabs(centerVP.at(i).x-p2.x) < 0.65*units::cm){ // twice the time difference
+      //crawl to the back
+      for (int j=i+1;j<centerVP.size();j++){
+	if (fabs(centerVP.at(j).x - p2.x) > 0.65*units::cm){
+	  float de = centerVP_cells.at(j)->Get_Charge();
+	  float dx = 1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.;
+	  centerVP_energy.at(i) = de;
+	  centerVP_dedx.at(i) = de/dx;
+	  break;
+	}
+      }
+      //crawl to the front
+      for (int j=0;j<i;j++){
+	if (fabs(centerVP.at(j).x - p2.x) > 0.65*units::cm){
+	  float de = centerVP_cells.at(j)->Get_Charge();
+	  float dx = 1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.;
+	  centerVP_energy.at(i) = de;
+	  centerVP_dedx.at(i) = de/dx;
+	  break;
+	}
+      }
+    }else{
+      float de = centerVP_cells.at(i)->Get_Charge();
+      float dx = 1./(cos(centerVP_theta.at(i))*cos(centerVP_phi.at(i)))*centerVP_cells.at(i)->thickness()/2.;
+      centerVP_energy.at(i) = de;
+      centerVP_dedx.at(i) = de/dx;
+    }
   }
   
 
+  
+  
+  // std::cout << range/units::cm << " " << centerVP.at(0).x/units::cm << " " << centerVP.at(0).y/units::cm  << " " << centerVP.at(0).z/units::cm  << " " << centerVP.at(centerVP.size()-1).x/units::cm << " " << centerVP.at(centerVP.size()-1).y/units::cm  << " " << centerVP.at(centerVP.size()-1).z/units::cm<< std::endl;
 
   return true;
 

@@ -30,6 +30,8 @@ namespace WireCell {
     std::vector<double>& get_centerVP_phi(){return centerVP_phi;};
     int get_fine_tracking_flag(){return fine_tracking_flag;};
     
+    double get_range(){return range;};
+
   protected:
     MergeClusterTrack& mct;
     MergeSpaceCellSelection end_scells;
@@ -40,6 +42,11 @@ namespace WireCell {
     std::vector<double> centerVP_theta;
     std::vector<double> centerVP_phi;
     
+    std::vector<float> centerVP_energy;
+    std::vector<float> centerVP_dedx;
+    
+
+    double range;
 
     int fine_tracking_flag;
 
