@@ -106,7 +106,7 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 	if (fabs(xc-x0)/units::cm < 5)
 	  flag = 1;
       }else if (vertex->get_fit_type()==2){
-	if (fabs(xc-x0)/units::cm < 5 && fabs(xc-x0)/units::cm > 0.5)
+	if ((fabs(xc-x0)/units::cm < 5 && fabs(xc-x0)/units::cm > 0.5 && fit_flag == 0) || (fabs(xc-x0)/units::cm < 6 && fabs(xc-x0)/units::cm > 1.0 && fit_flag != 0))
 	  flag = 1;
       }
 
@@ -230,7 +230,7 @@ double MyFCN::operator() (const std::vector<double> & xx) const{
 } 
 
 
-bool WCVertex::FindVertex(){
+bool WCVertex::FindVertex(int flag){
 
   // hack ...
   // if (tracks.size()>3){
@@ -254,7 +254,7 @@ bool WCVertex::FindVertex(){
 
 
 
-  MyFCN fcn(this);
+  MyFCN fcn(this,flag);
   int ntracks = tracks.size();
   
   std::vector<double> variable;
@@ -321,8 +321,13 @@ bool WCVertex::FindVertex(){
   for (int i=0;i!=tracks.size();i++){
     int num_cells = 0;
     for (int j=0;j!=tracks.at(i)->get_all_cells().size();j++){
+      if (flag == 0){
       if (fabs(msc->Get_Center().x-tracks.at(i)->get_all_cells().at(j)->Get_Center().x)/units::cm > 0.5)
 	num_cells ++;
+      }else{
+	if (fabs(msc->Get_Center().x-tracks.at(i)->get_all_cells().at(j)->Get_Center().x)/units::cm > 1.0)
+	  num_cells ++;
+      }
     }
     if (num_cells >= 4) num_tracks ++;
   }

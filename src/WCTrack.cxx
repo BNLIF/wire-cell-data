@@ -29,10 +29,10 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
     p.x = all_cells.at(i)->Get_Center().x;
     p.y = all_cells.at(i)->Get_Center().y;
     p.z = all_cells.at(i)->Get_Center().z;
+    if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>0.32*units::cm && fabs(p.x-p2.x)>0.32*units::cm) continue;
+    // std::cout << "abc: " << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
     
-    //std::cout << "abc: " << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
-    
-    if (i==0){
+    if (centerVP.size()==0){
       centerVP.push_back(p);
       frontVP.push_back(p);
       backVP.push_back(p);
@@ -44,15 +44,80 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
     	backVP.push_back(p);
     	centerVP_cells.push_back(all_cells.at(i));
       }else{
-    	if (all_cells.at(i)->Get_all_spacecell().size() > centerVP_cells.at(centerVP_cells.size()-1)->Get_all_spacecell().size()){
-    	  centerVP.at(centerVP_cells.size()-1) = p;
-    	  frontVP.at(centerVP_cells.size()-1) = p;
-    	  backVP.at(centerVP_cells.size()-1) = p;
-    	  centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
-    	}
+	
+
+
+	float dis1 = fabs(all_cells.at(i)->Get_Center().x - p1.x);
+	float dis2 = fabs(all_cells.at(i)->Get_Center().x - p2.x);
+	float dis3;
+	float dis4;
+
+	
+
+	if (dis1 > 0.9*units::cm && dis2 > 0.9 * units::cm){
+	  // dis3 = pow(all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2) 
+	  //   + pow(all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2) 
+	  //   + pow(all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
+	  // dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2)
+	  //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2)
+	  //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
+	  if (all_cells.at(i)->Get_all_spacecell().size() > centerVP_cells.at(centerVP_cells.size()-1)->Get_all_spacecell().size()){
+	    centerVP.at(centerVP_cells.size()-1) = p;
+	    frontVP.at(centerVP_cells.size()-1) = p;
+	    backVP.at(centerVP_cells.size()-1) = p;
+	    centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	  }
+	  
+	}else if (dis1 <= 0.9*units::cm){
+	  dis3 = pow(all_cells.at(i)->Get_Center().x - p1.x,2) 
+	    + pow(all_cells.at(i)->Get_Center().y - p1.y,2) 
+	    + pow(all_cells.at(i)->Get_Center().z - p1.z,2);
+	  dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x,2)
+	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y,2)
+	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z,2);
+	  if (dis3 < dis4){
+	    centerVP.at(centerVP_cells.size()-1) = p;
+	    frontVP.at(centerVP_cells.size()-1) = p;
+	    backVP.at(centerVP_cells.size()-1) = p;
+	    centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	  }
+	}else if (dis2 <= 0.9*units::cm){
+	  dis3 = pow(all_cells.at(i)->Get_Center().x - p2.x,2) 
+	    + pow(all_cells.at(i)->Get_Center().y - p2.y,2) 
+	    + pow(all_cells.at(i)->Get_Center().z - p2.z,2);
+	  dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x,2)
+	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y,2)
+	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z,2);
+	  if (dis3 < dis4){
+	    centerVP.at(centerVP_cells.size()-1) = p;
+	    frontVP.at(centerVP_cells.size()-1) = p;
+	    backVP.at(centerVP_cells.size()-1) = p;
+	    centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	  }
+	}
+	
+	// std::cout << all_cells.at(i)->Get_Center().x/units::cm << " " 
+	// 	  << p1.x/units::cm << " " << p2.x/units::cm << " " 
+	// 	  << dis1/units::cm << " " << dis2/units::cm << " " 
+	// 	  << dis3/units::cm << " " << dis4/units::cm << std::endl;
+
+
+	
+
+    
+
       }
     }
   }
+
+  // check
+  // for (int i=0;i!=centerVP.size();i++){
+  //   std::cout << centerVP.at(i).x/units::cm << " " << 
+  //     centerVP.at(i).y/units::cm << " " << 
+  //     centerVP.at(i).z/units::cm << std::endl;
+  // }
+  // std::cout << std::endl;
+  
 
   // judge if first cell is closer to p1 or p2
   Point pf;

@@ -38,7 +38,7 @@ namespace WireCell {
     void ProcessTracks(WCTrackSelection& break_tracks);
     void OrganizeEnds(MergeSpaceCellSelection& cells, int flag = 1);
     // static double dis2(const double *xx);
-    bool FindVertex();
+    bool FindVertex(int flag = 0);
 
    
     double get_ky(WCTrack *track);
@@ -73,8 +73,9 @@ namespace WireCell {
   public: 
     double Up() const { return 1.; }
     
-    MyFCN(WCVertex* vertex) 
+  MyFCN(WCVertex* vertex, int fit_flag) 
       : vertex(vertex)
+      , fit_flag(fit_flag)
       {}
     
     ~MyFCN(){}
@@ -84,6 +85,7 @@ namespace WireCell {
 
   private:
     WCVertex *vertex;
+    int fit_flag;
   };
 
 }
