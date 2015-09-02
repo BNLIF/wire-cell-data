@@ -68,13 +68,16 @@ namespace WireCell {
       }
     };
 
+     
+
     /// Used to temporarily collect some subset
     typedef std::vector<WireCell::MergeSpaceCell*> MergeSpaceCellSelection;
     typedef std::map<MergeSpaceCell*, MergeSpaceCellSelection> MergeSpaceCellMap;
     typedef std::list<WireCell::MergeSpaceCell*> MergeSpaceCellList;
     typedef std::map<MergeSpaceCell*, int> MergeSpaceCellCounter;
     typedef std::set<MergeSpaceCell*, MergeSpaceCellCompare> MergeSpaceCellSet;
-    
+
+       
     // typedef std::map<MergeSpaceCell*, MergeClusterTrackSelection> MSC_MCT_Map;
     
 }

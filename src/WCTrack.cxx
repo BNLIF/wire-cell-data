@@ -7,6 +7,18 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
   //if (fine_tracking_flag==1) return false;
   fine_tracking_flag = 1;
   
+  MergeSpaceCellSet cells_set;
+  //sort the existing cells
+  for (int i=0;i!=all_cells.size();i++){
+    cells_set.insert(all_cells.at(i));
+  }
+  all_cells.clear();
+  for (auto it = cells_set.begin(); it!=cells_set.end(); it++){
+    all_cells.push_back(*it);
+  }
+
+
+
   centerVP.clear();
   PointVector frontVP;
   PointVector backVP;
@@ -18,7 +30,7 @@ bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double
     p.y = all_cells.at(i)->Get_Center().y;
     p.z = all_cells.at(i)->Get_Center().z;
     
-    //std::cout << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
+    //std::cout << "abc: " << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
     
     if (i==0){
       centerVP.push_back(p);
