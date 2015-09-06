@@ -28,7 +28,11 @@ namespace WireCell {
     MergeSpaceCellSelection& get_centerVP_cells(){return centerVP_cells;};
     std::vector<double>& get_centerVP_theta(){return centerVP_theta;};
     std::vector<double>& get_centerVP_phi(){return centerVP_phi;};
+
+
     int get_fine_tracking_flag(){return fine_tracking_flag;};
+    
+
     
     double get_range(){return range;};
 
