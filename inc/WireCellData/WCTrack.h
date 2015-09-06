@@ -32,7 +32,8 @@ namespace WireCell {
 
     int get_fine_tracking_flag(){return fine_tracking_flag;};
     
-
+    bool IsContained(MergeSpaceCell *mcell);
+    double dist(MergeSpaceCell*mcell,SpaceCell *cell);
     
     double get_range(){return range;};
 

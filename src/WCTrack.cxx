@@ -3,6 +3,53 @@
 
 using namespace WireCell;
 
+bool WCTrack::IsContained(MergeSpaceCell *mcell){
+  auto it = find(centerVP_cells.begin(),centerVP_cells.end(),mcell);
+  if (it == centerVP_cells.end()){
+    return false;
+  }else{
+    return true;
+  }
+}
+
+double WCTrack::dist(MergeSpaceCell*mcell, SpaceCell *cell){
+  double dist = 1e9;
+  
+  Point p;
+  p.x = cell->x();
+  p.y = cell->y();
+  p.z = cell->z();
+
+
+  auto it = find(centerVP_cells.begin(),centerVP_cells.end(),mcell);
+  
+  if (it == centerVP_cells.end()){
+    return dist;
+  }else{
+    int abc = it - centerVP_cells.begin();
+    if (abc == 0){
+      Line l1(centerVP.at(0),centerVP.at(1));
+      dist = l1.closest_dis(p);
+    }else if (abc == centerVP_cells.size()-1){
+      Line l1(centerVP.at(centerVP_cells.size()-1),centerVP.at(centerVP_cells.size()-2));
+      dist = l1.closest_dis(p);
+    }else{
+      Line l1(centerVP.at(abc),centerVP.at(abc+1));
+      Line l2(centerVP.at(abc-1),centerVP.at(abc));
+      double dist1 = l1.closest_dis(p);
+      double dist2 = l2.closest_dis(p);
+      if (dist1 < dist2){
+	dist = dist1;
+      }else{
+	dist = dist2;
+      }
+    }
+  }
+
+  return dist;
+}
+
+
 bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double ky2, double kz2){
   //if (fine_tracking_flag==1) return false;
   fine_tracking_flag = 1;
