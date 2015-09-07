@@ -12,6 +12,109 @@ bool WCTrack::IsContained(MergeSpaceCell *mcell){
   }
 }
 
+double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
+  double dist = 1e9;
+  Point p;
+  p.x = cell->x();
+  p.y = cell->y();
+  p.z = cell->z();
+
+  TVector3 dir_x(1,0,0);
+
+  auto it = find(centerVP_cells.begin(),centerVP_cells.end(),mcell);
+  
+  if (it == centerVP_cells.end()){
+    return dist;
+  }else{
+    int abc = it - centerVP_cells.begin();
+    if (abc == 0){
+      Line l1(centerVP.at(0),centerVP.at(1));
+      TVector3& l1_dir = l1.vec();
+      TVector3 l1_proj = dir_x.Cross(l1_dir);
+
+      TVector3 v1(p.x-centerVP.at(0).x,p.y-centerVP.at(0).y,p.z-centerVP.at(0).z);
+      TVector3 v2(p.x-centerVP.at(1).x,p.y-centerVP.at(1).y,p.z-centerVP.at(1).z);
+      
+      TVector3 dist_dir = v1.Cross(v2).Cross(l1_dir);
+      dist_dir *= 1./l1_dir.Mag2();
+
+      TVector3 dist_proj;
+      
+      if (l1_proj.Mag2()!=0){
+	dist_proj = dist_dir - dist_dir.Dot(l1_proj)/l1_proj.Mag2() * l1_proj;
+      }else{
+	dist_proj = dist_dir;
+      }
+      dist = dist_proj.Mag();
+    }else if (abc == centerVP_cells.size()-1){
+      Line l1(centerVP.at(centerVP_cells.size()-1),centerVP.at(centerVP_cells.size()-2));
+      TVector3& l1_dir = l1.vec();
+      TVector3 l1_proj = dir_x.Cross(l1_dir);
+
+      TVector3 v1(p.x-centerVP.at(centerVP_cells.size()-1).x,p.y-centerVP.at(centerVP_cells.size()-1).y,p.z-centerVP.at(centerVP_cells.size()-1).z);
+      TVector3 v2(p.x-centerVP.at(centerVP_cells.size()-2).x,p.y-centerVP.at(centerVP_cells.size()-2).y,p.z-centerVP.at(centerVP_cells.size()-2).z);
+      
+      TVector3 dist_dir = v1.Cross(v2).Cross(l1_dir);
+      dist_dir *= 1./l1_dir.Mag2();
+
+      TVector3 dist_proj;
+      
+      if (l1_proj.Mag2()!=0){
+      	dist_proj = dist_dir - dist_dir.Dot(l1_proj)/l1_proj.Mag2() * l1_proj;
+      }else{
+      	dist_proj = dist_dir;
+      }
+      dist = dist_proj.Mag();
+    }else{
+      Line l1(centerVP.at(abc),centerVP.at(abc+1));
+      Line l2(centerVP.at(abc-1),centerVP.at(abc));
+      
+      TVector3& l1_dir = l1.vec();
+      TVector3 l1_proj = dir_x.Cross(l1_dir);
+
+      TVector3& l2_dir = l2.vec();
+      TVector3 l2_proj = dir_x.Cross(l2_dir);
+
+      TVector3 v1(p.x-centerVP.at(abc).x,p.y-centerVP.at(abc).y,p.z-centerVP.at(abc).z);
+      TVector3 v2(p.x-centerVP.at(abc+1).x,p.y-centerVP.at(abc+1).y,p.z-centerVP.at(abc+1).z);
+
+      TVector3 v3(p.x-centerVP.at(abc-1).x,p.y-centerVP.at(abc-1).y,p.z-centerVP.at(abc-1).z);
+      TVector3 v4(p.x-centerVP.at(abc).x,p.y-centerVP.at(abc).y,p.z-centerVP.at(abc).z);
+      
+      TVector3 dist1_dir = v1.Cross(v2).Cross(l1_dir);
+      dist1_dir *= 1./l1_dir.Mag2();
+
+      TVector3 dist1_proj;
+      
+      if (l1_proj.Mag2()!=0){
+      	dist1_proj = dist1_dir - dist1_dir.Dot(l1_proj)/l1_proj.Mag2() * l1_proj;
+      }else{
+      	dist1_proj = dist1_dir;
+      }
+
+      TVector3 dist2_dir = v3.Cross(v4).Cross(l2_dir);
+      dist2_dir *= 1./l2_dir.Mag2();
+
+      TVector3 dist2_proj;
+      
+      if (l2_proj.Mag2()!=0){
+      	dist2_proj = dist2_dir - dist2_dir.Dot(l2_proj)/l2_proj.Mag2() * l2_proj;
+      }else{
+      	dist2_proj = dist2_dir;
+      }
+
+      if (dist1_proj.Mag() < dist2_proj.Mag()){
+      	dist = dist1_proj.Mag();
+      }else{
+      	dist = dist2_proj.Mag();
+      }
+      
+    }
+  }
+  
+  return dist;
+}
+
 double WCTrack::dist(MergeSpaceCell*mcell, SpaceCell *cell){
   double dist = 1e9;
   
