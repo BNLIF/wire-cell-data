@@ -58,12 +58,12 @@ bool WCTrack::IsBadTrack(){
 	if (dist < 4.5) num_cells ++;
       }
       //      std::cout << num_cells << " " << mcell->Get_all_spacecell().size() << std::endl;
-      if (num_cells != mcell->Get_all_spacecell().size()){
+      if (num_cells <0.95* mcell->Get_all_spacecell().size()){
 	num_bad_mcell ++;
       }
     }
 
-    //std::cout << "abc1: " << num_bad_mcell << " " << centerVP_cells.size() << std::endl;
+    // std::cout << "abc1: " << num_bad_mcell << " " << centerVP_cells.size() << std::endl;
 
     if (num_bad_mcell >= 0.5 * centerVP_cells.size()&& num_bad_mcell >2){
       return true;
