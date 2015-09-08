@@ -53,11 +53,30 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
   TVector3 dir_x(1,0,0);
 
   auto it = find(centerVP_cells.begin(),centerVP_cells.end(),mcell);
+  int abc = it - centerVP_cells.begin();
+  
+  int ntrack_fp;
+  if (fabs(p.x-fp1.x) < fabs(p.x-fp2.x)){
+    ntrack_fp = ntrack_fp1;
+  }else{
+    ntrack_fp = ntrack_fp2;
+  }
+
+  if (abc == 0 && ntrack_fp >1){
+    TVector3 v1(p.x-centerVP.at(0).x,p.y-centerVP.at(0).y,p.z-centerVP.at(0).z);
+    TVector3 v2(centerVP.at(1).x-centerVP.at(0).x,centerVP.at(1).y-centerVP.at(0).y,centerVP.at(1).z-centerVP.at(0).z);
+    if (v1.Dot(v2) <0 ) return dist;
+  }else if (abc == centerVP_cells.size()-1 && ntrack_fp >1){
+     TVector3 v1(p.x-centerVP.at(centerVP_cells.size()-1).x,p.y-centerVP.at(centerVP_cells.size()-1).y,p.z-centerVP.at(centerVP_cells.size()-1).z);
+    TVector3 v2(centerVP.at(centerVP_cells.size()-2).x-centerVP.at(centerVP_cells.size()-1).x,centerVP.at(centerVP_cells.size()-2).y-centerVP.at(centerVP_cells.size()-1).y,centerVP.at(centerVP_cells.size()-2).z-centerVP.at(centerVP_cells.size()-1).z);
+    if (v1.Dot(v2) <0 ) return dist;
+  }
+
   
   if (it == centerVP_cells.end()){
     return dist;
   }else{
-    int abc = it - centerVP_cells.begin();
+
     if (abc == 0){
       Line l1(centerVP.at(0),centerVP.at(1));
       TVector3& l1_dir = l1.vec();
@@ -192,7 +211,12 @@ void WCTrack::reset_fine_tracking(){
   centerVP_dedx.clear();
 }
 
-bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double ky2, double kz2){
+bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, int ntrack_p2, Point &p2, double ky2, double kz2){
+  fp1 = p1;
+  fp2 = p2;
+  ntrack_fp1 = ntrack_p1;
+  ntrack_fp2 = ntrack_p2;
+
   //if (fine_tracking_flag==1) return false;
   fine_tracking_flag = 1;
   

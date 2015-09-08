@@ -21,8 +21,8 @@ namespace WireCell {
     void ReplaceEndCell(MergeSpaceCell *cell1, MergeSpaceCell *cell2);
     bool Grow(MergeSpaceCell *cell, int flag = 1); 
 
-    bool fine_tracking(Point &p1, double ky1, double kz1, 
-		       Point &p2, double ky2, double kz2);
+    bool fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, 
+		       int ntrack_p2, Point &p2, double ky2, double kz2);
 
     PointVector& get_centerVP(){return centerVP;};
     MergeSpaceCellSelection& get_centerVP_cells(){return centerVP_cells;};
@@ -50,10 +50,13 @@ namespace WireCell {
     MergeSpaceCellSelection centerVP_cells;
     std::vector<double> centerVP_theta;
     std::vector<double> centerVP_phi;
-    
     std::vector<float> centerVP_energy;
     std::vector<float> centerVP_dedx;
     
+    Point fp1;
+    Point fp2;
+    int ntrack_fp1;
+    int ntrack_fp2;
 
     double range;
 
