@@ -80,6 +80,64 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
       flag_check_range = 0;
     }
 
+    //calculate medium
+    std::vector<double> dy_all,dz_all;
+    
+    for (int j=0;j!=cells.size();j++){
+      MergeSpaceCell *mscell = cells.at(j);
+      MergeSpaceCell *prev_mscell = mscell;
+      MergeSpaceCell *next_mscell = mscell;
+      
+      if (cells.size()>=3){
+	if (j==0){
+	  prev_mscell = cells.at(2);
+	  next_mscell = cells.at(1);
+	}else if (j==cells.size()-1){
+	  prev_mscell = cells.at(cells.size()-2);
+	  next_mscell = cells.at(cells.size()-3);
+	}else{
+	  prev_mscell = cells.at(j-1);
+	  next_mscell = cells.at(j+1);
+	}
+      }
+
+
+      double xc = mscell->Get_Center().x;
+
+      int flag = 0;
+      if (vertex->get_fit_type() == 1){
+	if (fabs(xc-x0)/units::cm < 5)
+	  flag = 1;
+      }else if (vertex->get_fit_type()==2){
+	if ((fabs(xc-x0)/units::cm < 5 && fabs(xc-x0)/units::cm > 0.5 && fit_flag == 0) || (fabs(xc-x0)/units::cm < 6 && fabs(xc-x0)/units::cm > 1.0 && fit_flag != 0))
+	  flag = 1;
+      }
+
+      if (flag==1){
+	double dy = sqrt((pow(mscell->get_dy(),2) + pow(prev_mscell->get_dy(),2) + pow(next_mscell->get_dy(),2))/3.);
+	double dz = sqrt((pow(mscell->get_dz(),2) + pow(prev_mscell->get_dz(),2) + pow(next_mscell->get_dz(),2))/3.);
+	
+	// double dy = mscell->get_dy();
+	// double dz = mscell->get_dz();
+	
+	
+	if (dy == 0) dy = 0.3 * units::cm/2.;
+	if (dz == 0) dz = 0.3 * units::cm/2.;
+	
+	dy_all.push_back(dy);
+	dz_all.push_back(dz);
+	
+      }
+
+    }
+    
+    double dy_ave, dz_ave;
+    size_t n_ave = dy_all.size()/2.;
+    nth_element(dy_all.begin(),dy_all.begin()+n_ave,dy_all.end());
+    dy_ave = dy_all[n_ave];
+    nth_element(dz_all.begin(),dz_all.begin()+n_ave,dz_all.end());
+    dz_ave = dz_all[n_ave];
+
 
     for (int j=0;j!=cells.size();j++){
       MergeSpaceCell *mscell = cells.at(j);
@@ -105,14 +163,16 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
       
 
 
-      int flag = 0;
-      if (vertex->get_fit_type() == 1){
-	if (fabs(xc-x0)/units::cm < 5)
-	  flag = 1;
-      }else if (vertex->get_fit_type()==2){
-	if ((fabs(xc-x0)/units::cm < 5 && fabs(xc-x0)/units::cm > 0.5 && fit_flag == 0) || (fabs(xc-x0)/units::cm < 6 && fabs(xc-x0)/units::cm > 1.0 && fit_flag != 0))
-	  flag = 1;
-      }
+      
+      // if (vertex->get_fit_type() == 1){
+      // 	if (fabs(xc-x0)/units::cm < 5)
+      // 	  flag = 1;
+      // }else if (vertex->get_fit_type()==2){
+      // 	if ((fabs(xc-x0)/units::cm < 5 && fabs(xc-x0)/units::cm > 0.5 && fit_flag == 0) || (fabs(xc-x0)/units::cm < 6 && fabs(xc-x0)/units::cm > 1.0 && fit_flag != 0))
+      // 	  flag = 1;
+      // }
+      
+
 
       // if ( (fabs(xc-x0)/units::cm < 5 && ntracks < 2) 
       // 	   || (fabs(xc-x0)/units::cm < 5 && fabs(xc-x0)/units::cm > 0.5 && ntracks >=2)){
@@ -130,49 +190,60 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
       // }
 
       
-      if (flag == 1){
-	double x1 = mscell->Get_Center().x;
-	double y1 = mscell->Get_Center().y;
-	double z1 = mscell->Get_Center().z;
-	//double q = mscell->Get_Charge();
-	double q = 1;
+      
+      double x1 = mscell->Get_Center().x;
+      double y1 = mscell->Get_Center().y;
+      double z1 = mscell->Get_Center().z;
+      //double q = mscell->Get_Charge();
+      double q = 1;
+      
+      double dy = sqrt((pow(mscell->get_dy(),2) + pow(prev_mscell->get_dy(),2) + pow(next_mscell->get_dy(),2))/3.);
+      double dz = sqrt((pow(mscell->get_dz(),2) + pow(prev_mscell->get_dz(),2) + pow(next_mscell->get_dz(),2))/3.);
+      
+      // double dy = mscell->get_dy();
+      // double dz = mscell->get_dz();
+      
+      
+      if (dy == 0) dy = 0.3 * units::cm/2.;
+      if (dz == 0) dz = 0.3 * units::cm/2.;
+      
 
-	double dy = sqrt((pow(mscell->get_dy(),2) + pow(prev_mscell->get_dy(),2) + pow(next_mscell->get_dy(),2))/3.);
-	double dz = sqrt((pow(mscell->get_dz(),2) + pow(prev_mscell->get_dz(),2) + pow(next_mscell->get_dz(),2))/3.);
+      int flag = 0;
+      if (vertex->get_fit_type() == 1){
+      	if (fabs(xc-x0)/units::cm < 5)
+      	  flag = 1;
+      }else if (vertex->get_fit_type()==2){
+      	if (((fabs(xc-x0)/units::cm < 5 && fit_flag == 0) || (fabs(xc-x0)/units::cm < 6 && fit_flag != 0))&&(dy<dy_ave*2&&dz<dz_ave*2))
+      	  flag = 1;
+      }
 
-	// double dy = mscell->get_dy();
-	// double dz = mscell->get_dz();
 
-	
-	if (dy == 0) dy = 0.3 * units::cm/2.;
-	if (dz == 0) dz = 0.3 * units::cm/2.;
-
-	double a,b,c,d;
-	
-	a = y - ky[i]*x;
-	b = ky[i];
-	c = z - kz[i]*x;
-	d = kz[i];
-	
-	double x2 = (-a*b-c*d+b*y1+d*z1+x1)/(1+b*b+d*d);
-	double y2 = a + b*x2;
-	double z2 = c + d*x2;
-	
-	//	chi2 += (pow(x2-x1,2)+pow(y2-y1,2)+pow(z2-z1,2))*q/0.15/0.15*3./units::cm/units::cm;
-	
+      double a,b,c,d;
+      
+      a = y - ky[i]*x;
+      b = ky[i];
+      c = z - kz[i]*x;
+      d = kz[i];
+      
+      double x2 = (-a*b-c*d+b*y1+d*z1+x1)/(1+b*b+d*d);
+      double y2 = a + b*x2;
+      double z2 = c + d*x2;
+      
+      //	chi2 += (pow(x2-x1,2)+pow(y2-y1,2)+pow(z2-z1,2))*q/0.15/0.15*3./units::cm/units::cm;
+      if (flag ==1 ){	
 	chi2 += (pow(x2-x1,2)/0.16/0.16*3./units::cm/units::cm +  
 		 pow(y2-y1,2)/pow(dy,2)*3 +
 		 pow(z2-z1,2)/pow(dz,2)*3
 		 )*q;
-
+	
 	//  	std::cout << i << " " << j << " " << x << " " << y << " " << z << " " << ky[i] << " " << kz[i] << std::endl;
-
+	
 	charge += q;
-
+	
 	
 	// std::cout << flag_check_range << " " << i << " " << x1 << " " << y1 << " " << z1 << " " 
 	// 	  << x << " " << x0 << " " << x01 << std::endl;
-
+	
 	if (flag_check_range == 1){
 	  if ( (x01-x0)*(x1-x)<0){
 	    chi2 += (pow(x2-x1,2)/0.16/0.16*3./units::cm/units::cm +  
@@ -181,9 +252,16 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 		     )*10;
 	  }
 	}
-
-	
+      }else{
+	// if (fabs(x2-x1) <= 0.16*units::cm && 
+	//     fabs(y2-y1) <= fabs(dy) &&
+	//     fabs(z2-z1) <= fabs(dz) ){
+	// }else{
+	//   chi2 += q;
+	// }
       }
+
+
       // if (flag == 1 ){
       // 	// 1.0-5 cm
 	
