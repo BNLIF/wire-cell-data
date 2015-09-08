@@ -4,12 +4,43 @@
 using namespace WireCell;
 
 bool WCTrack::IsContained(MergeSpaceCell *mcell){
-  auto it = find(centerVP_cells.begin(),centerVP_cells.end(),mcell);
-  if (it == centerVP_cells.end()){
+  auto it = find(all_cells.begin(),all_cells.end(),mcell);
+  
+  if (it == all_cells.end()){
     return false;
   }else{
-    return true;
+    
+    // if (fabs(mcell->Get_Center().x -58.5 * units::cm) < 0.1*units::cm)
+    //   std::cout << mcell->Get_Center().x/units::cm << " " << centerVP_cells.size() << " " << mcell->Get_all_spacecell().size() << " " << all_cells.size() << " " <<
+    // 	centerVP_cells.front()->Get_Center().x/units::cm << " " <<
+    // 	centerVP_cells.back()->Get_Center().x/units::cm << " " << (mcell->Get_Center().x >= centerVP_cells.front()->Get_Center().x -0.1*units::cm &&
+    // 	  mcell->Get_Center().x <= centerVP_cells.back()->Get_Center().x +0.1*units::cm || 
+    // 	  mcell->Get_Center().x <= centerVP_cells.front()->Get_Center().x+0.1*units::cm &&
+    // 								   mcell->Get_Center().x >= centerVP_cells.back()->Get_Center().x-0.1*units::cm) <<
+    // 	std::endl;
+
+    if (centerVP_cells.size()>0){
+      if (mcell->Get_Center().x >= centerVP_cells.front()->Get_Center().x -0.1*units::cm &&
+    	  mcell->Get_Center().x <= centerVP_cells.back()->Get_Center().x +0.1*units::cm || 
+    	  mcell->Get_Center().x <= centerVP_cells.front()->Get_Center().x+0.1*units::cm &&
+    	  mcell->Get_Center().x >= centerVP_cells.back()->Get_Center().x-0.1*units::cm){
+    	return true;
+      }else{
+    	return false;
+      }
+    }else{
+      return false;
+    }
+    //return true;
   }
+
+  // auto it = find(centerVP_cells.begin(),centerVP_cells.end(),mcell);
+  // if (it == centerVP_cells.end()){
+  //   return false;
+  // }else{
+  //   return true;
+  // }
+  
 }
 
 bool WCTrack::IsBadTrack(){
@@ -65,11 +96,19 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
   if (abc == 0 && ntrack_fp >1){
     TVector3 v1(p.x-centerVP.at(0).x,p.y-centerVP.at(0).y,p.z-centerVP.at(0).z);
     TVector3 v2(centerVP.at(1).x-centerVP.at(0).x,centerVP.at(1).y-centerVP.at(0).y,centerVP.at(1).z-centerVP.at(0).z);
-    if (v1.Dot(v2) <0 ) return dist;
+    
+    // if (p.x < 61*units::cm) 
+    //   std::cout << p.x/units::cm << " " << v1.Dot(v2)/v2.Mag()/units::mm << std::endl;
+
+    if (v1.Dot(v2)/v2.Mag() < -4.5*2*units::mm ) return dist;
   }else if (abc == centerVP_cells.size()-1 && ntrack_fp >1){
      TVector3 v1(p.x-centerVP.at(centerVP_cells.size()-1).x,p.y-centerVP.at(centerVP_cells.size()-1).y,p.z-centerVP.at(centerVP_cells.size()-1).z);
     TVector3 v2(centerVP.at(centerVP_cells.size()-2).x-centerVP.at(centerVP_cells.size()-1).x,centerVP.at(centerVP_cells.size()-2).y-centerVP.at(centerVP_cells.size()-1).y,centerVP.at(centerVP_cells.size()-2).z-centerVP.at(centerVP_cells.size()-1).z);
-    if (v1.Dot(v2) <0 ) return dist;
+
+    // if (p.x < 61*units::cm) 
+    //   std::cout << p.x/units::cm << " " << v1.Dot(v2)/v2.Mag()/units::mm << std::endl;
+
+    if (v1.Dot(v2)/v2.Mag() < -4.5*2*units::mm ) return dist;
   }
 
   
