@@ -33,6 +33,8 @@ namespace WireCell {
     int get_fine_tracking_flag(){return fine_tracking_flag;};
     
     bool IsContained(MergeSpaceCell *mcell);
+    bool IsBadTrack();
+    void reset_fine_tracking();
 
     double dist(MergeSpaceCell*mcell,SpaceCell *cell);
     double dist_proj(MergeSpaceCell *mcell, SpaceCell *cell);

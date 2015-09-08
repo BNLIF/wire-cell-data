@@ -49,7 +49,8 @@ namespace WireCell {
     int get_fit_type(){return fit_type;};
     bool get_fit_success(){return fit_success;};
     bool get_fit_chi2(){return fit_chi2;};
-
+    void reset_center();
+    
   protected:
     int fit_type;
 

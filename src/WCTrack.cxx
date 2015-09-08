@@ -12,6 +12,37 @@ bool WCTrack::IsContained(MergeSpaceCell *mcell){
   }
 }
 
+bool WCTrack::IsBadTrack(){
+  //judge if a track is good or not (i.e. within a shower or a blob track)
+  if (centerVP_cells.size()==0){
+    return false;
+  }else{
+    int num_bad_mcell = 0;
+    for (int i=0;i!=centerVP_cells.size();i++){
+      MergeSpaceCell *mcell = centerVP_cells.at(i);
+      int num_cells = 0;
+      for (int j=0;j!=mcell->Get_all_spacecell().size();j++){
+	SpaceCell *cell = mcell->Get_all_spacecell().at(j);
+	double dist = dist_proj(mcell,cell)/units::mm;
+	if (dist < 4.5) num_cells ++;
+      }
+      //      std::cout << num_cells << " " << mcell->Get_all_spacecell().size() << std::endl;
+      if (num_cells != mcell->Get_all_spacecell().size()){
+	num_bad_mcell ++;
+      }
+    }
+
+    //std::cout << "abc1: " << num_bad_mcell << " " << centerVP_cells.size() << std::endl;
+
+    if (num_bad_mcell >= 0.5 * centerVP_cells.size()&& num_bad_mcell >2){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
+}
+
 double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
   double dist = 1e9;
   Point p;
@@ -152,6 +183,14 @@ double WCTrack::dist(MergeSpaceCell*mcell, SpaceCell *cell){
   return dist;
 }
 
+void WCTrack::reset_fine_tracking(){
+  centerVP.clear();
+  centerVP_cells.clear();
+  centerVP_theta.clear();
+  centerVP_phi.clear();
+  centerVP_energy.clear();
+  centerVP_dedx.clear();
+}
 
 bool WCTrack::fine_tracking(Point &p1, double ky1, double kz1, Point &p2, double ky2, double kz2){
   //if (fine_tracking_flag==1) return false;

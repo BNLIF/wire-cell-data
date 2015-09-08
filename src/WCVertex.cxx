@@ -20,6 +20,10 @@ WCVertex::WCVertex(MergeSpaceCell& msc)
 WCVertex::~WCVertex(){
 }
 
+void WCVertex::reset_center(){
+  center = msc->Get_Center();
+}
+
 
 double WCVertex::get_ky(WCTrack *track){
   auto it = find(tracks.begin(),tracks.end(),track);
