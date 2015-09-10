@@ -285,6 +285,8 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
     p.x = all_cells.at(i)->Get_Center().x;
     p.y = all_cells.at(i)->Get_Center().y;
     p.z = all_cells.at(i)->Get_Center().z;
+    all_cells.at(i)->CalMinMax();
+
     if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>0.35*units::cm && fabs(p.x-p2.x)>0.35*units::cm) continue;
     // std::cout << "abc: " << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
     
@@ -319,12 +321,12 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 
 	  
 
-	  dis3 = pow(all_cells.at(i)->Get_Center().x - p_q3.x,2) 
-	    + pow(all_cells.at(i)->Get_Center().y - p_q3.y,2) 
-	    + pow(all_cells.at(i)->Get_Center().z - p_q3.z,2);
-	  dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p_q3.x,2)
-	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p_q3.y,2)
-	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p_q3.z,2);
+	  dis3 = pow((all_cells.at(i)->Get_Center().x - p_q3.x)/0.16/units::cm,2) 
+	    + pow((all_cells.at(i)->Get_Center().y - p_q3.y)/all_cells.at(i)->get_dy(),2) 
+	    + pow((all_cells.at(i)->Get_Center().z - p_q3.z)/all_cells.at(i)->get_dz(),2);
+	  dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p_q3.x)/0.16/units::cm,2)
+	    + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p_q3.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
+	    + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p_q3.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
 	  if (dis3 < dis4){
 	    centerVP.at(centerVP_cells.size()-1) = p;
 	    frontVP.at(centerVP_cells.size()-1) = p;
@@ -342,106 +344,124 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  
 	}else if (dis1 <= 0.9*units::cm){
 	  if (dis1 <=0.35*units::cm){
-	    // dis3 = pow(all_cells.at(i)->Get_Center().x - p1.x,2) 
-	    //   + pow(all_cells.at(i)->Get_Center().y - p1.y,2) 
-	    //   + pow(all_cells.at(i)->Get_Center().z - p1.z,2);
-	    // dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x,2)
-	    //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y,2)
-	    //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z,2);
-	    dis3 = line.closest_dis(all_cells.at(i)->Get_Center());
-	    dis4 = line.closest_dis(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center());
+	   
+	    dis3 = pow((all_cells.at(i)->Get_Center().x - p1.x)/0.16/units::cm,2) 
+	      + pow((all_cells.at(i)->Get_Center().y - p1.y)/all_cells.at(i)->get_dy(),2) 
+	      + pow((all_cells.at(i)->Get_Center().z - p1.z)/all_cells.at(i)->get_dz(),2);
+	    dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x)/0.16/units::cm,2)
+	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
+	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
+	    // 
+
+	    // std::cout << all_cells.at(i)->Get_Center().x/units::cm << " " << all_cells.at(i)->Get_Center().y /units::cm
+
+	    //  	      << " " << all_cells.at(i)->Get_Center().z/units::cm << " " << dis3 << " " << dis4 << std::endl;
 	    if (dis3 < dis4 ){
 	      centerVP.at(centerVP_cells.size()-1) = p;
 	      frontVP.at(centerVP_cells.size()-1) = p;
 	      backVP.at(centerVP_cells.size()-1) = p;
 	      centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    }else{
+	      // dis3 = line.closest_dis(all_cells.at(i)->Get_Center());
+	      // dis4 = line.closest_dis(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center());
+	      // if (dis3 < dis4 ){
+	      // 	centerVP.at(centerVP_cells.size()-1) = p;
+	      // 	frontVP.at(centerVP_cells.size()-1) = p;
+	      // 	backVP.at(centerVP_cells.size()-1) = p;
+	      // 	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	      // }
 	    }
 	  }else{
 	    
 	    if (centerVP_cells.at(centerVP_cells.size()-2)->Get_all_spacecell().size() < 250){
-	      dis3 = pow(all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2) 
-		+ pow(all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2) 
-		+ pow(all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
-	      dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2)
-		+ pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2)
-		+ pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x)/0.16/units::cm,2) 
+		+ pow((all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y)/all_cells.at(i)->get_dy(),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z)/all_cells.at(i)->get_dz(),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x)/0.16/units::cm,2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
 	      if (dis3 < dis4){
-		centerVP.at(centerVP_cells.size()-1) = p;
-		frontVP.at(centerVP_cells.size()-1) = p;
-		backVP.at(centerVP_cells.size()-1) = p;
-		centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    	centerVP.at(centerVP_cells.size()-1) = p;
+	    	frontVP.at(centerVP_cells.size()-1) = p;
+	    	backVP.at(centerVP_cells.size()-1) = p;
+	    	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
 	      }
 	    }else{
-	      dis3 = pow(all_cells.at(i)->Get_Center().x - p1.x,2) 
-		+ pow(all_cells.at(i)->Get_Center().y - p1.y,2) 
-		+ pow(all_cells.at(i)->Get_Center().z - p1.z,2);
-	      dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x,2)
-		+ pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y,2)
-		+ pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z,2);
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - p1.x)/0.16/units::cm,2) 
+		+ pow((all_cells.at(i)->Get_Center().y - p1.y)/all_cells.at(i)->get_dy(),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - p1.z)/all_cells.at(i)->get_dz(),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x)/0.16/units::cm,2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
 	      if (dis3 < dis4){
-		centerVP.at(centerVP_cells.size()-1) = p;
-		frontVP.at(centerVP_cells.size()-1) = p;
-		backVP.at(centerVP_cells.size()-1) = p;
-		centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    	centerVP.at(centerVP_cells.size()-1) = p;
+	    	frontVP.at(centerVP_cells.size()-1) = p;
+	    	backVP.at(centerVP_cells.size()-1) = p;
+	    	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
 	      }
 	    }
 	  }
 	
 	}else if (dis2 <= 0.9*units::cm){
 	  if (dis2 <= 0.35*units::cm){
-	    // dis3 = pow(all_cells.at(i)->Get_Center().x - p2.x,2) 
-	    //   + pow(all_cells.at(i)->Get_Center().y - p2.y,2) 
-	    //   + pow(all_cells.at(i)->Get_Center().z - p2.z,2);
-	    // dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x,2)
-	    //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y,2)
-	    //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z,2);
+	    dis3 = pow((all_cells.at(i)->Get_Center().x - p2.x)/0.16/units::cm,2) 
+	      + pow((all_cells.at(i)->Get_Center().y - p2.y)/all_cells.at(i)->get_dy(),2) 
+	      + pow((all_cells.at(i)->Get_Center().z - p2.z)/all_cells.at(i)->get_dz(),2);
+	    dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x)/0.16/units::cm,2)
+	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
+	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
 
-	    dis3 = line.closest_dis(all_cells.at(i)->Get_Center());
-	    dis4 = line.closest_dis(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center());
+	    
 	    if (dis3 < dis4){
 	      centerVP.at(centerVP_cells.size()-1) = p;
 	      frontVP.at(centerVP_cells.size()-1) = p;
 	      backVP.at(centerVP_cells.size()-1) = p;
 	      centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    }else{
+	      // dis3 = line.closest_dis(all_cells.at(i)->Get_Center());
+	      // dis4 = line.closest_dis(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center());
+	      // if (dis3 < dis4){
+	      // 	centerVP.at(centerVP_cells.size()-1) = p;
+	      // 	frontVP.at(centerVP_cells.size()-1) = p;
+	      // 	backVP.at(centerVP_cells.size()-1) = p;
+	      // 	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	      // }
 	    }
 	  }else{
 	    
 	    if (centerVP_cells.at(centerVP_cells.size()-2)->Get_all_spacecell().size() < 250){
-	      dis3 = pow(all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2) 
-		+ pow(all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2) 
-		+ pow(all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
-	      dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2)
-		+ pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2)
-		+ pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x)/0.16/units::cm,2) 
+		+ pow((all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y)/all_cells.at(i)->get_dy(),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z)/all_cells.at(i)->get_dz(),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x)/0.16/units::cm,2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
 	      if (dis3 < dis4){
-		centerVP.at(centerVP_cells.size()-1) = p;
-		frontVP.at(centerVP_cells.size()-1) = p;
-		backVP.at(centerVP_cells.size()-1) = p;
-		centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    	centerVP.at(centerVP_cells.size()-1) = p;
+	    	frontVP.at(centerVP_cells.size()-1) = p;
+	    	backVP.at(centerVP_cells.size()-1) = p;
+	    	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
 	      }
 	    }else{
-	      dis3 = pow(all_cells.at(i)->Get_Center().x - p2.x,2) 
-		+ pow(all_cells.at(i)->Get_Center().y - p2.y,2) 
-		+ pow(all_cells.at(i)->Get_Center().z - p2.z,2);
-	      dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x,2)
-		+ pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y,2)
-		+ pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z,2);
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - p2.x)/0.16/units::cm,2) 
+		+ pow((all_cells.at(i)->Get_Center().y - p2.y)/all_cells.at(i)->get_dy(),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - p2.z)/all_cells.at(i)->get_dz(),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x)/0.16/units::cm,2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
 	      if (dis3 < dis4){
-		centerVP.at(centerVP_cells.size()-1) = p;
-		frontVP.at(centerVP_cells.size()-1) = p;
-		backVP.at(centerVP_cells.size()-1) = p;
-		centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    	centerVP.at(centerVP_cells.size()-1) = p;
+	    	frontVP.at(centerVP_cells.size()-1) = p;
+	    	backVP.at(centerVP_cells.size()-1) = p;
+	    	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
 	      }
 	    }
 	    
 	  }
-	
-	// // std::cout << all_cells.at(i)->Get_Center().x/units::cm << " " 
-	// // 	  << p1.x/units::cm << " " << p2.x/units::cm << " " 
-	// // 	  << dis1/units::cm << " " << dis2/units::cm << " " 
-	// // 	  << dis3/units::cm << " " << dis4/units::cm << std::endl;
 	  
 	}
+
+	
       }
     }
   } //loop through all the cells
