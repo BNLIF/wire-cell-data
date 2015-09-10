@@ -815,7 +815,7 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
 	  }
 	}
 	
-	if (flag1==0){
+	if (flag1==0 && mct.Get_allmcells().size() < 5){
 	  type = 3;
 	  break;
 	}
