@@ -84,6 +84,9 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
   TVector3 dir_x(1,0,0);
 
   auto it = find(centerVP_cells.begin(),centerVP_cells.end(),mcell);
+
+  // if (centerVP.size()<2) return dist;
+  
   int abc = it - centerVP_cells.begin();
   
   int ntrack_fp;
@@ -113,9 +116,10 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
 
   
   if (it == centerVP_cells.end()){
-    return dist;
+     return dist;
   }else{
 
+    //  std::cout << abc << " " << centerVP.size() << " " << centerVP_cells.size() << std::endl;
     if (abc == 0){
       Line l1(centerVP.at(0),centerVP.at(1));
       TVector3& l1_dir = l1.vec();
@@ -130,9 +134,9 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
       TVector3 dist_proj;
       
       if (l1_proj.Mag2()!=0){
-	dist_proj = dist_dir - dist_dir.Dot(l1_proj)/l1_proj.Mag2() * l1_proj;
+  	dist_proj = dist_dir - dist_dir.Dot(l1_proj)/l1_proj.Mag2() * l1_proj;
       }else{
-	dist_proj = dist_dir;
+  	dist_proj = dist_dir;
       }
       dist = dist_proj.Mag();
     }else if (abc == centerVP_cells.size()-1){
@@ -303,6 +307,8 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	float dis3;
 	float dis4;
 	
+	Line line(p1,p2);
+
 	if (dis1 > 0.9*units::cm && dis2 > 0.9 * units::cm){
 	  Point p_q1 = centerVP_cells.at(centerVP_cells.size()-3)->Get_Center();
 	  Point p_q2 = centerVP_cells.at(centerVP_cells.size()-2)->Get_Center();
@@ -336,13 +342,15 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  
 	}else if (dis1 <= 0.9*units::cm){
 	  if (dis1 <=0.35*units::cm){
-	    dis3 = pow(all_cells.at(i)->Get_Center().x - p1.x,2) 
-	      + pow(all_cells.at(i)->Get_Center().y - p1.y,2) 
-	      + pow(all_cells.at(i)->Get_Center().z - p1.z,2);
-	    dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x,2)
-	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y,2)
-	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z,2);
-	    if (dis3 < dis4){
+	    // dis3 = pow(all_cells.at(i)->Get_Center().x - p1.x,2) 
+	    //   + pow(all_cells.at(i)->Get_Center().y - p1.y,2) 
+	    //   + pow(all_cells.at(i)->Get_Center().z - p1.z,2);
+	    // dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x,2)
+	    //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y,2)
+	    //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z,2);
+	    dis3 = line.closest_dis(all_cells.at(i)->Get_Center());
+	    dis4 = line.closest_dis(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center());
+	    if (dis3 < dis4 ){
 	      centerVP.at(centerVP_cells.size()-1) = p;
 	      frontVP.at(centerVP_cells.size()-1) = p;
 	      backVP.at(centerVP_cells.size()-1) = p;
@@ -381,12 +389,15 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	
 	}else if (dis2 <= 0.9*units::cm){
 	  if (dis2 <= 0.35*units::cm){
-	    dis3 = pow(all_cells.at(i)->Get_Center().x - p2.x,2) 
-	      + pow(all_cells.at(i)->Get_Center().y - p2.y,2) 
-	      + pow(all_cells.at(i)->Get_Center().z - p2.z,2);
-	    dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x,2)
-	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y,2)
-	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z,2);
+	    // dis3 = pow(all_cells.at(i)->Get_Center().x - p2.x,2) 
+	    //   + pow(all_cells.at(i)->Get_Center().y - p2.y,2) 
+	    //   + pow(all_cells.at(i)->Get_Center().z - p2.z,2);
+	    // dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x,2)
+	    //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y,2)
+	    //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z,2);
+
+	    dis3 = line.closest_dis(all_cells.at(i)->Get_Center());
+	    dis4 = line.closest_dis(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center());
 	    if (dis3 < dis4){
 	      centerVP.at(centerVP_cells.size()-1) = p;
 	      frontVP.at(centerVP_cells.size()-1) = p;
