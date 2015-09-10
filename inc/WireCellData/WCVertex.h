@@ -27,6 +27,11 @@ namespace WireCell {
     WCTrackSelection& get_tracks(){return tracks;};
     MergeSpaceCell* get_msc(){return msc;};
     void set_msc(MergeSpaceCell * cell){msc=cell;};
+    void set_center(Point &p){
+      center.x = p.x;
+      center.y = p.y;
+      center.z = p.z;
+    }
 
     int IsInside(WCVertex *vertex);
     bool AddVertex(WCVertex *vertex, int flag = 1);

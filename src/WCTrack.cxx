@@ -281,7 +281,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
     p.x = all_cells.at(i)->Get_Center().x;
     p.y = all_cells.at(i)->Get_Center().y;
     p.z = all_cells.at(i)->Get_Center().z;
-    if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>0.32*units::cm && fabs(p.x-p2.x)>0.32*units::cm) continue;
+    if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>0.35*units::cm && fabs(p.x-p2.x)>0.35*units::cm) continue;
     // std::cout << "abc: " << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
     
     if (centerVP.size()==0){
@@ -335,7 +335,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	//   }
 	  
 	}else if (dis1 <= 0.9*units::cm){
-	  if (dis1 <=0.32*units::cm){
+	  if (dis1 <=0.35*units::cm){
 	    dis3 = pow(all_cells.at(i)->Get_Center().x - p1.x,2) 
 	      + pow(all_cells.at(i)->Get_Center().y - p1.y,2) 
 	      + pow(all_cells.at(i)->Get_Center().z - p1.z,2);
@@ -380,7 +380,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  }
 	
 	}else if (dis2 <= 0.9*units::cm){
-	  if (dis2 <= 0.32*units::cm){
+	  if (dis2 <= 0.35*units::cm){
 	    dis3 = pow(all_cells.at(i)->Get_Center().x - p2.x,2) 
 	      + pow(all_cells.at(i)->Get_Center().y - p2.y,2) 
 	      + pow(all_cells.at(i)->Get_Center().z - p2.z,2);
