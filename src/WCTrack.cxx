@@ -313,6 +313,8 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  // dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2)
 	  //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2)
 	  //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
+
+	  //need to be improved ...  just rely on size is no good
 	  if (all_cells.at(i)->Get_all_spacecell().size() > centerVP_cells.at(centerVP_cells.size()-1)->Get_all_spacecell().size()){
 	    centerVP.at(centerVP_cells.size()-1) = p;
 	    frontVP.at(centerVP_cells.size()-1) = p;
