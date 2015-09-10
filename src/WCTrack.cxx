@@ -374,12 +374,12 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  }else{
 	    
 	    if (centerVP_cells.at(centerVP_cells.size()-2)->Get_all_spacecell().size() < 250){
-	      dis3 = pow((all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x)/0.16/units::cm,2) 
-		+ pow((all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y)/all_cells.at(i)->get_dy(),2) 
-		+ pow((all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z)/all_cells.at(i)->get_dz(),2);
-	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x)/0.16/units::cm,2)
-		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
-		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x),2) 
+		+ pow((all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z),2);
 	      if (dis3 < dis4){
 	    	centerVP.at(centerVP_cells.size()-1) = p;
 	    	frontVP.at(centerVP_cells.size()-1) = p;
@@ -387,12 +387,12 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	    	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
 	      }
 	    }else{
-	      dis3 = pow((all_cells.at(i)->Get_Center().x - p1.x)/0.16/units::cm,2) 
-		+ pow((all_cells.at(i)->Get_Center().y - p1.y)/all_cells.at(i)->get_dy(),2) 
-		+ pow((all_cells.at(i)->Get_Center().z - p1.z)/all_cells.at(i)->get_dz(),2);
-	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x)/0.16/units::cm,2)
-		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
-		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - p1.x),2) 
+		+ pow((all_cells.at(i)->Get_Center().y - p1.y),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - p1.z),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z),2);
 	      if (dis3 < dis4){
 	    	centerVP.at(centerVP_cells.size()-1) = p;
 	    	frontVP.at(centerVP_cells.size()-1) = p;
@@ -430,12 +430,12 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  }else{
 	    
 	    if (centerVP_cells.at(centerVP_cells.size()-2)->Get_all_spacecell().size() < 250){
-	      dis3 = pow((all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x)/0.16/units::cm,2) 
-		+ pow((all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y)/all_cells.at(i)->get_dy(),2) 
-		+ pow((all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z)/all_cells.at(i)->get_dz(),2);
-	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x)/0.16/units::cm,2)
-		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
-		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x),2) 
+		+ pow((all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z),2);
 	      if (dis3 < dis4){
 	    	centerVP.at(centerVP_cells.size()-1) = p;
 	    	frontVP.at(centerVP_cells.size()-1) = p;
@@ -443,12 +443,12 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	    	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
 	      }
 	    }else{
-	      dis3 = pow((all_cells.at(i)->Get_Center().x - p2.x)/0.16/units::cm,2) 
-		+ pow((all_cells.at(i)->Get_Center().y - p2.y)/all_cells.at(i)->get_dy(),2) 
-		+ pow((all_cells.at(i)->Get_Center().z - p2.z)/all_cells.at(i)->get_dz(),2);
-	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x)/0.16/units::cm,2)
-		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
-		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - p2.x),2) 
+		+ pow((all_cells.at(i)->Get_Center().y - p2.y),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - p2.z),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z),2);
 	      if (dis3 < dis4){
 	    	centerVP.at(centerVP_cells.size()-1) = p;
 	    	frontVP.at(centerVP_cells.size()-1) = p;
