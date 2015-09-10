@@ -133,11 +133,17 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
     
     double dy_ave, dz_ave;
     size_t n_ave = dy_all.size()/2.;
-    nth_element(dy_all.begin(),dy_all.begin()+n_ave,dy_all.end());
-    dy_ave = dy_all[n_ave];
-    nth_element(dz_all.begin(),dz_all.begin()+n_ave,dz_all.end());
-    dz_ave = dz_all[n_ave];
+    //   std::cout << n_ave << " " << dy_all.size() << std::endl;
+    if (dy_all.size() > 0 ){
+      nth_element(dy_all.begin(),dy_all.begin()+n_ave,dy_all.end());
+      dy_ave = dy_all[n_ave];
+      nth_element(dz_all.begin(),dz_all.begin()+n_ave,dz_all.end());
+      dz_ave = dz_all[n_ave];
+    }else{
+      dy_ave = 0.3 * units::cm/2.;
+      dz_ave = 0.3 * units::cm/2.;
 
+    }
 
     for (int j=0;j!=cells.size();j++){
       MergeSpaceCell *mscell = cells.at(j);
