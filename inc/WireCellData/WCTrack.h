@@ -65,6 +65,7 @@ namespace WireCell {
   };
 
   typedef std::vector<WCTrack*> WCTrackSelection;
+  typedef std::map<WCTrack*,int> WCTrackCounter;
   typedef std::map<MergeClusterTrack*,WCTrack*> MCT_WCT_Map;
   //typedef std::map<WCTrack*, WCVertexSelection> WCT_WCV_Map;
 }
