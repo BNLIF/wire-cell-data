@@ -29,7 +29,7 @@ namespace WireCell {
 
       float thickness(){return all_spacecell.front()->thickness();};
 
-      bool CrossCell(Point &p, float theta, float phi);
+      bool CrossCell(Point &p, float theta, float phi, int flag = 0);
       double ClosestDis(Point &p);
 
       const MergeGeomCell* get_mcell(){return mcell;}

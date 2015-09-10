@@ -291,78 +291,116 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       centerVP_cells.push_back(all_cells.at(i));
     }else{
       if (fabs(p.x-centerVP.at(centerVP.size()-1).x)>0.1*units::mm){
-     	centerVP.push_back(p);
-    	frontVP.push_back(p);
-    	backVP.push_back(p);
-    	centerVP_cells.push_back(all_cells.at(i));
+      	centerVP.push_back(p);
+      	frontVP.push_back(p);
+      	backVP.push_back(p);
+      	centerVP_cells.push_back(all_cells.at(i));
       }else{
 	
-
-
+      
 	float dis1 = fabs(all_cells.at(i)->Get_Center().x - p1.x);
 	float dis2 = fabs(all_cells.at(i)->Get_Center().x - p2.x);
 	float dis3;
 	float dis4;
-
 	
-
 	if (dis1 > 0.9*units::cm && dis2 > 0.9 * units::cm){
-	  // dis3 = pow(all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2) 
-	  //   + pow(all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2) 
-	  //   + pow(all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
-	  // dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2)
-	  //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2)
-	  //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
+	  Point p_q1 = centerVP_cells.at(centerVP_cells.size()-3)->Get_Center();
+	  Point p_q2 = centerVP_cells.at(centerVP_cells.size()-2)->Get_Center();
+	  Point p_q3;
+	  p_q3.x = 2*p_q2.x - p_q1.x;
+	  p_q3.y = 2*p_q2.y - p_q1.y;
+	  p_q3.z = 2*p_q2.z - p_q1.z;
 
-	  //need to be improved ...  just rely on size is no good
-	  if (all_cells.at(i)->Get_all_spacecell().size() > centerVP_cells.at(centerVP_cells.size()-1)->Get_all_spacecell().size()){
+	  
+
+	  dis3 = pow(all_cells.at(i)->Get_Center().x - p_q3.x,2) 
+	    + pow(all_cells.at(i)->Get_Center().y - p_q3.y,2) 
+	    + pow(all_cells.at(i)->Get_Center().z - p_q3.z,2);
+	  dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p_q3.x,2)
+	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p_q3.y,2)
+	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p_q3.z,2);
+	  if (dis3 < dis4){
 	    centerVP.at(centerVP_cells.size()-1) = p;
 	    frontVP.at(centerVP_cells.size()-1) = p;
 	    backVP.at(centerVP_cells.size()-1) = p;
 	    centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
 	  }
+
+	//   //need to be improved ...  just rely on size is no good
+	//   if (all_cells.at(i)->Get_all_spacecell().size() > centerVP_cells.at(centerVP_cells.size()-1)->Get_all_spacecell().size()){
+	//     centerVP.at(centerVP_cells.size()-1) = p;
+	//     frontVP.at(centerVP_cells.size()-1) = p;
+	//     backVP.at(centerVP_cells.size()-1) = p;
+	//     centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	//   }
 	  
 	}else if (dis1 <= 0.9*units::cm){
-	  dis3 = pow(all_cells.at(i)->Get_Center().x - p1.x,2) 
-	    + pow(all_cells.at(i)->Get_Center().y - p1.y,2) 
-	    + pow(all_cells.at(i)->Get_Center().z - p1.z,2);
-	  dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x,2)
-	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y,2)
-	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z,2);
-	  if (dis3 < dis4){
-	    centerVP.at(centerVP_cells.size()-1) = p;
-	    frontVP.at(centerVP_cells.size()-1) = p;
-	    backVP.at(centerVP_cells.size()-1) = p;
-	    centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	  if (dis1 <=0.32*units::cm){
+	    dis3 = pow(all_cells.at(i)->Get_Center().x - p1.x,2) 
+	      + pow(all_cells.at(i)->Get_Center().y - p1.y,2) 
+	      + pow(all_cells.at(i)->Get_Center().z - p1.z,2);
+	    dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x,2)
+	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y,2)
+	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z,2);
+	    if (dis3 < dis4){
+	      centerVP.at(centerVP_cells.size()-1) = p;
+	      frontVP.at(centerVP_cells.size()-1) = p;
+	      backVP.at(centerVP_cells.size()-1) = p;
+	      centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    }
+	  }else{
+	    dis3 = pow(all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2) 
+	      + pow(all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2) 
+	      + pow(all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
+	    dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2)
+	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2)
+	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
+	    if (dis3 < dis4){
+	      centerVP.at(centerVP_cells.size()-1) = p;
+	      frontVP.at(centerVP_cells.size()-1) = p;
+	      backVP.at(centerVP_cells.size()-1) = p;
+	      centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    }
 	  }
+	
 	}else if (dis2 <= 0.9*units::cm){
-	  dis3 = pow(all_cells.at(i)->Get_Center().x - p2.x,2) 
-	    + pow(all_cells.at(i)->Get_Center().y - p2.y,2) 
-	    + pow(all_cells.at(i)->Get_Center().z - p2.z,2);
-	  dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x,2)
-	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y,2)
-	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z,2);
-	  if (dis3 < dis4){
-	    centerVP.at(centerVP_cells.size()-1) = p;
-	    frontVP.at(centerVP_cells.size()-1) = p;
-	    backVP.at(centerVP_cells.size()-1) = p;
-	    centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	  if (dis2 <= 0.32*units::cm){
+	    dis3 = pow(all_cells.at(i)->Get_Center().x - p2.x,2) 
+	      + pow(all_cells.at(i)->Get_Center().y - p2.y,2) 
+	      + pow(all_cells.at(i)->Get_Center().z - p2.z,2);
+	    dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x,2)
+	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y,2)
+	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z,2);
+	    if (dis3 < dis4){
+	      centerVP.at(centerVP_cells.size()-1) = p;
+	      frontVP.at(centerVP_cells.size()-1) = p;
+	      backVP.at(centerVP_cells.size()-1) = p;
+	      centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    }
+	  }else{
+	    dis3 = pow(all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2) 
+	      + pow(all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2) 
+	      + pow(all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
+	    dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2)
+	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2)
+	      + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
+	    if (dis3 < dis4){
+	      centerVP.at(centerVP_cells.size()-1) = p;
+	      frontVP.at(centerVP_cells.size()-1) = p;
+	      backVP.at(centerVP_cells.size()-1) = p;
+	      centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    }
 	  }
+	
+	// // std::cout << all_cells.at(i)->Get_Center().x/units::cm << " " 
+	// // 	  << p1.x/units::cm << " " << p2.x/units::cm << " " 
+	// // 	  << dis1/units::cm << " " << dis2/units::cm << " " 
+	// // 	  << dis3/units::cm << " " << dis4/units::cm << std::endl;
+	  
 	}
-	
-	// std::cout << all_cells.at(i)->Get_Center().x/units::cm << " " 
-	// 	  << p1.x/units::cm << " " << p2.x/units::cm << " " 
-	// 	  << dis1/units::cm << " " << dis2/units::cm << " " 
-	// 	  << dis3/units::cm << " " << dis4/units::cm << std::endl;
-
-
-	
-
-    
-
       }
     }
-  }
+  } //loop through all the cells
 
   // check
   // for (int i=0;i!=centerVP.size();i++){
@@ -789,15 +827,39 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
     for (int k=0;k!=5;k++){
 
       Point p3;
+      // if (flag==1){
+      // 	p3 =  mct.Get_MSCS(k).at(0)->Get_Center();
+      // }else{
+      // 	p3 =  mct.Get_MSCS(time_length-1-k).at(0)->Get_Center();
+      // }
+
+      //improve the beginning
       if (flag==1){
-	p3 =  mct.Get_MSCS(k).at(0)->Get_Center();
+	int max = 0;
+	for (int qx = 1;qx < mct.Get_MSCS(k).size();qx++){
+	  if (mct.Get_MSCS(k).at(max)->Get_all_spacecell().size() <
+	      mct.Get_MSCS(k).at(qx)->Get_all_spacecell().size())
+	    max = qx;
+	  }
+	p3 = mct.Get_MSCS(k).at(max)->Get_Center();
       }else{
-	p3 =  mct.Get_MSCS(time_length-1-k).at(0)->Get_Center();
+	int max = 0;
+	for (int qx = 1; qx < mct.Get_MSCS(time_length-1-k).size();qx++){
+	  if (mct.Get_MSCS(time_length-1-k).at(max)->Get_all_spacecell().size() <
+	      mct.Get_MSCS(time_length-1-k).at(qx)->Get_all_spacecell().size())
+	    max = qx;
+	}
+	p3 =  mct.Get_MSCS(time_length-1-k).at(max)->Get_Center();
       }
+
     
       mct.SC_Hough(p3,p,10*units::cm,3);
       float theta = mct.Get_Theta();
       float phi = mct.Get_Phi();
+
+      // mct.SC_Hough(p3,p,10*units::cm,2);
+      // float theta_m = mct.Get_Theta();
+      // float phi_m = mct.Get_Phi();
 
       type = 2;
       
@@ -811,13 +873,15 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
 	int flag1 = 0;
 	for (int j=0;j!=cells.size();j++){
 	  MergeSpaceCell *cell = cells.at(j);
-	  if (cell->CrossCell(p3,theta,phi)){
+	  if (cell->CrossCell(p3,theta,phi,1)){
 	    flag1 = 1;
 	    break;
 	  }
 	}
+
+	//std::cout << i << " " << flag1 << " " << p3.x/units::cm << " " << p3.y/units::cm << " " << p3.z/units::cm << std::endl;
 	
-	if (flag1==0 && mct.Get_allmcells().size() < 5){
+	if (flag1==0 ){ // 
 	  type = 3;
 	  break;
 	}
