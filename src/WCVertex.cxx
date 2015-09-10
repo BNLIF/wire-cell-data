@@ -1048,7 +1048,7 @@ void WCVertex::OrganizeEnds(MergeSpaceCellSelection& cells1, int flag){
       MergeSpaceCell *cell1 = tracks.at(i)->get_end_scells().at(0);
       MergeSpaceCell *cell2 = tracks.at(i)->get_end_scells().at(1);
       if (fabs(cell1->Get_Center().x - msc->Get_Center().x)/units::cm > 0.65 &&
-  	  fabs(cell2->Get_Center().x - msc->Get_Center().x)/units::cm > 0.65 ){
+  	  fabs(cell2->Get_Center().x - msc->Get_Center().x)/units::cm > 0.65 && flag == 1){
   	removed.push_back(tracks.at(i));
       }else{
 	if (flag == 1){
@@ -1192,13 +1192,16 @@ bool WCVertex::AddVertex(WCVertex *vertex, int flag){
 	  
 
 	  if (result){
+	    // std::cout << tracks.size() << " " << tracks.at(0) << std::endl;
 	    for (int j=0;j!=vertex->get_tracks().size();j++){
 	      WCTrack *track2 = vertex->get_tracks().at(j);
+	      //std::cout << track2 << std::endl;
 	      auto it1 = find(tracks.begin(),tracks.end(),track2);
 	      if (it1 == tracks.end()){
 		tracks.push_back(track2);
 	      }
 	    }
+	    // std::cout << tracks.size() << std::endl;
 	    break;
 	  }
 	}
