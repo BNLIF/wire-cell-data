@@ -74,7 +74,7 @@ bool WCTrack::IsBadTrack(){
 
 }
 
-double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
+double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell, int flag, float angle){
   double dist = 1e9;
   Point p;
   p.x = cell->x();
@@ -82,6 +82,13 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
   p.z = cell->z();
 
   TVector3 dir_x(1,0,0);
+
+  TVector3 proj_dir;
+
+  if (flag == 1){
+    proj_dir.SetXYZ(0,sin(3.1415926/2.-angle), cos(3.1415926/2.-angle)); // check this angle ??? 
+  }
+
 
   auto it = find(centerVP_cells.begin(),centerVP_cells.end(),mcell);
 
@@ -123,7 +130,12 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
     if (abc == 0){
       Line l1(centerVP.at(0),centerVP.at(1));
       TVector3& l1_dir = l1.vec();
+      
       TVector3 l1_proj = dir_x.Cross(l1_dir);
+      
+      if (flag == 1)
+      	l1_proj = proj_dir;
+      
 
       TVector3 v1(p.x-centerVP.at(0).x,p.y-centerVP.at(0).y,p.z-centerVP.at(0).z);
       TVector3 v2(p.x-centerVP.at(1).x,p.y-centerVP.at(1).y,p.z-centerVP.at(1).z);
@@ -142,7 +154,13 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
     }else if (abc == centerVP_cells.size()-1){
       Line l1(centerVP.at(centerVP_cells.size()-1),centerVP.at(centerVP_cells.size()-2));
       TVector3& l1_dir = l1.vec();
+      
+      
+
       TVector3 l1_proj = dir_x.Cross(l1_dir);
+
+      if (flag == 1 )
+	l1_proj = proj_dir;
 
       TVector3 v1(p.x-centerVP.at(centerVP_cells.size()-1).x,p.y-centerVP.at(centerVP_cells.size()-1).y,p.z-centerVP.at(centerVP_cells.size()-1).z);
       TVector3 v2(p.x-centerVP.at(centerVP_cells.size()-2).x,p.y-centerVP.at(centerVP_cells.size()-2).y,p.z-centerVP.at(centerVP_cells.size()-2).z);
@@ -163,16 +181,18 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
       Line l2(centerVP.at(abc-1),centerVP.at(abc));
       
       TVector3& l1_dir = l1.vec();
-      TVector3 l1_proj = dir_x.Cross(l1_dir);
 
-      TVector3& l2_dir = l2.vec();
-      TVector3 l2_proj = dir_x.Cross(l2_dir);
+    
+
+      TVector3 l1_proj = dir_x.Cross(l1_dir);
+      
+      if (flag == 1 )
+	l1_proj = proj_dir;
 
       TVector3 v1(p.x-centerVP.at(abc).x,p.y-centerVP.at(abc).y,p.z-centerVP.at(abc).z);
       TVector3 v2(p.x-centerVP.at(abc+1).x,p.y-centerVP.at(abc+1).y,p.z-centerVP.at(abc+1).z);
 
-      TVector3 v3(p.x-centerVP.at(abc-1).x,p.y-centerVP.at(abc-1).y,p.z-centerVP.at(abc-1).z);
-      TVector3 v4(p.x-centerVP.at(abc).x,p.y-centerVP.at(abc).y,p.z-centerVP.at(abc).z);
+      
       
       TVector3 dist1_dir = v1.Cross(v2).Cross(l1_dir);
       dist1_dir *= 1./l1_dir.Mag2();
@@ -185,6 +205,17 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
       	dist1_proj = dist1_dir;
       }
 
+      TVector3& l2_dir = l2.vec();
+      
+
+      
+      TVector3 l2_proj = dir_x.Cross(l2_dir);
+      if (flag == 1 )
+	l2_proj = proj_dir;
+
+      TVector3 v3(p.x-centerVP.at(abc-1).x,p.y-centerVP.at(abc-1).y,p.z-centerVP.at(abc-1).z);
+      TVector3 v4(p.x-centerVP.at(abc).x,p.y-centerVP.at(abc).y,p.z-centerVP.at(abc).z);
+      
       TVector3 dist2_dir = v3.Cross(v4).Cross(l2_dir);
       dist2_dir *= 1./l2_dir.Mag2();
 

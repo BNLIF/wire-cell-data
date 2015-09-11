@@ -37,7 +37,7 @@ namespace WireCell {
     void reset_fine_tracking();
 
     double dist(MergeSpaceCell*mcell,SpaceCell *cell);
-    double dist_proj(MergeSpaceCell *mcell, SpaceCell *cell);
+    double dist_proj(MergeSpaceCell *mcell, SpaceCell *cell, int flag = 0, float angle=0);
     
     double get_range(){return range;};
 
