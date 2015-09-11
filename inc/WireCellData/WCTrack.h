@@ -10,8 +10,9 @@ namespace WireCell {
   class WCTrack{
   public:
     WCTrack(MergeClusterTrack& mct);
+    WCTrack(MergeSpaceCellSelection& mcells);
     ~WCTrack();
-    MergeClusterTrack& get_mct(){return mct;};
+    MergeClusterTrack& get_mct(){return *mct;};
     int TrackType(MergeSpaceCell& cell);
     MergeSpaceCellSelection& get_end_scells(){return end_scells;};
     MergeSpaceCellSelection& get_all_cells(){return all_cells;};
@@ -43,7 +44,7 @@ namespace WireCell {
     double get_range(){return range;};
 
   protected:
-    MergeClusterTrack& mct;
+    MergeClusterTrack* mct;
     MergeSpaceCellSelection end_scells;
     MergeSpaceCellSelection all_cells;
 

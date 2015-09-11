@@ -3,6 +3,13 @@
 
 using namespace WireCell;
 
+WCTrack::WCTrack(MergeSpaceCellSelection& mcells){
+  mct = 0;
+  all_cells.insert(all_cells.begin(),mcells.begin(),mcells.end());
+  end_scells.push_back(all_cells.front());
+  end_scells.push_back(all_cells.back());
+}
+
 bool WCTrack::IsContained(MergeSpaceCell *mcell){
   auto it = find(all_cells.begin(),all_cells.end(),mcell);
   
@@ -741,7 +748,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 }
 
 WCTrack::WCTrack(MergeClusterTrack& mct)
-  : mct(mct)
+  : mct(&mct)
 {
   fine_tracking_flag = 0;
   MergeSpaceCellSelection& mcells = mct.Get_allmcells();
@@ -898,7 +905,7 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
   // type == 2: straight tracks
   // type == 3: wiggle tracks 
   
-  int time_length = mct.Get_TimeLength();
+  int time_length = mct->Get_TimeLength();
   if (time_length < 5){
     type = 1;
   }else{
@@ -906,8 +913,8 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
     
     //std::cout << theta << " " << phi << std::endl;
     int flag;
-    Point p1 = mct.Get_FirstMSCell()->Get_Center();
-    Point p2 = mct.Get_LastMSCell()->Get_Center();
+    Point p1 = mct->Get_FirstMSCell()->Get_Center();
+    Point p2 = mct->Get_LastMSCell()->Get_Center();
 
     float dis1 = sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2));
     float dis2 = sqrt(pow(p.y-p2.y,2)+pow(p.z-p2.z,2));
@@ -923,47 +930,47 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
 
       Point p3;
       // if (flag==1){
-      // 	p3 =  mct.Get_MSCS(k).at(0)->Get_Center();
+      // 	p3 =  mct->Get_MSCS(k).at(0)->Get_Center();
       // }else{
-      // 	p3 =  mct.Get_MSCS(time_length-1-k).at(0)->Get_Center();
+      // 	p3 =  mct->Get_MSCS(time_length-1-k).at(0)->Get_Center();
       // }
 
       //improve the beginning
       if (flag==1){
 	int max = 0;
-	for (int qx = 1;qx < mct.Get_MSCS(k).size();qx++){
-	  if (mct.Get_MSCS(k).at(max)->Get_all_spacecell().size() <
-	      mct.Get_MSCS(k).at(qx)->Get_all_spacecell().size())
+	for (int qx = 1;qx < mct->Get_MSCS(k).size();qx++){
+	  if (mct->Get_MSCS(k).at(max)->Get_all_spacecell().size() <
+	      mct->Get_MSCS(k).at(qx)->Get_all_spacecell().size())
 	    max = qx;
 	  }
-	p3 = mct.Get_MSCS(k).at(max)->Get_Center();
+	p3 = mct->Get_MSCS(k).at(max)->Get_Center();
       }else{
 	int max = 0;
-	for (int qx = 1; qx < mct.Get_MSCS(time_length-1-k).size();qx++){
-	  if (mct.Get_MSCS(time_length-1-k).at(max)->Get_all_spacecell().size() <
-	      mct.Get_MSCS(time_length-1-k).at(qx)->Get_all_spacecell().size())
+	for (int qx = 1; qx < mct->Get_MSCS(time_length-1-k).size();qx++){
+	  if (mct->Get_MSCS(time_length-1-k).at(max)->Get_all_spacecell().size() <
+	      mct->Get_MSCS(time_length-1-k).at(qx)->Get_all_spacecell().size())
 	    max = qx;
 	}
-	p3 =  mct.Get_MSCS(time_length-1-k).at(max)->Get_Center();
+	p3 =  mct->Get_MSCS(time_length-1-k).at(max)->Get_Center();
       }
 
     
-      mct.SC_Hough(p3,p,10*units::cm,3);
-      float theta = mct.Get_Theta();
-      float phi = mct.Get_Phi();
+      mct->SC_Hough(p3,p,10*units::cm,3);
+      float theta = mct->Get_Theta();
+      float phi = mct->Get_Phi();
 
-      // mct.SC_Hough(p3,p,10*units::cm,2);
-      // float theta_m = mct.Get_Theta();
-      // float phi_m = mct.Get_Phi();
+      // mct->SC_Hough(p3,p,10*units::cm,2);
+      // float theta_m = mct->Get_Theta();
+      // float phi_m = mct->Get_Phi();
 
       type = 2;
       
       for (int i=0;i!=5;i++){
 	MergeSpaceCellSelection cells;
 	if (flag == 1){
-	  cells = mct.Get_MSCS(i);
+	  cells = mct->Get_MSCS(i);
 	}else{
-	  cells = mct.Get_MSCS(time_length-1-i);
+	  cells = mct->Get_MSCS(time_length-1-i);
 	}
 	int flag1 = 0;
 	for (int j=0;j!=cells.size();j++){
