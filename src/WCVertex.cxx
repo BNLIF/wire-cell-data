@@ -24,6 +24,27 @@ void WCVertex::reset_center(){
   center = msc->Get_Center();
 }
 
+void WCVertex::set_ky(WCTrack *track, double ky){
+  if (tracks_ky.size() == 0 ){
+    tracks_ky.resize(tracks.size());
+  }
+  while(tracks_ky.size() < tracks.size()){
+    tracks_ky.push_back(0);
+  }
+  auto it = find(tracks.begin(),tracks.end(),track);
+  tracks_ky.at(it-tracks.begin()) = ky;
+}
+
+void WCVertex::set_kz(WCTrack *track, double kz){
+  if (tracks_kz.size() == 0 ){
+    tracks_kz.resize(tracks.size());
+  }
+  while(tracks_kz.size() < tracks.size()){
+    tracks_kz.push_back(0);
+  }
+  auto it = find(tracks.begin(),tracks.end(),track);
+  tracks_kz.at(it-tracks.begin()) = kz;
+}
 
 double WCVertex::get_ky(WCTrack *track){
   auto it = find(tracks.begin(),tracks.end(),track);

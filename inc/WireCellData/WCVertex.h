@@ -45,6 +45,8 @@ namespace WireCell {
     // static double dis2(const double *xx);
     bool FindVertex(int flag = 0);
 
+    void set_ky(WCTrack* track, double ky);
+    void set_kz(WCTrack* track, double kz);
    
     double get_ky(WCTrack *track);
     double get_kz(WCTrack *track);
