@@ -901,6 +901,7 @@ void WCTrack::ReplaceEndCell(MergeSpaceCell *cell1, MergeSpaceCell *cell2){
 
 int WCTrack::TrackType(MergeSpaceCell& cell){
   int type = 0;
+  if (mct == 0 ) return type;
   // type == 1: short tracks
   // type == 2: straight tracks
   // type == 3: wiggle tracks 
