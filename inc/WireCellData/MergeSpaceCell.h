@@ -73,6 +73,7 @@ namespace WireCell {
     /// Used to temporarily collect some subset
     typedef std::vector<WireCell::MergeSpaceCell*> MergeSpaceCellSelection;
     typedef std::map<MergeSpaceCell*, MergeSpaceCellSelection> MergeSpaceCellMap;
+    typedef std::map<MergeSpaceCell*, MergeSpaceCell*> MergeSpaceCellMap1;
     typedef std::list<WireCell::MergeSpaceCell*> MergeSpaceCellList;
     typedef std::map<MergeSpaceCell*, int> MergeSpaceCellCounter;
     typedef std::set<MergeSpaceCell*, MergeSpaceCellCompare> MergeSpaceCellSet;
