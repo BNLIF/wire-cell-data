@@ -292,25 +292,26 @@ void WCTrack::reset_fine_tracking(){
   centerVP_dedx.clear();
 }
 
-bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, int ntrack_p2, Point &p2, double ky2, double kz2){
+bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, int ntrack_p2, Point &p2, double ky2, double kz2, int flag){
   fp1 = p1;
   fp2 = p2;
   ntrack_fp1 = ntrack_p1;
   ntrack_fp2 = ntrack_p2;
 
-  //if (fine_tracking_flag==1) return false;
+  if (fine_tracking_flag==1 && flag == 1) return false;
   fine_tracking_flag = 1;
   
-  MergeSpaceCellSet cells_set;
-  //sort the existing cells
-  for (int i=0;i!=all_cells.size();i++){
-    cells_set.insert(all_cells.at(i));
+  if (flag == 0){
+    MergeSpaceCellSet cells_set;
+    //sort the existing cells
+    for (int i=0;i!=all_cells.size();i++){
+      cells_set.insert(all_cells.at(i));
+    }
+    all_cells.clear();
+    for (auto it = cells_set.begin(); it!=cells_set.end(); it++){
+      all_cells.push_back(*it);
+    }
   }
-  all_cells.clear();
-  for (auto it = cells_set.begin(); it!=cells_set.end(); it++){
-    all_cells.push_back(*it);
-  }
-
 
 
   centerVP.clear();
@@ -325,7 +326,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
     p.z = all_cells.at(i)->Get_Center().z;
     all_cells.at(i)->CalMinMax();
 
-    if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>0.35*units::cm && fabs(p.x-p2.x)>0.35*units::cm) continue;
+    if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>0.35*units::cm && fabs(p.x-p2.x)>0.35*units::cm && flag == 0) continue;
     // std::cout << "abc: " << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
     
     if (centerVP.size()==0){
@@ -739,7 +740,24 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
   }
   
 
-  
+  // //deal with single element ... 
+  // if (flag == 1){
+  //   //add in the first and second points
+  //   centerVP.insert(centerVP.begin(),p1);
+  //   centerVP.push_back(p2);
+  //   centerVP_cells.insert(centerVP_cells.begin(),0);
+  //   centerVP_cells.push_back(0);
+  //   double theta1 = centerVP_theta.at(0);
+  //   double phi1 = centerVP_phi.at(0);
+  //   centerVP_theta.insert(centerVP_theta.begin(),theta1);
+  //   centerVP_theta.push_back(theta1);
+  //   centerVP_phi.insert(centerVP_phi.begin(),phi1);
+  //   centerVP_phi.push_back(phi1);
+  //   centerVP_energy.insert(centerVP_energy.begin(),0);
+  //   centerVP_energy.push_back(0);
+  //   centerVP_dedx.insert(centerVP_dedx.begin(),0);
+  //   centerVP_dedx.push_back(0);
+  //  }
   
   // std::cout << range/units::cm << " " << centerVP.at(0).x/units::cm << " " << centerVP.at(0).y/units::cm  << " " << centerVP.at(0).z/units::cm  << " " << centerVP.at(centerVP.size()-1).x/units::cm << " " << centerVP.at(centerVP.size()-1).y/units::cm  << " " << centerVP.at(centerVP.size()-1).z/units::cm<< std::endl;
 

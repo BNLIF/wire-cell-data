@@ -23,7 +23,8 @@ namespace WireCell {
     bool Grow(MergeSpaceCell *cell, int flag = 1); 
 
     bool fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, 
-		       int ntrack_p2, Point &p2, double ky2, double kz2);
+		       int ntrack_p2, Point &p2, double ky2, double kz2,
+		       int flag = 0);
 
     PointVector& get_centerVP(){return centerVP;};
     MergeSpaceCellSelection& get_centerVP_cells(){return centerVP_cells;};
