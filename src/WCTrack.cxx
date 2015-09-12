@@ -668,19 +668,29 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 
   // construct the differential angles ... 
   range = 0;
-  for (int i=0;i!=centerVP.size()-1;i++){
-    TVector3 dir(centerVP.at(i+1).x-centerVP.at(i).x,
-		 centerVP.at(i+1).y-centerVP.at(i).y,
-		 centerVP.at(i+1).z-centerVP.at(i).z);
-    centerVP_theta.push_back(dir.Theta());
-    centerVP_phi.push_back(dir.Phi());
-    if (i==centerVP.size()-2){
+  if (centerVP.size()!=1){
+    for (int i=0;i!=centerVP.size()-1;i++){
+      TVector3 dir(centerVP.at(i+1).x-centerVP.at(i).x,
+		   centerVP.at(i+1).y-centerVP.at(i).y,
+		   centerVP.at(i+1).z-centerVP.at(i).z);
       centerVP_theta.push_back(dir.Theta());
       centerVP_phi.push_back(dir.Phi());
+      if (i==centerVP.size()-2){
+	centerVP_theta.push_back(dir.Theta());
+	centerVP_phi.push_back(dir.Phi());
+      }
+      range += dir.Mag();
     }
+    
+  }else{
+    TVector3 dir(p2.x-p1.x,
+		 p2.y-p1.y,
+		 p2.z-p1.z);
+    centerVP_theta.push_back(dir.Theta());
+    centerVP_phi.push_back(dir.Phi());
     range += dir.Mag();
-
   }
+  
 
 
   // Now need to calculate energy ... global dE/dx, and sum of energies 
@@ -740,24 +750,26 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
   }
   
 
-  // //deal with single element ... 
-  // if (flag == 1){
-  //   //add in the first and second points
-  //   centerVP.insert(centerVP.begin(),p1);
-  //   centerVP.push_back(p2);
-  //   centerVP_cells.insert(centerVP_cells.begin(),0);
-  //   centerVP_cells.push_back(0);
-  //   double theta1 = centerVP_theta.at(0);
-  //   double phi1 = centerVP_phi.at(0);
-  //   centerVP_theta.insert(centerVP_theta.begin(),theta1);
-  //   centerVP_theta.push_back(theta1);
-  //   centerVP_phi.insert(centerVP_phi.begin(),phi1);
-  //   centerVP_phi.push_back(phi1);
-  //   centerVP_energy.insert(centerVP_energy.begin(),0);
-  //   centerVP_energy.push_back(0);
-  //   centerVP_dedx.insert(centerVP_dedx.begin(),0);
-  //   centerVP_dedx.push_back(0);
-  //  }
+  //deal with single element ... 
+  if (flag == 1){
+    //    std::cout << "abc1 " <<centerVP.size() << " " << centerVP_theta.size() << std::endl;
+    //add in the first and second points
+    centerVP.insert(centerVP.begin(),p1);
+    centerVP.push_back(p2);
+    centerVP_cells.insert(centerVP_cells.begin(),centerVP_cells.front());
+    centerVP_cells.push_back(centerVP_cells.back());
+    double theta1 = centerVP_theta.at(0);
+    double phi1 = centerVP_phi.at(0);
+    centerVP_theta.insert(centerVP_theta.begin(),theta1);
+    centerVP_theta.push_back(theta1);
+    centerVP_phi.insert(centerVP_phi.begin(),phi1);
+    centerVP_phi.push_back(phi1);
+    centerVP_energy.insert(centerVP_energy.begin(),0);
+    centerVP_energy.push_back(0);
+    centerVP_dedx.insert(centerVP_dedx.begin(),0);
+    centerVP_dedx.push_back(0);
+    //std::cout << "abc2 " << std::endl;
+   }
   
   // std::cout << range/units::cm << " " << centerVP.at(0).x/units::cm << " " << centerVP.at(0).y/units::cm  << " " << centerVP.at(0).z/units::cm  << " " << centerVP.at(centerVP.size()-1).x/units::cm << " " << centerVP.at(centerVP.size()-1).y/units::cm  << " " << centerVP.at(centerVP.size()-1).z/units::cm<< std::endl;
 
