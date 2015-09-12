@@ -754,16 +754,26 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
   if (flag == 1){
     //    std::cout << "abc1 " <<centerVP.size() << " " << centerVP_theta.size() << std::endl;
     //add in the first and second points
-    centerVP.insert(centerVP.begin(),p1);
-    centerVP.push_back(p2);
+    float dis1 = pow(p1.x-centerVP.front().x,2) +  pow(p1.z-centerVP.front().z,2) + pow(p1.z-centerVP.front().z,2);
+    float dis2 = pow(p1.x-centerVP.back().x,2) +  pow(p1.z-centerVP.back().z,2) + pow(p1.z-centerVP.back().z,2);
+    if (dis1 < dis2){
+      centerVP.insert(centerVP.begin(),p1);
+      centerVP.push_back(p2);
+    }else{
+      centerVP.insert(centerVP.begin(),p2);
+      centerVP.push_back(p1);
+    }
+
+
     centerVP_cells.insert(centerVP_cells.begin(),centerVP_cells.front());
     centerVP_cells.push_back(centerVP_cells.back());
-    double theta1 = centerVP_theta.at(0);
-    double phi1 = centerVP_phi.at(0);
-    centerVP_theta.insert(centerVP_theta.begin(),theta1);
-    centerVP_theta.push_back(theta1);
-    centerVP_phi.insert(centerVP_phi.begin(),phi1);
-    centerVP_phi.push_back(phi1);
+    // double theta1 = centerVP_theta.at(0);
+    // double phi1 = centerVP_phi.at(0);
+    centerVP_theta.insert(centerVP_theta.begin(),centerVP_theta.front());
+    centerVP_theta.push_back(centerVP_theta.back());
+    centerVP_phi.insert(centerVP_phi.begin(),centerVP_phi.front());
+    centerVP_phi.push_back(centerVP_phi.back());
+
     centerVP_energy.insert(centerVP_energy.begin(),0);
     centerVP_energy.push_back(0);
     centerVP_dedx.insert(centerVP_dedx.begin(),0);
