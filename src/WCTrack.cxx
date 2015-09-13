@@ -714,7 +714,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       for (int j=0;j<i;j++){
 	if (fabs(centerVP.at(j).x - p1.x) > 0.65*units::cm){
 	  float de = centerVP_cells.at(j)->Get_Charge();
-	  float dx = 1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.;
+	  float dx = fabs(1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.);
 	  centerVP_energy.at(i) = de;
 	  centerVP_dedx.at(i) = de/dx;
 	  break;
@@ -725,7 +725,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       for (int j=i+1;j<centerVP.size();j++){
 	if (fabs(centerVP.at(j).x - p2.x) > 0.65*units::cm){
 	  float de = centerVP_cells.at(j)->Get_Charge();
-	  float dx = 1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.;
+	  float dx = fabs(1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.);
 	  centerVP_energy.at(i) = de;
 	  centerVP_dedx.at(i) = de/dx;
 	  break;
@@ -735,7 +735,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       for (int j=0;j<i;j++){
 	if (fabs(centerVP.at(j).x - p2.x) > 0.65*units::cm){
 	  float de = centerVP_cells.at(j)->Get_Charge();
-	  float dx = 1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.;
+	  float dx = fabs(1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.);
 	  centerVP_energy.at(i) = de;
 	  centerVP_dedx.at(i) = de/dx;
 	  break;
@@ -743,7 +743,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       }
     }else{
       float de = centerVP_cells.at(i)->Get_Charge();
-      float dx = 1./(cos(centerVP_theta.at(i))*cos(centerVP_phi.at(i)))*centerVP_cells.at(i)->thickness()/2.;
+      float dx = fabs(1./(cos(centerVP_theta.at(i))*cos(centerVP_phi.at(i)))*centerVP_cells.at(i)->thickness()/2.);
       centerVP_energy.at(i) = de;
       centerVP_dedx.at(i) = de/dx;
     }
