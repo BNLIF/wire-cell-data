@@ -10,6 +10,27 @@ WCTrack::WCTrack(MergeSpaceCellSelection& mcells){
   end_scells.push_back(all_cells.back());
 }
 
+
+bool WCTrack::IsConnected(WCTrack *track1){ // for good track only
+  bool result = false;
+
+  MergeSpaceCellSelection cells1 = track1->get_centerVP_cells();
+
+  if (cells1.size() >0 && centerVP_cells.size()>0){
+    for (int i=0;i!=cells1.size();i++){
+      auto it = find(centerVP_cells.begin(),centerVP_cells.end(),cells1.at(i));
+      if (it != centerVP_cells.end()){
+	result = true;
+	break;
+      }
+    }
+    
+  }
+
+  
+  return result;
+}
+
 bool WCTrack::IsContained(MergeSpaceCell *mcell){
   auto it = find(all_cells.begin(),all_cells.end(),mcell);
   
