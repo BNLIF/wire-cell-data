@@ -19,6 +19,22 @@ WCShower::WCShower(WCVertex *vertex, WCTrack *track, MergeSpaceCellSelection& ex
   //std::cout << ncell_out_range << " " << ncell_angle_out_range << " " << ncell_total << " " << nmcell_out_range << " " << nmcell_total << std::endl;
 }
 
+bool WCShower::Contain(WCTrack *track){
+  bool result = false;
+  int not_common = 0;
+  for (int i=0;i!=track->get_centerVP_cells().size();i++){
+    MergeSpaceCell *mcell = track->get_centerVP_cells().at(i);
+    auto it  = find(all_mcells.begin(),all_mcells.end(),mcell);
+    if (it == all_mcells.end())
+      not_common ++;
+  }
+  
+  if (not_common == 0 && track->get_centerVP_cells().size()>0)
+    result = true;
+  
+  return result;
+}
+
 bool WCShower::IsContained(WCShower *shower){
   int nsame = 0;
   for (int i=0;i!=all_mcells.size();i++){

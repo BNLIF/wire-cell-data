@@ -22,9 +22,12 @@ namespace WireCell{
     float Get_Phi(){return phi_hough;};
     
     WCVertex* get_vertex(){return vertex;};
+    WCTrack* get_track(){return track;};
 
     bool IsShower();
     bool IsContained(WCShower *shower);
+    bool Contain(WCTrack *track);
+    
     
 
 
