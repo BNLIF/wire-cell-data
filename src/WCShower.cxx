@@ -15,6 +15,85 @@ WCShower::WCShower(WCVertex *vertex, WCTrack *track, MergeSpaceCellSelection& ex
   Iterate(start_cell, curr_cells);
   SC_Hough(vertex->Center());
   //  std::cout << theta_hough << " " << phi_hough << std::endl;
+  SC_proj_Hough(vertex->Center());
+  //std::cout << ncell_out_range << " " << ncell_angle_out_range << " " << ncell_total << " " << nmcell_out_range << " " << nmcell_total << std::endl;
+}
+
+bool WCShower::IsContained(WCShower *shower){
+  int nsame = 0;
+  for (int i=0;i!=all_mcells.size();i++){
+    MergeSpaceCell *mcell = all_mcells.at(i);
+    auto it = find(shower->get_all_cells().begin(),shower->get_all_cells().end(),mcell);
+    if (it != shower->get_all_cells().end())
+      nsame ++;
+  }
+  if (nsame == all_mcells.size())
+    return true;
+
+  return false;
+}
+
+
+void WCShower::SC_proj_Hough(Point p){
+  TVector3 l1_dir(sin(theta_hough)*cos(phi_hough),sin(theta_hough)*sin(phi_hough),cos(theta_hough));
+  TVector3 dir_x(1,0,0);
+  TVector3 l1_proj = dir_x.Cross(l1_dir);
+
+  ncell_total = 0;
+  ncell_out_range = 0;
+  ncell_angle_out_range = 0;
+  nmcell_total = 0;
+  nmcell_out_range = 0;
+  
+  float rms = 0;
+
+  for (int i=0;i!=all_mcells.size();i++){
+    MergeSpaceCell *mcell = all_mcells.at(i);
+    ncell_total += mcell->Get_all_spacecell().size();
+    nmcell_total ++;
+
+    TVector3 v1(mcell->Get_Center().x-p.x,mcell->Get_Center().y-p.y,mcell->Get_Center().z-p.z);
+    
+    if (v1.Dot(l1_dir) <0){
+      ncell_out_range += mcell->Get_all_spacecell().size();
+      nmcell_out_range ++;
+    }else{
+    // calculated projected distance, divided by the distance, would be the angle ...
+        TVector3 v2 = v1 - l1_dir;
+	
+	TVector3 dist_dir = v1.Cross(v2).Cross(l1_dir);
+	dist_dir *= 1./l1_dir.Mag2();
+	
+	TVector3 dist_proj;
+	
+	if (l1_proj.Mag2()!=0){
+	  dist_proj = dist_dir - dist_dir.Dot(l1_proj)/l1_proj.Mag2() * l1_proj;
+	}else{
+	  dist_proj = dist_dir;
+	}
+	float dist = dist_proj.Mag();
+	
+	float dist1 = v1.Mag();
+	
+	float theta;
+	if (dist1 !=0){
+	  theta = asin(dist/dist1);
+	}else{
+	  theta = 0;
+	}
+	if (theta > 15./180.*3.1415926)
+	  ncell_angle_out_range ++;
+	
+	rms += theta*theta * mcell->Get_all_spacecell().size();
+	//    std::cout << theta << std::endl;
+    }
+  }
+
+  rms = sqrt(rms/(ncell_total - ncell_out_range));
+  //std::cout << rms << std::endl;
+
+  
+
 }
 
 
@@ -50,6 +129,10 @@ bool WCShower::IsShower(){
   int ncell_track = track->get_centerVP_cells().size();
   //std::cout << ncell_track << " " << all_mcells.size() << std::endl;
   if (ncell_track > 0.9 * all_mcells.size() && ncell_track > all_mcells.size() - 8)
+    return false;
+  if (nmcell_out_range > nmcell_total*0.05)
+    return false;
+  if (ncell_angle_out_range > 0.01 * ncell_total)
     return false;
 
   return result;

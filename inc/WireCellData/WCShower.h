@@ -16,11 +16,15 @@ namespace WireCell{
     void Iterate(MergeSpaceCell *curr_cell, WireCell::MergeSpaceCellSelection &curr_cells);
     
     void SC_Hough(Point p);
+    void SC_proj_Hough(Point p);
 
     float Get_Theta(){return theta_hough;};
     float Get_Phi(){return phi_hough;};
+    
+    WCVertex* get_vertex(){return vertex;};
 
     bool IsShower();
+    bool IsContained(WCShower *shower);
     
 
 
@@ -33,6 +37,12 @@ namespace WireCell{
 
     float theta_hough;
     float phi_hough;
+
+    int ncell_out_range;
+    int ncell_angle_out_range;
+    int ncell_total;
+    int nmcell_out_range;
+    int nmcell_total;
   };
   
   typedef std::vector<WCShower*> WCShowerSelection;
