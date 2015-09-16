@@ -14,6 +14,7 @@ namespace WireCell{
     MergeSpaceCellSelection& get_all_cells(){return all_cells;};
 
     void Iterate(MergeSpaceCell *curr_cell, WireCell::MergeSpaceCellSelection &curr_cells);
+    bool IsShower();
 
   protected:
     WCVertex *vertex;

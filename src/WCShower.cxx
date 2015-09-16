@@ -14,6 +14,16 @@ WCShower::WCShower(WCVertex *vertex, WCTrack *track, MergeSpaceCellSelection& ex
   Iterate(start_cell, curr_cells);
 }
 
+bool WCShower::IsShower(){
+  bool result = true;
+  int ncell_track = track->get_centerVP_cells().size();
+  //std::cout << ncell_track << " " << all_cells.size() << std::endl;
+  if (ncell_track > 0.9 * all_cells.size() && ncell_track > all_cells.size() - 8)
+    return false;
+
+  return result;
+}
+
 void WCShower::Iterate(MergeSpaceCell *curr_cell, MergeSpaceCellSelection &curr_cells){
   int flag = 0;
   auto it1 = find(all_cells.begin(),all_cells.end(),curr_cell);
