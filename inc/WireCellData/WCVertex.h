@@ -33,6 +33,8 @@ namespace WireCell {
       center.z = p.z;
     }
 
+    float center_dist();
+
     int IsInside(WCVertex *vertex);
     bool AddVertex(WCVertex *vertex, int flag = 1);
     bool CheckContain(MergeSpaceCell *cell);

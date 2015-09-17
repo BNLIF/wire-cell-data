@@ -17,6 +17,14 @@ WCVertex::WCVertex(MergeSpaceCell& msc)
   center = msc.Get_Center();
 }
 
+
+float WCVertex::center_dist(){
+  float dis = sqrt(pow(center.x - msc->Get_Center().x,2) + 
+		   pow(center.y - msc->Get_Center().y,2) + 
+		   pow(center.z - msc->Get_Center().z,2));
+  return dis;
+}
+
 WCVertex::~WCVertex(){
 }
 
