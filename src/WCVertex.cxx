@@ -1172,6 +1172,23 @@ int WCVertex::IsInside(WCVertex *vertex){
   return result;
 }
 
+bool WCVertex::MergeVertex(WCVertex *vertex){
+  if (msc != vertex->get_msc()){
+    return false;
+  }else{
+    for (int i = 0; i!=vertex->get_tracks().size();i++){
+      WCTrack *track = vertex->get_tracks().at(i);
+      auto it = find(tracks.begin(),tracks.end(),track);
+      if (it == tracks.end()){
+	tracks.push_back(track);
+	tracks_ky.push_back(vertex->get_ky(track));
+	tracks_kz.push_back(vertex->get_kz(track));
+      }
+    }
+    return true;
+  }
+}
+
 
 bool WCVertex::AddVertex(WCVertex *vertex, int flag){
   bool result = false;

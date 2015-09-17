@@ -16,7 +16,7 @@ namespace WireCell{
     void Iterate(MergeSpaceCell *curr_cell, WireCell::MergeSpaceCellSelection &curr_cells);
     
     void SC_Hough(Point p);
-    void SC_proj_Hough(Point p);
+    float SC_proj_Hough(Point p);
 
     float Get_Theta(){return theta_hough;};
     float Get_Phi(){return phi_hough;};
@@ -24,10 +24,10 @@ namespace WireCell{
     WCVertex* get_vertex(){return vertex;};
     WCTrack* get_track(){return track;};
 
-    bool IsShower();
+    bool IsShower(MergeSpaceCellSelection& mcells);
     bool IsContained(WCShower *shower);
     bool Contain(WCTrack *track);
-    
+    bool Overlap(WCShower *shower);
     
 
 

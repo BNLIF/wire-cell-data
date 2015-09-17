@@ -57,6 +57,8 @@ namespace WireCell {
     bool get_fit_success(){return fit_success;};
     bool get_fit_chi2(){return fit_chi2;};
     void reset_center();
+
+    bool MergeVertex(WCVertex *vertex);
     
   protected:
     int fit_type;

@@ -49,8 +49,19 @@ bool WCShower::IsContained(WCShower *shower){
   return false;
 }
 
+bool WCShower::Overlap(WCShower *shower){
+  int n = 0;
+  for (int i=0;i!=shower->get_all_cells().size();i++){
+    MergeSpaceCell *mcell = shower->get_all_cells().at(i);
+    auto it = find(all_mcells.begin(),all_mcells.end(),mcell);
+    if (it != all_mcells.end()) n++;
+    if (n>=2) return true;
+  }
+  return false;
+}
 
-void WCShower::SC_proj_Hough(Point p){
+
+float WCShower::SC_proj_Hough(Point p){
   TVector3 l1_dir(sin(theta_hough)*cos(phi_hough),sin(theta_hough)*sin(phi_hough),cos(theta_hough));
   TVector3 dir_x(1,0,0);
   TVector3 l1_proj = dir_x.Cross(l1_dir);
@@ -62,7 +73,7 @@ void WCShower::SC_proj_Hough(Point p){
   nmcell_out_range = 0;
   
   float rms = 0;
-
+  float nrms = 0;
   for (int i=0;i!=all_mcells.size();i++){
     MergeSpaceCell *mcell = all_mcells.at(i);
     ncell_total += mcell->Get_all_spacecell().size();
@@ -100,14 +111,15 @@ void WCShower::SC_proj_Hough(Point p){
 	if (theta > 15./180.*3.1415926)
 	  ncell_angle_out_range ++;
 	
-	rms += theta*theta * mcell->Get_all_spacecell().size();
+	rms += theta*theta * mcell->Get_Charge();//mcell->Get_all_spacecell().size();
+	nrms += mcell->Get_Charge();
 	//    std::cout << theta << std::endl;
     }
   }
 
-  rms = sqrt(rms/(ncell_total - ncell_out_range));
+  rms = sqrt(rms/(nrms));
   //std::cout << rms << std::endl;
-
+  return rms;
   
 
 }
@@ -140,7 +152,7 @@ void WCShower::SC_Hough(Point p){
 }
 
 
-bool WCShower::IsShower(){
+bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
   bool result = true;
   int ncell_track = track->get_centerVP_cells().size();
   //std::cout << ncell_track << " " << all_mcells.size() << std::endl;
@@ -150,6 +162,19 @@ bool WCShower::IsShower(){
     return false;
   if (ncell_angle_out_range > 0.01 * ncell_total)
     return false;
+
+  int n = 0;
+  for (int i = 0;i!=all_mcells.size();i++){
+    MergeSpaceCell *mcell = all_mcells.at(i);
+    auto it = find(mcells.begin(),mcells.end(),mcell);
+    if (it == mcells.end()){
+      n++;
+    }
+  }
+
+  if (n < 0.1 * all_mcells.size())
+    return false;
+  
 
   return result;
 }
