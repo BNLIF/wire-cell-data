@@ -29,7 +29,7 @@ namespace WireCell{
     bool Contain(WCTrack *track);
     bool Overlap(WCShower *shower);
     
-
+    float distance_to_center();
 
   protected:
     WCVertex *vertex;

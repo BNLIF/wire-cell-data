@@ -124,6 +124,28 @@ float WCShower::SC_proj_Hough(Point p){
 
 }
 
+float WCShower::distance_to_center(){
+  Point center;
+  center.x = 0;
+  center.y = 0;
+  center.z = 0;
+  float sum_charge = 0;
+  for (int i=0;i!=all_mcells.size();i++){
+    MergeSpaceCell *mcell = all_mcells.at(i);
+    center.x += mcell->Get_Center().x * mcell->Get_Charge();
+    center.y += mcell->Get_Center().y * mcell->Get_Charge();
+    center.z += mcell->Get_Center().z * mcell->Get_Charge();
+    sum_charge += mcell->Get_Charge();
+  }
+  center.x /= sum_charge;
+  center.y /= sum_charge;
+  center.z /= sum_charge;
+  float dis = sqrt(pow(vertex->Center().x-center.x,2) +
+		   pow(vertex->Center().y-center.y,2) + 
+		   pow(vertex->Center().z-center.z,2));
+  return dis;
+}
+
 
 void WCShower::SC_Hough(Point p){
   TH2F *hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
