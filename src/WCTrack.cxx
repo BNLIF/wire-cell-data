@@ -3,6 +3,34 @@
 
 using namespace WireCell;
 
+WCTrack::WCTrack(MergeSpaceCellSelection& mcells){
+  mct = 0;
+  all_cells.insert(all_cells.begin(),mcells.begin(),mcells.end());
+  end_scells.push_back(all_cells.front());
+  end_scells.push_back(all_cells.back());
+}
+
+
+bool WCTrack::IsConnected(WCTrack *track1){ // for good track only
+  bool result = false;
+
+  MergeSpaceCellSelection cells1 = track1->get_centerVP_cells();
+
+  if (cells1.size() >0 && centerVP_cells.size()>0){
+    for (int i=0;i!=cells1.size();i++){
+      auto it = find(centerVP_cells.begin(),centerVP_cells.end(),cells1.at(i));
+      if (it != centerVP_cells.end()){
+	result = true;
+	break;
+      }
+    }
+    
+  }
+
+  
+  return result;
+}
+
 bool WCTrack::IsContained(MergeSpaceCell *mcell){
   auto it = find(all_cells.begin(),all_cells.end(),mcell);
   
@@ -74,7 +102,7 @@ bool WCTrack::IsBadTrack(){
 
 }
 
-double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
+double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell, int flag, float angle){
   double dist = 1e9;
   Point p;
   p.x = cell->x();
@@ -83,7 +111,17 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
 
   TVector3 dir_x(1,0,0);
 
+  TVector3 proj_dir;
+
+  if (flag == 1){
+    proj_dir.SetXYZ(0,sin(3.1415926/2.-angle), cos(3.1415926/2.-angle)); // check this angle ??? 
+  }
+
+
   auto it = find(centerVP_cells.begin(),centerVP_cells.end(),mcell);
+
+  // if (centerVP.size()<2) return dist;
+  
   int abc = it - centerVP_cells.begin();
   
   int ntrack_fp;
@@ -113,13 +151,19 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
 
   
   if (it == centerVP_cells.end()){
-    return dist;
+     return dist;
   }else{
 
+    //  std::cout << abc << " " << centerVP.size() << " " << centerVP_cells.size() << std::endl;
     if (abc == 0){
       Line l1(centerVP.at(0),centerVP.at(1));
       TVector3& l1_dir = l1.vec();
+      
       TVector3 l1_proj = dir_x.Cross(l1_dir);
+      
+      if (flag == 1)
+      	l1_proj = proj_dir;
+      
 
       TVector3 v1(p.x-centerVP.at(0).x,p.y-centerVP.at(0).y,p.z-centerVP.at(0).z);
       TVector3 v2(p.x-centerVP.at(1).x,p.y-centerVP.at(1).y,p.z-centerVP.at(1).z);
@@ -130,15 +174,21 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
       TVector3 dist_proj;
       
       if (l1_proj.Mag2()!=0){
-	dist_proj = dist_dir - dist_dir.Dot(l1_proj)/l1_proj.Mag2() * l1_proj;
+  	dist_proj = dist_dir - dist_dir.Dot(l1_proj)/l1_proj.Mag2() * l1_proj;
       }else{
-	dist_proj = dist_dir;
+  	dist_proj = dist_dir;
       }
       dist = dist_proj.Mag();
     }else if (abc == centerVP_cells.size()-1){
       Line l1(centerVP.at(centerVP_cells.size()-1),centerVP.at(centerVP_cells.size()-2));
       TVector3& l1_dir = l1.vec();
+      
+      
+
       TVector3 l1_proj = dir_x.Cross(l1_dir);
+
+      if (flag == 1 )
+	l1_proj = proj_dir;
 
       TVector3 v1(p.x-centerVP.at(centerVP_cells.size()-1).x,p.y-centerVP.at(centerVP_cells.size()-1).y,p.z-centerVP.at(centerVP_cells.size()-1).z);
       TVector3 v2(p.x-centerVP.at(centerVP_cells.size()-2).x,p.y-centerVP.at(centerVP_cells.size()-2).y,p.z-centerVP.at(centerVP_cells.size()-2).z);
@@ -159,16 +209,18 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
       Line l2(centerVP.at(abc-1),centerVP.at(abc));
       
       TVector3& l1_dir = l1.vec();
-      TVector3 l1_proj = dir_x.Cross(l1_dir);
 
-      TVector3& l2_dir = l2.vec();
-      TVector3 l2_proj = dir_x.Cross(l2_dir);
+    
+
+      TVector3 l1_proj = dir_x.Cross(l1_dir);
+      
+      if (flag == 1 )
+	l1_proj = proj_dir;
 
       TVector3 v1(p.x-centerVP.at(abc).x,p.y-centerVP.at(abc).y,p.z-centerVP.at(abc).z);
       TVector3 v2(p.x-centerVP.at(abc+1).x,p.y-centerVP.at(abc+1).y,p.z-centerVP.at(abc+1).z);
 
-      TVector3 v3(p.x-centerVP.at(abc-1).x,p.y-centerVP.at(abc-1).y,p.z-centerVP.at(abc-1).z);
-      TVector3 v4(p.x-centerVP.at(abc).x,p.y-centerVP.at(abc).y,p.z-centerVP.at(abc).z);
+      
       
       TVector3 dist1_dir = v1.Cross(v2).Cross(l1_dir);
       dist1_dir *= 1./l1_dir.Mag2();
@@ -181,6 +233,17 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell){
       	dist1_proj = dist1_dir;
       }
 
+      TVector3& l2_dir = l2.vec();
+      
+
+      
+      TVector3 l2_proj = dir_x.Cross(l2_dir);
+      if (flag == 1 )
+	l2_proj = proj_dir;
+
+      TVector3 v3(p.x-centerVP.at(abc-1).x,p.y-centerVP.at(abc-1).y,p.z-centerVP.at(abc-1).z);
+      TVector3 v4(p.x-centerVP.at(abc).x,p.y-centerVP.at(abc).y,p.z-centerVP.at(abc).z);
+      
       TVector3 dist2_dir = v3.Cross(v4).Cross(l2_dir);
       dist2_dir *= 1./l2_dir.Mag2();
 
@@ -250,25 +313,26 @@ void WCTrack::reset_fine_tracking(){
   centerVP_dedx.clear();
 }
 
-bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, int ntrack_p2, Point &p2, double ky2, double kz2){
+bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, int ntrack_p2, Point &p2, double ky2, double kz2, int flag){
   fp1 = p1;
   fp2 = p2;
   ntrack_fp1 = ntrack_p1;
   ntrack_fp2 = ntrack_p2;
 
-  //if (fine_tracking_flag==1) return false;
+  if (fine_tracking_flag==1 && flag == 1) return false;
   fine_tracking_flag = 1;
   
-  MergeSpaceCellSet cells_set;
-  //sort the existing cells
-  for (int i=0;i!=all_cells.size();i++){
-    cells_set.insert(all_cells.at(i));
+  if (flag == 0){
+    MergeSpaceCellSet cells_set;
+    //sort the existing cells
+    for (int i=0;i!=all_cells.size();i++){
+      cells_set.insert(all_cells.at(i));
+    }
+    all_cells.clear();
+    for (auto it = cells_set.begin(); it!=cells_set.end(); it++){
+      all_cells.push_back(*it);
+    }
   }
-  all_cells.clear();
-  for (auto it = cells_set.begin(); it!=cells_set.end(); it++){
-    all_cells.push_back(*it);
-  }
-
 
 
   centerVP.clear();
@@ -281,7 +345,9 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
     p.x = all_cells.at(i)->Get_Center().x;
     p.y = all_cells.at(i)->Get_Center().y;
     p.z = all_cells.at(i)->Get_Center().z;
-    if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>0.32*units::cm && fabs(p.x-p2.x)>0.32*units::cm) continue;
+    all_cells.at(i)->CalMinMax();
+
+    if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>0.35*units::cm && fabs(p.x-p2.x)>0.35*units::cm && flag == 0) continue;
     // std::cout << "abc: " << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
     
     if (centerVP.size()==0){
@@ -291,76 +357,174 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       centerVP_cells.push_back(all_cells.at(i));
     }else{
       if (fabs(p.x-centerVP.at(centerVP.size()-1).x)>0.1*units::mm){
-     	centerVP.push_back(p);
-    	frontVP.push_back(p);
-    	backVP.push_back(p);
-    	centerVP_cells.push_back(all_cells.at(i));
+      	centerVP.push_back(p);
+      	frontVP.push_back(p);
+      	backVP.push_back(p);
+      	centerVP_cells.push_back(all_cells.at(i));
       }else{
 	
-
-
+      
 	float dis1 = fabs(all_cells.at(i)->Get_Center().x - p1.x);
 	float dis2 = fabs(all_cells.at(i)->Get_Center().x - p2.x);
 	float dis3;
 	float dis4;
-
 	
+	Line line(p1,p2);
 
 	if (dis1 > 0.9*units::cm && dis2 > 0.9 * units::cm){
-	  // dis3 = pow(all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2) 
-	  //   + pow(all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2) 
-	  //   + pow(all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
-	  // dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x,2)
-	  //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y,2)
-	  //   + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z,2);
-	  if (all_cells.at(i)->Get_all_spacecell().size() > centerVP_cells.at(centerVP_cells.size()-1)->Get_all_spacecell().size()){
+	  Point p_q1 = centerVP_cells.at(centerVP_cells.size()-3)->Get_Center();
+	  Point p_q2 = centerVP_cells.at(centerVP_cells.size()-2)->Get_Center();
+	  Point p_q3;
+	  p_q3.x = 2*p_q2.x - p_q1.x;
+	  p_q3.y = 2*p_q2.y - p_q1.y;
+	  p_q3.z = 2*p_q2.z - p_q1.z;
+
+	  
+
+	  dis3 = pow((all_cells.at(i)->Get_Center().x - p_q3.x)/0.16/units::cm,2) 
+	    + pow((all_cells.at(i)->Get_Center().y - p_q3.y)/all_cells.at(i)->get_dy(),2) 
+	    + pow((all_cells.at(i)->Get_Center().z - p_q3.z)/all_cells.at(i)->get_dz(),2);
+	  dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p_q3.x)/0.16/units::cm,2)
+	    + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p_q3.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
+	    + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p_q3.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
+	  if (dis3 < dis4){
 	    centerVP.at(centerVP_cells.size()-1) = p;
 	    frontVP.at(centerVP_cells.size()-1) = p;
 	    backVP.at(centerVP_cells.size()-1) = p;
 	    centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
 	  }
+
+	//   //need to be improved ...  just rely on size is no good
+	//   if (all_cells.at(i)->Get_all_spacecell().size() > centerVP_cells.at(centerVP_cells.size()-1)->Get_all_spacecell().size()){
+	//     centerVP.at(centerVP_cells.size()-1) = p;
+	//     frontVP.at(centerVP_cells.size()-1) = p;
+	//     backVP.at(centerVP_cells.size()-1) = p;
+	//     centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	//   }
 	  
 	}else if (dis1 <= 0.9*units::cm){
-	  dis3 = pow(all_cells.at(i)->Get_Center().x - p1.x,2) 
-	    + pow(all_cells.at(i)->Get_Center().y - p1.y,2) 
-	    + pow(all_cells.at(i)->Get_Center().z - p1.z,2);
-	  dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x,2)
-	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y,2)
-	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z,2);
-	  if (dis3 < dis4){
-	    centerVP.at(centerVP_cells.size()-1) = p;
-	    frontVP.at(centerVP_cells.size()-1) = p;
-	    backVP.at(centerVP_cells.size()-1) = p;
-	    centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	  if (dis1 <=0.35*units::cm){
+	   
+	    dis3 = pow((all_cells.at(i)->Get_Center().x - p1.x)/0.16/units::cm,2) 
+	      + pow((all_cells.at(i)->Get_Center().y - p1.y)/all_cells.at(i)->get_dy(),2) 
+	      + pow((all_cells.at(i)->Get_Center().z - p1.z)/all_cells.at(i)->get_dz(),2);
+	    dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x)/0.16/units::cm,2)
+	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
+	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
+	    // 
+
+	    // std::cout << all_cells.at(i)->Get_Center().x/units::cm << " " << all_cells.at(i)->Get_Center().y /units::cm
+
+	    //  	      << " " << all_cells.at(i)->Get_Center().z/units::cm << " " << dis3 << " " << dis4 << std::endl;
+	    if (dis3 < dis4 ){
+	      centerVP.at(centerVP_cells.size()-1) = p;
+	      frontVP.at(centerVP_cells.size()-1) = p;
+	      backVP.at(centerVP_cells.size()-1) = p;
+	      centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    }else{
+	      // dis3 = line.closest_dis(all_cells.at(i)->Get_Center());
+	      // dis4 = line.closest_dis(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center());
+	      // if (dis3 < dis4 ){
+	      // 	centerVP.at(centerVP_cells.size()-1) = p;
+	      // 	frontVP.at(centerVP_cells.size()-1) = p;
+	      // 	backVP.at(centerVP_cells.size()-1) = p;
+	      // 	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	      // }
+	    }
+	  }else{
+	    
+	    if (centerVP_cells.at(centerVP_cells.size()-2)->Get_all_spacecell().size() < 250){
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x),2) 
+		+ pow((all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z),2);
+	      if (dis3 < dis4){
+	    	centerVP.at(centerVP_cells.size()-1) = p;
+	    	frontVP.at(centerVP_cells.size()-1) = p;
+	    	backVP.at(centerVP_cells.size()-1) = p;
+	    	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	      }
+	    }else{
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - p1.x),2) 
+		+ pow((all_cells.at(i)->Get_Center().y - p1.y),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - p1.z),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z),2);
+	      if (dis3 < dis4){
+	    	centerVP.at(centerVP_cells.size()-1) = p;
+	    	frontVP.at(centerVP_cells.size()-1) = p;
+	    	backVP.at(centerVP_cells.size()-1) = p;
+	    	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	      }
+	    }
 	  }
+	
 	}else if (dis2 <= 0.9*units::cm){
-	  dis3 = pow(all_cells.at(i)->Get_Center().x - p2.x,2) 
-	    + pow(all_cells.at(i)->Get_Center().y - p2.y,2) 
-	    + pow(all_cells.at(i)->Get_Center().z - p2.z,2);
-	  dis4 = pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x,2)
-	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y,2)
-	    + pow(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z,2);
-	  if (dis3 < dis4){
-	    centerVP.at(centerVP_cells.size()-1) = p;
-	    frontVP.at(centerVP_cells.size()-1) = p;
-	    backVP.at(centerVP_cells.size()-1) = p;
-	    centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	  if (dis2 <= 0.35*units::cm){
+	    dis3 = pow((all_cells.at(i)->Get_Center().x - p2.x)/0.16/units::cm,2) 
+	      + pow((all_cells.at(i)->Get_Center().y - p2.y)/all_cells.at(i)->get_dy(),2) 
+	      + pow((all_cells.at(i)->Get_Center().z - p2.z)/all_cells.at(i)->get_dz(),2);
+	    dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x)/0.16/units::cm,2)
+	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
+	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
+
+	    
+	    if (dis3 < dis4){
+	      centerVP.at(centerVP_cells.size()-1) = p;
+	      frontVP.at(centerVP_cells.size()-1) = p;
+	      backVP.at(centerVP_cells.size()-1) = p;
+	      centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	    }else{
+	      // dis3 = line.closest_dis(all_cells.at(i)->Get_Center());
+	      // dis4 = line.closest_dis(centerVP_cells.at(centerVP_cells.size()-1)->Get_Center());
+	      // if (dis3 < dis4){
+	      // 	centerVP.at(centerVP_cells.size()-1) = p;
+	      // 	frontVP.at(centerVP_cells.size()-1) = p;
+	      // 	backVP.at(centerVP_cells.size()-1) = p;
+	      // 	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	      // }
+	    }
+	  }else{
+	    
+	    if (centerVP_cells.at(centerVP_cells.size()-2)->Get_all_spacecell().size() < 250){
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x),2) 
+		+ pow((all_cells.at(i)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().x),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().y),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - centerVP_cells.at(centerVP_cells.size()-2)->Get_Center().z),2);
+	      if (dis3 < dis4){
+	    	centerVP.at(centerVP_cells.size()-1) = p;
+	    	frontVP.at(centerVP_cells.size()-1) = p;
+	    	backVP.at(centerVP_cells.size()-1) = p;
+	    	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	      }
+	    }else{
+	      dis3 = pow((all_cells.at(i)->Get_Center().x - p2.x),2) 
+		+ pow((all_cells.at(i)->Get_Center().y - p2.y),2) 
+		+ pow((all_cells.at(i)->Get_Center().z - p2.z),2);
+	      dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y),2)
+		+ pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z),2);
+	      if (dis3 < dis4){
+	    	centerVP.at(centerVP_cells.size()-1) = p;
+	    	frontVP.at(centerVP_cells.size()-1) = p;
+	    	backVP.at(centerVP_cells.size()-1) = p;
+	    	centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
+	      }
+	    }
+	    
 	  }
+	  
 	}
-	
-	// std::cout << all_cells.at(i)->Get_Center().x/units::cm << " " 
-	// 	  << p1.x/units::cm << " " << p2.x/units::cm << " " 
-	// 	  << dis1/units::cm << " " << dis2/units::cm << " " 
-	// 	  << dis3/units::cm << " " << dis4/units::cm << std::endl;
-
 
 	
-
-    
-
       }
     }
-  }
+  } //loop through all the cells
 
   // check
   // for (int i=0;i!=centerVP.size();i++){
@@ -525,19 +689,29 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 
   // construct the differential angles ... 
   range = 0;
-  for (int i=0;i!=centerVP.size()-1;i++){
-    TVector3 dir(centerVP.at(i+1).x-centerVP.at(i).x,
-		 centerVP.at(i+1).y-centerVP.at(i).y,
-		 centerVP.at(i+1).z-centerVP.at(i).z);
-    centerVP_theta.push_back(dir.Theta());
-    centerVP_phi.push_back(dir.Phi());
-    if (i==centerVP.size()-2){
+  if (centerVP.size()!=1){
+    for (int i=0;i!=centerVP.size()-1;i++){
+      TVector3 dir(centerVP.at(i+1).x-centerVP.at(i).x,
+		   centerVP.at(i+1).y-centerVP.at(i).y,
+		   centerVP.at(i+1).z-centerVP.at(i).z);
       centerVP_theta.push_back(dir.Theta());
       centerVP_phi.push_back(dir.Phi());
+      if (i==centerVP.size()-2){
+	centerVP_theta.push_back(dir.Theta());
+	centerVP_phi.push_back(dir.Phi());
+      }
+      range += dir.Mag();
     }
+    
+  }else{
+    TVector3 dir(p2.x-p1.x,
+		 p2.y-p1.y,
+		 p2.z-p1.z);
+    centerVP_theta.push_back(dir.Theta());
+    centerVP_phi.push_back(dir.Phi());
     range += dir.Mag();
-
   }
+  
 
 
   // Now need to calculate energy ... global dE/dx, and sum of energies 
@@ -551,7 +725,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       for (int j=i+1;j<centerVP.size();j++){
 	if (fabs(centerVP.at(j).x - p1.x) > 0.65*units::cm){
 	  float de = centerVP_cells.at(j)->Get_Charge();
-	  float dx = 1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.;
+	  float dx = fabs(1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.);
 	  centerVP_energy.at(i) = de;
 	  centerVP_dedx.at(i) = de/dx;
 	  break;
@@ -561,7 +735,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       for (int j=0;j<i;j++){
 	if (fabs(centerVP.at(j).x - p1.x) > 0.65*units::cm){
 	  float de = centerVP_cells.at(j)->Get_Charge();
-	  float dx = 1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.;
+	  float dx = fabs(1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.);
 	  centerVP_energy.at(i) = de;
 	  centerVP_dedx.at(i) = de/dx;
 	  break;
@@ -572,7 +746,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       for (int j=i+1;j<centerVP.size();j++){
 	if (fabs(centerVP.at(j).x - p2.x) > 0.65*units::cm){
 	  float de = centerVP_cells.at(j)->Get_Charge();
-	  float dx = 1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.;
+	  float dx = fabs(1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.);
 	  centerVP_energy.at(i) = de;
 	  centerVP_dedx.at(i) = de/dx;
 	  break;
@@ -582,7 +756,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       for (int j=0;j<i;j++){
 	if (fabs(centerVP.at(j).x - p2.x) > 0.65*units::cm){
 	  float de = centerVP_cells.at(j)->Get_Charge();
-	  float dx = 1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.;
+	  float dx = fabs(1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.);
 	  centerVP_energy.at(i) = de;
 	  centerVP_dedx.at(i) = de/dx;
 	  break;
@@ -590,14 +764,43 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       }
     }else{
       float de = centerVP_cells.at(i)->Get_Charge();
-      float dx = 1./(cos(centerVP_theta.at(i))*cos(centerVP_phi.at(i)))*centerVP_cells.at(i)->thickness()/2.;
+      float dx = fabs(1./(cos(centerVP_theta.at(i))*cos(centerVP_phi.at(i)))*centerVP_cells.at(i)->thickness()/2.);
       centerVP_energy.at(i) = de;
       centerVP_dedx.at(i) = de/dx;
     }
   }
   
 
-  
+  //deal with single element ... 
+  if (flag == 1){
+    //    std::cout << "abc1 " <<centerVP.size() << " " << centerVP_theta.size() << std::endl;
+    //add in the first and second points
+    float dis1 = pow(p1.x-centerVP.front().x,2) +  pow(p1.z-centerVP.front().z,2) + pow(p1.z-centerVP.front().z,2);
+    float dis2 = pow(p1.x-centerVP.back().x,2) +  pow(p1.z-centerVP.back().z,2) + pow(p1.z-centerVP.back().z,2);
+    if (dis1 < dis2){
+      centerVP.insert(centerVP.begin(),p1);
+      centerVP.push_back(p2);
+    }else{
+      centerVP.insert(centerVP.begin(),p2);
+      centerVP.push_back(p1);
+    }
+
+
+    centerVP_cells.insert(centerVP_cells.begin(),centerVP_cells.front());
+    centerVP_cells.push_back(centerVP_cells.back());
+    // double theta1 = centerVP_theta.at(0);
+    // double phi1 = centerVP_phi.at(0);
+    centerVP_theta.insert(centerVP_theta.begin(),centerVP_theta.front());
+    centerVP_theta.push_back(centerVP_theta.back());
+    centerVP_phi.insert(centerVP_phi.begin(),centerVP_phi.front());
+    centerVP_phi.push_back(centerVP_phi.back());
+
+    centerVP_energy.insert(centerVP_energy.begin(),0);
+    centerVP_energy.push_back(0);
+    centerVP_dedx.insert(centerVP_dedx.begin(),0);
+    centerVP_dedx.push_back(0);
+    //std::cout << "abc2 " << std::endl;
+   }
   
   // std::cout << range/units::cm << " " << centerVP.at(0).x/units::cm << " " << centerVP.at(0).y/units::cm  << " " << centerVP.at(0).z/units::cm  << " " << centerVP.at(centerVP.size()-1).x/units::cm << " " << centerVP.at(centerVP.size()-1).y/units::cm  << " " << centerVP.at(centerVP.size()-1).z/units::cm<< std::endl;
 
@@ -606,7 +809,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 }
 
 WCTrack::WCTrack(MergeClusterTrack& mct)
-  : mct(mct)
+  : mct(&mct)
 {
   fine_tracking_flag = 0;
   MergeSpaceCellSelection& mcells = mct.Get_allmcells();
@@ -759,11 +962,12 @@ void WCTrack::ReplaceEndCell(MergeSpaceCell *cell1, MergeSpaceCell *cell2){
 
 int WCTrack::TrackType(MergeSpaceCell& cell){
   int type = 0;
+  if (mct == 0 ) return type;
   // type == 1: short tracks
   // type == 2: straight tracks
   // type == 3: wiggle tracks 
   
-  int time_length = mct.Get_TimeLength();
+  int time_length = mct->Get_TimeLength();
   if (time_length < 5){
     type = 1;
   }else{
@@ -771,8 +975,8 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
     
     //std::cout << theta << " " << phi << std::endl;
     int flag;
-    Point p1 = mct.Get_FirstMSCell()->Get_Center();
-    Point p2 = mct.Get_LastMSCell()->Get_Center();
+    Point p1 = mct->Get_FirstMSCell()->Get_Center();
+    Point p2 = mct->Get_LastMSCell()->Get_Center();
 
     float dis1 = sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2));
     float dis2 = sqrt(pow(p.y-p2.y,2)+pow(p.z-p2.z,2));
@@ -787,35 +991,61 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
     for (int k=0;k!=5;k++){
 
       Point p3;
+      // if (flag==1){
+      // 	p3 =  mct->Get_MSCS(k).at(0)->Get_Center();
+      // }else{
+      // 	p3 =  mct->Get_MSCS(time_length-1-k).at(0)->Get_Center();
+      // }
+
+      //improve the beginning
       if (flag==1){
-	p3 =  mct.Get_MSCS(k).at(0)->Get_Center();
+	int max = 0;
+	for (int qx = 1;qx < mct->Get_MSCS(k).size();qx++){
+	  if (mct->Get_MSCS(k).at(max)->Get_all_spacecell().size() <
+	      mct->Get_MSCS(k).at(qx)->Get_all_spacecell().size())
+	    max = qx;
+	  }
+	p3 = mct->Get_MSCS(k).at(max)->Get_Center();
       }else{
-	p3 =  mct.Get_MSCS(time_length-1-k).at(0)->Get_Center();
+	int max = 0;
+	for (int qx = 1; qx < mct->Get_MSCS(time_length-1-k).size();qx++){
+	  if (mct->Get_MSCS(time_length-1-k).at(max)->Get_all_spacecell().size() <
+	      mct->Get_MSCS(time_length-1-k).at(qx)->Get_all_spacecell().size())
+	    max = qx;
+	}
+	p3 =  mct->Get_MSCS(time_length-1-k).at(max)->Get_Center();
       }
+
     
-      mct.SC_Hough(p3,p,10*units::cm,3);
-      float theta = mct.Get_Theta();
-      float phi = mct.Get_Phi();
+      mct->SC_Hough(p3,p,10*units::cm,3);
+      float theta = mct->Get_Theta();
+      float phi = mct->Get_Phi();
+
+      // mct->SC_Hough(p3,p,10*units::cm,2);
+      // float theta_m = mct->Get_Theta();
+      // float phi_m = mct->Get_Phi();
 
       type = 2;
       
       for (int i=0;i!=5;i++){
 	MergeSpaceCellSelection cells;
 	if (flag == 1){
-	  cells = mct.Get_MSCS(i);
+	  cells = mct->Get_MSCS(i);
 	}else{
-	  cells = mct.Get_MSCS(time_length-1-i);
+	  cells = mct->Get_MSCS(time_length-1-i);
 	}
 	int flag1 = 0;
 	for (int j=0;j!=cells.size();j++){
 	  MergeSpaceCell *cell = cells.at(j);
-	  if (cell->CrossCell(p3,theta,phi)){
+	  if (cell->CrossCell(p3,theta,phi,1)){
 	    flag1 = 1;
 	    break;
 	  }
 	}
+
+	//std::cout << i << " " << flag1 << " " << p3.x/units::cm << " " << p3.y/units::cm << " " << p3.z/units::cm << std::endl;
 	
-	if (flag1==0){
+	if (flag1==0 ){ // 
 	  type = 3;
 	  break;
 	}

@@ -55,7 +55,7 @@ double MergeSpaceCell::ClosestDis(Point& p){
 
 }
 
-bool MergeSpaceCell::CrossCell(Point &p, float theta, float phi){
+bool MergeSpaceCell::CrossCell(Point &p, float theta, float phi, int flag){
     
   float x1 = p.x;
   float y1 = p.y;
@@ -83,7 +83,9 @@ bool MergeSpaceCell::CrossCell(Point &p, float theta, float phi){
     TVector3 v4 = v1.Cross(v2);
     dis = v4.Mag()/v3.Mag();
     
-    if (dis < 3*units::mm){
+    if (dis < 3*units::mm && flag == 0){
+      return true;
+    }else if (dis < 3*units::mm && flag == 1){
       return true;
     }
   }

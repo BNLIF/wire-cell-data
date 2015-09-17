@@ -27,6 +27,11 @@ namespace WireCell {
     WCTrackSelection& get_tracks(){return tracks;};
     MergeSpaceCell* get_msc(){return msc;};
     void set_msc(MergeSpaceCell * cell){msc=cell;};
+    void set_center(Point &p){
+      center.x = p.x;
+      center.y = p.y;
+      center.z = p.z;
+    }
 
     int IsInside(WCVertex *vertex);
     bool AddVertex(WCVertex *vertex, int flag = 1);
@@ -40,6 +45,8 @@ namespace WireCell {
     // static double dis2(const double *xx);
     bool FindVertex(int flag = 0);
 
+    void set_ky(WCTrack* track, double ky);
+    void set_kz(WCTrack* track, double kz);
    
     double get_ky(WCTrack *track);
     double get_kz(WCTrack *track);
@@ -50,6 +57,8 @@ namespace WireCell {
     bool get_fit_success(){return fit_success;};
     bool get_fit_chi2(){return fit_chi2;};
     void reset_center();
+
+    bool MergeVertex(WCVertex *vertex);
     
   protected:
     int fit_type;

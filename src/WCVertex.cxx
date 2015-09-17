@@ -24,6 +24,27 @@ void WCVertex::reset_center(){
   center = msc->Get_Center();
 }
 
+void WCVertex::set_ky(WCTrack *track, double ky){
+  if (tracks_ky.size() == 0 ){
+    tracks_ky.resize(tracks.size());
+  }
+  while(tracks_ky.size() < tracks.size()){
+    tracks_ky.push_back(0);
+  }
+  auto it = find(tracks.begin(),tracks.end(),track);
+  tracks_ky.at(it-tracks.begin()) = ky;
+}
+
+void WCVertex::set_kz(WCTrack *track, double kz){
+  if (tracks_kz.size() == 0 ){
+    tracks_kz.resize(tracks.size());
+  }
+  while(tracks_kz.size() < tracks.size()){
+    tracks_kz.push_back(0);
+  }
+  auto it = find(tracks.begin(),tracks.end(),track);
+  tracks_kz.at(it-tracks.begin()) = kz;
+}
 
 double WCVertex::get_ky(WCTrack *track){
   auto it = find(tracks.begin(),tracks.end(),track);
@@ -133,11 +154,17 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
     
     double dy_ave, dz_ave;
     size_t n_ave = dy_all.size()/2.;
-    nth_element(dy_all.begin(),dy_all.begin()+n_ave,dy_all.end());
-    dy_ave = dy_all[n_ave];
-    nth_element(dz_all.begin(),dz_all.begin()+n_ave,dz_all.end());
-    dz_ave = dz_all[n_ave];
+    //   std::cout << n_ave << " " << dy_all.size() << std::endl;
+    if (dy_all.size() > 0 ){
+      nth_element(dy_all.begin(),dy_all.begin()+n_ave,dy_all.end());
+      dy_ave = dy_all[n_ave];
+      nth_element(dz_all.begin(),dz_all.begin()+n_ave,dz_all.end());
+      dz_ave = dz_all[n_ave];
+    }else{
+      dy_ave = 0.3 * units::cm/2.;
+      dz_ave = 0.3 * units::cm/2.;
 
+    }
 
     for (int j=0;j!=cells.size();j++){
       MergeSpaceCell *mscell = cells.at(j);
@@ -1048,7 +1075,7 @@ void WCVertex::OrganizeEnds(MergeSpaceCellSelection& cells1, int flag){
       MergeSpaceCell *cell1 = tracks.at(i)->get_end_scells().at(0);
       MergeSpaceCell *cell2 = tracks.at(i)->get_end_scells().at(1);
       if (fabs(cell1->Get_Center().x - msc->Get_Center().x)/units::cm > 0.65 &&
-  	  fabs(cell2->Get_Center().x - msc->Get_Center().x)/units::cm > 0.65 ){
+  	  fabs(cell2->Get_Center().x - msc->Get_Center().x)/units::cm > 0.65 && flag == 1){
   	removed.push_back(tracks.at(i));
       }else{
 	if (flag == 1){
@@ -1145,6 +1172,23 @@ int WCVertex::IsInside(WCVertex *vertex){
   return result;
 }
 
+bool WCVertex::MergeVertex(WCVertex *vertex){
+  if (msc != vertex->get_msc()){
+    return false;
+  }else{
+    for (int i = 0; i!=vertex->get_tracks().size();i++){
+      WCTrack *track = vertex->get_tracks().at(i);
+      auto it = find(tracks.begin(),tracks.end(),track);
+      if (it == tracks.end()){
+	tracks.push_back(track);
+	tracks_ky.push_back(vertex->get_ky(track));
+	tracks_kz.push_back(vertex->get_kz(track));
+      }
+    }
+    return true;
+  }
+}
+
 
 bool WCVertex::AddVertex(WCVertex *vertex, int flag){
   bool result = false;
@@ -1192,13 +1236,16 @@ bool WCVertex::AddVertex(WCVertex *vertex, int flag){
 	  
 
 	  if (result){
+	    // std::cout << tracks.size() << " " << tracks.at(0) << std::endl;
 	    for (int j=0;j!=vertex->get_tracks().size();j++){
 	      WCTrack *track2 = vertex->get_tracks().at(j);
+	      //std::cout << track2 << std::endl;
 	      auto it1 = find(tracks.begin(),tracks.end(),track2);
 	      if (it1 == tracks.end()){
 		tracks.push_back(track2);
 	      }
 	    }
+	    // std::cout << tracks.size() << std::endl;
 	    break;
 	  }
 	}
