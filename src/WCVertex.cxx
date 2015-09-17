@@ -445,7 +445,7 @@ bool WCVertex::FindVertex(int flag){
   //std::cout << fit_type << " " << num_tracks << " " << ntracks << std::endl;
   
 
-
+  //fit_type = 1;
 
 
   ROOT::Minuit2::MnUserParameters upar;

@@ -1074,9 +1074,9 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
 
     
     
-    if (mct->Get_ctracks().size() == 0 ){
-      type == 2;
-    }
+    // if (mct->Get_ctracks().size() == 0 ){
+    //   type == 2;
+    // }
     
     //    add protection for wiggled track 
     // int n_wiggle = 0;
