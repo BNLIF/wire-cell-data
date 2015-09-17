@@ -26,7 +26,8 @@ namespace WireCell {
     class GeomWire {
 
     public:
-	GeomWire(int ident = -1,
+      /*
+        GeomWire(int ident = -1,
 		 WirePlaneType_t plane = kUnknownWirePlaneType,  
 		 int index = -1,
 		 int channel = -1,
@@ -35,7 +36,19 @@ namespace WireCell {
 		 char segment = 0,
 		 char face = 0,
 		 short apa = 0);
-	~GeomWire();
+      */
+       GeomWire(unsigned int ident = 0,
+		WirePlaneType_t plane = kUnknownWirePlaneType,  
+		int index = -1,
+		int channel = -1,
+		const Point& point1 = Point(),
+		const Point& point2 = Point(),
+		char segment = 0,
+		char face = 0,
+		short apa = 0,
+		short cryo = -1);
+       
+       ~GeomWire();
 
 	/// Detector-dependent, globally unique ID number.  Negative
 	/// is illegal, not guaranteed consecutive.
@@ -66,26 +79,30 @@ namespace WireCell {
 	/// Return the APA number associated with this wire.
 	int apa() const { return _apa; }
 
+	// Return which cryostat this wire resides.
+	int cryo() const { return _cryo; }
+
 	/// Return the plane+index pair.
 	WirePlaneIndex plane_index() const { return WirePlaneIndex(_plane, _index); }
 
-
 	bool operator<(const GeomWire& rhs) const {
+	  if (cryo() == rhs.cryo()) {
 	    if (apa() == rhs.apa()) {
-		if (face() == rhs.face()) {
-		    if (plane() == rhs.plane()) {
-			return index() < rhs.index();
-		    }
-		    return plane() < rhs.plane();
+	      if (face() == rhs.face()) {
+		if (plane() == rhs.plane()) {
+		  return index() < rhs.index();
 		}
-		return face() < rhs.face();
+		return plane() < rhs.plane();
+	      }
+	      return face() < rhs.face();
 	    }
 	    return apa() < rhs.apa();
+	  }
+	  return cryo() < rhs.cryo();
 	}
 
-
     protected:
-	int _ident;
+	unsigned int _ident;
 	WirePlaneType_t _plane;
 	int _index;
 	int _channel;
@@ -93,6 +110,7 @@ namespace WireCell {
 	char _segment;
 	char _face;
 	short _apa;
+	short _cryo;
 
         friend std::ostream & operator<<(std::ostream &os, const GeomWire& gw);
     };
