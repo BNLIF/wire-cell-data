@@ -208,7 +208,7 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
     }
   }
 
-  std::cout << n << std::endl;
+  //std::cout << n << std::endl;
 
   if (n < 0.1 * all_mcells.size())
     return false;

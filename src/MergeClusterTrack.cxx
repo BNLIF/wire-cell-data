@@ -3,6 +3,11 @@
 #include "TVector3.h"
 using namespace WireCell;
 
+MergeClusterTrack::MergeClusterTrack(MergeSpaceCellSelection& mcells){
+  all_mcells_list.assign(mcells.begin(),mcells.end());
+  Update();
+}
+
 MergeClusterTrack::MergeClusterTrack(ClusterTrack *ctrack){
   ctracks.push_back(ctrack);
   

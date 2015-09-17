@@ -91,6 +91,8 @@ bool WCTrack::IsBadTrack(){
       }
     }
 
+    // calculate RMS ... 
+
     // std::cout << "abc1: " << num_bad_mcell << " " << centerVP_cells.size() << std::endl;
 
     if (num_bad_mcell >= 0.5 * centerVP_cells.size()&& num_bad_mcell >2){
@@ -323,6 +325,21 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
   fine_tracking_flag = 1;
   
   if (flag == 0){
+    // //judge if this is a wiggle track
+    // //if so make the flag = 1;
+    // int n_wiggle = 0;
+    // for (int i=0;i!=all_cells.size();i++){
+    //   Point p;
+    //   p.x = all_cells.at(i)->Get_Center().x;
+    //   p.y = all_cells.at(i)->Get_Center().y;
+    //   p.z = all_cells.at(i)->Get_Center().z;
+    //   if ( (p.x-p1.x)*(p.x-p2.x)>0)
+    // 	n_wiggle ++;
+    // }
+    
+    // std::cout << n_wiggle << " " << all_cells.size() << " " << p1.x/units::cm << " " << p2.x/units::cm << std::endl;
+    //
+
     MergeSpaceCellSet cells_set;
     //sort the existing cells
     for (int i=0;i!=all_cells.size();i++){
@@ -1054,6 +1071,39 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
       
       if (type==2) break;
     }
+
+    
+    
+    if (mct->Get_ctracks().size() == 0 ){
+      type == 2;
+    }
+    
+    //    add protection for wiggled track 
+    // int n_wiggle = 0;
+    // for (int i=0;i!=mct->Get_allmcells().size();i++){
+    //   Point p3 = mct->Get_allmcells().at(i)->Get_Center();
+    //   if ( (p3.x - p1.x) * (p3.x - p2.x) >0){
+    // 	n_wiggle ++;
+    //   }
+    //   std::cout << p3.x/units::cm << " " << p3.y/units::cm << " " 
+    // 		<< p3.z/units::cm << std::endl;
+    // }
+    // for (int i=0;i!=mct->Get_ctracks().size();i++){
+    //   for (int j=0;j!=mct->Get_ctracks().at(i)->Get_allmcells().size();j++){
+    // 	Point p3 = mct->Get_ctracks().at(i)->Get_allmcells().at(j)->Get_Center();
+    // 	std::cout << i << " " << p3.x/units::cm << " " << p3.y/units::cm << " " 
+    // 		  << p3.z/units::cm << std::endl;
+    //   }
+    // }
+    // std::cout << mct->Get_allmcells().at(0)->Get_Center().x/units::cm << " " 
+    // 	      << mct->Get_allmcells().at(0)->Get_Center().y/units::cm << " " 
+    // 	      << mct->Get_allmcells().at(0)->Get_Center().z/units::cm << " " 
+    // 	      << mct->Get_allmcells().size() << " " << 
+    //   mct->Get_ctracks().size() << " " << 
+    //   type << std::endl;
+
+    //if (mct->Get_allmcells().size() == 42 && mct->Get_ctracks().size()==20) type=3;
+    
   }
   
   return type;

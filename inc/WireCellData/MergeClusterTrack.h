@@ -12,6 +12,9 @@ namespace WireCell{
   class MergeClusterTrack{
   public:
     MergeClusterTrack(ClusterTrack *ctrack);
+    
+    MergeClusterTrack(MergeSpaceCellSelection& mcells);
+
     ~MergeClusterTrack();
     
     void Add(ClusterTrack *ctrack, MergeSpaceCell *mcell1);
