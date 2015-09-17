@@ -132,10 +132,15 @@ float WCShower::distance_to_center(){
   float sum_charge = 0;
   for (int i=0;i!=all_mcells.size();i++){
     MergeSpaceCell *mcell = all_mcells.at(i);
-    center.x += mcell->Get_Center().x * mcell->Get_Charge();
-    center.y += mcell->Get_Center().y * mcell->Get_Charge();
-    center.z += mcell->Get_Center().z * mcell->Get_Charge();
-    sum_charge += mcell->Get_Charge();
+    // auto it = find(track->get_centerVP_cells().begin(),
+    // 		   track->get_centerVP_cells().end(),
+    // 		   mcell);
+    // if (it == track->get_centerVP_cells().end()){
+    center.x += mcell->Get_Center().x * mcell->Get_all_spacecell().size();//mcell->Get_Charge();
+    center.y += mcell->Get_Center().y * mcell->Get_all_spacecell().size();//mcell->Get_Charge();
+    center.z += mcell->Get_Center().z * mcell->Get_all_spacecell().size();//mcell->Get_Charge();
+    sum_charge +=  mcell->Get_all_spacecell().size();//mcell->Get_Charge();
+    // }
   }
   center.x /= sum_charge;
   center.y /= sum_charge;
@@ -143,6 +148,9 @@ float WCShower::distance_to_center(){
   float dis = sqrt(pow(vertex->Center().x-center.x,2) +
 		   pow(vertex->Center().y-center.y,2) + 
 		   pow(vertex->Center().z-center.z,2));
+
+  // std::cout << center.x/units::cm << " " << center.y/units::cm << " " <<center.z/units::cm << std::endl;
+  
   return dis;
 }
 
@@ -177,13 +185,19 @@ void WCShower::SC_Hough(Point p){
 bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
   bool result = true;
   int ncell_track = track->get_centerVP_cells().size();
-  //std::cout << ncell_track << " " << all_mcells.size() << std::endl;
+  
+  // std::cout << ncell_track << " " << all_mcells.size() << std::endl;
+  // std::cout << nmcell_out_range << " " << nmcell_total << std::endl;
+  // std::cout << ncell_angle_out_range << " " << ncell_total << std::endl;
+
   if (ncell_track > 0.9 * all_mcells.size() && ncell_track > all_mcells.size() - 8)
     return false;
   if (nmcell_out_range > nmcell_total*0.05)
     return false;
-  if (ncell_angle_out_range > 0.01 * ncell_total)
+  if (ncell_angle_out_range > 0.05 * ncell_total)
     return false;
+
+  
 
   int n = 0;
   for (int i = 0;i!=all_mcells.size();i++){
@@ -196,6 +210,21 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
 
   if (n < 0.1 * all_mcells.size())
     return false;
+  
+
+  //try the two vectors;
+  SC_Hough(vertex->Center());
+  TVector3 vec1(sin(theta_hough)*cos(phi_hough), sin(theta_hough)*sin(phi_hough),
+		cos(theta_hough));
+  TVector3 vec2(1,vertex->get_ky(track),vertex->get_kz(track));
+  
+  double a = vec1 * vec2;
+	
+  if (vec1.Mag()!=0 & vec2.Mag()!=0)
+    a = a / vec1.Mag() / vec2.Mag();
+
+  // std::cout <<"a2 " <<  a << std::endl;
+  if (fabs(a) < 0.9) return false;
   
 
   return result;
