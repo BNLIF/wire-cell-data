@@ -208,6 +208,8 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
     }
   }
 
+  std::cout << n << std::endl;
+
   if (n < 0.1 * all_mcells.size())
     return false;
   
@@ -222,6 +224,8 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
 	
   if (vec1.Mag()!=0 & vec2.Mag()!=0)
     a = a / vec1.Mag() / vec2.Mag();
+
+  
 
   // std::cout <<"a2 " <<  a << std::endl;
   if (fabs(a) < 0.9) return false;
