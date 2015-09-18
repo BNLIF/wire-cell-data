@@ -91,13 +91,58 @@ bool WCTrack::IsBadTrack(){
       }
     }
 
-    // calculate RMS ... 
+   
+
 
     // std::cout << "abc1: " << num_bad_mcell << " " << centerVP_cells.size() << std::endl;
 
     if (num_bad_mcell >= 0.5 * centerVP_cells.size()&& num_bad_mcell >2){
       return true;
     }else{
+       // calculate RMS ... 
+      // std::vector<float> angle;
+
+      // if (centerVP.size()>=2){
+      // 	TVector3 v1(centerVP.back().x-centerVP.front().x,
+      // 		    centerVP.back().y-centerVP.front().y,
+      // 		    centerVP.back().z-centerVP.front().z);
+	
+      // 	float average = 0;
+      // 	for (int i=0;i!=centerVP.size()-1;i++){
+      // 	  // TVector3 v2(centerVP_cells.at(i+1)->Get_Center().x - centerVP_cells.at(i)->Get_Center().x,
+      // 	  // 	      centerVP_cells.at(i+1)->Get_Center().y - centerVP_cells.at(i)->Get_Center().y,
+      // 	  // 	      centerVP_cells.at(i+1)->Get_Center().z - centerVP_cells.at(i)->Get_Center().z);
+
+      // 	  TVector3 v2(centerVP.at(i+1).x - centerVP.at(i).x,
+      // 	   	      centerVP.at(i+1).y - centerVP.at(i).y,
+      // 	   	      centerVP.at(i+1).z - centerVP.at(i).z);
+      // 	  float theta = v1.Angle(v2);
+      // 	  angle.push_back(theta);
+      // 	  average += theta;
+      // 	}
+      // 	average = average / angle.size();
+      // 	float rms = 0;
+      // 	for (int i=0;i!=angle.size();i++){
+      // 	  rms += pow(angle.at(i)-average,2);
+      // 	}
+      // 	rms = sqrt(rms/angle.size());
+      // 	std::cout << rms << std::endl;
+      // 	if (rms > 0.25) return true;
+      // }
+
+      // float rms = 0;
+      // for (int i=0;i< centerVP.size()-2;i++){
+      // 	Point p1 = centerVP.at(i);
+      // 	Point p2 = centerVP.at(i+1);
+      // 	Point p3 = centerVP.at(i+2);
+      // 	Point p3_pred = p2 + p2 - p1;
+      // 	rms += sqrt(pow(p3_pred.x - p3.x,2) + pow(p3_pred.y-p3.y,2) + pow(p3_pred.z - p3.z,2))
+      // 	  / sqrt(pow(p2.x-p1.x,2)+pow(p2.y-p1.y,2)+pow(p2.z-p1.z,2));
+      // }
+      // rms /= (centerVP.size()-2);
+      // std::cout << rms << std::endl;
+      //
+      //if (rms > 0.8) return true;
       return false;
     }
   }

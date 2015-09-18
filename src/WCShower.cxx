@@ -227,7 +227,7 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
 
   
 
-  // std::cout <<"a2 " <<  a << std::endl;
+  //std::cout <<"a2 " <<  a << std::endl;
   if (fabs(a) < 0.9) return false;
   
 
@@ -241,7 +241,7 @@ void WCShower::Iterate(MergeSpaceCell *curr_cell, MergeSpaceCellSelection &curr_
   if (it1 == all_mcells.end()){
     // Not contained, do something
     auto it3 = find(track->get_centerVP_cells().begin(), track->get_centerVP_cells().end(), curr_cell);
-    if (it3 != track->get_centerVP_cells().end()){
+    if (it3 != track->get_centerVP_cells().end() ){
       flag = 1;
     }else{
       auto it2 = find(exclude_mcells.begin(),exclude_mcells.end(),curr_cell);
@@ -252,6 +252,12 @@ void WCShower::Iterate(MergeSpaceCell *curr_cell, MergeSpaceCellSelection &curr_
   
   if (flag==1){
     all_mcells.push_back(curr_cell);
+    for (int i=0;i!=curr_cells.size();i++){
+      MergeSpaceCell *curr_cell1 = curr_cells.at(i);
+      MergeSpaceCellSelection curr_cells1 = mcells_map[curr_cell1];
+      Iterate(curr_cell1,curr_cells1);
+    }
+  }else if (curr_cell == vertex->get_msc()){
     for (int i=0;i!=curr_cells.size();i++){
       MergeSpaceCell *curr_cell1 = curr_cells.at(i);
       MergeSpaceCellSelection curr_cells1 = mcells_map[curr_cell1];
