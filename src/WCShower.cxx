@@ -219,7 +219,7 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
   // std::cout << nmcell_out_range << " " << nmcell_total << std::endl;
   // std::cout << ncell_angle_out_range << " " << ncell_total << std::endl;
 
-  if (ncell_track > 0.9 * all_mcells.size() && ncell_track > all_mcells.size() - 8)
+  if (ncell_track > 0.8 * all_mcells.size() && ncell_track > all_mcells.size() - 8)
     return false;
   if (nmcell_out_range > nmcell_total*0.06)
     return false;
