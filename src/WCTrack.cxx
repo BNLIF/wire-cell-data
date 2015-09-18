@@ -101,26 +101,30 @@ bool WCTrack::IsBadTrack(){
     }else{
        // calculate RMS ... 
       // std::vector<float> angle;
-
-      // if (centerVP.size()>=2){
-      // 	TVector3 v1(centerVP.back().x-centerVP.front().x,
-      // 		    centerVP.back().y-centerVP.front().y,
-      // 		    centerVP.back().z-centerVP.front().z);
+      int nangle = 0;
+      if (centerVP.size()>=2){
+      	TVector3 v1(centerVP.back().x-centerVP.front().x,
+      		    centerVP.back().y-centerVP.front().y,
+      		    centerVP.back().z-centerVP.front().z);
 	
-      // 	float average = 0;
-      // 	for (int i=0;i!=centerVP.size()-1;i++){
-      // 	  // TVector3 v2(centerVP_cells.at(i+1)->Get_Center().x - centerVP_cells.at(i)->Get_Center().x,
-      // 	  // 	      centerVP_cells.at(i+1)->Get_Center().y - centerVP_cells.at(i)->Get_Center().y,
-      // 	  // 	      centerVP_cells.at(i+1)->Get_Center().z - centerVP_cells.at(i)->Get_Center().z);
+      	float average = 0;
+      	for (int i=0;i!=centerVP.size()-1;i++){
+      	  // TVector3 v2(centerVP_cells.at(i+1)->Get_Center().x - centerVP_cells.at(i)->Get_Center().x,
+      	  // 	      centerVP_cells.at(i+1)->Get_Center().y - centerVP_cells.at(i)->Get_Center().y,
+      	  // 	      centerVP_cells.at(i+1)->Get_Center().z - centerVP_cells.at(i)->Get_Center().z);
 
-      // 	  TVector3 v2(centerVP.at(i+1).x - centerVP.at(i).x,
-      // 	   	      centerVP.at(i+1).y - centerVP.at(i).y,
-      // 	   	      centerVP.at(i+1).z - centerVP.at(i).z);
-      // 	  float theta = v1.Angle(v2);
-      // 	  angle.push_back(theta);
-      // 	  average += theta;
-      // 	}
-      // 	average = average / angle.size();
+      	  TVector3 v2(centerVP.at(i+1).x - centerVP.at(i).x,
+      	   	      centerVP.at(i+1).y - centerVP.at(i).y,
+      	   	      centerVP.at(i+1).z - centerVP.at(i).z);
+      	  float theta = v1.Angle(v2);
+	  if(theta > 45/180.*3.1415926)
+	    nangle ++;
+      	  // angle.push_back(theta);
+      	  // average += theta;
+      	}
+	//std::cout << nangle << " " << centerVP.size() << std::endl;
+	if (nangle > 0.25*centerVP.size()) return true;
+	// 	average = average / angle.size();
       // 	float rms = 0;
       // 	for (int i=0;i!=angle.size();i++){
       // 	  rms += pow(angle.at(i)-average,2);
@@ -128,7 +132,7 @@ bool WCTrack::IsBadTrack(){
       // 	rms = sqrt(rms/angle.size());
       // 	std::cout << rms << std::endl;
       // 	if (rms > 0.25) return true;
-      // }
+      }
 
       // float rms = 0;
       // for (int i=0;i< centerVP.size()-2;i++){
