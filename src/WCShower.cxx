@@ -18,7 +18,7 @@ WCShower::WCShower(WCVertex *vertex, WCTrack *track, MergeSpaceCellSelection& ex
   Iterate(start_cell, curr_cells);
 
   int flag = 1;
-  while(flag){
+  while(flag && track !=0){
     flag = 0;
     for (int i=0;i!=track->get_centerVP_cells().size();i++){
       MergeSpaceCell *mcell = track->get_centerVP_cells().at(i);
@@ -204,8 +204,17 @@ void WCShower::SC_Hough(Point p){
 
 bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
   bool result = true;
-  int ncell_track = track->get_centerVP_cells().size();
+  int ncell_track;
+
+  if (track!=0){
+    ncell_track = track->get_centerVP_cells().size();
+  }else{
+    ncell_track = 0;
+  }
   
+  if (all_mcells.size() < 10)
+    return false;
+
   // std::cout << ncell_track << " " << all_mcells.size() << std::endl;
   // std::cout << nmcell_out_range << " " << nmcell_total << std::endl;
   // std::cout << ncell_angle_out_range << " " << ncell_total << std::endl;
@@ -234,22 +243,23 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
     return false;
   
 
-  //try the two vectors;
-  SC_Hough(vertex->Center());
-  TVector3 vec1(sin(theta_hough)*cos(phi_hough), sin(theta_hough)*sin(phi_hough),
-		cos(theta_hough));
-  TVector3 vec2(1,vertex->get_ky(track),vertex->get_kz(track));
-  
-  double a = vec1 * vec2;
-	
-  if (vec1.Mag()!=0 & vec2.Mag()!=0)
-    a = a / vec1.Mag() / vec2.Mag();
-
-  
-
-  //std::cout <<"a2 " <<  a << std::endl;
-  if (fabs(a) < 0.9) return false;
-  
+  if (track!=0){
+    //try the two vectors;
+    SC_Hough(vertex->Center());
+    TVector3 vec1(sin(theta_hough)*cos(phi_hough), sin(theta_hough)*sin(phi_hough),
+		  cos(theta_hough));
+    TVector3 vec2(1,vertex->get_ky(track),vertex->get_kz(track));
+    
+    double a = vec1 * vec2;
+    
+    if (vec1.Mag()!=0 & vec2.Mag()!=0)
+      a = a / vec1.Mag() / vec2.Mag();
+    
+    
+    
+    //std::cout <<"a2 " <<  a << std::endl;
+    if (fabs(a) < 0.9) return false;
+  }
 
   return result;
 }
@@ -260,13 +270,19 @@ void WCShower::Iterate(MergeSpaceCell *curr_cell, MergeSpaceCellSelection &curr_
     
   if (it1 == all_mcells.end()){
     // Not contained, do something
-    auto it3 = find(track->get_centerVP_cells().begin(), track->get_centerVP_cells().end(), curr_cell);
-    if (it3 != track->get_centerVP_cells().end() ){
-      flag = 1;
+    if (track!=0){
+      auto it3 = find(track->get_centerVP_cells().begin(), track->get_centerVP_cells().end(), curr_cell);
+      if (it3 != track->get_centerVP_cells().end() ){
+	flag = 1;
+      }else{
+	auto it2 = find(exclude_mcells.begin(),exclude_mcells.end(),curr_cell);
+	if (it2 == exclude_mcells.end())
+	  flag = 1;
+      }
     }else{
       auto it2 = find(exclude_mcells.begin(),exclude_mcells.end(),curr_cell);
-      if (it2 == exclude_mcells.end())
-	flag = 1;
+	if (it2 == exclude_mcells.end())
+	  flag = 1;
     }
   }
   
