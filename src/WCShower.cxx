@@ -9,10 +9,30 @@ WCShower::WCShower(WCVertex *vertex, WCTrack *track, MergeSpaceCellSelection& ex
   , exclude_mcells(exclude_cells)
   , mcells_map(mcells_map)
 {
+
+  //std::cout << track->get_centerVP().size() << std::endl;
+  
   // constructor to construct things that only contain things connected to it ... 
   MergeSpaceCell *start_cell = vertex->get_msc();
   MergeSpaceCellSelection curr_cells = mcells_map[start_cell];
   Iterate(start_cell, curr_cells);
+
+  int flag = 1;
+  while(flag){
+    flag = 0;
+    for (int i=0;i!=track->get_centerVP_cells().size();i++){
+      MergeSpaceCell *mcell = track->get_centerVP_cells().at(i);
+      auto it = find(all_mcells.begin(),all_mcells.end(),mcell);
+      if (it == all_mcells.end()){
+	curr_cells = mcells_map[mcell];
+	Iterate(mcell,curr_cells);
+	flag = 1;
+	break;
+      }
+    }
+  }
+  
+
   SC_Hough(vertex->Center());
   //  std::cout << theta_hough << " " << phi_hough << std::endl;
   SC_proj_Hough(vertex->Center());
@@ -208,7 +228,7 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
     }
   }
 
-  //std::cout << n << std::endl;
+  // std::cout << n << std::endl;
 
   if (n < 0.1 * all_mcells.size())
     return false;
