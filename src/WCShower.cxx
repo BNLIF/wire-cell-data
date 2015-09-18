@@ -221,7 +221,7 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
 
   if (ncell_track > 0.9 * all_mcells.size() && ncell_track > all_mcells.size() - 8)
     return false;
-  if (nmcell_out_range > nmcell_total*0.05)
+  if (nmcell_out_range > nmcell_total*0.06)
     return false;
   if (ncell_angle_out_range > 0.05 * ncell_total)
     return false;
@@ -257,7 +257,7 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
     
     
     
-    //std::cout <<"a2 " <<  a << std::endl;
+    // std::cout <<"a2 " <<  a << std::endl;
     if (fabs(a) < 0.9) return false;
   }
 
