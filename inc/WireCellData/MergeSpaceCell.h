@@ -43,8 +43,11 @@ namespace WireCell {
       double get_miny(){return min_y;};
       double get_minz(){return min_z;};
 
+      void set_id(int num){mcell_id = num;};
+      int get_id(){return mcell_id;};
 
     protected:
+      int mcell_id;
       const MergeGeomCell* mcell;
       int center_flag;
       Point center;
