@@ -53,11 +53,14 @@ namespace WireCell{
     int index1(int index);
     int index2(int index);
 
+    void set_id(int num) const {mcell_id = num;};
+    int get_id() const{return mcell_id;};
+
     //hack for now
     std::set<int> ewires;
     
   protected:
-
+    mutable int mcell_id;
 
     WireCell::GeomCellSelection cell_all;
     WireCell::GeomCellSelection edge_cells;
