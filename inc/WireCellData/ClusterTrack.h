@@ -25,6 +25,7 @@ namespace WireCell {
     Point SC_IterativeHough(Point &p, float dis = 3 * units::cm, int flag = 1);
 
     int CrossNum(Point &p, float theta, float phi);
+    int CrossNum(MergeSpaceCell *mcell1, float theta, float phi);
 
     float Get_Theta();
     float Get_Phi();
