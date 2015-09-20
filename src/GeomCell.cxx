@@ -25,6 +25,10 @@ GeomCell::GeomCell(int ident, const PointVector& boundary)
   ret.y = 0;
   ret.z = 0;
   area = 0;
+
+  uwire = 0;
+  vwire = 0;
+  wwire = 0;
 }
 
 
@@ -46,6 +50,10 @@ GeomCell::GeomCell(const GeomCell *cell){
   ret.y = 0;
   ret.z = 0;
   area = 0;
+
+  uwire = 0;
+  vwire = 0;
+  wwire = 0;
 }
 
 GeomCell::~GeomCell()
