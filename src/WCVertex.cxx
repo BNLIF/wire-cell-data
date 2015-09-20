@@ -1164,32 +1164,34 @@ int WCVertex::IsInside(WCVertex *vertex){
   // }else if (tracks.size()==1 && vertex->get_ntracks()>1){
   //   return -1;
   // }else if (tracks.size()>1 && vertex->get_ntracks()>1){
-    result = 1;
-    WCTrackSelection& temp_tracks = vertex->get_tracks();
-    for (int i=0;i!=tracks.size();i++){
+  result = 1;
+  WCTrackSelection& temp_tracks = vertex->get_tracks();
+  for (int i=0;i!=tracks.size();i++){
+    WCTrack *track = tracks.at(i);
+    auto it = find(temp_tracks.begin(),temp_tracks.end(),track);
+    if (it == temp_tracks.end()){
+      result = -1;
+      break;
+    }
+  }
+    
+  if (result == 1){    
+    for (int i = 0; i!=tracks.size();i++){
       WCTrack *track = tracks.at(i);
-      auto it = find(temp_tracks.begin(),temp_tracks.end(),track);
-      if (it == temp_tracks.end()){
+      auto it = find(track->get_all_cells().begin(),track->get_all_cells().end(),vertex->get_msc());
+      if (it == track->get_all_cells().end()){
 	result = -1;
 	break;
       }
     }
-    
-    if (result == 1){    
-      for (int i = 0; i!=tracks.size();i++){
-	WCTrack *track = tracks.at(i);
-	auto it = find(track->get_all_cells().begin(),track->get_all_cells().end(),vertex->get_msc());
-	if (it == track->get_all_cells().end()){
-	  result = -1;
-	  break;
-	}
-      }
-    }
-    
-    
-    if (result == 1 && tracks.size() == temp_tracks.size()){
-      result = 0;
-    }
+  }
+  
+  
+
+  
+  if (result == 1 && tracks.size() == temp_tracks.size()){
+    result = 0;
+  }
   // }
 
   return result;
