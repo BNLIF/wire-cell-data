@@ -56,11 +56,20 @@ namespace WireCell{
     void set_id(int num) const {mcell_id = num;};
     int get_id() const{return mcell_id;};
 
+    GeomWireSelection get_uwires() const{return uwires;};
+    GeomWireSelection get_vwires() const{return vwires;};
+    GeomWireSelection get_wwires() const{return wwires;};
+
     //hack for now
     std::set<int> ewires;
     
   protected:
     mutable int mcell_id;
+
+    WireCell::GeomWireSelection uwires;
+    WireCell::GeomWireSelection vwires;
+    WireCell::GeomWireSelection wwires;
+
 
     WireCell::GeomCellSelection cell_all;
     WireCell::GeomCellSelection edge_cells;

@@ -352,6 +352,13 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
   cell_all.push_back(&cell);
   time_slice = -1;
 
+  uwires.clear();
+  uwires.push_back(cell.get_uwire());
+  vwires.clear();
+  vwires.push_back(cell.get_vwire());
+  wwires.clear();
+  wwires.push_back(cell.get_wwire());
+
   contain_truth = false;
   flag_center = 0;
   flag_cross_section = 0;
@@ -373,6 +380,15 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
   _edge = cell.edge();
   // 
   
+  uwires.clear();
+  uwires = cell.get_uwires();
+  vwires.clear();
+  vwires = cell.get_vwires();
+  wwires.clear();
+  wwires = cell.get_wwires();
+
+
+
   time_slice = cell.GetTimeSlice();
 
   contain_truth = cell.GetContainTruthCell();
@@ -462,6 +478,21 @@ void MergeGeomCell::AddNewCell(const WireCell::GeomCell& cell){
   _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
   _edge.insert(_edge.end(),edge.begin(),edge.end());
   // 
+  
+  auto it_u = find(uwires.begin(),uwires.end(),cell.get_uwire());
+  if (it_u == uwires.end()){
+    uwires.push_back(cell.get_uwire());
+  }
+
+  auto it_v = find(vwires.begin(),vwires.end(),cell.get_vwire());
+  if (it_v == vwires.end()){
+    vwires.push_back(cell.get_vwire());
+  }
+
+  auto it_w = find(wwires.begin(),wwires.end(),cell.get_wwire());
+  if (it_w == wwires.end()){
+    wwires.push_back(cell.get_wwire());
+  }
 
   cell_all.push_back(&cell);
 }
@@ -492,6 +523,21 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell& cell, double dis){
 	  _edge.insert(_edge.end(),edge.begin(),edge.end());
 	  // Need to improve
 	  
+
+	  auto it_u = find(uwires.begin(),uwires.end(),cell.get_uwire());
+	  if (it_u == uwires.end()){
+	    uwires.push_back(cell.get_uwire());
+	  }
+	  
+	  auto it_v = find(vwires.begin(),vwires.end(),cell.get_vwire());
+	  if (it_v == vwires.end()){
+	    vwires.push_back(cell.get_vwire());
+	  }
+	  
+	  auto it_w = find(wwires.begin(),wwires.end(),cell.get_wwire());
+	  if (it_w == wwires.end()){
+	    wwires.push_back(cell.get_wwire());
+	  }
 	  cell_all.push_back(&cell);
 	  return 1;
 	}
@@ -528,6 +574,29 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell, double dis){
 	  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
 	  _edge.insert(_edge.end(),edge.begin(),edge.end());
 	  // en
+
+	  for (int k=0;k!=cell.get_uwires().size();k++){
+	    auto it_u = find(uwires.begin(),uwires.end(),cell.get_uwires().at(k));
+	    if (it_u == uwires.end()){
+	      uwires.push_back(cell.get_uwires().at(k));
+	    }
+	  }
+	  
+	  for (int k=0;k!=cell.get_vwires().size();k++){
+	    auto it_v = find(vwires.begin(),vwires.end(),cell.get_vwires().at(k));
+	    if (it_v == vwires.end()){
+	      vwires.push_back(cell.get_vwires().at(k));
+	    }
+	  }
+	  
+	  for (int k=0;k!=cell.get_wwires().size();k++){
+	    auto it_w = find(wwires.begin(),wwires.end(),cell.get_wwires().at(k));
+	    if (it_w == wwires.end()){
+	      wwires.push_back(cell.get_wwires().at(k));
+	    }
+	  }
+
+
 	  WireCell::GeomCellSelection temp = cell.get_allcell();
 	  cell_all.insert(cell_all.end(),temp.begin(),temp.end());
 	  return 1;

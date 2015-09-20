@@ -4,6 +4,7 @@
 #include "WireCellData/Units.h"
 #include "WireCellData/Point.h"
 #include "WireCellData/Edge.h"
+#include "WireCellData/GeomWire.h"
 
 #include <set>
 #include <vector>
@@ -34,10 +35,23 @@ namespace WireCell {
 	const EdgeVector* redge() const { return &_edge;}
 
 	bool operator== (const GeomCell &b) const { return this->ident()==b.ident();}
+	
+	const GeomWire* get_uwire() const{return uwire;};
+	const GeomWire* get_vwire() const{return vwire;};
+	const GeomWire* get_wwire() const{return wwire;};
+
+	void set_uwire(const GeomWire *wire){uwire = wire;};
+	void set_vwire(const GeomWire *wire){vwire = wire;};
+	void set_wwire(const GeomWire *wire){wwire = wire;};
 
 	
     protected:
 	int _ident;
+	
+	const GeomWire *uwire;
+	const GeomWire *vwire;
+	const GeomWire *wwire;
+
 	PointVector _boundary;
 	EdgeVector _edge;
 	int order_boundary();
