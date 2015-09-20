@@ -194,19 +194,20 @@ MergeSpaceCell::~MergeSpaceCell(){
 
 void MergeSpaceCell::AddSpaceCell(SpaceCell *cell){
   all_spacecell.push_back(cell);
-  
-  auto it_u = find(uwires.begin(),uwires.end(),cell->get_uwire());
-  if (it_u == uwires.end()){
-    uwires.push_back(cell->get_uwire());
-  }
-  
-  auto it_v = find(vwires.begin(),vwires.end(),cell->get_vwire());
-  if (it_v == vwires.end()){
-    vwires.push_back(cell->get_vwire());
-  }
-  
-  auto it_w = find(wwires.begin(),wwires.end(),cell->get_wwire());
-  if (it_w == wwires.end()){
-    wwires.push_back(cell->get_wwire());
+  if (mcell == 0){
+    auto it_u = find(uwires.begin(),uwires.end(),cell->get_uwire());
+    if (it_u == uwires.end()){
+      uwires.push_back(cell->get_uwire());
+    }
+    
+    auto it_v = find(vwires.begin(),vwires.end(),cell->get_vwire());
+    if (it_v == vwires.end()){
+      vwires.push_back(cell->get_vwire());
+    }
+    
+    auto it_w = find(wwires.begin(),wwires.end(),cell->get_wwire());
+    if (it_w == wwires.end()){
+      wwires.push_back(cell->get_wwire());
+    }
   }
 }

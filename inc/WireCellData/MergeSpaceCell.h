@@ -43,9 +43,24 @@ namespace WireCell {
       double get_miny(){return min_y;};
       double get_minz(){return min_z;};
 
-      GeomWireSelection& get_uwires(){return uwires;};
-      GeomWireSelection& get_vwires(){return vwires;};
-      GeomWireSelection& get_wwires(){return wwires;};
+      GeomWireSelection get_uwires() const { if(mcell==0){
+	  return uwires;
+	}else{
+	  return mcell->get_uwires();
+	}
+      };
+      GeomWireSelection get_vwires() const { if(mcell==0){
+	  return vwires;
+	}else{
+	  return mcell->get_vwires();
+	}
+      };
+      GeomWireSelection get_wwires() const {if (mcell==0){
+	  return wwires;
+	}else{
+	  return mcell->get_wwires();
+	}
+      };
 
       void set_id(int num){mcell_id = num;};
       int get_id(){return mcell_id;};

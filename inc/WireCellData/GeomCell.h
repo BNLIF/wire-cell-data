@@ -18,8 +18,9 @@ namespace WireCell {
     class GeomCell {
     public:
 	GeomCell(int ident = 0, 
-		 const PointVector& boundary = PointVector());
-	GeomCell(const GeomCell *cell);
+		 const PointVector& boundary = PointVector(),
+		 int flag = 0); // default is to not turn on edge ... 
+	GeomCell(const GeomCell *cell, int flag = 0);
 
 	~GeomCell();
 	
