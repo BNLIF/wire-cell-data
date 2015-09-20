@@ -19,7 +19,7 @@ namespace WireCell {
       MergeSpaceCell(){center_flag = 0;mcell = 0;};
       ~MergeSpaceCell();
 	
-      void AddSpaceCell(SpaceCell* cell){all_spacecell.push_back(cell);};
+      void AddSpaceCell(SpaceCell* cell); 
       SpaceCellSelection& Get_all_spacecell(){return all_spacecell;};
       
       bool Overlap(MergeSpaceCell& mcell, float num = 0.1);
@@ -43,6 +43,10 @@ namespace WireCell {
       double get_miny(){return min_y;};
       double get_minz(){return min_z;};
 
+      GeomWireSelection& get_uwires(){return uwires;};
+      GeomWireSelection& get_vwires(){return vwires;};
+      GeomWireSelection& get_wwires(){return wwires;};
+
       void set_id(int num){mcell_id = num;};
       int get_id(){return mcell_id;};
 
@@ -51,6 +55,9 @@ namespace WireCell {
       const MergeGeomCell* mcell;
       int center_flag;
       Point center;
+      GeomWireSelection uwires;
+      GeomWireSelection vwires;
+      GeomWireSelection wwires;
       SpaceCellSelection all_spacecell;
 
       double max_y, min_y;

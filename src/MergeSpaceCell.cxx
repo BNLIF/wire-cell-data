@@ -95,28 +95,66 @@ bool MergeSpaceCell::CrossCell(Point &p, float theta, float phi, int flag){
 
 bool MergeSpaceCell::Overlap(MergeSpaceCell& mcell1,float num){
   if (mcell ==0){
-    for (int i=0;i!=all_spacecell.size();i++){
-      SpaceCell *cell1 = all_spacecell.at(i);
-      for (int j=0;j!=mcell1.Get_all_spacecell().size();j++){
-	SpaceCell *cell2 = mcell1.Get_all_spacecell().at(j);
-	
-	
-	if (fabs(cell1->y()-cell2->y()) >  2.5*units::cm) continue; 
-	if (fabs(cell1->z()-cell2->z()) > 2.5*units::cm) continue;
-	
-	for (int i1=0;i1!=cell1->boundary().size();i1++){
-	  Point p = (cell1->boundary())[i1];
-	  for (int j1=0;j1!=cell2->boundary().size();j1++){
-	    Point p1 = (cell2->boundary())[j1];
-	    if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
-	      // std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << std::endl;
-	      return true;
+    if (num < 0.5){
+      // use the wires to determine if overlaps
+      int flag_u = 0;
+      for (int i=0;i!=mcell1.get_uwires().size();i++){
+	auto it = find(uwires.begin(),uwires.end(),mcell1.get_uwires().at(i));
+	if (it != uwires.end()){
+	  flag_u = 1;
+	  break;
+	}
+      }
+      
+      int flag_v = 0;
+      for (int i=0;i!=mcell1.get_vwires().size();i++){
+	auto it = find(vwires.begin(),vwires.end(),mcell1.get_vwires().at(i));
+	if (it != vwires.end()){
+	  flag_v = 1;
+	  break;
+	}
+      }
+
+      int flag_w = 0;
+      for (int i=0;i!=mcell1.get_wwires().size();i++){
+	auto it = find(wwires.begin(),wwires.end(),mcell1.get_wwires().at(i));
+	if (it != wwires.end()){
+	  flag_w = 1;
+	  break;
+	}
+      }
+
+      if (flag_u == 1 && flag_v == 1 && flag_w == 1){
+	return true;
+      }else{
+	return false;
+      }
+      
+      
+    }else{
+      for (int i=0;i!=all_spacecell.size();i++){
+	SpaceCell *cell1 = all_spacecell.at(i);
+	for (int j=0;j!=mcell1.Get_all_spacecell().size();j++){
+	  SpaceCell *cell2 = mcell1.Get_all_spacecell().at(j);
+	  
+	  
+	  if (fabs(cell1->y()-cell2->y()) >  2.5*units::cm) continue; 
+	  if (fabs(cell1->z()-cell2->z()) > 2.5*units::cm) continue;
+	  
+	  for (int i1=0;i1!=cell1->boundary().size();i1++){
+	    Point p = (cell1->boundary())[i1];
+	    for (int j1=0;j1!=cell2->boundary().size();j1++){
+	      Point p1 = (cell2->boundary())[j1];
+	      if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
+		// std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << std::endl;
+		return true;
+	      }
 	    }
 	  }
 	}
       }
+      return false;
     }
-    return false;
   }else{
     return mcell->Overlap(*(mcell1.get_mcell()),num);
   }
@@ -152,4 +190,23 @@ MergeSpaceCell::~MergeSpaceCell(){
   //   delete all_spacecell.at(i);
   // }
   // all_spacecell.clear();
+}
+
+void MergeSpaceCell::AddSpaceCell(SpaceCell *cell){
+  all_spacecell.push_back(cell);
+  
+  auto it_u = find(uwires.begin(),uwires.end(),cell->get_uwire());
+  if (it_u == uwires.end()){
+    uwires.push_back(cell->get_uwire());
+  }
+  
+  auto it_v = find(vwires.begin(),vwires.end(),cell->get_vwire());
+  if (it_v == vwires.end()){
+    vwires.push_back(cell->get_vwire());
+  }
+  
+  auto it_w = find(wwires.begin(),wwires.end(),cell->get_wwire());
+  if (it_w == wwires.end()){
+    wwires.push_back(cell->get_wwire());
+  }
 }

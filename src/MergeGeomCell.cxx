@@ -214,24 +214,95 @@ void MergeGeomCell::FindEdges(){
 bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
   // FindEdges();
   // cell.FindEdges();
+  if (num < 0.5){
+     // use the wires to determine if overlaps
+      int flag_u = 0;
+      for (int i=0;i!=cell.get_uwires().size();i++){
+	auto it = find(uwires.begin(),uwires.end(),cell.get_uwires().at(i));
+	if (it != uwires.end()){
+	  flag_u = 1;
+	  break;
+	}
+      }
+      
+      int flag_v = 0;
+      for (int i=0;i!=cell.get_vwires().size();i++){
+	auto it = find(vwires.begin(),vwires.end(),cell.get_vwires().at(i));
+	if (it != vwires.end()){
+	  flag_v = 1;
+	  break;
+	}
+      }
 
+      int flag_w = 0;
+      for (int i=0;i!=cell.get_wwires().size();i++){
+	auto it = find(wwires.begin(),wwires.end(),cell.get_wwires().at(i));
+	if (it != wwires.end()){
+	  flag_w = 1;
+	  break;
+	}
+      }
+
+      if (flag_u == 1 && flag_v == 1 && flag_w == 1){
+	return true;
+      }else{
+	return false;
+      }
+  }else{
   
-  for (int i=0;i!=edge_cells.size();i++){
-    const GeomCell *cell1 = edge_cells[i];
-    for (int j=0;j!=cell.get_edgecells().size();j++){
-      const GeomCell *cell2 = cell.get_edgecells().at(j);
+    for (int i=0;i!=edge_cells.size();i++){
+      const GeomCell *cell1 = edge_cells[i];
+      for (int j=0;j!=cell.get_edgecells().size();j++){
+	const GeomCell *cell2 = cell.get_edgecells().at(j);
+	
+	// for (int i=0;i!=cell_all.size();i++){
+	//   const GeomCell *cell1 = cell_all[i];
+	//   for (int j=0;j!=cell.get_allcell().size();j++){
+	//     const GeomCell *cell2 = cell.get_allcell().at(j);
+	
+	Point c1 = cell1->center();
+	Point c2 = cell2->center();
+	//std::cout << (c1.y-c2.y)/units::cm << " " << (c1.z-c2.z)/units::cm << " " << cell_all.size() << " " << cell.get_allcell().size() << " " << i << " " << j << std::endl;
+	if (fabs(c1.y-c2.y) > 2.5*units::cm) continue;
+	if ( fabs(c1.z-c2.z) > 2.5*units::cm) continue;
+	
+	for (int i1=0;i1!=cell1->boundary().size();i1++){
+	  Point p = (cell1->boundary())[i1];
+	  for (int j1=0;j1!=cell2->boundary().size();j1++){
+	    Point p1 = (cell2->boundary())[j1];
+	    
+	    //std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << " " << sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m << std::endl;
+	    
+	    if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
+	      
+	      return true;
+	    }
+	  }
+	}
+      }
+    }
 
-  // for (int i=0;i!=cell_all.size();i++){
-  //   const GeomCell *cell1 = cell_all[i];
-  //   for (int j=0;j!=cell.get_allcell().size();j++){
-  //     const GeomCell *cell2 = cell.get_allcell().at(j);
-
+    //deal with the case where one is inside the other
+    int num1 = cell_all.size();
+    int num2 = cell.get_allcell().size();
+    const GeomCell *cell1;
+    GeomCellSelection cells;
+    if (num1 < num2){
+      cell1 = cell_all.at(0);
+      cells = cell.get_allcell();
+    }else{
+      cell1 = cell.get_allcell().at(0);
+      cells = cell_all;
+    }
+    for (int j=0;j!=cells.size();j++){
+      const GeomCell *cell2 = cells.at(j);
+      
       Point c1 = cell1->center();
       Point c2 = cell2->center();
       //std::cout << (c1.y-c2.y)/units::cm << " " << (c1.z-c2.z)/units::cm << " " << cell_all.size() << " " << cell.get_allcell().size() << " " << i << " " << j << std::endl;
       if (fabs(c1.y-c2.y) > 2.5*units::cm) continue;
       if ( fabs(c1.z-c2.z) > 2.5*units::cm) continue;
-	
+      
       for (int i1=0;i1!=cell1->boundary().size();i1++){
 	Point p = (cell1->boundary())[i1];
 	for (int j1=0;j1!=cell2->boundary().size();j1++){
@@ -246,47 +317,11 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
 	}
       }
     }
-  }
-
-  //deal with the case where one is inside the other
-  int num1 = cell_all.size();
-  int num2 = cell.get_allcell().size();
-  const GeomCell *cell1;
-  GeomCellSelection cells;
-  if (num1 < num2){
-    cell1 = cell_all.at(0);
-    cells = cell.get_allcell();
-  }else{
-    cell1 = cell.get_allcell().at(0);
-    cells = cell_all;
-  }
-  for (int j=0;j!=cells.size();j++){
-    const GeomCell *cell2 = cells.at(j);
-
-    Point c1 = cell1->center();
-    Point c2 = cell2->center();
-    //std::cout << (c1.y-c2.y)/units::cm << " " << (c1.z-c2.z)/units::cm << " " << cell_all.size() << " " << cell.get_allcell().size() << " " << i << " " << j << std::endl;
-    if (fabs(c1.y-c2.y) > 2.5*units::cm) continue;
-    if ( fabs(c1.z-c2.z) > 2.5*units::cm) continue;
     
-    for (int i1=0;i1!=cell1->boundary().size();i1++){
-      Point p = (cell1->boundary())[i1];
-      for (int j1=0;j1!=cell2->boundary().size();j1++){
-  	Point p1 = (cell2->boundary())[j1];
-	
-  	//std::cout << p.y << " " << p.z << " " << p1.y << " " << p1.z << " " << sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m << std::endl;
-	
-  	if (sqrt(pow(p.y-p1.y,2)+pow(p.z-p1.z,2))/units::m<0.003*num){
-	  
-  	  return true;
-  	}
-      }
-    }
+    
+    
+    return false;
   }
-  
-
-
-  return false;
 }
 
 int MergeGeomCell::Overlap1(const MergeGeomCell &cell, float num) const{
