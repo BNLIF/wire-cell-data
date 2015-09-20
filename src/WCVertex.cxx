@@ -518,8 +518,9 @@ void WCVertex::Add(WCTrack* track){
   tracks.push_back(track);
 }
 
-void WCVertex::OrganizeTracks(){
-  
+WCVertex* WCVertex::OrganizeTracks(){
+  WCVertex *result = 0;
+
   if (tracks.size()>1){
     
     // find a track where the vertex is one of the end track
@@ -535,7 +536,7 @@ void WCVertex::OrganizeTracks(){
       }
     }
     
-    if (end_tracks.size() != tracks.size()){
+   
       
       //    MergeClusterTrack& mct = end_track->get_mct();
       // find out where is the mct
@@ -593,24 +594,35 @@ void WCVertex::OrganizeTracks(){
 	}
       }
       
-      
-      for (int i=0;i!=end_tracks.size();i++){
-	end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
-	end_tracks.at(i)->ModifyCells();
+      if (end_tracks.size() != tracks.size()){
+	for (int i=0;i!=end_tracks.size();i++){
+	  end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
+	  end_tracks.at(i)->ModifyCells();
+	}
+	msc = nvertex;
+	center = msc->Get_Center();
+      }else{
+	result = new WCVertex(*nvertex);
+	for (int i=1;i<end_tracks.size();i++){
+	  end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
+	  end_tracks.at(i)->ModifyCells();
+	  result->Add(end_tracks.at(i));
+	  
+	  auto it = find(tracks.begin(),tracks.end(),end_tracks.at(i));
+	  tracks.erase(it);
+	}
+	
       }
-      
-      
-      
-      msc = nvertex;
-      center = msc->Get_Center();
       
       // for (int i=0;i!=tracks.size();i++){
       //   tracks.at(i)->ModifyCells();
       // }
       
-    }
-  
   }
+  
+
+
+  return result;
 }
 
 

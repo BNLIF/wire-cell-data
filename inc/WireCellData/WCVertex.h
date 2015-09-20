@@ -38,7 +38,7 @@ namespace WireCell {
     int IsInside(WCVertex *vertex);
     bool AddVertex(WCVertex *vertex, int flag = 1);
     bool CheckContain(MergeSpaceCell *cell);
-    void OrganizeTracks();
+    WCVertex* OrganizeTracks();
     WCTrackSelection BreakTracks();
     WCTrackSelection BreakTracksAngle(WCTrackSelection& finished_tracks);
 
