@@ -155,9 +155,9 @@ bool WCTrack::IsBadTrack(){
    
 
 
-    // std::cout << "abc1: " << num_bad_mcell << " " << centerVP_cells.size() << std::endl;
+    // std::cout << "abc1: " << num_bad_mcell << " " << centerVP_cells.size() << " " << centerVP.at(0).x/units::cm<< std::endl;
 
-    if (num_bad_mcell >= 0.5 * centerVP_cells.size()&& num_bad_mcell >2){
+    if (num_bad_mcell > 0.5 * centerVP_cells.size()&& num_bad_mcell >2){
       return true;
     }else{
        // calculate RMS ... 
@@ -183,7 +183,8 @@ bool WCTrack::IsBadTrack(){
       	  // angle.push_back(theta);
       	  // average += theta;
       	}
-	//std::cout << nangle << " " << centerVP.size() << std::endl;
+	
+	//	std::cout << nangle << " " << centerVP.size() << std::endl;
 	if (nangle > 0.25*centerVP.size()) return true;
 	
 	// 	average = average / angle.size();
