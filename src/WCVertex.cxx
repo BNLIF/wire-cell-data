@@ -602,15 +602,15 @@ WCVertex* WCVertex::OrganizeTracks(){
 	msc = nvertex;
 	center = msc->Get_Center();
       }else{
-	result = new WCVertex(*nvertex);
-	for (int i=1;i<end_tracks.size();i++){
-	  end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
-	  end_tracks.at(i)->ModifyCells();
-	  result->Add(end_tracks.at(i));
+      	result = new WCVertex(*nvertex);
+      	for (int i=1;i<end_tracks.size();i++){
+      	  end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
+      	  end_tracks.at(i)->ModifyCells();
+      	  result->Add(end_tracks.at(i));
 	  
-	  auto it = find(tracks.begin(),tracks.end(),end_tracks.at(i));
-	  tracks.erase(it);
-	}
+      	  auto it = find(tracks.begin(),tracks.end(),end_tracks.at(i));
+      	  tracks.erase(it);
+      	}
 	
       }
       

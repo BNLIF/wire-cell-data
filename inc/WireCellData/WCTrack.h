@@ -45,10 +45,15 @@ namespace WireCell {
     
     double get_range(){return range;};
 
+
+    bool Inside(WCTrack *track);
+    MergeSpaceCellSelection& get_between_cells();
+
   protected:
     MergeClusterTrack* mct;
     MergeSpaceCellSelection end_scells;
     MergeSpaceCellSelection all_cells;
+    MergeSpaceCellSelection between_cells;
 
     PointVector centerVP;
     MergeSpaceCellSelection centerVP_cells;

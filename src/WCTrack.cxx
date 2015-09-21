@@ -10,6 +10,67 @@ WCTrack::WCTrack(MergeSpaceCellSelection& mcells){
   end_scells.push_back(all_cells.back());
 }
 
+MergeSpaceCellSelection& WCTrack::get_between_cells(){
+  between_cells.clear();
+  int start,end;
+  if (end_scells.at(0)->Get_Center().x < end_scells.at(1)->Get_Center().x){
+    start = 0;
+    end = 1;
+  }else{
+    start = 1;
+    end = 0;
+  }
+  
+  for (int i=0;i!=all_cells.size();i++){
+    if (all_cells.at(i)->Get_Center().x >= end_scells.at(start)->Get_Center().x - 0.1*units::mm && 
+	all_cells.at(i)->Get_Center().x <= end_scells.at(end)->Get_Center().x + 0.1*units::mm ){
+      between_cells.push_back(all_cells.at(i));
+    }
+  }
+  return between_cells;
+}
+
+bool WCTrack::Inside(WCTrack *track2){
+  // find anything within this track
+  // find anything within the other track 
+  MergeSpaceCellSelection& bt1_cells = get_between_cells();
+  MergeSpaceCellSelection& bt2_cells = track2->get_between_cells();
+
+  
+
+  if (bt1_cells.size() < bt2_cells.size()){
+  
+    int n_same = 0;
+    int n_diff = 0;
+    
+    for (int i=0;i!=bt1_cells.size();i++){
+      auto it = find(bt2_cells.begin(),bt2_cells.end(),bt1_cells.at(i));
+      if (it == bt2_cells.end()){
+	n_diff ++;
+      }else{
+	n_same ++;
+      }
+    }
+
+    
+
+    //    std::cout << n_same << " " << n_diff << " " << bt1_cells.size() 
+    //	      << " " << bt2_cells.size() << std::endl;
+    if (bt1_cells.size()<=3 && n_same > 0) return true; // remove short track anyway ... 
+    
+    if (n_same >= 4 * n_diff){
+      return true;
+    }else{
+      return false;
+    }
+
+  }else{
+    return false;
+  }
+  
+
+}
+
 
 bool WCTrack::IsConnected(WCTrack *track1){ // for good track only
   bool result = false;

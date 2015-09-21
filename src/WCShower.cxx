@@ -257,7 +257,7 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
     
     
     
-    // std::cout <<"a2 " <<  a << std::endl;
+    //std::cout <<"a2 " <<  a << std::endl;
     if (fabs(a) < 0.9) return false;
   }
 
