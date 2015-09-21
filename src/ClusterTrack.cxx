@@ -167,6 +167,10 @@ int ClusterTrack::CrossNum(Point &p, float theta, float phi){
   return result;
 }
 
+bool ClusterTrack::AddMSCell_anyway(MergeSpaceCell *cell){
+  all_mcells.push_back(cell);
+  return true;
+}
 
 bool ClusterTrack::AddMSCell(MergeSpaceCell *cell){
   bool result = false;

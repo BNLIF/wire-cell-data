@@ -15,6 +15,7 @@ namespace WireCell {
     ~ClusterTrack();//{};
 
     bool AddMSCell(MergeSpaceCell *cell);
+    bool AddMSCell_anyway(MergeSpaceCell *cell);
     MergeSpaceCellSelection& Get_allmcells(){return all_mcells;};
 
     MergeSpaceCell* Get_FirstMSCell(){return all_mcells.front();};
