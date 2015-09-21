@@ -3,6 +3,8 @@
 #include <vector>
 #include <cmath>
 #include <list>
+#include "TVector3.h"
+
 using namespace std;
 using namespace WireCell;
 
@@ -217,33 +219,82 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
   if (num < 0.5){
      // use the wires to determine if overlaps
       int flag_u = 0;
+      
+      TVector3 dir_x(1,0,0);
+      TVector3 dir_u(uwires.at(0)->point1().x - uwires.at(0)->point2().x,
+		     uwires.at(0)->point1().y - uwires.at(0)->point2().y,
+		     uwires.at(0)->point1().z - uwires.at(0)->point2().z);
+      TVector3 dir_v(vwires.at(0)->point1().x - vwires.at(0)->point2().x,
+		     vwires.at(0)->point1().y - vwires.at(0)->point2().y,
+		     vwires.at(0)->point1().z - vwires.at(0)->point2().z);
+      TVector3 dir_w(wwires.at(0)->point1().x - wwires.at(0)->point2().x,
+		     wwires.at(0)->point1().y - wwires.at(0)->point2().y,
+		     wwires.at(0)->point1().z - wwires.at(0)->point2().z);
+
+      TVector3 dir_up = dir_x.Cross(dir_u);
+      TVector3 dir_vp = dir_x.Cross(dir_v);
+      TVector3 dir_wp = dir_x.Cross(dir_w);
+
+      dir_up *= 1./dir_up.Mag();
+      dir_vp *= 1./dir_vp.Mag();
+      dir_wp *= 1./dir_wp.Mag();
+
+
       for (int i=0;i!=cell.get_uwires().size();i++){
-	auto it = find(uwires.begin(),uwires.end(),cell.get_uwires().at(i));
-	if (it != uwires.end()){
-	  flag_u = 1;
-	  break;
+	//	auto it = find(uwires.begin(),uwires.end(),cell.get_uwires().at(i));
+	//if (it != uwires.end()){
+	//}
+	for (int j=0;j!=uwires.size();j++){
+	  TVector3 dir(cell.get_uwires().at(i)->point1().x - uwires.at(j)->point1().x,
+		       cell.get_uwires().at(i)->point1().y - uwires.at(j)->point1().y,
+		       cell.get_uwires().at(i)->point1().z - uwires.at(j)->point1().z);
+	  float dis = fabs(dir.Dot(dir_up));
+	  if (dis < 3.5*units::mm){
+	    flag_u = 1;
+	    break;
+	  }
 	}
+	if (flag_u == 1) break;
       }
       
       int flag_v = 0;
       for (int i=0;i!=cell.get_vwires().size();i++){
-	auto it = find(vwires.begin(),vwires.end(),cell.get_vwires().at(i));
-	if (it != vwires.end()){
-	  flag_v = 1;
-	  break;
+	// auto it = find(vwires.begin(),vwires.end(),cell.get_vwires().at(i));
+	// if (it != vwires.end()){
+	//   }
+	for (int j=0;j!=vwires.size();j++){
+	  TVector3 dir(cell.get_vwires().at(i)->point1().x - vwires.at(j)->point1().x,
+		       cell.get_vwires().at(i)->point1().y - vwires.at(j)->point1().y,
+		       cell.get_vwires().at(i)->point1().z - vwires.at(j)->point1().z);
+	  float dis = fabs(dir.Dot(dir_vp));
+	  if (dis < 3.5*units::mm){
+	    flag_v = 1;
+	    break;
+	  }
 	}
+	if (flag_v == 1) break;
       }
 
       int flag_w = 0;
       for (int i=0;i!=cell.get_wwires().size();i++){
-	auto it = find(wwires.begin(),wwires.end(),cell.get_wwires().at(i));
-	if (it != wwires.end()){
-	  flag_w = 1;
-	  break;
+	// auto it = find(wwires.begin(),wwires.end(),cell.get_wwires().at(i));
+	// if (it != wwires.end()){
+	//   }
+	for (int j=0;j!=wwires.size();j++){
+	  TVector3 dir(cell.get_wwires().at(i)->point1().x - wwires.at(j)->point1().x,
+		       cell.get_wwires().at(i)->point1().y - wwires.at(j)->point1().y,
+		       cell.get_wwires().at(i)->point1().z - wwires.at(j)->point1().z);
+	  float dis = fabs(dir.Dot(dir_wp));
+	  if (dis < 3.5*units::mm){
+	    flag_w = 1;
+	    break;
+	  }
 	}
+	if (flag_w==1) break;
       }
 
-      if (flag_u == 1 && flag_v == 1 && flag_w == 1){
+      // if (flag_u == 1 && flag_v == 1 && flag_w == 1){
+      if (flag_u + flag_v + flag_w ==3){
 	return true;
       }else{
 	return false;
