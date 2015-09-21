@@ -436,6 +436,8 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
   if (fine_tracking_flag==1 && flag == 1) return false;
   fine_tracking_flag = 1;
   
+ 
+
   if (flag == 0){
     // //judge if this is a wiggle track
     // //if so make the flag = 1;
@@ -463,7 +465,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
     }
   }
 
-
+  
   centerVP.clear();
   PointVector frontVP;
   PointVector backVP;
@@ -477,7 +479,25 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
     all_cells.at(i)->CalMinMax();
 
     if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>0.35*units::cm && fabs(p.x-p2.x)>0.35*units::cm && flag == 0) continue;
-    // std::cout << "abc: " << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
+    
+    if (fabs(p1.x-p2.x) < 0.9*units::cm){
+      if (centerVP.size()==0){
+	centerVP.push_back(p);
+	frontVP.push_back(p);
+	backVP.push_back(p);
+	centerVP_cells.push_back(all_cells.at(i));
+      }else{
+	if (fabs(p.x-centerVP.at(centerVP.size()-1).x)>0.1*units::mm){
+	  centerVP.push_back(p);
+	  frontVP.push_back(p);
+	  backVP.push_back(p);
+	  centerVP_cells.push_back(all_cells.at(i));
+	}else{
+	  
+	}
+      }
+    }else{
+      //    std::cout << "abc: " << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << " " << centerVP.size() << " " << fabs(p1.x-p2.x)/units::cm << std::endl;
     
     if (centerVP.size()==0){
       centerVP.push_back(p);
@@ -497,6 +517,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	float dis2 = fabs(all_cells.at(i)->Get_Center().x - p2.x);
 	float dis3;
 	float dis4;
+	
 	
 	Line line(p1,p2);
 
@@ -653,9 +674,10 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	
       }
     }
+    }
   } //loop through all the cells
 
-  // check
+  // //check
   // for (int i=0;i!=centerVP.size();i++){
   //   std::cout << centerVP.at(i).x/units::cm << " " << 
   //     centerVP.at(i).y/units::cm << " " << 
