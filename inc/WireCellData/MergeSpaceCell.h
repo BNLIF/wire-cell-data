@@ -83,13 +83,26 @@ namespace WireCell {
     struct MergeSpaceCellCompare{
       bool operator() (MergeSpaceCell *a, MergeSpaceCell *b) const {
 	
-	if (a->Get_Center().x == b->Get_Center().x){
+	if (fabs(a->Get_Center().x - b->Get_Center().x) < 0.1*units::mm ){
 	  if (a->Get_all_spacecell().size()==b->Get_all_spacecell().size()){
 	    return a > b;
 	  }
 	  return a->Get_all_spacecell().size() > b->Get_all_spacecell().size();
 	}
 	return a->Get_Center().x < b->Get_Center().x;
+      }
+    };
+
+    struct MergeSpaceCellCompare1{
+      bool operator() (MergeSpaceCell *a, MergeSpaceCell *b) const {
+	
+	if (fabs(a->Get_Center().x - b->Get_Center().x)<0.1*units::mm){
+	  if (a->Get_all_spacecell().size()==b->Get_all_spacecell().size()){
+	    return a > b;
+	  }
+	  return a->Get_all_spacecell().size() > b->Get_all_spacecell().size();
+	}
+	return a->Get_Center().x > b->Get_Center().x;
       }
     };
 
@@ -102,6 +115,7 @@ namespace WireCell {
     typedef std::list<WireCell::MergeSpaceCell*> MergeSpaceCellList;
     typedef std::map<MergeSpaceCell*, int> MergeSpaceCellCounter;
     typedef std::set<MergeSpaceCell*, MergeSpaceCellCompare> MergeSpaceCellSet;
+    typedef std::set<MergeSpaceCell*, MergeSpaceCellCompare1> MergeSpaceCellSet1;
 
        
     // typedef std::map<MergeSpaceCell*, MergeClusterTrackSelection> MSC_MCT_Map;
