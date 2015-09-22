@@ -1,7 +1,32 @@
 #include "WireCellData/WCTrack.h"
 #include "WireCellData/Plane.h"
-
+#include "TVector3.h" 
 using namespace WireCell;
+
+std::vector<float> WCTrack::get_direction(){
+  TVector3 dir(0,0,0);
+  float sum = 0;
+  for (int i=0;i!=centerVP_cells.size();i++){
+    TVector3 dir1(sin(centerVP_theta.at(i)) * cos(centerVP_phi.at(i)),
+		  sin(centerVP_theta.at(i)) * sin(centerVP_phi.at(i)),
+		  cos(centerVP_theta.at(i)));
+    float energy = centerVP_energy.at(i);
+    if (energy == 0 ){
+      //guess of energy ... 
+      energy = sqrt(centerVP_cells.at(i)->Get_all_spacecell().size())*6000; 
+    }
+    dir += dir1 * energy;
+    sum += energy;
+  }
+  dir *= 1/sum;
+  
+  std::vector<float> result;
+  result.push_back(dir.x());
+  result.push_back(dir.y());
+  result.push_back(dir.z());
+  
+  return result;
+}
 
 WCTrack::WCTrack(MergeSpaceCellSelection& mcells){
   mct = 0;

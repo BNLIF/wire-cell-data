@@ -49,6 +49,9 @@ namespace WireCell {
     bool Inside(WCTrack *track);
     MergeSpaceCellSelection& get_between_cells();
 
+
+    std::vector<float> get_direction();
+
   protected:
     MergeClusterTrack* mct;
     MergeSpaceCellSelection end_scells;
