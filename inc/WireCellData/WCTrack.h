@@ -51,6 +51,7 @@ namespace WireCell {
 
 
     std::vector<float> get_direction();
+    std::vector<float> get_position();
 
   protected:
     MergeClusterTrack* mct;

@@ -3,6 +3,33 @@
 #include "TVector3.h" 
 using namespace WireCell;
 
+std::vector<float> WCTrack::get_position(){
+  TVector3 pos(0,0,0);
+  float sum = 0;
+  
+  for (int i=0;i!=centerVP_cells.size();i++){
+    TVector3 pos1(centerVP_cells.at(i)->Get_Center().x,
+		  centerVP_cells.at(i)->Get_Center().y,
+		  centerVP_cells.at(i)->Get_Center().z);
+    float energy = centerVP_energy.at(i);
+    if (energy == 0 ){
+      //guess of energy ... 
+      energy = sqrt(centerVP_cells.at(i)->Get_all_spacecell().size())*6000; 
+    }
+    pos += pos1 * energy;
+    sum += energy;
+  }
+  pos *= 1/sum;
+  
+  std::vector<float> result;
+  result.push_back(pos.x());
+  result.push_back(pos.y());
+  result.push_back(pos.z());
+  
+  return result;
+}
+
+
 std::vector<float> WCTrack::get_direction(){
   TVector3 dir(0,0,0);
   float sum = 0;

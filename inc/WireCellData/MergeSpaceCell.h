@@ -16,7 +16,9 @@ namespace WireCell {
      */
     class MergeSpaceCell {
     public:
-      MergeSpaceCell(){center_flag = 0;mcell = 0;};
+      MergeSpaceCell(){center_flag = 0; mcell = 0;
+	max_y = -1; min_y = 1; max_z = -1; min_z = 1;  
+      };
       ~MergeSpaceCell();
 	
       void AddSpaceCell(SpaceCell* cell); 
@@ -36,8 +38,10 @@ namespace WireCell {
       void set_mcell(const MergeGeomCell *cell){mcell = cell;};
 
       void CalMinMax();
-      double get_dy(){return fabs(max_y-min_y)/2.;};
-      double get_dz(){return fabs(max_z-min_z)/2.;};
+      double get_dy(){if (max_y < min_y) CalMinMax();
+	return fabs(max_y-min_y)/2.;};
+      double get_dz(){if (max_z < min_z) CalMinMax();
+	return fabs(max_z-min_z)/2.;};
       double get_maxy(){return max_y;};
       double get_maxz(){return max_z;};
       double get_miny(){return min_y;};
