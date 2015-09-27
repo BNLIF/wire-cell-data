@@ -549,7 +549,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	}
       }
     }else{
-      //    std::cout << "abc: " << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << " " << centerVP.size() << " " << fabs(p1.x-p2.x)/units::cm << std::endl;
+      // std::cout << "abc: " << i << " " << all_cells.size() << " " <<p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << " " << centerVP.size() << " " << fabs(p1.x-p2.x)/units::cm << std::endl;
     
     if (centerVP.size()==0){
       centerVP.push_back(p);
@@ -574,8 +574,15 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	Line line(p1,p2);
 
 	if (dis1 > 0.9*units::cm && dis2 > 0.9 * units::cm){
-	  Point p_q1 = centerVP_cells.at(centerVP_cells.size()-3)->Get_Center();
-	  Point p_q2 = centerVP_cells.at(centerVP_cells.size()-2)->Get_Center();
+	  Point p_q1;
+	  Point p_q2;
+	  if (centerVP_cells.size() >=3){
+	    p_q1 = centerVP_cells.at(centerVP_cells.size()-3)->Get_Center();
+	    p_q2 = centerVP_cells.at(centerVP_cells.size()-2)->Get_Center();
+	  }else{
+	    p_q1 = centerVP_cells.at(centerVP_cells.size()-2)->Get_Center();
+	    p_q2 = centerVP_cells.at(centerVP_cells.size()-1)->Get_Center();
+	  }
 	  Point p_q3;
 	  p_q3.x = 2*p_q2.x - p_q1.x;
 	  p_q3.y = 2*p_q2.y - p_q1.y;
@@ -736,6 +743,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
   //     centerVP.at(i).z/units::cm << std::endl;
   // }
   // std::cout << std::endl;
+  
   
 
   // judge if first cell is closer to p1 or p2

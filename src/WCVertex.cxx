@@ -524,7 +524,7 @@ WCVertex* WCVertex::OrganizeTracks(){
   if (tracks.size()>1){
     
     // find a track where the vertex is one of the end track
-    WCTrack *end_track;
+    WCTrack *end_track = 0;
     WCTrackSelection end_tracks;
     for (int i = 0;i!=tracks.size();i++){
       auto it = find(tracks.at(i)->get_end_scells().begin(),
@@ -536,88 +536,88 @@ WCVertex* WCVertex::OrganizeTracks(){
       }
     }
     
-   
-      
-      //    MergeClusterTrack& mct = end_track->get_mct();
-      // find out where is the mct
-      
-      int flag;
-      Point p0 = msc->Get_Center();
-      Point p1 = end_track->get_all_cells().front()->Get_Center();
-      Point p2 = end_track->get_all_cells().back()->Get_Center();
-      float dis1 = sqrt(pow(p0.x-p1.x,2)+pow(p0.y-p1.y,2)+pow(p0.z-p1.z,2));
-      float dis2 = sqrt(pow(p0.x-p2.x,2)+pow(p0.y-p2.y,2)+pow(p0.z-p2.z,2));
-      
-      if (dis1 < dis2){
-	flag = 1;
-      }else{
-	flag = -1;
-      }
-      
-      int time_length = end_track->get_all_cells().size();
-      MergeSpaceCell* nvertex = msc;
-      
-      if (flag ==1){
-	int flag_common = 0;      
-	for (int i=0;i!=time_length;i++){
-	  MergeSpaceCell *tcell = end_track->get_all_cells().at(i);
-	  if (this->CheckContain(tcell)){
-	    flag_common = 1;
-	    if (tcell->Get_Center().x != nvertex->Get_Center().x){
+    if (end_track == 0 ) return result;
+    
+    //    MergeClusterTrack& mct = end_track->get_mct();
+    // find out where is the mct
+    
+    int flag;
+    Point p0 = msc->Get_Center();
+    Point p1 = end_track->get_all_cells().front()->Get_Center();
+    Point p2 = end_track->get_all_cells().back()->Get_Center();
+    float dis1 = sqrt(pow(p0.x-p1.x,2)+pow(p0.y-p1.y,2)+pow(p0.z-p1.z,2));
+    float dis2 = sqrt(pow(p0.x-p2.x,2)+pow(p0.y-p2.y,2)+pow(p0.z-p2.z,2));
+    
+    if (dis1 < dis2){
+      flag = 1;
+    }else{
+      flag = -1;
+    }
+    
+    int time_length = end_track->get_all_cells().size();
+    MergeSpaceCell* nvertex = msc;
+    
+    if (flag ==1){
+      int flag_common = 0;      
+      for (int i=0;i!=time_length;i++){
+	MergeSpaceCell *tcell = end_track->get_all_cells().at(i);
+	if (this->CheckContain(tcell)){
+	  flag_common = 1;
+	  if (tcell->Get_Center().x != nvertex->Get_Center().x){
+	    nvertex = tcell;
+	  }else{
+	    if (tcell->Get_all_spacecell().size() > nvertex->Get_all_spacecell().size()){
 	      nvertex = tcell;
-	    }else{
-	      if (tcell->Get_all_spacecell().size() > nvertex->Get_all_spacecell().size()){
-		nvertex = tcell;
-	      } 
-	    }
+	    } 
 	  }
-	  if (flag_common == 0)
-	    break;
 	}
-	
-      }else{
-	int flag_common = 0;      
-	for (int i=0;i!=time_length;i++){
-	  MergeSpaceCell *tcell = end_track->get_all_cells().at(time_length-1-i);
-	  if (this->CheckContain(tcell)){
-	    flag_common = 1;
-	    if (tcell->Get_Center().x != nvertex->Get_Center().x){
+	if (flag_common == 0)
+	  break;
+      }
+      
+    }else{
+      int flag_common = 0;      
+      for (int i=0;i!=time_length;i++){
+	MergeSpaceCell *tcell = end_track->get_all_cells().at(time_length-1-i);
+	if (this->CheckContain(tcell)){
+	  flag_common = 1;
+	  if (tcell->Get_Center().x != nvertex->Get_Center().x){
+	    nvertex = tcell;
+	  }else{
+	    if (tcell->Get_all_spacecell().size() > nvertex->Get_all_spacecell().size()){
 	      nvertex = tcell;
-	    }else{
-	      if (tcell->Get_all_spacecell().size() > nvertex->Get_all_spacecell().size()){
-		nvertex = tcell;
-	      } 
-	    }
+	    } 
 	  }
-	  if (flag_common == 0)
-	    break;
 	}
+	if (flag_common == 0)
+	  break;
       }
-      
-      if (end_tracks.size() != tracks.size()){
-	for (int i=0;i!=end_tracks.size();i++){
-	  end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
-	  end_tracks.at(i)->ModifyCells();
-	}
-	msc = nvertex;
-	center = msc->Get_Center();
-      }else{
-      	result = new WCVertex(*nvertex);
-      	for (int i=1;i<end_tracks.size();i++){
-      	  end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
-      	  end_tracks.at(i)->ModifyCells();
-      	  result->Add(end_tracks.at(i));
-	  
-      	  auto it = find(tracks.begin(),tracks.end(),end_tracks.at(i));
-      	  tracks.erase(it);
-      	}
+    }
+    
+    if (end_tracks.size() != tracks.size()){
+      for (int i=0;i!=end_tracks.size();i++){
+	end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
+	end_tracks.at(i)->ModifyCells();
+      }
+      msc = nvertex;
+      center = msc->Get_Center();
+    }else{
+      result = new WCVertex(*nvertex);
+      for (int i=1;i<end_tracks.size();i++){
+	end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
+	end_tracks.at(i)->ModifyCells();
+	result->Add(end_tracks.at(i));
 	
+	auto it = find(tracks.begin(),tracks.end(),end_tracks.at(i));
+	tracks.erase(it);
       }
       
-      // for (int i=0;i!=tracks.size();i++){
-      //   tracks.at(i)->ModifyCells();
-      // }
-      
+    }
+    
+    // for (int i=0;i!=tracks.size();i++){
+    //   tracks.at(i)->ModifyCells();
+    // }
+    
   }
   
 
