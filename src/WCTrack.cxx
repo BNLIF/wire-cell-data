@@ -562,7 +562,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       	frontVP.push_back(p);
       	backVP.push_back(p);
       	centerVP_cells.push_back(all_cells.at(i));
-      }else{
+      }else if (centerVP_cells.size()>=2){
 	
       
 	float dis1 = fabs(all_cells.at(i)->Get_Center().x - p1.x);
@@ -579,8 +579,11 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  if (centerVP_cells.size() >=3){
 	    p_q1 = centerVP_cells.at(centerVP_cells.size()-3)->Get_Center();
 	    p_q2 = centerVP_cells.at(centerVP_cells.size()-2)->Get_Center();
-	  }else{
+	  }else if (centerVP_cells.size() >=2){
 	    p_q1 = centerVP_cells.at(centerVP_cells.size()-2)->Get_Center();
+	    p_q2 = centerVP_cells.at(centerVP_cells.size()-1)->Get_Center();
+	  }else{
+	    p_q1 = centerVP_cells.at(centerVP_cells.size()-1)->Get_Center();
 	    p_q2 = centerVP_cells.at(centerVP_cells.size()-1)->Get_Center();
 	  }
 	  Point p_q3;
@@ -744,7 +747,9 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
   // }
   // std::cout << std::endl;
   
+  // std::cout << "abc " << centerVP_cells.size() << std::endl;
   
+  if (centerVP_cells.size() ==0 ) return false;
 
   // judge if first cell is closer to p1 or p2
   Point pf;
