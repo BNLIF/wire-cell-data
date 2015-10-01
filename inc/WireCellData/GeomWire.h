@@ -151,5 +151,7 @@ namespace WireCell {
     typedef std::vector<WireSelection> WireSelectionV;
     typedef std::map<int,WireSelection> WireMap;
 
+    typedef std::map<int,std::pair<int,int>> ChirpMap;
+
 } // namespace WireCell
 #endif
