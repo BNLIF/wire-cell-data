@@ -10,17 +10,12 @@ GeomCell::GeomCell(int ident, const PointVector& boundary, int flag)
     : _ident(ident)
     , _boundary(boundary)
 {
-  
   flag_center = 0;
   flag_cross_section = 0;
   ret.x = 0;
   ret.y = 0;
   ret.z = 0;
   area = 0;
-
-  uwire = 0;
-  vwire = 0;
-  wwire = 0;
 
   order_boundary();
   if (flag == 1){
@@ -33,6 +28,20 @@ GeomCell::GeomCell(int ident, const PointVector& boundary, int flag)
       _edge.push_back(a);
     }
   }
+
+
+  flag_center = 0;
+  flag_cross_section = 0;
+  ret.x = 0;
+  ret.y = 0;
+  ret.z = 0;
+  area = 0;
+
+  uwire = 0;
+  vwire = 0;
+  wwire = 0;
+
+  
 }
 
 
@@ -46,11 +55,7 @@ GeomCell::GeomCell(const GeomCell *cell, int flag){
   ret.y = 0;
   ret.z = 0;
   area = 0;
-
-  uwire = 0;
-  vwire = 0;
-  wwire = 0;
-
+  
   order_boundary();
   if (flag == 1){
     if (_boundary.size()>2){
@@ -62,6 +67,19 @@ GeomCell::GeomCell(const GeomCell *cell, int flag){
       _edge.push_back(a);
     }
   }
+
+  flag_center = 0;
+  flag_cross_section = 0;
+  ret.x = 0;
+  ret.y = 0;
+  ret.z = 0;
+  area = 0;
+
+  uwire = 0;
+  vwire = 0;
+  wwire = 0;
+
+  
 }
 
 GeomCell::~GeomCell()
