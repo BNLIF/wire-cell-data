@@ -63,11 +63,11 @@ std::ostream & WireCell::operator<<(std::ostream &os, const GeomWire& gw)
 	      << " " << plane_name[gw.iplane()] << " "
 	      << "id:" << gw.ident() << " "
 	      << "ch:" << gw.channel() << " "
-	      << "a:" << gw.apa() << " "
 	      << "f:" << gw.face() << " "
 	      << "i:" << gw.index() << " "
-	      << "s:" << gw.segment() << ""
-	      << "c: "<< gw.cryo() << ">";
+	      << "s:" << gw.segment() << " "
+	      << "a:" << gw.apa() << " "
+	      << "c:" << gw.cryo() << ">";
 }
 
 
@@ -80,6 +80,17 @@ bool _by_planeindex(const GeomWire* a, const GeomWire* b)
 void WireCell::sort_by_planeindex(GeomWireSelection& ws)
 {
     std::sort(ws.begin(), ws.end(), _by_planeindex);
+}
+
+bool _by_ident(const GeomWire* a, const GeomWire* b)
+{
+    if (a->ident() < b->ident()) return true;
+    return a->ident() < b->ident();
+}
+
+void WireCell::sort_by_ident(GeomWireSelection& ws)
+{
+    std::sort(ws.begin(), ws.end(), _by_ident);
 }
 
 static bool _by_channel(const GeomWire* a, const GeomWire* b)

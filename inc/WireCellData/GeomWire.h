@@ -144,6 +144,9 @@ namespace WireCell {
     /// Sort a GeomWireSelection by plane+index
     void sort_by_planeindex(GeomWireSelection& ws);
 
+    /// Sort a GeomWireSelection by wire id
+    void sort_by_ident(GeomWireSelection& ws);
+    
     /// Sort a GeomWireSelection by channel
     void sort_by_channel(GeomWireSelection& ws);
 	
