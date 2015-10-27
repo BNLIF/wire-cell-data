@@ -9,10 +9,30 @@ WCShower::WCShower(WCVertex *vertex, WCTrack *track, MergeSpaceCellSelection& ex
   , exclude_mcells(exclude_cells)
   , mcells_map(mcells_map)
 {
+
+  //std::cout << track->get_centerVP().size() << std::endl;
+  
   // constructor to construct things that only contain things connected to it ... 
   MergeSpaceCell *start_cell = vertex->get_msc();
   MergeSpaceCellSelection curr_cells = mcells_map[start_cell];
   Iterate(start_cell, curr_cells);
+
+  int flag = 1;
+  while(flag && track !=0){
+    flag = 0;
+    for (int i=0;i!=track->get_centerVP_cells().size();i++){
+      MergeSpaceCell *mcell = track->get_centerVP_cells().at(i);
+      auto it = find(all_mcells.begin(),all_mcells.end(),mcell);
+      if (it == all_mcells.end()){
+	curr_cells = mcells_map[mcell];
+	Iterate(mcell,curr_cells);
+	flag = 1;
+	break;
+      }
+    }
+  }
+  
+
   SC_Hough(vertex->Center());
   //  std::cout << theta_hough << " " << phi_hough << std::endl;
   SC_proj_Hough(vertex->Center());
@@ -184,15 +204,24 @@ void WCShower::SC_Hough(Point p){
 
 bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
   bool result = true;
-  int ncell_track = track->get_centerVP_cells().size();
+  int ncell_track;
+
+  if (track!=0){
+    ncell_track = track->get_centerVP_cells().size();
+  }else{
+    ncell_track = 0;
+  }
   
+  if (all_mcells.size() < 10)
+    return false;
+
   // std::cout << ncell_track << " " << all_mcells.size() << std::endl;
   // std::cout << nmcell_out_range << " " << nmcell_total << std::endl;
   // std::cout << ncell_angle_out_range << " " << ncell_total << std::endl;
 
-  if (ncell_track > 0.9 * all_mcells.size() && ncell_track > all_mcells.size() - 8)
+  if (ncell_track > 0.8 * all_mcells.size() && ncell_track > all_mcells.size() - 8)
     return false;
-  if (nmcell_out_range > nmcell_total*0.05)
+  if (nmcell_out_range > nmcell_total*0.06)
     return false;
   if (ncell_angle_out_range > 0.05 * ncell_total)
     return false;
@@ -208,28 +237,29 @@ bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
     }
   }
 
-  std::cout << n << std::endl;
+  // std::cout << n << std::endl;
 
   if (n < 0.1 * all_mcells.size())
     return false;
   
 
-  //try the two vectors;
-  SC_Hough(vertex->Center());
-  TVector3 vec1(sin(theta_hough)*cos(phi_hough), sin(theta_hough)*sin(phi_hough),
-		cos(theta_hough));
-  TVector3 vec2(1,vertex->get_ky(track),vertex->get_kz(track));
-  
-  double a = vec1 * vec2;
-	
-  if (vec1.Mag()!=0 & vec2.Mag()!=0)
-    a = a / vec1.Mag() / vec2.Mag();
-
-  
-
-  // std::cout <<"a2 " <<  a << std::endl;
-  if (fabs(a) < 0.9) return false;
-  
+  if (track!=0){
+    //try the two vectors;
+    SC_Hough(vertex->Center());
+    TVector3 vec1(sin(theta_hough)*cos(phi_hough), sin(theta_hough)*sin(phi_hough),
+		  cos(theta_hough));
+    TVector3 vec2(1,vertex->get_ky(track),vertex->get_kz(track));
+    
+    double a = vec1 * vec2;
+    
+    if (vec1.Mag()!=0 & vec2.Mag()!=0)
+      a = a / vec1.Mag() / vec2.Mag();
+    
+    
+    
+    //std::cout <<"a2 " <<  a << std::endl;
+    if (fabs(a) < 0.9) return false;
+  }
 
   return result;
 }
@@ -240,18 +270,30 @@ void WCShower::Iterate(MergeSpaceCell *curr_cell, MergeSpaceCellSelection &curr_
     
   if (it1 == all_mcells.end()){
     // Not contained, do something
-    auto it3 = find(track->get_centerVP_cells().begin(), track->get_centerVP_cells().end(), curr_cell);
-    if (it3 != track->get_centerVP_cells().end()){
-      flag = 1;
+    if (track!=0){
+      auto it3 = find(track->get_centerVP_cells().begin(), track->get_centerVP_cells().end(), curr_cell);
+      if (it3 != track->get_centerVP_cells().end() ){
+	flag = 1;
+      }else{
+	auto it2 = find(exclude_mcells.begin(),exclude_mcells.end(),curr_cell);
+	if (it2 == exclude_mcells.end())
+	  flag = 1;
+      }
     }else{
       auto it2 = find(exclude_mcells.begin(),exclude_mcells.end(),curr_cell);
-      if (it2 == exclude_mcells.end())
-	flag = 1;
+	if (it2 == exclude_mcells.end())
+	  flag = 1;
     }
   }
   
   if (flag==1){
     all_mcells.push_back(curr_cell);
+    for (int i=0;i!=curr_cells.size();i++){
+      MergeSpaceCell *curr_cell1 = curr_cells.at(i);
+      MergeSpaceCellSelection curr_cells1 = mcells_map[curr_cell1];
+      Iterate(curr_cell1,curr_cells1);
+    }
+  }else if (curr_cell == vertex->get_msc()){
     for (int i=0;i!=curr_cells.size();i++){
       MergeSpaceCell *curr_cell1 = curr_cells.at(i);
       MergeSpaceCellSelection curr_cells1 = mcells_map[curr_cell1];

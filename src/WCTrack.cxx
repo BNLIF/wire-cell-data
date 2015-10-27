@@ -1,13 +1,126 @@
 #include "WireCellData/WCTrack.h"
 #include "WireCellData/Plane.h"
-
+#include "TVector3.h" 
 using namespace WireCell;
+
+std::vector<float> WCTrack::get_position(){
+  TVector3 pos(0,0,0);
+  float sum = 0;
+  
+  for (int i=0;i!=centerVP_cells.size();i++){
+    TVector3 pos1(centerVP_cells.at(i)->Get_Center().x,
+		  centerVP_cells.at(i)->Get_Center().y,
+		  centerVP_cells.at(i)->Get_Center().z);
+    float energy = centerVP_energy.at(i);
+    if (energy == 0 ){
+      //guess of energy ... 
+      energy = sqrt(centerVP_cells.at(i)->Get_all_spacecell().size())*6000; 
+    }
+    pos += pos1 * energy;
+    sum += energy;
+  }
+  pos *= 1/sum;
+  
+  std::vector<float> result;
+  result.push_back(pos.x());
+  result.push_back(pos.y());
+  result.push_back(pos.z());
+  
+  return result;
+}
+
+
+std::vector<float> WCTrack::get_direction(){
+  TVector3 dir(0,0,0);
+  float sum = 0;
+  for (int i=0;i!=centerVP_cells.size();i++){
+    TVector3 dir1(sin(centerVP_theta.at(i)) * cos(centerVP_phi.at(i)),
+		  sin(centerVP_theta.at(i)) * sin(centerVP_phi.at(i)),
+		  cos(centerVP_theta.at(i)));
+    float energy = centerVP_energy.at(i);
+    if (energy == 0 ){
+      //guess of energy ... 
+      energy = sqrt(centerVP_cells.at(i)->Get_all_spacecell().size())*6000; 
+    }
+    dir += dir1 * energy;
+    sum += energy;
+  }
+  dir *= 1/sum;
+  
+  std::vector<float> result;
+  result.push_back(dir.x());
+  result.push_back(dir.y());
+  result.push_back(dir.z());
+  
+  return result;
+}
 
 WCTrack::WCTrack(MergeSpaceCellSelection& mcells){
   mct = 0;
   all_cells.insert(all_cells.begin(),mcells.begin(),mcells.end());
   end_scells.push_back(all_cells.front());
   end_scells.push_back(all_cells.back());
+}
+
+MergeSpaceCellSelection& WCTrack::get_between_cells(){
+  between_cells.clear();
+  int start,end;
+  if (end_scells.at(0)->Get_Center().x < end_scells.at(1)->Get_Center().x){
+    start = 0;
+    end = 1;
+  }else{
+    start = 1;
+    end = 0;
+  }
+  
+  for (int i=0;i!=all_cells.size();i++){
+    if (all_cells.at(i)->Get_Center().x >= end_scells.at(start)->Get_Center().x - 0.1*units::mm && 
+	all_cells.at(i)->Get_Center().x <= end_scells.at(end)->Get_Center().x + 0.1*units::mm ){
+      between_cells.push_back(all_cells.at(i));
+    }
+  }
+  return between_cells;
+}
+
+bool WCTrack::Inside(WCTrack *track2){
+  // find anything within this track
+  // find anything within the other track 
+  MergeSpaceCellSelection& bt1_cells = get_between_cells();
+  MergeSpaceCellSelection& bt2_cells = track2->get_between_cells();
+
+  
+
+  if (bt1_cells.size() < bt2_cells.size()){
+  
+    int n_same = 0;
+    int n_diff = 0;
+    
+    for (int i=0;i!=bt1_cells.size();i++){
+      auto it = find(bt2_cells.begin(),bt2_cells.end(),bt1_cells.at(i));
+      if (it == bt2_cells.end()){
+	n_diff ++;
+      }else{
+	n_same ++;
+      }
+    }
+
+    
+
+    //    std::cout << n_same << " " << n_diff << " " << bt1_cells.size() 
+    //	      << " " << bt2_cells.size() << std::endl;
+    if (bt1_cells.size()<=3 && n_same > 0) return true; // remove short track anyway ... 
+    
+    if (n_same >= 4 * n_diff){
+      return true;
+    }else{
+      return false;
+    }
+
+  }else{
+    return false;
+  }
+  
+
 }
 
 
@@ -91,11 +204,64 @@ bool WCTrack::IsBadTrack(){
       }
     }
 
-    // std::cout << "abc1: " << num_bad_mcell << " " << centerVP_cells.size() << std::endl;
+   
 
-    if (num_bad_mcell >= 0.5 * centerVP_cells.size()&& num_bad_mcell >2){
+
+    // std::cout << "abc1: " << num_bad_mcell << " " << centerVP_cells.size() << " " << centerVP.at(0).x/units::cm<< std::endl;
+
+    if (num_bad_mcell > 0.5 * centerVP_cells.size()&& num_bad_mcell >2){
       return true;
     }else{
+       // calculate RMS ... 
+      
+      int nangle = 0;
+      if (centerVP.size()>=2){
+      	TVector3 v1(centerVP.back().x-centerVP.front().x,
+      		    centerVP.back().y-centerVP.front().y,
+      		    centerVP.back().z-centerVP.front().z);
+	
+	//      	float average = 0;
+      	for (int i=0;i!=centerVP.size()-1;i++){
+      	  // TVector3 v2(centerVP_cells.at(i+1)->Get_Center().x - centerVP_cells.at(i)->Get_Center().x,
+      	  // 	      centerVP_cells.at(i+1)->Get_Center().y - centerVP_cells.at(i)->Get_Center().y,
+      	  // 	      centerVP_cells.at(i+1)->Get_Center().z - centerVP_cells.at(i)->Get_Center().z);
+	  
+      	  TVector3 v2(centerVP.at(i+1).x - centerVP.at(i).x,
+      	   	      centerVP.at(i+1).y - centerVP.at(i).y,
+      	   	      centerVP.at(i+1).z - centerVP.at(i).z);
+      	  float theta = v1.Angle(v2);
+	  if(theta > 45/180.*3.1415926)
+	    nangle ++;
+      	  // angle.push_back(theta);
+      	  // average += theta;
+      	}
+	
+	//	std::cout << nangle << " " << centerVP.size() << std::endl;
+	if (nangle > 0.25*centerVP.size()) return true;
+	
+	// 	average = average / angle.size();
+	// 	float rms = 0;
+	// 	for (int i=0;i!=angle.size();i++){
+	// 	  rms += pow(angle.at(i)-average,2);
+	// 	}
+	// 	rms = sqrt(rms/angle.size());
+	// 	std::cout << rms << std::endl;
+	// 	if (rms > 0.25) return true;
+      }
+      
+      // float rms = 0;
+      // for (int i=0;i< centerVP.size()-2;i++){
+      // 	Point p1 = centerVP.at(i);
+      // 	Point p2 = centerVP.at(i+1);
+      // 	Point p3 = centerVP.at(i+2);
+      // 	Point p3_pred = p2 + p2 - p1;
+      // 	rms += sqrt(pow(p3_pred.x - p3.x,2) + pow(p3_pred.y-p3.y,2) + pow(p3_pred.z - p3.z,2))
+      // 	  / sqrt(pow(p2.x-p1.x,2)+pow(p2.y-p1.y,2)+pow(p2.z-p1.z,2));
+      // }
+      // rms /= (centerVP.size()-2);
+      // std::cout << rms << std::endl;
+      //
+      //if (rms > 0.8) return true;
       return false;
     }
   }
@@ -322,7 +488,24 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
   if (fine_tracking_flag==1 && flag == 1) return false;
   fine_tracking_flag = 1;
   
+ 
+
   if (flag == 0){
+    // //judge if this is a wiggle track
+    // //if so make the flag = 1;
+    // int n_wiggle = 0;
+    // for (int i=0;i!=all_cells.size();i++){
+    //   Point p;
+    //   p.x = all_cells.at(i)->Get_Center().x;
+    //   p.y = all_cells.at(i)->Get_Center().y;
+    //   p.z = all_cells.at(i)->Get_Center().z;
+    //   if ( (p.x-p1.x)*(p.x-p2.x)>0)
+    // 	n_wiggle ++;
+    // }
+    
+    // std::cout << n_wiggle << " " << all_cells.size() << " " << p1.x/units::cm << " " << p2.x/units::cm << std::endl;
+    //
+
     MergeSpaceCellSet cells_set;
     //sort the existing cells
     for (int i=0;i!=all_cells.size();i++){
@@ -334,7 +517,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
     }
   }
 
-
+  
   centerVP.clear();
   PointVector frontVP;
   PointVector backVP;
@@ -348,7 +531,25 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
     all_cells.at(i)->CalMinMax();
 
     if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>0.35*units::cm && fabs(p.x-p2.x)>0.35*units::cm && flag == 0) continue;
-    // std::cout << "abc: " << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
+    
+    if (fabs(p1.x-p2.x) < 0.9*units::cm){
+      if (centerVP.size()==0){
+	centerVP.push_back(p);
+	frontVP.push_back(p);
+	backVP.push_back(p);
+	centerVP_cells.push_back(all_cells.at(i));
+      }else{
+	if (fabs(p.x-centerVP.at(centerVP.size()-1).x)>0.1*units::mm){
+	  centerVP.push_back(p);
+	  frontVP.push_back(p);
+	  backVP.push_back(p);
+	  centerVP_cells.push_back(all_cells.at(i));
+	}else{
+	  
+	}
+      }
+    }else{
+      // std::cout << "abc: " << i << " " << all_cells.size() << " " <<p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << " " << centerVP.size() << " " << fabs(p1.x-p2.x)/units::cm << std::endl;
     
     if (centerVP.size()==0){
       centerVP.push_back(p);
@@ -361,7 +562,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       	frontVP.push_back(p);
       	backVP.push_back(p);
       	centerVP_cells.push_back(all_cells.at(i));
-      }else{
+      }else if (centerVP_cells.size()>=2){
 	
       
 	float dis1 = fabs(all_cells.at(i)->Get_Center().x - p1.x);
@@ -369,11 +570,22 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	float dis3;
 	float dis4;
 	
+	
 	Line line(p1,p2);
 
 	if (dis1 > 0.9*units::cm && dis2 > 0.9 * units::cm){
-	  Point p_q1 = centerVP_cells.at(centerVP_cells.size()-3)->Get_Center();
-	  Point p_q2 = centerVP_cells.at(centerVP_cells.size()-2)->Get_Center();
+	  Point p_q1;
+	  Point p_q2;
+	  if (centerVP_cells.size() >=3){
+	    p_q1 = centerVP_cells.at(centerVP_cells.size()-3)->Get_Center();
+	    p_q2 = centerVP_cells.at(centerVP_cells.size()-2)->Get_Center();
+	  }else if (centerVP_cells.size() >=2){
+	    p_q1 = centerVP_cells.at(centerVP_cells.size()-2)->Get_Center();
+	    p_q2 = centerVP_cells.at(centerVP_cells.size()-1)->Get_Center();
+	  }else{
+	    p_q1 = centerVP_cells.at(centerVP_cells.size()-1)->Get_Center();
+	    p_q2 = centerVP_cells.at(centerVP_cells.size()-1)->Get_Center();
+	  }
 	  Point p_q3;
 	  p_q3.x = 2*p_q2.x - p_q1.x;
 	  p_q3.y = 2*p_q2.y - p_q1.y;
@@ -524,9 +736,10 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	
       }
     }
+    }
   } //loop through all the cells
 
-  // check
+  // //check
   // for (int i=0;i!=centerVP.size();i++){
   //   std::cout << centerVP.at(i).x/units::cm << " " << 
   //     centerVP.at(i).y/units::cm << " " << 
@@ -534,6 +747,9 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
   // }
   // std::cout << std::endl;
   
+  // std::cout << "abc " << centerVP_cells.size() << std::endl;
+  
+  if (centerVP_cells.size() ==0 ) return false;
 
   // judge if first cell is closer to p1 or p2
   Point pf;
@@ -1054,6 +1270,39 @@ int WCTrack::TrackType(MergeSpaceCell& cell){
       
       if (type==2) break;
     }
+
+    
+    
+    // if (mct->Get_ctracks().size() == 0 ){
+    //   type == 2;
+    // }
+    
+    //    add protection for wiggled track 
+    // int n_wiggle = 0;
+    // for (int i=0;i!=mct->Get_allmcells().size();i++){
+    //   Point p3 = mct->Get_allmcells().at(i)->Get_Center();
+    //   if ( (p3.x - p1.x) * (p3.x - p2.x) >0){
+    // 	n_wiggle ++;
+    //   }
+    //   std::cout << p3.x/units::cm << " " << p3.y/units::cm << " " 
+    // 		<< p3.z/units::cm << std::endl;
+    // }
+    // for (int i=0;i!=mct->Get_ctracks().size();i++){
+    //   for (int j=0;j!=mct->Get_ctracks().at(i)->Get_allmcells().size();j++){
+    // 	Point p3 = mct->Get_ctracks().at(i)->Get_allmcells().at(j)->Get_Center();
+    // 	std::cout << i << " " << p3.x/units::cm << " " << p3.y/units::cm << " " 
+    // 		  << p3.z/units::cm << std::endl;
+    //   }
+    // }
+    // std::cout << mct->Get_allmcells().at(0)->Get_Center().x/units::cm << " " 
+    // 	      << mct->Get_allmcells().at(0)->Get_Center().y/units::cm << " " 
+    // 	      << mct->Get_allmcells().at(0)->Get_Center().z/units::cm << " " 
+    // 	      << mct->Get_allmcells().size() << " " << 
+    //   mct->Get_ctracks().size() << " " << 
+    //   type << std::endl;
+
+    //if (mct->Get_allmcells().size() == 42 && mct->Get_ctracks().size()==20) type=3;
+    
   }
   
   return type;

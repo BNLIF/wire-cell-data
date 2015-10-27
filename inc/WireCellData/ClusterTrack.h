@@ -15,6 +15,7 @@ namespace WireCell {
     ~ClusterTrack();//{};
 
     bool AddMSCell(MergeSpaceCell *cell);
+    bool AddMSCell_anyway(MergeSpaceCell *cell);
     MergeSpaceCellSelection& Get_allmcells(){return all_mcells;};
 
     MergeSpaceCell* Get_FirstMSCell(){return all_mcells.front();};
@@ -25,6 +26,7 @@ namespace WireCell {
     Point SC_IterativeHough(Point &p, float dis = 3 * units::cm, int flag = 1);
 
     int CrossNum(Point &p, float theta, float phi);
+    int CrossNum(MergeSpaceCell *mcell1, float theta, float phi);
 
     float Get_Theta();
     float Get_Phi();

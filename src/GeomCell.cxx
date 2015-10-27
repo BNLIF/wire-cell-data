@@ -6,46 +6,80 @@
 using namespace std;
 using namespace WireCell;
 
-GeomCell::GeomCell(int ident, const PointVector& boundary)
+GeomCell::GeomCell(int ident, const PointVector& boundary, int flag)
     : _ident(ident)
     , _boundary(boundary)
 {
-  order_boundary();
-  if (boundary.size()>2){
-    for (int i=0;i<boundary.size()-1;i++){
-      Edge a(_boundary.at(i),_boundary.at(i+1));
-      _edge.push_back(a);
-    }
-    Edge a(_boundary.at(boundary.size()-1),_boundary.at(0));
-    _edge.push_back(a);
-  }
   flag_center = 0;
   flag_cross_section = 0;
   ret.x = 0;
   ret.y = 0;
   ret.z = 0;
   area = 0;
+
+  order_boundary();
+  if (flag == 1){
+    if (boundary.size()>2){
+      for (int i=0;i<boundary.size()-1;i++){
+	Edge a(_boundary.at(i),_boundary.at(i+1));
+	_edge.push_back(a);
+      }
+      Edge a(_boundary.at(boundary.size()-1),_boundary.at(0));
+      _edge.push_back(a);
+    }
+  }
+
+
+  flag_center = 0;
+  flag_cross_section = 0;
+  ret.x = 0;
+  ret.y = 0;
+  ret.z = 0;
+  area = 0;
+
+  uwire = 0;
+  vwire = 0;
+  wwire = 0;
+
+  
 }
 
 
-GeomCell::GeomCell(const GeomCell *cell){
+GeomCell::GeomCell(const GeomCell *cell, int flag){
   _ident = cell->ident();
   _boundary = cell->boundary();
-  order_boundary();
-  if (_boundary.size()>2){
-    for (int i=0;i<_boundary.size()-1;i++){
-      Edge a(_boundary.at(i),_boundary.at(i+1));
-      _edge.push_back(a);
-    }
-    Edge a(_boundary.at(_boundary.size()-1),_boundary.at(0));
-    _edge.push_back(a);
-  }
+  
   flag_center = 0;
   flag_cross_section = 0;
   ret.x = 0;
   ret.y = 0;
   ret.z = 0;
   area = 0;
+  
+  order_boundary();
+  if (flag == 1){
+    if (_boundary.size()>2){
+      for (int i=0;i<_boundary.size()-1;i++){
+	Edge a(_boundary.at(i),_boundary.at(i+1));
+	_edge.push_back(a);
+      }
+      Edge a(_boundary.at(_boundary.size()-1),_boundary.at(0));
+      _edge.push_back(a);
+    }
+  }
+
+  flag_center = 0;
+  flag_cross_section = 0;
+  ret.x = 0;
+  ret.y = 0;
+  ret.z = 0;
+  area = 0;
+
+  uwire = 0;
+  vwire = 0;
+  wwire = 0;
+
+  
 }
 
 GeomCell::~GeomCell()

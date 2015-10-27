@@ -17,6 +17,14 @@ WCVertex::WCVertex(MergeSpaceCell& msc)
   center = msc.Get_Center();
 }
 
+
+float WCVertex::center_dist(){
+  float dis = sqrt(pow(center.x - msc->Get_Center().x,2) + 
+		   pow(center.y - msc->Get_Center().y,2) + 
+		   pow(center.z - msc->Get_Center().z,2));
+  return dis;
+}
+
 WCVertex::~WCVertex(){
 }
 
@@ -445,7 +453,7 @@ bool WCVertex::FindVertex(int flag){
   //std::cout << fit_type << " " << num_tracks << " " << ntracks << std::endl;
   
 
-
+  //fit_type = 1;
 
 
   ROOT::Minuit2::MnUserParameters upar;
@@ -510,12 +518,13 @@ void WCVertex::Add(WCTrack* track){
   tracks.push_back(track);
 }
 
-void WCVertex::OrganizeTracks(){
-  
+WCVertex* WCVertex::OrganizeTracks(){
+  WCVertex *result = 0;
+
   if (tracks.size()>1){
     
     // find a track where the vertex is one of the end track
-    WCTrack *end_track;
+    WCTrack *end_track = 0;
     WCTrackSelection end_tracks;
     for (int i = 0;i!=tracks.size();i++){
       auto it = find(tracks.at(i)->get_end_scells().begin(),
@@ -527,6 +536,7 @@ void WCVertex::OrganizeTracks(){
       }
     }
     
+    if (end_track == 0 ) return result;
     
     //    MergeClusterTrack& mct = end_track->get_mct();
     // find out where is the mct
@@ -561,8 +571,8 @@ void WCVertex::OrganizeTracks(){
 	    } 
 	  }
 	}
-    	if (flag_common == 0)
-    	  break;
+	if (flag_common == 0)
+	  break;
       }
       
     }else{
@@ -579,27 +589,40 @@ void WCVertex::OrganizeTracks(){
 	    } 
 	  }
 	}
-    	if (flag_common == 0)
-    	  break;
+	if (flag_common == 0)
+	  break;
       }
     }
-
     
-    for (int i=0;i!=end_tracks.size();i++){
-      end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
-      end_tracks.at(i)->ModifyCells();
+    if (end_tracks.size() != tracks.size()){
+      for (int i=0;i!=end_tracks.size();i++){
+	end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
+	end_tracks.at(i)->ModifyCells();
+      }
+      msc = nvertex;
+      center = msc->Get_Center();
+    }else{
+      result = new WCVertex(*nvertex);
+      for (int i=1;i<end_tracks.size();i++){
+	end_tracks.at(i)->ReplaceEndCell(msc,nvertex);
+	end_tracks.at(i)->ModifyCells();
+	result->Add(end_tracks.at(i));
+	
+	auto it = find(tracks.begin(),tracks.end(),end_tracks.at(i));
+	tracks.erase(it);
+      }
+      
     }
-
-
-    msc = nvertex;
-    center = msc->Get_Center();
-   
+    
     // for (int i=0;i!=tracks.size();i++){
     //   tracks.at(i)->ModifyCells();
     // }
     
   }
   
+
+
+  return result;
 }
 
 
@@ -617,6 +640,9 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
       finished_tracks.push_back(track);
 
       MergeSpaceCellSelection all_cells = track->get_all_cells();
+      
+      // std::cout << all_cells.size() << std::endl;
+
       float dis1 = fabs(msc->Get_Center().x - all_cells.at(0)->Get_Center().x);
       float dis2 = fabs(msc->Get_Center().x - all_cells.at(all_cells.size()-1)->Get_Center().x);
       
@@ -631,6 +657,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 
       for (int j=0;j!=all_cells.size();j++){
 	
+	//	std::cout << j << " " << all_cells.size() << std::endl;
 	MergeSpaceCell* curr_cell;
 	MergeSpaceCell* next_cell;
 	MergeSpaceCell* prev_cell;
@@ -655,6 +682,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	  }
 	}
 
+	//	std::cout << "abc1" << std::endl;
 	
 	// if (fabs(curr_cell->Get_Center().x/units::cm - 54.08)<2.0 )
 	//   std::cout << j << " " << curr_cell->Get_Center().x/units::cm << std::endl;
@@ -667,15 +695,16 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	  // MergeSpaceCellSelection temp_msc;
 
 	  if (dis1 < dis2){
+	    // std::cout << "abc: " << j-4 << std::endl;
 	    // temp_msc.push_back(all_cells.at(j-1));
 	    // temp_msc.push_back(all_cells.at(j-2));
 	    // temp_msc.push_back(all_cells.at(j-3));
-	    prev_cell = all_cells.at(j-4);
+	    prev_cell = all_cells.at(j);
 	    int k = 0;
 	    while(fabs(prev_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
 	      k++;
-	      if (j-4-k>=0&&j-4-k<all_cells.size()){
-		prev_cell = all_cells.at(j-4-k);
+	      if (j-k>=0&&j-k<all_cells.size()){
+		prev_cell = all_cells.at(j-k);
 	      }else{
 		break;
 	      }
@@ -683,25 +712,25 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	    }
 
 	    for( int kk = -5;kk!=5;kk++){
-	      int num = j-4-k+kk;
+	      int num = j-k+kk;
 	      if (num >=0&&num <= all_cells.size()-1){
 		if (fabs(all_cells.at(num)->Get_Center().x- prev_cell->Get_Center().x)<0.1*units::cm){
 		  prev_cells.push_back(all_cells.at(num));
 		}
 	      }
 	    }
-
-
+	    //	    std::cout << "abc2" << std::endl;
+	    
 	    // temp_msc.push_back(all_cells.at(j+1));
 	    // temp_msc.push_back(all_cells.at(j+2));
 	    // temp_msc.push_back(all_cells.at(j+3));
-	    next_cell = all_cells.at(j+4);
+	    next_cell = all_cells.at(j);
 	    
 	    k = 0;
 	    while(fabs(next_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
 	      k++;
-	      if (j+4+k>=0 && j+4+k < all_cells.size()){
-		next_cell = all_cells.at(j+4+k);
+	      if (j+k>=0 && j+k < all_cells.size()){
+		next_cell = all_cells.at(j+k);
 	      }else{
 		break;
 	      }
@@ -709,25 +738,26 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	    }
 	    
 	    for( int kk = -5;kk!=5;kk++){
-	      int num = j+4+k+kk;
+	      int num = j+k+kk;
 	      if (num >=0&&num <= all_cells.size()-1){
 		if (fabs(all_cells.at(num)->Get_Center().x - next_cell->Get_Center().x)<0.1*units::cm){
 		  next_cells.push_back(all_cells.at(num));
 		}
 	      }
 	    }
-
+	    //	    std::cout << "abc3" << std::endl;
 
 	  }else{
 	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j+1));
 	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j+2));
 	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j+3));
-	    prev_cell = all_cells.at(all_cells.size()-1-j+4);
+	    // std::cout << "abc: " << all_cells.size()-1-j+4 << " " << all_cells.size() << std::endl;
+	    prev_cell = all_cells.at(all_cells.size()-1-j);
 	    int k=0;
 	    while(fabs(prev_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
 	      k++;
-	      if (all_cells.size()-1-j+4+k>=0&&all_cells.size()-1-j+4+k < all_cells.size()){
-		prev_cell = all_cells.at(all_cells.size()-1-j+4+k);
+	      if (all_cells.size()-1-j+k>=0&&all_cells.size()-1-j+k < all_cells.size()){
+		prev_cell = all_cells.at(all_cells.size()-1-j+k);
 	      }else{
 		break;
 	      }
@@ -736,7 +766,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	    }
 	    
 	    for( int kk = -5;kk!=5;kk++){
-	      int num = all_cells.size()-1-j+4+k+kk;
+	      int num = all_cells.size()-1-j+k+kk;
 	      if (num >=0&&num <= all_cells.size()-1){
 		if (fabs(all_cells.at(num)->Get_Center().x - prev_cell->Get_Center().x)<0.1*units::cm){
 		  prev_cells.push_back(all_cells.at(num));
@@ -744,16 +774,16 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	      }
 	    }
 
-
+	    //  std::cout << "abc5" << std::endl;
 	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j-1));
 	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j-2));
 	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j-3));
-	    next_cell = all_cells.at(all_cells.size()-1-j-4);
+	    next_cell = all_cells.at(all_cells.size()-1-j);
 	    k = 0;
 	     while(fabs(next_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
 	      k++;
-	      if (all_cells.size()-1-j-4-k>=0&&all_cells.size()-1-j-4-k<all_cells.size()){
-		prev_cell = all_cells.at(all_cells.size()-1-j-4-k);
+	      if (all_cells.size()-1-j-k>=0&&all_cells.size()-1-j-k<all_cells.size()){
+		prev_cell = all_cells.at(all_cells.size()-1-j-k);
 	      }else{
 		break;
 	      }
@@ -762,17 +792,17 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	     }
 
 	     for( int kk = -5;kk!=5;kk++){
-	      int num = all_cells.size()-1-j-4-k+kk;
+	      int num = all_cells.size()-1-j-k+kk;
 	      if (num >=0&&num <= all_cells.size()-1){
 		if (fabs(all_cells.at(num)->Get_Center().x - next_cell->Get_Center().x)<0.1*units::cm){
 		  next_cells.push_back(all_cells.at(num));
 		}
 	      }
-	    }
-
+	     }
+	     //std::cout << "abc6" << std::endl;
 	  }
-
-
+	  
+	  //	  std::cout << "abc7" << std::endl;
 
 
 	  Point p1;
@@ -969,7 +999,6 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 
       }
     }
-    
   }
   
 
@@ -1141,32 +1170,34 @@ int WCVertex::IsInside(WCVertex *vertex){
   // }else if (tracks.size()==1 && vertex->get_ntracks()>1){
   //   return -1;
   // }else if (tracks.size()>1 && vertex->get_ntracks()>1){
-    result = 1;
-    WCTrackSelection& temp_tracks = vertex->get_tracks();
-    for (int i=0;i!=tracks.size();i++){
+  result = 1;
+  WCTrackSelection& temp_tracks = vertex->get_tracks();
+  for (int i=0;i!=tracks.size();i++){
+    WCTrack *track = tracks.at(i);
+    auto it = find(temp_tracks.begin(),temp_tracks.end(),track);
+    if (it == temp_tracks.end()){
+      result = -1;
+      break;
+    }
+  }
+    
+  if (result == 1){    
+    for (int i = 0; i!=tracks.size();i++){
       WCTrack *track = tracks.at(i);
-      auto it = find(temp_tracks.begin(),temp_tracks.end(),track);
-      if (it == temp_tracks.end()){
+      auto it = find(track->get_all_cells().begin(),track->get_all_cells().end(),vertex->get_msc());
+      if (it == track->get_all_cells().end()){
 	result = -1;
 	break;
       }
     }
-    
-    if (result == 1){    
-      for (int i = 0; i!=tracks.size();i++){
-	WCTrack *track = tracks.at(i);
-	auto it = find(track->get_all_cells().begin(),track->get_all_cells().end(),vertex->get_msc());
-	if (it == track->get_all_cells().end()){
-	  result = -1;
-	  break;
-	}
-      }
-    }
-    
-    
-    if (result == 1 && tracks.size() == temp_tracks.size()){
-      result = 0;
-    }
+  }
+  
+  
+
+  
+  if (result == 1 && tracks.size() == temp_tracks.size()){
+    result = 0;
+  }
   // }
 
   return result;

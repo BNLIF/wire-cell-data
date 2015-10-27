@@ -29,7 +29,9 @@ namespace WireCell {
       float thickness(){return _thickness;};
       PointVector boundary() const{return cell->boundary();};
       const GeomCell* get_cell(){return cell;};
-
+      const GeomWire* get_uwire(){return cell->get_uwire();};
+      const GeomWire* get_vwire(){return cell->get_vwire();};
+      const GeomWire* get_wwire(){return cell->get_wwire();};
       
       /* double x(){return _x;}; */
       /* double y(){return _y;}; */
