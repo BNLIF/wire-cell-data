@@ -1,5 +1,6 @@
 #include "WireCellData/Intersection.h"
 
+#include <vector>
 #include <iostream>
 using namespace std;
 
