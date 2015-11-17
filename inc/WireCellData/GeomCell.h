@@ -44,10 +44,12 @@ namespace WireCell {
 	void set_uwire(const GeomWire *wire){uwire = wire;};
 	void set_vwire(const GeomWire *wire){vwire = wire;};
 	void set_wwire(const GeomWire *wire){wwire = wire;};
-
-	
+	void set_tpc_no(int value){tpc_no = value;};
+	int get_face() const{return tpc_no%10;};
+	int get_tpc_no() const {return tpc_no;};
     protected:
 	int _ident;
+	int tpc_no;
 	
 	const GeomWire *uwire;
 	const GeomWire *vwire;
