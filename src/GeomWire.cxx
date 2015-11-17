@@ -35,7 +35,7 @@ GeomWire::GeomWire(unsigned int ident,
 		   const Point& point1,
 		   const Point& point2,
 		   char segment,
-		   char face,
+		   int face,
 		   short apa,
 		   short cryo)
     : _ident(ident)

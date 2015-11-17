@@ -11,7 +11,7 @@
 namespace WireCell {
 
     /// Wire set plane/direction types
-    enum WirePlaneType_t {kUwire, kVwire, kYwire, kUnknownWirePlaneType = -1};
+  enum WirePlaneType_t {kUwire, kVwire, kYwire, kU1wire, kV1wire, kY1wire, kUnknownWirePlaneType = -1};
 
     /// A pair of wire plane/direction type and index w/in that plane of wires
     typedef std::pair<WirePlaneType_t, int> WirePlaneIndex;
@@ -44,7 +44,7 @@ namespace WireCell {
 		const Point& point1 = Point(),
 		const Point& point2 = Point(),
 		char segment = 0,
-		char face = 0,
+		int face = -999,
 		short apa = 0,
 		short cryo = -1);
        
@@ -108,7 +108,7 @@ namespace WireCell {
 	int _channel;
 	Point _point1, _point2;
 	char _segment;
-	char _face;
+	int _face;
 	short _apa;
 	short _cryo;
 
