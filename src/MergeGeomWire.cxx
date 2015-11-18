@@ -81,8 +81,8 @@ int MergeGeomWire::AddWire(WireCell::MergeGeomWire& wire){
 	swire2 = wires2[j];
 	for (int i=0;i!=wire_all.size();i++){
 	  swire1 = wire_all[i];
-	  //if (swire1->ident() == swire2->ident()){
-	  if (swire1->channel() == swire2->channel()){
+	  if (swire1->ident() == swire2->ident()){
+	  //if (swire1->channel() == swire2->channel()){
 	    flag1 = 1;
 	    break;
 	  }
