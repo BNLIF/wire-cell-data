@@ -17,6 +17,8 @@ GeomCell::GeomCell(int ident, const PointVector& boundary, int flag)
   ret.z = 0;
   area = 0;
 
+  tpc_no = 1;
+
   order_boundary();
   if (flag == 1){
     if (boundary.size()>2){
@@ -55,6 +57,8 @@ GeomCell::GeomCell(const GeomCell *cell, int flag){
   ret.y = 0;
   ret.z = 0;
   area = 0;
+  
+  tpc_no = 1;
   
   order_boundary();
   if (flag == 1){

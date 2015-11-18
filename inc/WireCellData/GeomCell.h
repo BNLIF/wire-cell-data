@@ -46,6 +46,8 @@ namespace WireCell {
 	void set_wwire(const GeomWire *wire){wwire = wire;};
 	void set_tpc_no(int value){tpc_no = value;};
 	int get_face() const{return tpc_no%10;};
+	int get_cryo() const{return int(tpc_no/10000.);};
+	int get_apa() const{return int((tpc_no-get_cryo()*10000)/10.);};
 	int get_tpc_no() const {return tpc_no;};
     protected:
 	int _ident;
