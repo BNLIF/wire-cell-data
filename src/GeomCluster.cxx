@@ -95,7 +95,10 @@ int GeomCluster::AddCell(MergeGeomCell &cell){
   int curr_time = (*it)->GetTimeSlice();
   int time = cell.GetTimeSlice();
 
-  
+  int curr_face = (*it)->get_allcell().at(0)->get_face();
+  int face = cell.get_allcell().at(0)->get_face();
+
+  if (curr_face != face) return 0;
   //std::cout << time << " " << curr_time << std::endl;
 
 
