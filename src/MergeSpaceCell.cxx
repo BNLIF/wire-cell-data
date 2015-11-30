@@ -1,4 +1,6 @@
 #include "WireCellData/MergeSpaceCell.h"
+#include "WireCellData/Singleton.h"
+#include "WireCellData/TPCParams.h"
 #include "TVector3.h"
 
 using namespace WireCell;
@@ -83,9 +85,9 @@ bool MergeSpaceCell::CrossCell(Point &p, float theta, float phi, int flag){
     TVector3 v4 = v1.Cross(v2);
     dis = v4.Mag()/v3.Mag();
     
-    if (dis < 3*units::mm && flag == 0){
+    if (dis < Singleton<TPCParams>::Instance().get_pitch() && flag == 0){
       return true;
-    }else if (dis < 3*units::mm && flag == 1){
+    }else if (dis < Singleton<TPCParams>::Instance().get_pitch() && flag == 1){
       return true;
     }
   }
@@ -128,7 +130,7 @@ bool MergeSpaceCell::Overlap(MergeSpaceCell& mcell1,float num){
 		       mcell1.get_uwires().at(i)->point1().y - uwires.at(j)->point1().y,
 		       mcell1.get_uwires().at(i)->point1().z - uwires.at(j)->point1().z);
 	  float dis = fabs(dir.Dot(dir_up));
-	  if (dis < 3.5*units::mm){
+	  if (dis < Singleton<TPCParams>::Instance().get_pitch()*1.2){
 	    flag_u = 1;
 	    break;
 	  }
@@ -146,7 +148,7 @@ bool MergeSpaceCell::Overlap(MergeSpaceCell& mcell1,float num){
 		       mcell1.get_vwires().at(i)->point1().y - vwires.at(j)->point1().y,
 		       mcell1.get_vwires().at(i)->point1().z - vwires.at(j)->point1().z);
 	  float dis = fabs(dir.Dot(dir_vp));
-	  if (dis < 3.5*units::mm){
+	  if (dis < Singleton<TPCParams>::Instance().get_pitch()*1.2){
 	    flag_v = 1;
 	    break;
 	  }
@@ -164,7 +166,7 @@ bool MergeSpaceCell::Overlap(MergeSpaceCell& mcell1,float num){
 		       mcell1.get_wwires().at(i)->point1().y - wwires.at(j)->point1().y,
 		       mcell1.get_wwires().at(i)->point1().z - wwires.at(j)->point1().z);
 	  float dis = fabs(dir.Dot(dir_wp));
-	  if (dis < 3.5*units::mm){
+	  if (dis < Singleton<TPCParams>::Instance().get_pitch()*1.2){
 	    flag_w = 1;
 	    break;
 	  }
@@ -222,8 +224,8 @@ bool MergeSpaceCell::Overlap(MergeSpaceCell& mcell1,float num){
 	  SpaceCell *cell2 = mcell1.Get_all_spacecell().at(j);
 	  
 	  
-	  if (fabs(cell1->y()-cell2->y()) >  2.5*units::cm) continue; 
-	  if (fabs(cell1->z()-cell2->z()) > 2.5*units::cm) continue;
+	  if (fabs(cell1->y()-cell2->y()) >  Singleton<TPCParams>::Instance().get_pitch() * 8 ) continue; 
+	  if (fabs(cell1->z()-cell2->z()) > Singleton<TPCParams>::Instance().get_pitch() * 8) continue;
 	  
 	  for (int i1=0;i1!=cell1->boundary().size();i1++){
 	    Point p = (cell1->boundary())[i1];

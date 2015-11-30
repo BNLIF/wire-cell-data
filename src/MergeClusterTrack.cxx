@@ -50,7 +50,7 @@ int MergeClusterTrack::Get_TimeLength(){
     if (mcell!=0){
       time = mcell->GetTimeSlice();
     }else{
-      time = round(((smcell->Get_Center().x)/units::cm + 256)/0.32);
+      time = round(((smcell->Get_Center().x)/units::cm + 256)/(Singleton<TPCParams>::Instance().get_ts_width()/units::cm));
     }
 
     auto it = find(times.begin(),times.end(),time);
@@ -196,7 +196,7 @@ void MergeClusterTrack::SC_Hough(Point&p1, Point&p, float dis, int flag){
 	// sc_theta.push_back(vec.Theta());
 	// sc_phi.push_back(vec.Phi());
 	// sc_q.push_back(q);
-	if (fabs(x-x0)> Singleton<TPCParams>::Instance().get_ts_width() * 3.1){  
+	if (fabs(x-x0)> Singleton<TPCParams>::Instance().get_ts_width() * 3.3){  
 	  if (dis <= 0){
 	    hough->Fill(vec.Theta(),vec.Phi(),q);
 	  }else{
@@ -281,7 +281,7 @@ void MergeClusterTrack::SC_Hough(Point& p, float dis, int flag){
 	// sc_theta.push_back(vec.Theta());
 	// sc_phi.push_back(vec.Phi());
 	// sc_q.push_back(q);
-	if (fabs(x-x0)>1.0 * units::cm){
+	if (fabs(x-x0)>Singleton<TPCParams>::Instance().get_ts_width()*3.3){
 	  if (dis <= 0){
 	    hough->Fill(vec.Theta(),vec.Phi(),q);
 	  }else{

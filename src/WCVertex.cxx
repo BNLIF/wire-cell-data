@@ -1,5 +1,6 @@
 #include "WireCellData/WCVertex.h"
-
+#include "WireCellData/Singleton.h"
+#include "WireCellData/TPCParams.h"
 
 #include "Minuit2/FunctionMinimum.h"
 #include "Minuit2/MnUserParameterState.h"
@@ -138,7 +139,8 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 	if (fabs(xc-x0)/units::cm < 5)
 	  flag = 1;
       }else if (vertex->get_fit_type()==2){
-	if ((fabs(xc-x0)/units::cm < 5 && fabs(xc-x0)/units::cm > 0.5 && fit_flag == 0) || (fabs(xc-x0)/units::cm < 6 && fabs(xc-x0)/units::cm > 1.0 && fit_flag != 0))
+	if ((fabs(xc-x0)/units::cm < 5 && fabs(xc-x0) > 1.6*Singleton<TPCParams>::Instance().get_ts_width() && fit_flag == 0) || 
+	    (fabs(xc-x0)/units::cm < 6 && fabs(xc-x0) > 3.1*Singleton<TPCParams>::Instance().get_ts_width() && fit_flag != 0))
 	  flag = 1;
       }
 
@@ -150,9 +152,8 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 	// double dz = mscell->get_dz();
 	
 	
-	if (dy == 0) dy = 0.3 * units::cm/2.;
-	if (dz == 0) dz = 0.3 * units::cm/2.;
-	
+	if (dy == 0) dy = Singleton<TPCParams>::Instance().get_pitch()/2. ;
+	if (dz == 0) dz = Singleton<TPCParams>::Instance().get_pitch()/2. ;	
 	dy_all.push_back(dy);
 	dz_all.push_back(dz);
 	
@@ -169,8 +170,8 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
       nth_element(dz_all.begin(),dz_all.begin()+n_ave,dz_all.end());
       dz_ave = dz_all[n_ave];
     }else{
-      dy_ave = 0.3 * units::cm/2.;
-      dz_ave = 0.3 * units::cm/2.;
+      dy_ave = Singleton<TPCParams>::Instance().get_pitch()/2.;
+      dz_ave = Singleton<TPCParams>::Instance().get_pitch()/2.;
 
     }
 
@@ -239,8 +240,8 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
       // double dz = mscell->get_dz();
       
       
-      if (dy == 0) dy = 0.3 * units::cm/2.;
-      if (dz == 0) dz = 0.3 * units::cm/2.;
+      if (dy == 0) dy = Singleton<TPCParams>::Instance().get_pitch()/2.;
+      if (dz == 0) dz = Singleton<TPCParams>::Instance().get_pitch()/2.;
       
 
       int flag = 0;
@@ -266,7 +267,7 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
       
       //	chi2 += (pow(x2-x1,2)+pow(y2-y1,2)+pow(z2-z1,2))*q/0.15/0.15*3./units::cm/units::cm;
       if (flag ==1 ){	
-	chi2 += (pow(x2-x1,2)/0.16/0.16*3./units::cm/units::cm +  
+	chi2 += (pow(x2-x1,2)/pow(Singleton<TPCParams>::Instance().get_ts_width()/2.,2)*3 +  
 		 pow(y2-y1,2)/pow(dy,2)*3 +
 		 pow(z2-z1,2)/pow(dz,2)*3
 		 )*q;
@@ -281,7 +282,7 @@ double MyFCN::get_chi2(const std::vector<double> & xx) const{
 	
 	if (flag_check_range == 1){
 	  if ( (x01-x0)*(x1-x)<0){
-	    chi2 += (pow(x2-x1,2)/0.16/0.16*3./units::cm/units::cm +  
+	    chi2 += (pow(x2-x1,2)/pow(Singleton<TPCParams>::Instance().get_ts_width()/2.,2)*3.+  
 		     pow(y2-y1,2)/pow(dy,2)*3 +
 		     pow(z2-z1,2)/pow(dz,2)*3
 		     )*10;
@@ -439,10 +440,10 @@ bool WCVertex::FindVertex(int flag){
     int num_cells = 0;
     for (int j=0;j!=tracks.at(i)->get_all_cells().size();j++){
       if (flag == 0){
-      if (fabs(msc->Get_Center().x-tracks.at(i)->get_all_cells().at(j)->Get_Center().x)/units::cm > 0.5)
+	if (fabs(msc->Get_Center().x-tracks.at(i)->get_all_cells().at(j)->Get_Center().x)  >   Singleton<TPCParams>::Instance().get_ts_width() * 1.56 )
 	num_cells ++;
       }else{
-	if (fabs(msc->Get_Center().x-tracks.at(i)->get_all_cells().at(j)->Get_Center().x)/units::cm > 1.0)
+	if (fabs(msc->Get_Center().x-tracks.at(i)->get_all_cells().at(j)->Get_Center().x) > Singleton<TPCParams>::Instance().get_ts_width() * 3.1)
 	  num_cells ++;
       }
     }
@@ -676,7 +677,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	for (int k=-5;k!=5;k++){
 	  int num = j+k;
 	  if (num >=0&&num <= all_cells.size()-1){
-	    if (fabs(all_cells.at(num)->Get_Center().x - curr_cell->Get_Center().x)<0.1*units::cm){
+	    if (fabs(all_cells.at(num)->Get_Center().x - curr_cell->Get_Center().x)<Singleton<TPCParams>::Instance().get_ts_width()*0.3){
 	      curr_cells.push_back(all_cells.at(num));
 	    }
 	  }
@@ -688,9 +689,9 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	//   std::cout << j << " " << curr_cell->Get_Center().x/units::cm << std::endl;
 
 
-	if (fabs(curr_cell->Get_Center().x - start_cell->Get_Center().x) >=5 * 0.31*units::cm 
-	    && fabs(curr_cell->Get_Center().x - end_cell->Get_Center().x) >=5 * 0.31*units::cm 
-	    && fabs(curr_cell->Get_Center().x - prev_break_cell->Get_Center().x) >=5 * 0.31*units::cm ){
+	if (fabs(curr_cell->Get_Center().x - start_cell->Get_Center().x) >=5 * Singleton<TPCParams>::Instance().get_ts_width() * 0.95
+	    && fabs(curr_cell->Get_Center().x - end_cell->Get_Center().x) >=5 * Singleton<TPCParams>::Instance().get_ts_width() * 0.95
+	    && fabs(curr_cell->Get_Center().x - prev_break_cell->Get_Center().x) >=5 * Singleton<TPCParams>::Instance().get_ts_width() * 0.95  ){
 
 	  // MergeSpaceCellSelection temp_msc;
 
@@ -701,7 +702,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	    // temp_msc.push_back(all_cells.at(j-3));
 	    prev_cell = all_cells.at(j);
 	    int k = 0;
-	    while(fabs(prev_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
+	    while(fabs(prev_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*Singleton<TPCParams>::Instance().get_ts_width() * 0.95){
 	      k++;
 	      if (j-k>=0&&j-k<all_cells.size()){
 		prev_cell = all_cells.at(j-k);
@@ -714,7 +715,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	    for( int kk = -5;kk!=5;kk++){
 	      int num = j-k+kk;
 	      if (num >=0&&num <= all_cells.size()-1){
-		if (fabs(all_cells.at(num)->Get_Center().x- prev_cell->Get_Center().x)<0.1*units::cm){
+		if (fabs(all_cells.at(num)->Get_Center().x- prev_cell->Get_Center().x)<Singleton<TPCParams>::Instance().get_ts_width()*0.3){
 		  prev_cells.push_back(all_cells.at(num));
 		}
 	      }
@@ -727,7 +728,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	    next_cell = all_cells.at(j);
 	    
 	    k = 0;
-	    while(fabs(next_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
+	    while(fabs(next_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*Singleton<TPCParams>::Instance().get_ts_width()*0.95){
 	      k++;
 	      if (j+k>=0 && j+k < all_cells.size()){
 		next_cell = all_cells.at(j+k);
@@ -740,7 +741,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	    for( int kk = -5;kk!=5;kk++){
 	      int num = j+k+kk;
 	      if (num >=0&&num <= all_cells.size()-1){
-		if (fabs(all_cells.at(num)->Get_Center().x - next_cell->Get_Center().x)<0.1*units::cm){
+		if (fabs(all_cells.at(num)->Get_Center().x - next_cell->Get_Center().x)<Singleton<TPCParams>::Instance().get_ts_width()*0.3){
 		  next_cells.push_back(all_cells.at(num));
 		}
 	      }
@@ -754,7 +755,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	    // std::cout << "abc: " << all_cells.size()-1-j+4 << " " << all_cells.size() << std::endl;
 	    prev_cell = all_cells.at(all_cells.size()-1-j);
 	    int k=0;
-	    while(fabs(prev_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
+	    while(fabs(prev_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*Singleton<TPCParams>::Instance().get_ts_width()*0.95){
 	      k++;
 	      if (all_cells.size()-1-j+k>=0&&all_cells.size()-1-j+k < all_cells.size()){
 		prev_cell = all_cells.at(all_cells.size()-1-j+k);
@@ -768,7 +769,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	    for( int kk = -5;kk!=5;kk++){
 	      int num = all_cells.size()-1-j+k+kk;
 	      if (num >=0&&num <= all_cells.size()-1){
-		if (fabs(all_cells.at(num)->Get_Center().x - prev_cell->Get_Center().x)<0.1*units::cm){
+		if (fabs(all_cells.at(num)->Get_Center().x - prev_cell->Get_Center().x)<Singleton<TPCParams>::Instance().get_ts_width()*0.3){
 		  prev_cells.push_back(all_cells.at(num));
 		}
 	      }
@@ -780,7 +781,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j-3));
 	    next_cell = all_cells.at(all_cells.size()-1-j);
 	    k = 0;
-	     while(fabs(next_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*0.31*units::cm){
+	     while(fabs(next_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*Singleton<TPCParams>::Instance().get_ts_width()*0.95){
 	      k++;
 	      if (all_cells.size()-1-j-k>=0&&all_cells.size()-1-j-k<all_cells.size()){
 		prev_cell = all_cells.at(all_cells.size()-1-j-k);
@@ -794,7 +795,7 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	     for( int kk = -5;kk!=5;kk++){
 	      int num = all_cells.size()-1-j-k+kk;
 	      if (num >=0&&num <= all_cells.size()-1){
-		if (fabs(all_cells.at(num)->Get_Center().x - next_cell->Get_Center().x)<0.1*units::cm){
+		if (fabs(all_cells.at(num)->Get_Center().x - next_cell->Get_Center().x)<Singleton<TPCParams>::Instance().get_ts_width()*0.3){
 		  next_cells.push_back(all_cells.at(num));
 		}
 	      }
@@ -867,10 +868,10 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	  
 	  if (dy < curr_cell->get_dy()) dy = curr_cell->get_dy();
 	  if (dz < curr_cell->get_dz()) dz = curr_cell->get_dz();
-	  if (dy == 0) dy = 0.3 * units::cm;
-	  if (dz == 0) dz = 0.3 * units::cm;
-	  dy = sqrt(dy*dy + pow(0.3*units::cm,2));
-	  dz = sqrt(dz*dz + pow(0.3*units::cm,2));
+	  if (dy == 0) dy = Singleton<TPCParams>::Instance().get_pitch();
+	  if (dz == 0) dz = Singleton<TPCParams>::Instance().get_pitch();
+	  dy = sqrt(dy*dy + pow(Singleton<TPCParams>::Instance().get_pitch(),2));
+	  dz = sqrt(dz*dz + pow(Singleton<TPCParams>::Instance().get_pitch(),2));
 
 	  if (curr_cells.size()>1){
 	    double ymax = -1e9;
@@ -1035,8 +1036,8 @@ WCTrackSelection WCVertex::BreakTracks(){
 
       if (it == tracks.at(i)->get_end_scells().end()){
 	
-	if (fabs(dis1)/units::cm > 0.65 &&
-	    fabs(dis2)/units::cm > 0.65 && length > 2.0){
+	if (fabs(dis1)> 2.1 * Singleton<TPCParams>::Instance().get_ts_width() &&
+	    fabs(dis2)> 2.1 * Singleton<TPCParams>::Instance().get_ts_width() && length > Singleton<TPCParams>::Instance().get_ts_width() * 6.7/units::cm){
 	  
 	  WCTrack* primary_track = tracks.at(i);
 	  WCTrack* secondary_track = new WCTrack(primary_track->get_mct());
@@ -1103,8 +1104,8 @@ void WCVertex::OrganizeEnds(MergeSpaceCellSelection& cells1, int flag){
     if (it == tracks.at(i)->get_end_scells().end()){
       MergeSpaceCell *cell1 = tracks.at(i)->get_end_scells().at(0);
       MergeSpaceCell *cell2 = tracks.at(i)->get_end_scells().at(1);
-      if (fabs(cell1->Get_Center().x - msc->Get_Center().x)/units::cm > 0.65 &&
-  	  fabs(cell2->Get_Center().x - msc->Get_Center().x)/units::cm > 0.65 && flag == 1){
+      if (fabs(cell1->Get_Center().x - msc->Get_Center().x)>Singleton<TPCParams>::Instance().get_ts_width()*2.1 &&
+  	  fabs(cell2->Get_Center().x - msc->Get_Center().x)>Singleton<TPCParams>::Instance().get_ts_width()*2.1 && flag == 1){
   	removed.push_back(tracks.at(i));
       }else{
 	if (flag == 1){
@@ -1229,7 +1230,7 @@ bool WCVertex::AddVertex(WCVertex *vertex, int flag){
   MergeSpaceCell *msc1 = msc;
   MergeSpaceCell *msc2 = vertex->get_msc();
   
-  float dis = 7;
+  float dis = (Singleton<TPCParams>::Instance().get_ts_width()*2.3)/units::mm;
   
 
 

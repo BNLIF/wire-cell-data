@@ -1,5 +1,7 @@
 #include "WireCellData/WCTrack.h"
 #include "WireCellData/Plane.h"
+#include "WireCellData/Singleton.h"
+#include "WireCellData/TPCParams.h"
 #include "TVector3.h" 
 using namespace WireCell;
 
@@ -195,8 +197,8 @@ bool WCTrack::IsBadTrack(){
       int num_cells = 0;
       for (int j=0;j!=mcell->Get_all_spacecell().size();j++){
 	SpaceCell *cell = mcell->Get_all_spacecell().at(j);
-	double dist = dist_proj(mcell,cell)/units::mm;
-	if (dist < 4.5) num_cells ++;
+	double dist = dist_proj(mcell,cell);
+	if (dist < Singleton<TPCParams>::Instance().get_pitch() * 1.5) num_cells ++;
       }
       //      std::cout << num_cells << " " << mcell->Get_all_spacecell().size() << std::endl;
       if (num_cells <0.95* mcell->Get_all_spacecell().size()){
@@ -304,7 +306,7 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell, int flag, floa
     // if (p.x < 61*units::cm) 
     //   std::cout << p.x/units::cm << " " << v1.Dot(v2)/v2.Mag()/units::mm << std::endl;
 
-    if (v1.Dot(v2)/v2.Mag() < -4.5*2*units::mm ) return dist;
+    if (v1.Dot(v2)/v2.Mag() < -Singleton<TPCParams>::Instance().get_pitch() * 3) return dist;
   }else if (abc == centerVP_cells.size()-1 && ntrack_fp >1){
      TVector3 v1(p.x-centerVP.at(centerVP_cells.size()-1).x,p.y-centerVP.at(centerVP_cells.size()-1).y,p.z-centerVP.at(centerVP_cells.size()-1).z);
     TVector3 v2(centerVP.at(centerVP_cells.size()-2).x-centerVP.at(centerVP_cells.size()-1).x,centerVP.at(centerVP_cells.size()-2).y-centerVP.at(centerVP_cells.size()-1).y,centerVP.at(centerVP_cells.size()-2).z-centerVP.at(centerVP_cells.size()-1).z);
@@ -312,7 +314,7 @@ double WCTrack::dist_proj(MergeSpaceCell *mcell, SpaceCell *cell, int flag, floa
     // if (p.x < 61*units::cm) 
     //   std::cout << p.x/units::cm << " " << v1.Dot(v2)/v2.Mag()/units::mm << std::endl;
 
-    if (v1.Dot(v2)/v2.Mag() < -4.5*2*units::mm ) return dist;
+    if (v1.Dot(v2)/v2.Mag() < -Singleton<TPCParams>::Instance().get_pitch()*3 ) return dist;
   }
 
   
@@ -530,9 +532,10 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
     p.z = all_cells.at(i)->Get_Center().z;
     all_cells.at(i)->CalMinMax();
 
-    if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>0.35*units::cm && fabs(p.x-p2.x)>0.35*units::cm && flag == 0) continue;
+    if ( (p.x-p1.x)*(p.x-p2.x)>0 && fabs(p.x-p1.x)>Singleton<TPCParams>::Instance().get_ts_width()*1.2 
+	 && fabs(p.x-p2.x)>Singleton<TPCParams>::Instance().get_ts_width()*1.2 && flag == 0) continue;
     
-    if (fabs(p1.x-p2.x) < 0.9*units::cm){
+    if (fabs(p1.x-p2.x) < Singleton<TPCParams>::Instance().get_ts_width() * 2.8){
       if (centerVP.size()==0){
 	centerVP.push_back(p);
 	frontVP.push_back(p);
@@ -573,7 +576,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	
 	Line line(p1,p2);
 
-	if (dis1 > 0.9*units::cm && dis2 > 0.9 * units::cm){
+	if (dis1 > Singleton<TPCParams>::Instance().get_ts_width() * 2.8 && dis2 > Singleton<TPCParams>::Instance().get_ts_width() * 2.8){
 	  Point p_q1;
 	  Point p_q2;
 	  if (centerVP_cells.size() >=3){
@@ -593,10 +596,10 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 
 	  
 
-	  dis3 = pow((all_cells.at(i)->Get_Center().x - p_q3.x)/0.16/units::cm,2) 
+	  dis3 = pow((all_cells.at(i)->Get_Center().x - p_q3.x)/(Singleton<TPCParams>::Instance().get_ts_width()/2.),2) 
 	    + pow((all_cells.at(i)->Get_Center().y - p_q3.y)/all_cells.at(i)->get_dy(),2) 
 	    + pow((all_cells.at(i)->Get_Center().z - p_q3.z)/all_cells.at(i)->get_dz(),2);
-	  dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p_q3.x)/0.16/units::cm,2)
+	  dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p_q3.x)/(Singleton<TPCParams>::Instance().get_ts_width()/2.),2)
 	    + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p_q3.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
 	    + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p_q3.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
 	  if (dis3 < dis4){
@@ -614,13 +617,13 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	//     centerVP_cells.at(centerVP_cells.size()-1) = all_cells.at(i);
 	//   }
 	  
-	}else if (dis1 <= 0.9*units::cm){
-	  if (dis1 <=0.35*units::cm){
+	}else if (dis1 <= 2.8 * Singleton<TPCParams>::Instance().get_ts_width()){
+	  if (dis1 <=1.2 * Singleton<TPCParams>::Instance().get_ts_width()){
 	   
-	    dis3 = pow((all_cells.at(i)->Get_Center().x - p1.x)/0.16/units::cm,2) 
+	    dis3 = pow((all_cells.at(i)->Get_Center().x - p1.x)/(Singleton<TPCParams>::Instance().get_ts_width()/2.),2) 
 	      + pow((all_cells.at(i)->Get_Center().y - p1.y)/all_cells.at(i)->get_dy(),2) 
 	      + pow((all_cells.at(i)->Get_Center().z - p1.z)/all_cells.at(i)->get_dz(),2);
-	    dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x)/0.16/units::cm,2)
+	    dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p1.x)/(Singleton<TPCParams>::Instance().get_ts_width()/2.),2)
 	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p1.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
 	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p1.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
 	    // 
@@ -674,12 +677,12 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	    }
 	  }
 	
-	}else if (dis2 <= 0.9*units::cm){
-	  if (dis2 <= 0.35*units::cm){
-	    dis3 = pow((all_cells.at(i)->Get_Center().x - p2.x)/0.16/units::cm,2) 
+	}else if (dis2 <= Singleton<TPCParams>::Instance().get_ts_width()*2.8){
+	  if (dis2 <= 1.2*Singleton<TPCParams>::Instance().get_ts_width()){
+	    dis3 = pow((all_cells.at(i)->Get_Center().x - p2.x)/(Singleton<TPCParams>::Instance().get_ts_width()/2.),2) 
 	      + pow((all_cells.at(i)->Get_Center().y - p2.y)/all_cells.at(i)->get_dy(),2) 
 	      + pow((all_cells.at(i)->Get_Center().z - p2.z)/all_cells.at(i)->get_dz(),2);
-	    dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x)/0.16/units::cm,2)
+	    dis4 = pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().x - p2.x)/(Singleton<TPCParams>::Instance().get_ts_width()/2.),2)
 	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().y - p2.y)/centerVP_cells.at(centerVP_cells.size()-1)->get_dy(),2)
 	      + pow((centerVP_cells.at(centerVP_cells.size()-1)->Get_Center().z - p2.z)/centerVP_cells.at(centerVP_cells.size()-1)->get_dz(),2);
 
@@ -771,7 +774,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
     // if (order == 1){
 	  
     for (int i=0;i!=centerVP.size();i++){
-      if (fabs(centerVP.at(i).x - p1.x) < 0.65*units::cm){ // twice the time difference
+      if (fabs(centerVP.at(i).x - p1.x) < Singleton<TPCParams>::Instance().get_ts_width()*2.1 ){ // twice the time difference
 	double min_dis = 1e9;
 	Point min_point;
 	Point p3;
@@ -793,7 +796,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  }
 	}
 	
-	if (min_dis > 3*units::mm){
+	if (min_dis > Singleton<TPCParams>::Instance().get_pitch()){
 	  frontVP.at(i) = centerVP.at(i);
 	  backVP.at(i) = centerVP.at(i);
 	}else{
@@ -802,7 +805,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  backVP.at(i) = centerVP.at(i);
 	}
 	
-      }else if (fabs(centerVP.at(i).x-p2.x) < 0.65*units::cm){ // twice the time difference
+      }else if (fabs(centerVP.at(i).x-p2.x) < 2.1*Singleton<TPCParams>::Instance().get_ts_width()){ // twice the time difference
 	double min_dis = 1e9;
 	Point min_point;
 	Point p3;
@@ -824,7 +827,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  }
 	}
 	
-	if (min_dis > 3*units::mm){
+	if (min_dis > Singleton<TPCParams>::Instance().get_pitch()){
 	  frontVP.at(i) = centerVP.at(i);
 	  backVP.at(i) = centerVP.at(i);
 	}else{
@@ -861,7 +864,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  p.y = cell->y();
 	  p.z = cell->z();
 	  double dis = l2.closest_dis(p);
-	  if (dis < 4.5 * units::mm){
+	  if (dis < Singleton<TPCParams>::Instance().get_pitch() * 1.5 ){
 	    TVector3 v3(p.x-centerVP.at(i).x,p.y-centerVP.at(i).y,p.z-centerVP.at(i).z);
 	    TVector3 v4(frontVP.at(i).x-centerVP.at(i).x,frontVP.at(i).y-centerVP.at(i).y,frontVP.at(i).z-centerVP.at(i).z);
 	    TVector3 v5(backVP.at(i).x-centerVP.at(i).x,backVP.at(i).y-centerVP.at(i).y,backVP.at(i).z-centerVP.at(i).z);
@@ -936,10 +939,10 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
   
   //What about the energy lost in the selecting biggest cell process??? 
   for (int i=0;i!=centerVP.size();i++){
-    if (fabs(centerVP.at(i).x - p1.x) < 0.65*units::cm){ // twice the time difference
+    if (fabs(centerVP.at(i).x - p1.x) < Singleton<TPCParams>::Instance().get_ts_width() * 2.1 ){ // twice the time difference
       //crawl to the back
       for (int j=i+1;j<centerVP.size();j++){
-	if (fabs(centerVP.at(j).x - p1.x) > 0.65*units::cm){
+	if (fabs(centerVP.at(j).x - p1.x) > Singleton<TPCParams>::Instance().get_ts_width() * 2.1){
 	  float de = centerVP_cells.at(j)->Get_Charge();
 	  float dx = fabs(1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.);
 	  centerVP_energy.at(i) = de;
@@ -949,7 +952,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       }
       //crawl to the front
       for (int j=0;j<i;j++){
-	if (fabs(centerVP.at(j).x - p1.x) > 0.65*units::cm){
+	if (fabs(centerVP.at(j).x - p1.x) > Singleton<TPCParams>::Instance().get_ts_width() * 2.1){
 	  float de = centerVP_cells.at(j)->Get_Charge();
 	  float dx = fabs(1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.);
 	  centerVP_energy.at(i) = de;
@@ -957,10 +960,10 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
 	  break;
 	}
       }
-    }else if (fabs(centerVP.at(i).x-p2.x) < 0.65*units::cm){ // twice the time difference
+    }else if (fabs(centerVP.at(i).x-p2.x) < Singleton<TPCParams>::Instance().get_ts_width() * 2.1){ // twice the time difference
       //crawl to the back
       for (int j=i+1;j<centerVP.size();j++){
-	if (fabs(centerVP.at(j).x - p2.x) > 0.65*units::cm){
+	if (fabs(centerVP.at(j).x - p2.x) > Singleton<TPCParams>::Instance().get_ts_width() * 2.1){
 	  float de = centerVP_cells.at(j)->Get_Charge();
 	  float dx = fabs(1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.);
 	  centerVP_energy.at(i) = de;
@@ -970,7 +973,7 @@ bool WCTrack::fine_tracking(int ntrack_p1, Point &p1, double ky1, double kz1, in
       }
       //crawl to the front
       for (int j=0;j<i;j++){
-	if (fabs(centerVP.at(j).x - p2.x) > 0.65*units::cm){
+	if (fabs(centerVP.at(j).x - p2.x) > Singleton<TPCParams>::Instance().get_ts_width() * 2.1){
 	  float de = centerVP_cells.at(j)->Get_Charge();
 	  float dx = fabs(1./(cos(centerVP_theta.at(j))*cos(centerVP_phi.at(j)))*centerVP_cells.at(j)->thickness()/2.);
 	  centerVP_energy.at(i) = de;
@@ -1057,7 +1060,7 @@ bool WCTrack::Grow(MergeSpaceCell *cell, int flag){
   MergeSpaceCell *cell2 = end_scells.at(1);
 
   //test with the first cell
-  if ((cell->Get_Center().x - cell1->Get_Center().x)/units::cm >0.4 && cell->Overlap(*cell1)){
+  if ((cell->Get_Center().x - cell1->Get_Center().x) > Singleton<TPCParams>::Instance().get_ts_width() * 1.2 && cell->Overlap(*cell1)){
     if (flag == 0){
       end_scells.at(0) = cell;
       all_cells.insert(all_cells.begin(),cell);
@@ -1066,7 +1069,7 @@ bool WCTrack::Grow(MergeSpaceCell *cell, int flag){
   }
 
   //test with the last cell
-  if ((cell->Get_Center().x - cell2->Get_Center().x)/units::cm <0.4 && cell->Overlap(*cell2)){
+  if ((cell->Get_Center().x - cell2->Get_Center().x) < Singleton<TPCParams>::Instance().get_ts_width() * 1.2 && cell->Overlap(*cell2)){
     if (flag == 0){
       end_scells.at(1) = cell;
       all_cells.push_back(cell);    

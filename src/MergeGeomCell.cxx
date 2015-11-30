@@ -1,4 +1,6 @@
 #include "WireCellData/MergeGeomCell.h"
+#include "WireCellData/Singleton.h"
+#include "WireCellData/TPCParams.h"
 
 #include <vector>
 #include <cmath>
@@ -249,7 +251,7 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
 		       cell.get_uwires().at(i)->point1().y - uwires.at(j)->point1().y,
 		       cell.get_uwires().at(i)->point1().z - uwires.at(j)->point1().z);
 	  float dis = fabs(dir.Dot(dir_up));
-	  if (dis < 3.5*units::mm){
+	  if (dis < Singleton<TPCParams>::Instance().get_pitch()*1.2){
 	    flag_u = 1;
 	    break;
 	  }
@@ -267,7 +269,7 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
 		       cell.get_vwires().at(i)->point1().y - vwires.at(j)->point1().y,
 		       cell.get_vwires().at(i)->point1().z - vwires.at(j)->point1().z);
 	  float dis = fabs(dir.Dot(dir_vp));
-	  if (dis < 3.5*units::mm){
+	  if (dis < Singleton<TPCParams>::Instance().get_pitch()*1.2){
 	    flag_v = 1;
 	    break;
 	  }
@@ -285,7 +287,7 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
 		       cell.get_wwires().at(i)->point1().y - wwires.at(j)->point1().y,
 		       cell.get_wwires().at(i)->point1().z - wwires.at(j)->point1().z);
 	  float dis = fabs(dir.Dot(dir_wp));
-	  if (dis < 3.5*units::mm){
+	  if (dis < Singleton<TPCParams>::Instance().get_pitch()*1.2){
 	    flag_w = 1;
 	    break;
 	  }
@@ -314,8 +316,8 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
 	Point c1 = cell1->center();
 	Point c2 = cell2->center();
 	//std::cout << (c1.y-c2.y)/units::cm << " " << (c1.z-c2.z)/units::cm << " " << cell_all.size() << " " << cell.get_allcell().size() << " " << i << " " << j << std::endl;
-	if (fabs(c1.y-c2.y) > 2.5*units::cm) continue;
-	if ( fabs(c1.z-c2.z) > 2.5*units::cm) continue;
+	if (fabs(c1.y-c2.y) > Singleton<TPCParams>::Instance().get_pitch()*8) continue;
+	if ( fabs(c1.z-c2.z) > Singleton<TPCParams>::Instance().get_pitch()*8) continue;
 	
 	for (int i1=0;i1!=cell1->boundary().size();i1++){
 	  Point p = (cell1->boundary())[i1];
@@ -351,8 +353,8 @@ bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
       Point c1 = cell1->center();
       Point c2 = cell2->center();
       //std::cout << (c1.y-c2.y)/units::cm << " " << (c1.z-c2.z)/units::cm << " " << cell_all.size() << " " << cell.get_allcell().size() << " " << i << " " << j << std::endl;
-      if (fabs(c1.y-c2.y) > 2.5*units::cm) continue;
-      if ( fabs(c1.z-c2.z) > 2.5*units::cm) continue;
+      if (fabs(c1.y-c2.y) > Singleton<TPCParams>::Instance().get_pitch()*8) continue;
+      if ( fabs(c1.z-c2.z) > Singleton<TPCParams>::Instance().get_pitch()*8) continue;
       
       for (int i1=0;i1!=cell1->boundary().size();i1++){
 	Point p = (cell1->boundary())[i1];
@@ -385,8 +387,8 @@ int MergeGeomCell::Overlap1(const MergeGeomCell &cell, float num) const{
       Point c1 = cell1->center();
       Point c2 = cell2->center();
 
-      if (fabs(c1.y-c2.y) > 1*units::cm) continue;
-      if (fabs(c1.z-c2.z) > 1*units::cm) continue;
+      if (fabs(c1.y-c2.y) > Singleton<TPCParams>::Instance().get_pitch()*3.3) continue;
+      if (fabs(c1.z-c2.z) > Singleton<TPCParams>::Instance().get_pitch()*3.3) continue;
       int flag = 0;
       for (int i1=0;i1!=cell1->boundary().size();i1++){
 	Point p = (cell1->boundary())[i1];
@@ -537,8 +539,8 @@ Point MergeGeomCell::center() const
 bool MergeGeomCell::Connected(const WireCell::GeomCell& cell1,const WireCell::GeomCell& cell2){
   Point c1 = cell1.center();
   Point c2 = cell2.center();
-  if (fabs(c1.y-c2.y) > 1*units::cm) return false;
-  if (fabs(c1.z-c2.z) > 1*units::cm) return false;
+  if (fabs(c1.y-c2.y) > Singleton<TPCParams>::Instance().get_pitch()*3.3) return false;
+  if (fabs(c1.z-c2.z) > Singleton<TPCParams>::Instance().get_pitch()*3.3) return false;
   
 
   PointVector bd1 = cell1.boundary();
