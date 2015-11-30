@@ -1,3 +1,5 @@
+#include "WireCellData/Singleton.h"
+#include "WireCellData/TPCParams.h"
 #include "WireCellData/ClusterTrack.h"
 #include "TVector3.h"
 
@@ -92,7 +94,7 @@ int ClusterTrack::CrossNum(MergeSpaceCell *mcell1, float theta, float phi){
 	//std::cout << "Xin1: " << dis/units::mm << std::endl;
 	
 	
-	if (dis < 3*units::mm){
+	if (dis < Singleton<TPCParams>::Instance().get_pitch()){
 	  result1 = true;
 	  break;
 	}
@@ -152,7 +154,7 @@ int ClusterTrack::CrossNum(Point &p, float theta, float phi){
       //std::cout << "Xin1: " << dis/units::mm << std::endl;
 
      
-      if (dis < 3*units::mm){
+      if (dis < Singleton<TPCParams>::Instance().get_pitch()){
 	result1 = true;
 	break;
       }
