@@ -24,6 +24,7 @@ namespace WireCell {
     typedef std::map<const GeomWire*, GeomWireSelection> GeomWireWiresMap;
 
     typedef std::map<const GeomCell*, GeomCell*> GeomCellCellMap;
+    typedef std::map<const GeomCell*, GeomCellSelection> GeomCellCellsMap;
 }
 
 #endif
