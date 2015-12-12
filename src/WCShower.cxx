@@ -202,6 +202,43 @@ void WCShower::SC_Hough(Point p){
 }
 
 
+bool WCShower::IsShower_CheckVertex(){
+  Point center;
+  center.x = 0;
+  center.y = 0;
+  center.z = 0;
+
+  float sum_charge = 0;
+  for (int i=0;i!=all_mcells.size();i++){
+    MergeSpaceCell *mcell = all_mcells.at(i);
+    // auto it = find(track->get_centerVP_cells().begin(),
+    // 		   track->get_centerVP_cells().end(),
+    // 		   mcell);
+    // if (it == track->get_centerVP_cells().end()){
+    center.x += mcell->Get_Center().x * mcell->Get_all_spacecell().size();//mcell->Get_Charge();
+    center.y += mcell->Get_Center().y * mcell->Get_all_spacecell().size();//mcell->Get_Charge();
+    center.z += mcell->Get_Center().z * mcell->Get_all_spacecell().size();//mcell->Get_Charge();
+    sum_charge +=  mcell->Get_all_spacecell().size();//mcell->Get_Charge();
+    // }
+  }
+  center.x /= sum_charge;
+  center.y /= sum_charge;
+  center.z /= sum_charge;
+
+  float dis = sqrt(pow(vertex->Center().x-center.x,2) +
+		   pow(vertex->Center().y-center.y,2) + 
+		   pow(vertex->Center().z-center.z,2));
+  
+  for (int i=0;i!=all_mcells.size();i++){
+    MergeSpaceCell *mcell = all_mcells.at(i);
+    float dis1 = sqrt(pow(mcell->Get_Center().x-center.x,2) +
+		      pow(mcell->Get_Center().y-center.y,2) + 
+		      pow(mcell->Get_Center().z-center.z,2));
+    if (dis1 > dis) return false;
+  }
+  return true;
+}
+
 bool WCShower::IsShower(MergeSpaceCellSelection& mcells){
   bool result = true;
   int ncell_track;

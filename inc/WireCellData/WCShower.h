@@ -25,6 +25,7 @@ namespace WireCell{
     WCTrack* get_track(){return track;};
 
     bool IsShower(MergeSpaceCellSelection& mcells);
+    bool IsShower_CheckVertex();
     bool IsContained(WCShower *shower);
     bool Contain(WCTrack *track);
     bool Overlap(WCShower *shower);
