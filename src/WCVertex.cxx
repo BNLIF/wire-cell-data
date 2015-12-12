@@ -675,7 +675,12 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	
 	//	curr_cells.push_back(curr_cell);
 	for (int k=-5;k!=5;k++){
-	  int num = j+k;
+	  int num;
+	  if (dis1 < dis2){
+	    num = j+k;
+	  }else{
+	    num = all_cells.size()-1-j + k;
+	  }
 	  if (num >=0&&num <= all_cells.size()-1){
 	    if (fabs(all_cells.at(num)->Get_Center().x - curr_cell->Get_Center().x)<Singleton<TPCParams>::Instance().get_ts_width()*0.3){
 	      curr_cells.push_back(all_cells.at(num));
@@ -781,10 +786,10 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	    // temp_msc.push_back(all_cells.at(all_cells.size()-1-j-3));
 	    next_cell = all_cells.at(all_cells.size()-1-j);
 	    k = 0;
-	     while(fabs(next_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*Singleton<TPCParams>::Instance().get_ts_width()*0.95){
+	    while(fabs(next_cell->Get_Center().x - curr_cell->Get_Center().x) < 4*Singleton<TPCParams>::Instance().get_ts_width()*0.95){
 	      k++;
 	      if (all_cells.size()-1-j-k>=0&&all_cells.size()-1-j-k<all_cells.size()){
-		prev_cell = all_cells.at(all_cells.size()-1-j-k);
+		next_cell = all_cells.at(all_cells.size()-1-j-k);
 	      }else{
 		break;
 	      }
@@ -907,7 +912,19 @@ WCTrackSelection WCVertex::BreakTracksAngle(WCTrackSelection& finished_tracks){
 	  float theta1_new = atan((p3.y-p2.y)/(p3.x-p2.x))/3.1415926*180.;
 	  float theta2_new = atan((p3.z-p2.z)/(p3.x-p2.x))/3.1415926*180.;
 
-	  if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta2_old,2))>30. && dis_sigma2 > 1.4
+
+	  // if (fabs(p2.x/units::cm-150)<20 && fabs(p2.y/units::cm-70)<10){
+	    // std::cout << "Xin: "  << p2.x/units::cm << " " <<p2.y/units::cm << " " << p2.z/units::cm
+	    // 	      << " " << 
+	    //   sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta2_old,2)) <<
+	    //   " " << dis_sigma2 << " " << 
+	    //   curr_cell->get_dy() << " " << prev_cell->get_dy()  << " " << next_cell->get_dy()
+	    // 	      << " " << curr_cell->get_dz() << " " << prev_cell->get_dz()  << " " << next_cell->get_dz()
+	    // 	      << std::endl;
+	    //}
+
+	    // if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta2_old,2))>30. && dis_sigma2 > 1.4
+	    if (sqrt(pow(theta1_new-theta1_old,2)+pow(theta2_new-theta2_old,2))>18. && dis_sigma2 > 0.5
 	      && 3*curr_cell->get_dy() > prev_cell->get_dy() 
 	      && 3*curr_cell->get_dy() > next_cell->get_dy() 
 	      && 3*curr_cell->get_dz() > prev_cell->get_dz() 
