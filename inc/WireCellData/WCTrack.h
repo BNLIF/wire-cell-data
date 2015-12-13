@@ -33,6 +33,8 @@ namespace WireCell {
     std::vector<float>& get_centerVP_energy(){return centerVP_energy;};
     std::vector<float>& get_centerVP_dedx(){return centerVP_dedx;};
 
+    MergeSpaceCellSelection& get_associated_cells(){return associated_cells;};
+
     int get_fine_tracking_flag(){return fine_tracking_flag;};
     
     bool IsContained(MergeSpaceCell *mcell);
@@ -65,6 +67,8 @@ namespace WireCell {
     std::vector<double> centerVP_phi;
     std::vector<float> centerVP_energy;
     std::vector<float> centerVP_dedx;
+
+    MergeSpaceCellSelection associated_cells;
     
     Point fp1;
     Point fp2;
