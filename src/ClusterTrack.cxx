@@ -353,6 +353,8 @@ void ClusterTrack::SC_Hough(Point& p, float dis, int flag){
     }
   }
 
+  //std::cout << hough->GetSum() << std::endl;
+
   int maxbin = hough->GetMaximumBin();
   int a,b,c;
   hough->GetBinXYZ(maxbin,a,b,c);
