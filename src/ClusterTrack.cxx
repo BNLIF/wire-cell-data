@@ -350,7 +350,30 @@ void ClusterTrack::SC_Hough(Point& p, float dis, int flag){
 	    hough->Fill(vec.Theta(),vec.Phi(),q);
 	}
       }
+    }else if (flag == 4){
+      for (int j=0;j!=mcell->Get_all_spacecell().size();j++){
+	SpaceCell *cell = mcell->Get_all_spacecell().at(j);
+	
+	x = cell->x();
+	y = cell->y();
+	z = cell->z();
+	//q = cell->q();
+	q = 1/mcell->Get_all_spacecell().size();
+	
+	
+	TVector3 vec(x-x0,y-y0,z-z0);
+	// sc_theta.push_back(vec.Theta());
+	// sc_phi.push_back(vec.Phi());
+	// sc_q.push_back(q);
+	if (dis <= 0){
+	  hough->Fill(vec.Theta(),vec.Phi(),q);
+	}else{
+	  if (sqrt(pow(x-x0,2)+pow(y-y0,2)+pow(z-z0,2))<dis)
+	    hough->Fill(vec.Theta(),vec.Phi(),q);
+	}
+      }
     }
+
   }
 
   //std::cout << hough->GetSum() << std::endl;
