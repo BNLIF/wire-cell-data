@@ -3,16 +3,21 @@
 
 namespace WireCell{
   class MCParticle{
+  public: 
     MCParticle(){};
     ~MCParticle(){};
-  public: 
+
     int pdg;
     float startXYZT[4];
     float endXYZT[4];
     float startMomentum[4];
     std::vector<Point> trajectory;
   };
+  
+  typedef std::vector<WireCell::MCParticle*> MCParticleSelection;
+
 }
+
 
 
 #endif
