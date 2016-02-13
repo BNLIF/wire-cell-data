@@ -34,8 +34,8 @@ namespace WireCell{
     //function to find out corner cells, 
     void FindCorners(WireCell::GeomCellMap& cmap, WireCell::GeomWireMap& wmap);
 
-    WireCell::GeomCellSelection get_allcell() const{ return cell_all;}
-    WireCell::GeomCellSelection get_edgecells() const{ return edge_cells;}
+    WireCell::GeomCellSelection get_allcell() const { return cell_all;}
+    WireCell::GeomCellSelection get_edgecells() const { return edge_cells;}
     WireCell::GeomCellSelection get_truthcell() const{return truth_cells;}
     WireCell::GeomCellSelection get_cornercells()const { return corner_cells;}
     //std::vector<int>& get_cornercells_index() {return corner_cells_index;}
@@ -59,6 +59,8 @@ namespace WireCell{
     GeomWireSelection get_uwires() const{return uwires;};
     GeomWireSelection get_vwires() const{return vwires;};
     GeomWireSelection get_wwires() const{return wwires;};
+    GeomWireSelection get_edge_wires() const{return edge_wires;};
+    GeomCellSelection& get_edge_cells(){return edge_cells;};
 
     //hack for now
     std::set<int> ewires;

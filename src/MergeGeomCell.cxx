@@ -168,51 +168,152 @@ int MergeGeomCell::index2(int index){
 }
 
 void MergeGeomCell::FindEdges(){
-  if (flag_edge == false){
-    flag_edge = true;
-
-    std::list<const Edge*> edgelist;
-    EdgeCellMap ecmap;
+  // if (flag_edge == false){
+  //   flag_edge = true;
     
-    for (int i=0;i!=cell_all.size();i++){
-      const EdgeVector* evector = cell_all[i]->redge();  
+    edge_wires.clear();
+    
+    TVector3 dir_x(1,0,0);
+    TVector3 dir_u(uwires.at(0)->point1().x - uwires.at(0)->point2().x,
+    		   uwires.at(0)->point1().y - uwires.at(0)->point2().y,
+    		   uwires.at(0)->point1().z - uwires.at(0)->point2().z);
+    TVector3 dir_v(vwires.at(0)->point1().x - vwires.at(0)->point2().x,
+    		   vwires.at(0)->point1().y - vwires.at(0)->point2().y,
+    		   vwires.at(0)->point1().z - vwires.at(0)->point2().z);
+    TVector3 dir_w(wwires.at(0)->point1().x - wwires.at(0)->point2().x,
+    		   wwires.at(0)->point1().y - wwires.at(0)->point2().y,
+    		   wwires.at(0)->point1().z - wwires.at(0)->point2().z);
+    
+    TVector3 dir_up = dir_x.Cross(dir_u);
+    TVector3 dir_vp = dir_x.Cross(dir_v);
+    TVector3 dir_wp = dir_x.Cross(dir_w);
+    
+    dir_up *= 1./dir_up.Mag();
+    dir_vp *= 1./dir_vp.Mag();
+    dir_wp *= 1./dir_wp.Mag();
+    
+    // find the min and max wires (six wires)
+    const GeomWire* uwire_min = uwires.front();
+    const GeomWire* uwire_max = uwires.back();
+    const GeomWire* vwire_min = vwires.front();
+    const GeomWire* vwire_max = vwires.back();
+    const GeomWire* wwire_min = wwires.front();
+    const GeomWire* wwire_max = wwires.back();
+    
+    for (Int_t i=0;i!=uwires.size();i++){
+      TVector3 abc1(uwires.at(i)->point1().x+uwires.at(i)->point2().x,
+    		    uwires.at(i)->point1().y+uwires.at(i)->point2().y,
+    		    uwires.at(i)->point1().z+uwires.at(i)->point2().z);
+      TVector3 abc2(uwire_min->point1().x+uwire_min->point2().x,
+    		    uwire_min->point1().y+uwire_min->point2().y,
+    		    uwire_min->point1().z+uwire_min->point2().z);
+      TVector3 abc3(uwire_max->point1().x+uwire_max->point2().x,
+    		    uwire_max->point1().y+uwire_max->point2().y,
+    		    uwire_max->point1().z+uwire_max->point2().z);
       
-      for (int j=0;j!=evector->size();j++){
-	int flag = 0;
-	// std::cout << i << " " << j << " " << evector->at(j).first.x << " "
-	// 		<< evector->at(j).first.y << " " << evector->at(j).first.z << " "
-	// 		<< evector->at(j).second.x << " "
-	// 		<< evector->at(j).second.y << " " << evector->at(j).second.z << " "  
-	// 		<< std::endl;
-	for (auto it = edgelist.begin(); it!=edgelist.end();it++){
-	  if (CompareEdge(*(*it),evector->at(j))){
-	    flag = 1;
-	    edgelist.erase(it);
-	    break;
-	  }
-	}
-	if (flag==0){
-	  edgelist.push_back(&(evector->at(j)));
-	  ecmap[&(evector->at(j))] = cell_all[i];
-	} 
+      if (abc1.Dot(dir_up) < abc2.Dot(dir_up)){
+    	uwire_min = uwires.at(i);
+      }
+      if (abc1.Dot(dir_up) > abc3.Dot(dir_up)){
+    	uwire_max = uwires.at(i);
       }
     }
     
-    for (auto it = edgelist.begin(); it!=edgelist.end();it++){
-      auto it2 = find(edge_cells.begin(),edge_cells.end(),ecmap[*it]);
-      if (it2==edge_cells.end()){
-	edge_cells.push_back(ecmap[*it]);
+
+    for (Int_t i=0;i!=vwires.size();i++){
+      TVector3 abc1(vwires.at(i)->point1().x+vwires.at(i)->point2().x,
+    		    vwires.at(i)->point1().y+vwires.at(i)->point2().y,
+    		    vwires.at(i)->point1().z+vwires.at(i)->point2().z);
+      TVector3 abc2(vwire_min->point1().x+vwire_min->point2().x,
+    		    vwire_min->point1().y+vwire_min->point2().y,
+    		    vwire_min->point1().z+vwire_min->point2().z);
+      TVector3 abc3(vwire_max->point1().x+vwire_max->point2().x,
+    		    vwire_max->point1().y+vwire_max->point2().y,
+    		    vwire_max->point1().z+vwire_max->point2().z);
+      
+      if (abc1.Dot(dir_vp) < abc2.Dot(dir_vp)){
+    	vwire_min = vwires.at(i);
+      }
+      if (abc1.Dot(dir_vp) > abc3.Dot(dir_vp)){
+    	vwire_max = vwires.at(i);
       }
     }
-    
-    if (edge_cells.size() + 25 < cell_all.size()){
-      blob = true;
-    }else{
-      blob = false;
+
+    for (Int_t i=0;i!=wwires.size();i++){
+      TVector3 abc1(wwires.at(i)->point1().x+wwires.at(i)->point2().x,
+    		    wwires.at(i)->point1().y+wwires.at(i)->point2().y,
+    		    wwires.at(i)->point1().z+wwires.at(i)->point2().z);
+      TVector3 abc2(wwire_min->point1().x+wwire_min->point2().x,
+    		    wwire_min->point1().y+wwire_min->point2().y,
+    		    wwire_min->point1().z+wwire_min->point2().z);
+      TVector3 abc3(wwire_max->point1().x+wwire_max->point2().x,
+    		    wwire_max->point1().y+wwire_max->point2().y,
+    		    wwire_max->point1().z+wwire_max->point2().z);
+      
+      if (abc1.Dot(dir_wp) < abc2.Dot(dir_wp)){
+    	wwire_min = wwires.at(i);
+      }
+      if (abc1.Dot(dir_wp) > abc3.Dot(dir_wp)){
+    	wwire_max = wwires.at(i);
+      }
     }
+
+
+
+
+    // put all the cells in these wires into edge_wires;
+    edge_wires.push_back(uwire_min);
+    edge_wires.push_back(uwire_max);
+    edge_wires.push_back(vwire_min);
+    edge_wires.push_back(vwire_max);
+    edge_wires.push_back(wwire_min);
+    edge_wires.push_back(wwire_max);
+
+
+
+
+    // std::list<const Edge*> edgelist;
+    // EdgeCellMap ecmap;
+    
+    // for (int i=0;i!=cell_all.size();i++){
+    //   const EdgeVector* evector = cell_all[i]->redge();  
+      
+    //   for (int j=0;j!=evector->size();j++){
+    // 	int flag = 0;
+    // 	// std::cout << i << " " << j << " " << evector->at(j).first.x << " "
+    // 	// 		<< evector->at(j).first.y << " " << evector->at(j).first.z << " "
+    // 	// 		<< evector->at(j).second.x << " "
+    // 	// 		<< evector->at(j).second.y << " " << evector->at(j).second.z << " "  
+    // 	// 		<< std::endl;
+    // 	for (auto it = edgelist.begin(); it!=edgelist.end();it++){
+    // 	  if (CompareEdge(*(*it),evector->at(j))){
+    // 	    flag = 1;
+    // 	    edgelist.erase(it);
+    // 	    break;
+    // 	  }
+    // 	}
+    // 	if (flag==0){
+    // 	  edgelist.push_back(&(evector->at(j)));
+    // 	  ecmap[&(evector->at(j))] = cell_all[i];
+    // 	} 
+    //   }
+    // }
+    
+    // for (auto it = edgelist.begin(); it!=edgelist.end();it++){
+    //   auto it2 = find(edge_cells.begin(),edge_cells.end(),ecmap[*it]);
+    //   if (it2==edge_cells.end()){
+    // 	edge_cells.push_back(ecmap[*it]);
+    //   }
+    // }
+    
+    // if (edge_cells.size() + 25 < cell_all.size()){
+    //   blob = true;
+    // }else{
+    //   blob = false;
+    // }
     
     // std::cout << edgelist.size() << " " << ecmap.size() << " " << cell_all.size() << " " << edge_cells.size() << std::endl;
-  }
+    // }
 }
 
 bool MergeGeomCell::Overlap(const MergeGeomCell &cell, float num) const{
