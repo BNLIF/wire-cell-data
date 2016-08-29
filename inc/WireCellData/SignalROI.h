@@ -11,21 +11,26 @@
 namespace WireCell{
   class SignalROI{
    public:
-    SignalROI(int start_bin, int end_bin, TH1F *h1);
+    SignalROI(int chid, int start_bin, int end_bin, TH1F *h1);
     ~SignalROI();
     int get_start_bin(){return start_bin;}
     int get_end_bin(){return end_bin;}
+    int get_chid(){return chid;}
     std::vector<float>& get_contents(){return contents;}
     std::vector<std::pair<int,int>> get_above_threshold(float th);
   
   private:
     int start_bin;
     int end_bin;
+    int chid;
     std::vector<float> contents;
   };
   
+ 
   typedef std::vector<SignalROI*> SignalROISelection; 
+  typedef std::vector<SignalROISelection> SignalROIChSelection;
   typedef std::map<SignalROI*, SignalROISelection> SignalROIMap;
+  
 }
 
 #endif

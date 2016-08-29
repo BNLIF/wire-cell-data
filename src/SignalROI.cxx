@@ -4,8 +4,9 @@
 
 using namespace WireCell;
 
-SignalROI::SignalROI(int start_bin, int end_bin, TH1F *h1)
-  : start_bin(start_bin)
+SignalROI::SignalROI(int chid, int start_bin, int end_bin, TH1F *h1)
+  : chid(chid)
+  , start_bin(start_bin)
   , end_bin(end_bin)
 {
   float start_content = h1->GetBinContent(start_bin+1);
