@@ -22,8 +22,10 @@ namespace WireCell{
     int start_bin;
     int end_bin;
     std::vector<float> contents;
-    
   };
+  
+  typedef std::vector<SignalROI*> SignalROISelection; 
+  typedef std::map<SignalROI*, SignalROISelection> SignalROIMap;
 }
 
 #endif
