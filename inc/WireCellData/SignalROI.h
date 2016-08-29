@@ -19,6 +19,8 @@ namespace WireCell{
     std::vector<float>& get_contents(){return contents;}
     std::vector<std::pair<int,int>> get_above_threshold(float th);
   
+    bool overlap(SignalROI *roi);
+    
   private:
     int start_bin;
     int end_bin;

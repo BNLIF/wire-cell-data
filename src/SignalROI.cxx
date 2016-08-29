@@ -18,6 +18,30 @@ SignalROI::SignalROI(int chid, int start_bin, int end_bin, TH1F *h1)
   }
 }
 
+bool SignalROI::overlap(SignalROI* roi){
+
+  int min_start_bin = start_bin;
+  if (start_bin < roi->get_start_bin())
+    min_start_bin = roi->get_start_bin();
+  int min_end_bin = end_bin;
+  if (end_bin > roi->get_end_bin())
+    min_end_bin = roi->get_end_bin();
+  if (min_end_bin > min_start_bin){
+    return true;
+  }else{
+    return false;
+  }
+  // if (start_bin < roi->get_end_bin() && end_bin >= roi->get_end_bin())
+  //   return true;
+  // if (start_bin <= roi->get_start_bin() && end_bin > roi->get_start_bin())
+  //   return true;
+  // if (start_bin >= roi->get_start_bin() && end_bin <= roi->get_end_bin())
+  //   return true;
+  //return false;
+}
+
+
+
 SignalROI::~SignalROI(){
 }
 
