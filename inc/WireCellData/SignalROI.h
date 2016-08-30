@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <vector>
+#include <list>
 #include <map>
 
 
@@ -28,9 +29,10 @@ namespace WireCell{
     std::vector<float> contents;
   };
   
- 
+  typedef std::list<SignalROI*>SignalROIList;
   typedef std::vector<SignalROI*> SignalROISelection; 
   typedef std::vector<SignalROISelection> SignalROIChSelection;
+  typedef std::vector<SignalROIList> SignalROIChList;
   typedef std::map<SignalROI*, SignalROISelection> SignalROIMap;
   
 }
