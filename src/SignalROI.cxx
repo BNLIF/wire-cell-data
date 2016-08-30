@@ -48,6 +48,8 @@ bool SignalROI::overlap(SignalROI* roi){
 SignalROI::~SignalROI(){
 }
 
+
+
 std::vector<std::pair<int,int>> SignalROI::get_above_threshold(float th){
   std::vector<std::pair<int,int>> bins;
   for (int i=0;i<contents.size();i++){
