@@ -4,8 +4,9 @@
 
 using namespace WireCell;
 
-SignalROI::SignalROI(int chid, int start_bin, int end_bin, TH1F *h1)
-  : chid(chid)
+SignalROI::SignalROI(WirePlaneType_t plane, int chid, int start_bin, int end_bin, TH1F *h1)
+  : plane(plane)
+  , chid(chid)
   , start_bin(start_bin)
   , end_bin(end_bin)
 {
