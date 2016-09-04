@@ -15,6 +15,7 @@ namespace WireCell{
   class SignalROI{
    public:
     SignalROI(WirePlaneType_t plane, int chid, int start_bin, int end_bin, TH1F *h1);
+    SignalROI(SignalROI *roi);
     ~SignalROI();
     int get_start_bin(){return start_bin;}
     int get_end_bin(){return end_bin;}

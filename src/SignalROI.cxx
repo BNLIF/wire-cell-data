@@ -21,6 +21,16 @@ SignalROI::SignalROI(WirePlaneType_t plane, int chid, int start_bin, int end_bin
   }
 }
 
+SignalROI::SignalROI(SignalROI *roi){
+  plane = roi->get_plane();
+  chid = roi->get_chid();
+  start_bin = roi->get_start_bin();
+  end_bin = roi->get_end_bin();
+  for (int i=start_bin; i<=end_bin;i++){
+    contents.push_back(roi->get_contents().at(i-start_bin));
+  }
+}
+
 bool SignalROI::overlap(SignalROI* roi){
 
   int min_start_bin = start_bin;
