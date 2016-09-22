@@ -3,6 +3,7 @@
 
 #include "WireCellData/Units.h"
 #include "WireCellData/Point.h"
+#include "TMath.h"
 
 #include <set>
 #include <vector>
@@ -82,6 +83,8 @@ namespace WireCell {
 	// Return which cryostat this wire resides.
 	int cryo() const { return _cryo; }
 
+	double length() const;
+	
 	/// Return the plane+index pair.
 	WirePlaneIndex plane_index() const { return WirePlaneIndex(_plane, _index); }
 

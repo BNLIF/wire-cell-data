@@ -103,3 +103,9 @@ void WireCell::sort_by_channel(GeomWireSelection& ws)
     std::sort(ws.begin(), ws.end(), _by_channel);
 }
 
+double WireCell::GeomWire::length() const {
+  double lsquare = TMath::Power((_point1.x - _point2.x),2) 
+    + TMath::Power((_point1.y - _point2.y),2)
+    + TMath::Power((_point1.z - _point2.z),2);
+  return TMath::Sqrt(lsquare);
+}
