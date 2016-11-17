@@ -31,6 +31,29 @@ SignalROI::SignalROI(SignalROI *roi){
   }
 }
 
+bool SignalROI::overlap(SignalROI* roi1, float th, float th1){
+  int min_start_bin = start_bin;
+  if (start_bin < roi1->get_start_bin())
+    min_start_bin = roi1->get_start_bin();
+  int min_end_bin = end_bin;
+  if (end_bin > roi1->get_end_bin())
+    min_end_bin = roi1->get_end_bin();
+  if (min_end_bin > min_start_bin){
+    std::vector<float>& contents1 = roi1->get_contents();
+
+    for (int i=min_start_bin; i<= min_end_bin; i++){
+      if (contents.at(i-start_bin) > th && 
+	  contents1.at(i-roi1->get_start_bin())>th1){
+	  return true;
+      }
+    }
+    
+    return false;
+  }else{
+    return false;
+  }
+}
+
 bool SignalROI::overlap(SignalROI* roi){
 
   int min_start_bin = start_bin;

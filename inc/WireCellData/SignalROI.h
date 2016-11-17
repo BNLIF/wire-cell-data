@@ -25,6 +25,7 @@ namespace WireCell{
     std::vector<std::pair<int,int>> get_above_threshold(float th);
   
     bool overlap(SignalROI *roi);
+    bool overlap(SignalROI *roi1, float th, float th1);
     
   private:
     int start_bin;
