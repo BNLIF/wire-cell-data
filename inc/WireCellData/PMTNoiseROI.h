@@ -7,7 +7,7 @@
 namespace WireCell{
   class PMTNoiseROI{
   public:
-    PMTNoiseROI(int start_bin, int end_bin);
+    PMTNoiseROI(int start_bin, int end_bin, int peak);
     ~PMTNoiseROI();
 
     int get_start_bin(){return start_bin;};
