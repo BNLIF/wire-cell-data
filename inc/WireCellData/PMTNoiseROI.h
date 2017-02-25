@@ -2,7 +2,6 @@
 #define PMTNoiseROI_h
 
 #include <vector>
-#include <list>
 
 namespace WireCell{
   class PMTNoiseROI{
@@ -19,9 +18,14 @@ namespace WireCell{
     void insert_vwires(int wire_no);
 
     std::vector<int>& get_peaks(){return peaks;}
-    std::list<int>& get_uwires(){return induction_uwires;}
-    std::list<int>& get_vwires(){return induction_vwires;}
-
+    
+    std::vector<int>& get_uwires(){return induction_uwires;}
+    std::vector<int>& get_vwires(){return induction_vwires;}
+    
+    std::vector<int>& get_sorted_uwires(){return sorted_ind_uwires;}    
+    std::vector<int>& get_sorted_vwires(){return sorted_ind_vwires;}    
+    
+    void sort_wires(int nwire=1);
     bool merge_ROI(PMTNoiseROI& ROI);
 
   private: 
@@ -29,8 +33,11 @@ namespace WireCell{
     int start_bin;
     int end_bin;
     
-    std::list<int> induction_uwires;
-    std::list<int> induction_vwires;
+    std::vector<int> induction_uwires;
+    std::vector<int> induction_vwires;
+    
+    std::vector<int> sorted_ind_uwires;
+    std::vector<int> sorted_ind_vwires;
   };
 }
 
