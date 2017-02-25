@@ -39,6 +39,34 @@ void PMTNoiseROI::insert_vwires(int wire_no, float peak_height){
   }
 }
 
+float PMTNoiseROI::get_max_wwires_peak_height(){
+  float max = 0;
+  for (int i=0;i!=sorted_col_wwires.size();i++){
+    if (wwires_peak_heights[sorted_col_wwires.at(i)] > max)
+      max= wwires_peak_heights[sorted_col_wwires.at(i)];
+  }
+  return max;
+}
+
+float PMTNoiseROI::get_max_uwires_peak_height(){
+  float max = 0;
+  for (int i=0;i!=sorted_ind_uwires.size();i++){
+    if (uwires_peak_heights[sorted_ind_uwires.at(i)] > max)
+      max= uwires_peak_heights[sorted_ind_uwires.at(i)];
+  }
+  return max;
+}
+
+float PMTNoiseROI::get_max_vwires_peak_height(){
+  float max = 0;
+  for (int i=0;i!=sorted_ind_vwires.size();i++){
+    if (vwires_peak_heights[sorted_ind_vwires.at(i)] > max)
+      max= vwires_peak_heights[sorted_ind_vwires.at(i)];
+  }
+  return max;
+}
+
+
 float PMTNoiseROI::get_average_wwires_peak_height(){
   float ave = 0 ;
   float ave1 = 0 ;
