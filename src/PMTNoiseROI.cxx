@@ -5,11 +5,13 @@
 using namespace WireCell;
 
 
-PMTNoiseROI::PMTNoiseROI(int start_bin, int end_bin, int peak)
+PMTNoiseROI::PMTNoiseROI(int start_bin, int end_bin, int peak, int channel, float peak_height)
   : start_bin(start_bin)
   , end_bin(end_bin)
 {
   peaks.push_back(peak);
+  collection_wwires.push_back(channel);
+  wwires_peak_heights[channel] = fabs(peak_height);
 }
 
 
@@ -23,15 +25,59 @@ void PMTNoiseROI::insert_peak(int peak){
 }
 
 
-void PMTNoiseROI::insert_uwires(int wire_no){
+void PMTNoiseROI::insert_uwires(int wire_no, float peak_height){
   if (find(induction_uwires.begin(),induction_uwires.end(),wire_no)==induction_uwires.end()){
     induction_uwires.push_back(wire_no);
+    uwires_peak_heights[wire_no] = peak_height;
   }
 }
 
-void PMTNoiseROI::insert_vwires(int wire_no){
+void PMTNoiseROI::insert_vwires(int wire_no, float peak_height){
   if (find(induction_vwires.begin(),induction_vwires.end(),wire_no)==induction_vwires.end()){
     induction_vwires.push_back(wire_no);
+    vwires_peak_heights[wire_no] = peak_height;
+  }
+}
+
+float PMTNoiseROI::get_average_wwires_peak_height(){
+  float ave = 0 ;
+  float ave1 = 0 ;
+  for (int i=0;i!=sorted_col_wwires.size();i++){
+    ave += wwires_peak_heights[sorted_col_wwires.at(i)];
+    ave1 ++;
+  }
+  if (ave1 >0){
+    return ave/ave1;
+  }else{
+    return 0;
+  }
+}
+
+float PMTNoiseROI::get_average_uwires_peak_height(){
+  float ave = 0 ;
+  float ave1 = 0 ;
+  for (int i=0;i!=sorted_ind_uwires.size();i++){
+    ave += uwires_peak_heights[sorted_ind_uwires.at(i)];
+    ave1 ++;
+  }
+  if (ave1 >0){
+    return ave/ave1;
+  }else{
+    return 0;
+  }
+}
+
+float PMTNoiseROI::get_average_vwires_peak_height(){
+  float ave = 0 ;
+  float ave1 = 0 ;
+  for (int i=0;i!=sorted_ind_vwires.size();i++){
+    ave += vwires_peak_heights[sorted_ind_vwires.at(i)];
+    ave1 ++;
+  }
+  if (ave1 >0){
+    return ave/ave1;
+  }else{
+    return 0;
   }
 }
 
@@ -51,6 +97,26 @@ bool PMTNoiseROI::merge_ROI(PMTNoiseROI& ROI){
       if (find(peaks.begin(),peaks.end(),ROI.get_peaks().at(i)) == peaks.end())
 	peaks.push_back(ROI.get_peaks().at(i));
     }
+
+    for (int i=0;i!=ROI.get_wwires().size();i++){
+      if (find(collection_wwires.begin(),collection_wwires.end(),ROI.get_wwires().at(i)) == collection_wwires.end()){
+	collection_wwires.push_back(ROI.get_wwires().at(i));
+      }
+      
+      // calculate wire height 
+      if (wwires_peak_heights.find(ROI.get_wwires().at(i))==wwires_peak_heights.end()){
+	wwires_peak_heights[ROI.get_wwires().at(i)] = ROI.get_wwires_peak_heights()[ROI.get_wwires().at(i)];
+      }else{
+	if (ROI.get_wwires_peak_heights()[ROI.get_wwires().at(i)] > wwires_peak_heights[ROI.get_wwires().at(i)])
+	  wwires_peak_heights[ROI.get_wwires().at(i)] = ROI.get_wwires_peak_heights()[ROI.get_wwires().at(i)];
+      }
+      
+    }
+    
+    //    for (int i=0;i!=ROI.get_wwires_peak_heights().size();i++){
+    // wwires_peak_heights.push_back(ROI.get_wwires_peak_heights().at(i));
+    //}
+    
 
     
     return true;
@@ -109,6 +175,32 @@ void PMTNoiseROI::sort_wires(int nwire){
     if (temp_wires.size() >= nwire){
       for (int j=0;j!=temp_wires.size();j++){
 	sorted_ind_vwires.push_back(temp_wires.at(j));
+      }
+    }
+    temp_wires.clear();
+  }
+
+
+  if (collection_wwires.size() >=nwire){
+    std::sort(collection_wwires.begin(),collection_wwires.end());
+    temp_wires.push_back(collection_wwires.at(0));
+    // do u wires;
+    for (int i=1;i<collection_wwires.size();i++){
+      if (collection_wwires.at(i) -  temp_wires.back() == 1){
+	temp_wires.push_back(collection_wwires.at(i));
+      }else{
+	if (temp_wires.size() >= nwire){
+	  for (int j=0;j!=temp_wires.size();j++){
+	    sorted_col_wwires.push_back(temp_wires.at(j));
+	  }
+	}
+	temp_wires.clear();
+	temp_wires.push_back(collection_wwires.at(i));
+      }
+    }
+    if (temp_wires.size() >= nwire){
+      for (int j=0;j!=temp_wires.size();j++){
+	sorted_col_wwires.push_back(temp_wires.at(j));
       }
     }
     temp_wires.clear();
