@@ -48,25 +48,6 @@ float PMTNoiseROI::get_max_wwires_peak_height(){
   return max;
 }
 
-float PMTNoiseROI::get_max_uwires_peak_height(){
-  float max = 0;
-  for (int i=0;i!=sorted_ind_uwires.size();i++){
-    if (uwires_peak_heights[sorted_ind_uwires.at(i)] > max)
-      max= uwires_peak_heights[sorted_ind_uwires.at(i)];
-  }
-  return max;
-}
-
-float PMTNoiseROI::get_max_vwires_peak_height(){
-  float max = 0;
-  for (int i=0;i!=sorted_ind_vwires.size();i++){
-    if (vwires_peak_heights[sorted_ind_vwires.at(i)] > max)
-      max= vwires_peak_heights[sorted_ind_vwires.at(i)];
-  }
-  return max;
-}
-
-
 float PMTNoiseROI::get_average_wwires_peak_height(){
   float ave = 0 ;
   float ave1 = 0 ;
@@ -81,13 +62,39 @@ float PMTNoiseROI::get_average_wwires_peak_height(){
   }
 }
 
-float PMTNoiseROI::get_average_uwires_peak_height(){
+
+float PMTNoiseROI::get_max_uwires_peak_height(int group){
+  float max = 0;
+  if (group < sorted_ind_uwires.size()){
+    for (int i=0;i!=sorted_ind_uwires.at(group).size();i++){
+      if (uwires_peak_heights[sorted_ind_uwires.at(group).at(i)] > max)
+	max= uwires_peak_heights[sorted_ind_uwires.at(group).at(i)];
+    }
+  }
+  return max;
+}
+
+float PMTNoiseROI::get_max_vwires_peak_height(int group){
+  float max = 0;
+  if (group < sorted_ind_vwires.size()){
+    for (int i=0;i!=sorted_ind_vwires.at(group).size();i++){
+      if (vwires_peak_heights[sorted_ind_vwires.at(group).at(i)] > max)
+	max= vwires_peak_heights[sorted_ind_vwires.at(group).at(i)];
+    }
+  }
+  return max;
+}
+
+float PMTNoiseROI::get_average_uwires_peak_height(int group){
   float ave = 0 ;
   float ave1 = 0 ;
-  for (int i=0;i!=sorted_ind_uwires.size();i++){
-    ave += uwires_peak_heights[sorted_ind_uwires.at(i)];
-    ave1 ++;
+  if (group < sorted_ind_uwires.size()){
+    for (int i=0;i!=sorted_ind_uwires.at(group).size();i++){
+      ave += uwires_peak_heights[sorted_ind_uwires.at(group).at(i)];
+      ave1 ++;
+    }
   }
+      
   if (ave1 >0){
     return ave/ave1;
   }else{
@@ -95,12 +102,14 @@ float PMTNoiseROI::get_average_uwires_peak_height(){
   }
 }
 
-float PMTNoiseROI::get_average_vwires_peak_height(){
+float PMTNoiseROI::get_average_vwires_peak_height(int group){
   float ave = 0 ;
   float ave1 = 0 ;
-  for (int i=0;i!=sorted_ind_vwires.size();i++){
-    ave += vwires_peak_heights[sorted_ind_vwires.at(i)];
-    ave1 ++;
+  if (group < sorted_ind_vwires.size()){
+    for (int i=0;i!=sorted_ind_vwires.at(group).size();i++){
+      ave += vwires_peak_heights[sorted_ind_vwires.at(group).at(i)];
+      ave1 ++;
+    }
   }
   if (ave1 >0){
     return ave/ave1;
@@ -157,7 +166,6 @@ bool PMTNoiseROI::merge_ROI(PMTNoiseROI& ROI){
 void PMTNoiseROI::sort_wires(int nwire){
 
   std::vector<int> temp_wires;
-  
   if (induction_uwires.size() >=nwire){
     std::sort(induction_uwires.begin(),induction_uwires.end());
     temp_wires.push_back(induction_uwires.at(0));
@@ -167,18 +175,14 @@ void PMTNoiseROI::sort_wires(int nwire){
 	temp_wires.push_back(induction_uwires.at(i));
       }else{
 	if (temp_wires.size() >= nwire){
-	  for (int j=0;j!=temp_wires.size();j++){
-	    sorted_ind_uwires.push_back(temp_wires.at(j));
-	  }
+	  sorted_ind_uwires.push_back(temp_wires);
 	}
 	temp_wires.clear();
 	temp_wires.push_back(induction_uwires.at(i));
       }
     }
     if (temp_wires.size() >= nwire){
-      for (int j=0;j!=temp_wires.size();j++){
-	sorted_ind_uwires.push_back(temp_wires.at(j));
-      }
+      sorted_ind_uwires.push_back(temp_wires);
     }
     temp_wires.clear();
   }
@@ -192,18 +196,14 @@ void PMTNoiseROI::sort_wires(int nwire){
 	temp_wires.push_back(induction_vwires.at(i));
       }else{
 	if (temp_wires.size() >= nwire){
-	  for (int j=0;j!=temp_wires.size();j++){
-	    sorted_ind_vwires.push_back(temp_wires.at(j));
-	  }
+	  sorted_ind_vwires.push_back(temp_wires);
 	}
 	temp_wires.clear();
 	temp_wires.push_back(induction_vwires.at(i));
       }
     }
     if (temp_wires.size() >= nwire){
-      for (int j=0;j!=temp_wires.size();j++){
-	sorted_ind_vwires.push_back(temp_wires.at(j));
-      }
+      sorted_ind_vwires.push_back(temp_wires);
     }
     temp_wires.clear();
   }

@@ -29,17 +29,19 @@ namespace WireCell{
     std::map<int,float>& get_vwires_peak_heights(){return vwires_peak_heights;} 
     std::map<int,float>& get_wwires_peak_heights(){return wwires_peak_heights;} 
     
-    float get_average_uwires_peak_height(); 
-    float get_average_vwires_peak_height(); 
-    float get_average_wwires_peak_height(); 
+    float get_average_uwires_peak_height(int group); 
+    float get_average_vwires_peak_height(int group); 
     
-    float get_max_uwires_peak_height();
-    float get_max_vwires_peak_height();
+    
+    float get_max_uwires_peak_height(int group);
+    float get_max_vwires_peak_height(int group);
+    
+    float get_average_wwires_peak_height(); 
     float get_max_wwires_peak_height();
 
 
-    std::vector<int>& get_sorted_uwires(){return sorted_ind_uwires;}    
-    std::vector<int>& get_sorted_vwires(){return sorted_ind_vwires;}    
+    std::vector<std::vector<int>>& get_sorted_uwires(){return sorted_ind_uwires;}     
+    std::vector<std::vector<int>>& get_sorted_vwires(){return sorted_ind_vwires;}     
     std::vector<int>& get_sorted_wwires(){return sorted_col_wwires;}    
     
     void sort_wires(int nwire=1);
@@ -59,8 +61,8 @@ namespace WireCell{
     std::vector<int> induction_vwires;
     std::vector<int> collection_wwires;
     
-    std::vector<int> sorted_ind_uwires;
-    std::vector<int> sorted_ind_vwires;
+    std::vector<std::vector<int>> sorted_ind_uwires;
+    std::vector<std::vector<int>> sorted_ind_vwires;
     std::vector<int> sorted_col_wwires;
   };
 }
