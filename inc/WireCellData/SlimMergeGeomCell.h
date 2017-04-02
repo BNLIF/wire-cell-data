@@ -11,12 +11,17 @@ namespace WireCell{
     SlimMergeGeomCell();
     ~SlimMergeGeomCell();
 
+
+    void AddWire(GeomWire *wire, WirePlaneType_t plane);
+    
     GeomWireSelection get_uwires() const{return uwires;};
     GeomWireSelection get_vwires() const{return vwires;};
     GeomWireSelection get_wwires() const{return wwires;};
 
     int GetTimeSlice() const { return time_slice;};
     void SetTimeSlice(int time){time_slice = time;};
+
+    void OrderWires();
 
   protected:
     WireCell::GeomWireSelection uwires;
