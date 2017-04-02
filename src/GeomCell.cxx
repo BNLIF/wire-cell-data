@@ -21,14 +21,14 @@ GeomCell::GeomCell(int ident, const PointVector& boundary, int flag)
 
   order_boundary();
   if (flag == 1){
-    if (boundary.size()>2){
-      for (int i=0;i<boundary.size()-1;i++){
-	Edge a(_boundary.at(i),_boundary.at(i+1));
-	_edge.push_back(a);
-      }
-      Edge a(_boundary.at(boundary.size()-1),_boundary.at(0));
-      _edge.push_back(a);
-    }
+    // if (boundary.size()>2){
+    //   for (int i=0;i<boundary.size()-1;i++){
+    // 	Edge a(_boundary.at(i),_boundary.at(i+1));
+    // 	_edge.push_back(a);
+    //   }
+    //   Edge a(_boundary.at(boundary.size()-1),_boundary.at(0));
+    //   _edge.push_back(a);
+    // }
   }
 
 
@@ -62,14 +62,14 @@ GeomCell::GeomCell(const GeomCell *cell, int flag){
   
   order_boundary();
   if (flag == 1){
-    if (_boundary.size()>2){
-      for (int i=0;i<_boundary.size()-1;i++){
-	Edge a(_boundary.at(i),_boundary.at(i+1));
-	_edge.push_back(a);
-      }
-      Edge a(_boundary.at(_boundary.size()-1),_boundary.at(0));
-      _edge.push_back(a);
-    }
+    // if (_boundary.size()>2){
+    //   for (int i=0;i<_boundary.size()-1;i++){
+    // 	Edge a(_boundary.at(i),_boundary.at(i+1));
+    // 	_edge.push_back(a);
+    //   }
+    //   Edge a(_boundary.at(_boundary.size()-1),_boundary.at(0));
+    //   _edge.push_back(a);
+    // }
   }
 
   flag_center = 0;
@@ -89,7 +89,7 @@ GeomCell::GeomCell(const GeomCell *cell, int flag){
 GeomCell::~GeomCell()
 {
   _boundary.clear();
-  _edge.clear();
+  //_edge.clear();
 }
 
 std::ostream & WireCell::operator<<(std::ostream &os, const GeomCell& gc)
@@ -99,7 +99,7 @@ std::ostream & WireCell::operator<<(std::ostream &os, const GeomCell& gc)
 
 double GeomCell::cross_section() const
 {
-  // double area = 0.0;
+  //double area = 0.0;
   if (flag_cross_section == 0){
     const size_t npoints = _boundary.size();
     int prev = npoints - 1;

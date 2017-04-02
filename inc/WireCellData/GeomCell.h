@@ -32,8 +32,8 @@ namespace WireCell {
 	Point center() const;
 	/// A list of point giving the outline of the cell.
 	PointVector boundary() const { return _boundary;}
-	EdgeVector edge() const {return _edge;}
-	const EdgeVector* redge() const { return &_edge;}
+	/* EdgeVector edge() const {return _edge;} */
+	/* const EdgeVector* redge() const { return &_edge;} */
 
 	bool operator== (const GeomCell &b) const { return this->ident()==b.ident();}
 	
@@ -58,8 +58,9 @@ namespace WireCell {
 	const GeomWire *wwire;
 
 	PointVector _boundary;
-	EdgeVector _edge;
+	//	EdgeVector _edge;
 	int order_boundary();
+	
 	mutable int flag_center;
 	mutable int flag_cross_section;
 	mutable Point ret;

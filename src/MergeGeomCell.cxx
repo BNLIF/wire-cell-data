@@ -536,7 +536,7 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
   _ident = ident;
   //this is good, as the first cell 
   _boundary = cell.boundary();
-  _edge = cell.edge();
+  //_edge = cell.edge();
   //
   cell_all.push_back(&cell);
   time_slice = -1;
@@ -566,7 +566,7 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
 
   // this is good 
   _boundary = cell.boundary();
-  _edge = cell.edge();
+  //_edge = cell.edge();
   // 
   
   uwires.clear();
@@ -662,10 +662,10 @@ bool MergeGeomCell::Connected(const WireCell::GeomCell& cell1,const WireCell::Ge
 
 void MergeGeomCell::AddNewCell(const WireCell::GeomCell& cell){
   PointVector boundary = cell.boundary();
-  EdgeVector edge = cell.edge();
+  //EdgeVector edge = cell.edge();
   // Need to improve
   _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
-  _edge.insert(_edge.end(),edge.begin(),edge.end());
+  //_edge.insert(_edge.end(),edge.begin(),edge.end());
   // 
   
   auto it_u = find(uwires.begin(),uwires.end(),cell.get_uwire());
@@ -693,7 +693,7 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell& cell, double dis){
   // if there are just two, and reduce two to one, and merge
   // This part can be improved, now the boundary of the merged cell are not correct
   PointVector boundary = cell.boundary();
-  EdgeVector edge = cell.edge();
+  //EdgeVector edge = cell.edge();
   int nshare = 0;
   for (int i=0;i!=boundary.size();i++){
     Point p = boundary[i];
@@ -709,7 +709,7 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell& cell, double dis){
 	if (nshare==2){
 	  // Need to improve
 	  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
-	  _edge.insert(_edge.end(),edge.begin(),edge.end());
+	  //_edge.insert(_edge.end(),edge.begin(),edge.end());
 	  // Need to improve
 	  
 
@@ -746,7 +746,7 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell, double dis){
   // if there are just two, and reduce two to one, and merge
   // This part can be improved, now the boundary of the merged cell are not correct
   PointVector boundary = cell.boundary();
-  EdgeVector edge = cell.edge();
+  //EdgeVector edge = cell.edge();
   int nshare = 0;
   for (int i=0;i!=boundary.size();i++){
     Point p = boundary[i];
@@ -761,7 +761,7 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell, double dis){
 	if (nshare==2){
 	  // Need to improve
 	  _boundary.insert(_boundary.end(),boundary.begin(),boundary.end());
-	  _edge.insert(_edge.end(),edge.begin(),edge.end());
+	  //_edge.insert(_edge.end(),edge.begin(),edge.end());
 	  // en
 
 	  for (int k=0;k!=cell.get_uwires().size();k++){
@@ -814,49 +814,49 @@ bool MergeGeomCell::CheckContainTruthCell(WireCell::CellChargeMap &ccmap){
 
 void MergeGeomCell::Organize_edge_boundary(){
   // organize edge
-  std::list<Edge> edgelist;
-  for (int i=0;i!=_edge.size();i++){
-    int flag = 0;
-    for (auto it = edgelist.begin();it!=edgelist.end();it++){
-      if (CompareEdge(*it,_edge.at(i))){
-	edgelist.erase(it);
- 	flag = 1;
- 	break;
-      }
-    }
-    if (flag==0){
-      edgelist.push_back(_edge.at(i));
-    }
-  }
-  _edge.clear();
-  _edge.insert(_edge.begin(),edgelist.begin(),edgelist.end());
+  // std::list<Edge> edgelist;
+  // for (int i=0;i!=_edge.size();i++){
+  //   int flag = 0;
+  //   for (auto it = edgelist.begin();it!=edgelist.end();it++){
+  //     if (CompareEdge(*it,_edge.at(i))){
+  // 	edgelist.erase(it);
+  // 	flag = 1;
+  // 	break;
+  //     }
+  //   }
+  //   if (flag==0){
+  //     edgelist.push_back(_edge.at(i));
+  //   }
+  // }
+  // _edge.clear();
+  // _edge.insert(_edge.begin(),edgelist.begin(),edgelist.end());
 
   //organize boundary
-  std::list<Point> pointlist;
-  for (int i=0;i!=_edge.size();i++){
-    for (int j=0;j!=2;j++){
-      Point p;
-      if (j==0){
-	p = _edge.at(i).first;
-      }else if (j==1){
-	p = _edge.at(i).second;
-      }
+  // std::list<Point> pointlist;
+  // for (int i=0;i!=_edge.size();i++){
+  //   for (int j=0;j!=2;j++){
+  //     Point p;
+  //     if (j==0){
+  // 	p = _edge.at(i).first;
+  //     }else if (j==1){
+  // 	p = _edge.at(i).second;
+  //     }
       
-      int flag = 0;
-      for (auto it = pointlist.begin();it!=pointlist.end();it++){
-	if (ComparePoint(*it,p)){
-	  flag = 1;
-	  break;
-	}
-      }
-      if (flag==0){
-	pointlist.push_back(p);
-      }
+  //     int flag = 0;
+  //     for (auto it = pointlist.begin();it!=pointlist.end();it++){
+  // 	if (ComparePoint(*it,p)){
+  // 	  flag = 1;
+  // 	  break;
+  // 	}
+  //     }
+  //     if (flag==0){
+  // 	pointlist.push_back(p);
+  //     }
       
-    }
-  }
-  _boundary.clear();
-  _boundary.insert(_boundary.begin(),pointlist.begin(),pointlist.end());
+  //   }
+  // }
+  // _boundary.clear();
+  // _boundary.insert(_boundary.begin(),pointlist.begin(),pointlist.end());
 
 }
 

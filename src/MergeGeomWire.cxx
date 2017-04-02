@@ -7,6 +7,7 @@ using namespace WireCell;
 
 
 
+
 MergeGeomWire::MergeGeomWire(int ident, const WireCell::GeomWire& wire)
 {
   _ident = ident;
@@ -21,6 +22,21 @@ MergeGeomWire::MergeGeomWire(int ident, const WireCell::GeomWire& wire)
 
   wire_all.push_back(&wire);
   
+}
+
+MergeGeomWire::MergeGeomWire(const WireCell::MergeGeomWire& wire)
+{
+  _ident = wire.ident();
+  _plane = wire.plane();
+
+  _index = -1;
+  _channel = -1;
+  _point1 = Point();
+  _point2 = Point();
+
+  time_slice = wire.GetTimeSlice();
+
+  wire_all = wire.get_allwire();
 }
 
 MergeGeomWire::MergeGeomWire(int ident, const WireCell::MergeGeomWire& wire)

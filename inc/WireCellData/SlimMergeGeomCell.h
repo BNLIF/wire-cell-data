@@ -5,11 +5,11 @@
 #include "WireCellData/GeomWireCellMap.h"
  
 namespace WireCell{
-  class SlimMergeGeomCell : public WireCell::GeomCell{
+class SlimMergeGeomCell : public WireCell::GeomCell{
   public:
 
-    SlimMergeGeomCell();
-    ~SlimMergeGeomCell();
+    SlimMergeGeomCell(int ident);
+   ~SlimMergeGeomCell();
 
     /// Unbiased "center of mass" of boundary points
    
@@ -20,19 +20,22 @@ namespace WireCell{
     GeomWireSelection get_vwires() const{return vwires;};
     GeomWireSelection get_wwires() const{return wwires;};
 
-    int GetTimeSlice() const { return time_slice;};
-    void SetTimeSlice(int time){time_slice = time;};
+    /* int GetTimeSlice() const { return time_slice;}; */
+    /* void SetTimeSlice(int time){time_slice = time;}; */
 
     void OrderWires();
 
-  protected:
-    
+    int GetIdent() {return _ident;};
 
+  protected:
+    int _ident;
+
+    int order_boundary();
     WireCell::GeomWireSelection uwires;
     WireCell::GeomWireSelection vwires;
     WireCell::GeomWireSelection wwires;
      
-    int time_slice;
+    /* int time_slice; */
     
   };
 }
