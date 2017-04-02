@@ -75,7 +75,6 @@ namespace WireCell{
 
     WireCell::GeomCellSelection cell_all;
     WireCell::GeomCellSelection edge_cells;
-
     WireCell::GeomWireSelection edge_wires;
 
     WireCell::GeomCellSelection corner_cells;
