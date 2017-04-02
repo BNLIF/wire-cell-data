@@ -12,7 +12,7 @@ WireCell::SlimMergeGeomCell::~SlimMergeGeomCell(){
   wwires.clear();
 }
 
-void WireCell::SlimMergeGeomCell::AddWire(GeomWire *wire, WirePlaneType_t plane){
+void WireCell::SlimMergeGeomCell::AddWire(const GeomWire *wire, WirePlaneType_t plane){
   if (plane == WirePlaneType_t(0)){
     if (find(uwires.begin(),uwires.end(),wire)==uwires.end())
       uwires.push_back(wire);

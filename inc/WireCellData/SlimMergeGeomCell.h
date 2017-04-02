@@ -12,7 +12,7 @@ namespace WireCell{
     ~SlimMergeGeomCell();
 
 
-    void AddWire(GeomWire *wire, WirePlaneType_t plane);
+    void AddWire(const GeomWire *wire, WirePlaneType_t plane);
     
     GeomWireSelection get_uwires() const{return uwires;};
     GeomWireSelection get_vwires() const{return vwires;};
