@@ -11,9 +11,11 @@ namespace WireCell{
     SlimMergeGeomCell();
     ~SlimMergeGeomCell();
 
-
+    /// Unbiased "center of mass" of boundary points
+   
     void AddWire(const GeomWire *wire, WirePlaneType_t plane);
-    
+    void AddBoundary( const PointVector& boundary );
+
     GeomWireSelection get_uwires() const{return uwires;};
     GeomWireSelection get_vwires() const{return vwires;};
     GeomWireSelection get_wwires() const{return wwires;};
@@ -24,6 +26,8 @@ namespace WireCell{
     void OrderWires();
 
   protected:
+    
+
     WireCell::GeomWireSelection uwires;
     WireCell::GeomWireSelection vwires;
     WireCell::GeomWireSelection wwires;
