@@ -22,6 +22,8 @@ namespace WireCell{
     WireCell::GeomWireSelection wire_all;
     int time_slice;
   };
+
+  
 }
 
 #endif

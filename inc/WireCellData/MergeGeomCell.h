@@ -109,8 +109,10 @@ namespace WireCell{
       }
       
     };
-
+    
     /// Used to store a definitive, ordered set of cells
     typedef std::set<WireCell::MergeGeomCell*, MergeGeomCellCompare> MergeGeomCellSet;
+
+    
 }
 #endif
