@@ -17,7 +17,7 @@ namespace WireCell{
     void SetTimeSlice(int time){time_slice = time;};
     
     WireCell::GeomWireSelection get_allwire() const{ return wire_all;}
-
+    
   protected:
     WireCell::GeomWireSelection wire_all;
     int time_slice;
