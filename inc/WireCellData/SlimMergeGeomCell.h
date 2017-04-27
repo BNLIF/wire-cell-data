@@ -26,6 +26,8 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     void OrderWires();
 
     int GetIdent() {return _ident;};
+    std::vector<WirePlaneType_t> get_bad_planes(){return bad_planes;};
+    void add_bad_planes(WirePlaneType_t type);
 
   protected:
     int _ident;
@@ -34,7 +36,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     WireCell::GeomWireSelection uwires;
     WireCell::GeomWireSelection vwires;
     WireCell::GeomWireSelection wwires;
-     
+    std::vector<WirePlaneType_t> bad_planes;
     /* int time_slice; */
     
   };

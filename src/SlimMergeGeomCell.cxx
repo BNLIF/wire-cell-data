@@ -15,6 +15,13 @@ WireCell::SlimMergeGeomCell::~SlimMergeGeomCell(){
   wwires.clear();
 }
 
+void WireCell::SlimMergeGeomCell::add_bad_planes(WirePlaneType_t plane){
+  if (find(bad_planes.begin(),bad_planes.end(),plane)!=bad_planes.end()){
+  }else{
+    bad_planes.push_back(plane);
+  }
+}
+
 void WireCell::SlimMergeGeomCell::AddBoundary(const PointVector& boundary){
   _boundary = boundary;
   flag_center = 0;
