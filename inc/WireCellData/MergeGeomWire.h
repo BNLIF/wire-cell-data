@@ -8,6 +8,7 @@ namespace WireCell{
     
     MergeGeomWire(int ident, const WireCell::GeomWire& wire);
     MergeGeomWire(int ident, const WireCell::MergeGeomWire& wire);
+    MergeGeomWire(int ident, GeomWireSelection wires);
     MergeGeomWire(const WireCell::MergeGeomWire& wire);
     ~MergeGeomWire();
 

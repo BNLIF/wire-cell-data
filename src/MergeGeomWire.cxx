@@ -6,7 +6,22 @@ using namespace std;
 using namespace WireCell;
 
 
-
+MergeGeomWire::MergeGeomWire(int ident, GeomWireSelection wires){
+  
+  _ident = ident;
+  _plane = wires.at(0)->plane();
+  
+  _index = -1;
+  _channel = -1;
+  _point1 = Point();
+  _point2 = Point();
+  
+  time_slice = -1;
+  
+  for(int i=0;i!=wires.size();i++){
+    wire_all.push_back(wires.at(i));
+  }
+}
 
 MergeGeomWire::MergeGeomWire(int ident, const WireCell::GeomWire& wire)
 {
