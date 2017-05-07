@@ -16,6 +16,7 @@ MergeGeomWire::MergeGeomWire(int ident, GeomWireSelection wires){
   _point1 = Point();
   _point2 = Point();
   
+  sort_flag = false;
   time_slice = -1;
   
   for(int i=0;i!=wires.size();i++){
@@ -34,7 +35,7 @@ MergeGeomWire::MergeGeomWire(int ident, const WireCell::GeomWire& wire)
   _point2 = Point();
   
   time_slice = -1;
-
+  sort_flag = false;
   wire_all.push_back(&wire);
   
 }
@@ -50,7 +51,7 @@ MergeGeomWire::MergeGeomWire(const WireCell::MergeGeomWire& wire)
   _point2 = Point();
 
   time_slice = wire.GetTimeSlice();
-
+  sort_flag = false;
   wire_all = wire.get_allwire();
 }
 
@@ -63,7 +64,7 @@ MergeGeomWire::MergeGeomWire(int ident, const WireCell::MergeGeomWire& wire)
   _channel = -1;
   _point1 = Point();
   _point2 = Point();
-
+  sort_flag = false;
   time_slice = wire.GetTimeSlice();
 
   wire_all = wire.get_allwire();
@@ -85,7 +86,10 @@ int MergeGeomWire::AddWire(const WireCell::GeomWire& wire){
 }
 
 void MergeGeomWire::order_wires(){
-  sort_by_planeindex(wire_all);
+  if (!sort_flag){
+    sort_flag = true;
+    sort_by_planeindex(wire_all);
+  }
 }
 
 int MergeGeomWire::AddWire(WireCell::MergeGeomWire& wire){
