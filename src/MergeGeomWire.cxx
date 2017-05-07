@@ -84,6 +84,10 @@ int MergeGeomWire::AddWire(const WireCell::GeomWire& wire){
   }
 }
 
+void MergeGeomWire::order_wires(){
+  sort_by_planeindex(wire_all);
+}
+
 int MergeGeomWire::AddWire(WireCell::MergeGeomWire& wire){
   if (wire.plane() == _plane){
  
@@ -130,3 +134,5 @@ int MergeGeomWire::AddWire(WireCell::MergeGeomWire& wire){
     return 0;
   }
 }
+
+

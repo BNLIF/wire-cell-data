@@ -16,6 +16,7 @@ namespace WireCell{
     int AddWire(WireCell::MergeGeomWire& wire);
     int GetTimeSlice() const { return time_slice;};
     void SetTimeSlice(int time){time_slice = time;};
+    void order_wires();
     
     WireCell::GeomWireSelection get_allwire() const{ return wire_all;}
     
