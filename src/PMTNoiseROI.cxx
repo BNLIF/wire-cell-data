@@ -1,6 +1,7 @@
 #include "WireCellData/PMTNoiseROI.h"
 
 #include <algorithm>
+#include <cmath>
 
 using namespace WireCell;
 
