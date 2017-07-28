@@ -23,7 +23,8 @@ namespace WireCell{
     WirePlaneType_t get_plane(){return plane;}
     std::vector<float>& get_contents(){return contents;}
     std::vector<std::pair<int,int>> get_above_threshold(float th);
-  
+    double get_average_heights();
+    
     bool overlap(SignalROI *roi);
     bool overlap(SignalROI *roi1, float th, float th1);
     
