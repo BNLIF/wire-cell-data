@@ -7,6 +7,7 @@
 
 #include <set>
 #include <vector>
+#include <list>
 #include <iostream>
 
 namespace WireCell {
@@ -139,6 +140,8 @@ namespace WireCell {
 
     /// Used to temporarily construct some sub-set of cells
     typedef std::vector<const GeomWire*> GeomWireSelection;
+    typedef std::list<const GeomWire*> GeomWireList;
+    typedef std::set<const GeomWire*> GeomWireSetp;
 
     typedef std::map<const GeomWire*, float> WireChargeMap; 
 

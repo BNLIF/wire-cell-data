@@ -87,6 +87,7 @@ namespace WireCell {
     typedef std::vector<const WireCell::GeomCell*> GeomCellSelection;
     typedef std::vector<WireCell::GeomCellSelection> GeomCellSelectionV;
     typedef std::list<const WireCell::GeomCell*> GeomCellList;
+    typedef std::set<const WireCell::GeomCell*> GeomCellSetp;
 
     typedef std::map<const GeomCell*, float> CellChargeMap; 
 
