@@ -15,7 +15,8 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    
     void AddWire(const GeomWire *wire, WirePlaneType_t plane);
     void AddBoundary( const PointVector& boundary );
-
+    
+    
     GeomWireSelection get_uwires() const{return uwires;};
     GeomWireSelection get_vwires() const{return vwires;};
     GeomWireSelection get_wwires() const{return wwires;};
@@ -32,7 +33,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
   protected:
     int _ident;
 
-    int order_boundary();
+    //int order_boundary();
     WireCell::GeomWireSelection uwires;
     WireCell::GeomWireSelection vwires;
     WireCell::GeomWireSelection wwires;

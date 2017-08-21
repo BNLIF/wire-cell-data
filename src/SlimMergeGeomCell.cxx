@@ -29,6 +29,7 @@ void WireCell::SlimMergeGeomCell::add_bad_planes(WirePlaneType_t plane){
 void WireCell::SlimMergeGeomCell::AddBoundary(const PointVector& boundary){
   _boundary = boundary;
   flag_center = 0;
+  order_boundary();
 }
 
 
