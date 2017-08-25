@@ -21,8 +21,8 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     GeomWireSelection get_vwires() const{return vwires;};
     GeomWireSelection get_wwires() const{return wwires;};
 
-    /* int GetTimeSlice() const { return time_slice;}; */
-    /* void SetTimeSlice(int time){time_slice = time;}; */
+    int GetTimeSlice() const { return time_slice;}; 
+    void SetTimeSlice(int time){time_slice = time;}; 
 
     void OrderWires();
 
@@ -38,7 +38,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     WireCell::GeomWireSelection vwires;
     WireCell::GeomWireSelection wwires;
     std::vector<WirePlaneType_t> bad_planes;
-    /* int time_slice; */
+    int time_slice; 
     
   };
 }

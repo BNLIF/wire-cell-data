@@ -8,6 +8,7 @@ using namespace WireCell;
 
 WireCell::SlimMergeGeomCell::SlimMergeGeomCell(int ident)
   : _ident(ident)
+  , time_slice(-1)
 {
 }
 
