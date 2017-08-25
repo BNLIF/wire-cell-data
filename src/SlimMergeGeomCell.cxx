@@ -57,6 +57,8 @@ void WireCell::SlimMergeGeomCell::OrderWires(){
 
 
 bool WireCell::SlimMergeGeomCell::Overlap(const WireCell::SlimMergeGeomCell* cell, float num){
+
+  double cut_limit = 1.2;
   
   int flag_u = 0;
       
@@ -89,7 +91,7 @@ bool WireCell::SlimMergeGeomCell::Overlap(const WireCell::SlimMergeGeomCell* cel
 		   cell->get_uwires().at(i)->point1().y - uwires.at(j)->point1().y,
 		   cell->get_uwires().at(i)->point1().z - uwires.at(j)->point1().z);
       float dis = fabs(dir.Dot(dir_up));
-      if (dis < Singleton<TPCParams>::Instance().get_pitch()*1.2){
+      if (dis < Singleton<TPCParams>::Instance().get_pitch()*cut_limit){
 	flag_u = 1;
 	break;
       }
@@ -108,7 +110,7 @@ bool WireCell::SlimMergeGeomCell::Overlap(const WireCell::SlimMergeGeomCell* cel
 		   cell->get_vwires().at(i)->point1().y - vwires.at(j)->point1().y,
 		   cell->get_vwires().at(i)->point1().z - vwires.at(j)->point1().z);
       float dis = fabs(dir.Dot(dir_vp));
-      if (dis < Singleton<TPCParams>::Instance().get_pitch()*1.2){
+      if (dis < Singleton<TPCParams>::Instance().get_pitch()*cut_limit){
 	flag_v = 1;
 	break;
       }
@@ -127,7 +129,7 @@ bool WireCell::SlimMergeGeomCell::Overlap(const WireCell::SlimMergeGeomCell* cel
 		   cell->get_wwires().at(i)->point1().y - wwires.at(j)->point1().y,
 		   cell->get_wwires().at(i)->point1().z - wwires.at(j)->point1().z);
       float dis = fabs(dir.Dot(dir_wp));
-      if (dis < Singleton<TPCParams>::Instance().get_pitch()*1.2){
+      if (dis < Singleton<TPCParams>::Instance().get_pitch()*cut_limit){
 	flag_w = 1;
 	break;
       }
@@ -142,4 +144,36 @@ bool WireCell::SlimMergeGeomCell::Overlap(const WireCell::SlimMergeGeomCell* cel
   }
   
   return false;
+}
+
+
+bool WireCell::SlimMergeGeomCell::Overlap_fast(const WireCell::SlimMergeGeomCell* cell){
+  //std::cout << uwires.size() << " " << vwires.size() << " " << wwires.size() << " "
+  //	    << cell->get_uwires().size() << " " << cell->get_vwires().size() << " " << cell->get_wwires().size() << std::endl;
+  
+  int u_low_index = uwires.front()->index();
+  int u_high_index = uwires.back()->index();
+
+  int v_low_index = vwires.front()->index();
+  int v_high_index = vwires.back()->index();
+
+  int w_low_index = wwires.front()->index();
+  int w_high_index = wwires.back()->index();
+
+  int u1_low_index = cell->get_uwires().front()->index();
+  int u1_high_index = cell->get_uwires().back()->index();
+
+  int v1_low_index = cell->get_vwires().front()->index();
+  int v1_high_index = cell->get_vwires().back()->index();
+
+  int w1_low_index = cell->get_wwires().front()->index();
+  int w1_high_index = cell->get_wwires().back()->index();
+
+  if (u_low_index > u1_high_index || u1_low_index > u_high_index) return false;
+  if (v_low_index > v1_high_index || v1_low_index > v_high_index) return false;
+  if (w_low_index > w1_high_index || w1_low_index > w_high_index) return false;
+  
+  return true;
+  
+  
 }
