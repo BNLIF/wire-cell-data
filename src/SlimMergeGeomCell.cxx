@@ -56,7 +56,7 @@ void WireCell::SlimMergeGeomCell::OrderWires(){
 }
 
 
-bool WireCell::SlimMergeGeomCell::Overlap(const WireCell::SlimMergeGeomCell* cell, float num){
+bool WireCell::SlimMergeGeomCell::Overlap(const WireCell::SlimMergeGeomCell* cell, float num) const{
 
   double cut_limit = 1.2;
   
@@ -147,7 +147,7 @@ bool WireCell::SlimMergeGeomCell::Overlap(const WireCell::SlimMergeGeomCell* cel
 }
 
 
-bool WireCell::SlimMergeGeomCell::Overlap_fast(const WireCell::SlimMergeGeomCell* cell){
+bool WireCell::SlimMergeGeomCell::Overlap_fast(const WireCell::SlimMergeGeomCell* cell) const{
   //std::cout << uwires.size() << " " << vwires.size() << " " << wwires.size() << " "
   //	    << cell->get_uwires().size() << " " << cell->get_vwires().size() << " " << cell->get_wwires().size() << std::endl;
   

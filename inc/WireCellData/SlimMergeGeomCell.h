@@ -29,8 +29,8 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     int GetIdent() {return _ident;};
     std::vector<WirePlaneType_t> get_bad_planes(){return bad_planes;};
     void add_bad_planes(WirePlaneType_t type);
-    bool Overlap(const WireCell::SlimMergeGeomCell* cell, float num=0.1);
-    bool Overlap_fast(const WireCell::SlimMergeGeomCell* cell);
+    bool Overlap(const WireCell::SlimMergeGeomCell* cell, float num=0.1) const;
+    bool Overlap_fast(const WireCell::SlimMergeGeomCell* cell) const;
     
   protected:
     int _ident;
