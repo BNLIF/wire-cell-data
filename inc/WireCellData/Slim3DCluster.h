@@ -3,12 +3,13 @@
 
 #include "WireCellData/Units.h"
 #include "WireCellData/SlimMergeGeomCell.h"
+#include "WireCellData/Projected2DCluster.h"
 
 #include <set>
 #include <vector>
 
 namespace WireCell {
-  typedef std::vector<std::set<const SlimMergeGeomCell*>> SlimMergeCellCluster;
+  typedef std::vector<std::set<SlimMergeGeomCell*>> SlimMergeCellCluster;
 
   class Slim3DCluster {
   public:
@@ -21,11 +22,18 @@ namespace WireCell {
     SlimMergeCellCluster get_ordercell(){return cluster;};
 
     void MergeCluster(Slim3DCluster& cluster1);
-    
+
+    void Calc_Projection();
+    Projected2DCluster* get_projection(WirePlaneType_t plane);
 
   protected:
     SlimMergeCellCluster cluster; // vector of time 
     GeomCellSelection gcluster; // all merged cell
+
+    Projected2DCluster *u_proj;
+    Projected2DCluster *v_proj;
+    Projected2DCluster *w_proj;
+    
   };
 
   typedef std::set<Slim3DCluster*> Slim3DClusterSet;
