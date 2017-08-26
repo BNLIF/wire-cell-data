@@ -27,6 +27,7 @@ void Projected2DCluster::Print(){
 
 
 void Projected2DCluster::AddCell(SlimMergeGeomCell *mcell){
+
   std::vector<WirePlaneType_t> bad_planes = mcell->get_bad_planes();
   if (find(bad_planes.begin(),bad_planes.end(),plane_no)==bad_planes.end()){
     int time_slice = mcell->GetTimeSlice();
@@ -42,6 +43,8 @@ void Projected2DCluster::AddCell(SlimMergeGeomCell *mcell){
     int low_wire = wires.front()->index();
     int high_wire = wires.back()->index();
 
+    //std::cout << low_wire << " " << high_wire << std::endl;
+    
     // update the limits .... 
     if (time_slice_limit[0]==-1){
       time_slice_limit[0] = time_slice;
@@ -134,6 +137,7 @@ int Projected2DCluster::judge_coverage(Projected2DCluster *cluster){
   
   if (plane_no!=cluster->GetPlaneNo()){
     std::cout <<"Something Wrong! " << std::endl;
+    return 0;
   }
   
   // if the cluster is empty ...

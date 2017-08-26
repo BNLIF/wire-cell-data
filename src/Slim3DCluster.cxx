@@ -54,9 +54,14 @@ void Slim3DCluster::Calc_Projection(){
     }
   }
 
-  // std::cout << "Xin: " << std::endl;
+  // std::cout << "Xin: U " << std::endl;
   // u_proj->Print();
-  
+
+  // std::cout << "Xin: V " << std::endl;
+  // v_proj->Print();
+
+  // std::cout << "Xin: W " << std::endl;
+  // w_proj->Print();
 }
 
 
