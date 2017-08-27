@@ -25,8 +25,12 @@ namespace WireCell {
 
     void Calc_Projection();
     Projected2DCluster* get_projection(WirePlaneType_t plane);
-
+    int get_flag_saved(){return flag_saved;};
+    void set_flag_saved(int value){flag_saved = value;};
+    
   protected:
+    int flag_saved;
+    
     SlimMergeCellCluster cluster; // vector of time 
     GeomCellSelection gcluster; // all merged cell
 
