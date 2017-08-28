@@ -18,7 +18,9 @@ namespace WireCell{
 
     // +1 the 
     int judge_coverage(Projected2DCluster *cluster);
-    
+
+    std::vector<int> calc_coverage(Projected2DCluster *cluster);
+    int judge_coverage_alt(Projected2DCluster *cluster);
     
     WirePlaneType_t GetPlaneNo(){return plane_no;};
 

@@ -128,6 +128,110 @@ void Projected2DCluster::AddCell(SlimMergeGeomCell *mcell){
 
 
 
+std::vector<int> Projected2DCluster::calc_coverage(Projected2DCluster *cluster){
+  std::vector<int> results;
+  if (plane_no!=cluster->GetPlaneNo()){
+    std::cout <<"Something Wrong! " << std::endl;
+  }
+  std::map<int, std::list<std::pair<int,int>>>& cluster_time_wires_map = cluster->get_time_wires_map();
+
+
+  int num_this = 0, num_this_in_cluster = 0;
+  // calculate the number for this ...
+  for (auto it = time_wires_map.begin(); it!= time_wires_map.end(); it++){
+    int curr_time_slice = it->first;
+    std::list<std::pair<int,int>> wire_pairs = it->second;
+    std::list<std::pair<int,int>> cluster_wire_pairs;
+    if (cluster_time_wires_map.find(curr_time_slice) != cluster_time_wires_map.end()){
+      cluster_wire_pairs = cluster_time_wires_map[curr_time_slice];
+    }
+    
+    for (auto it1 = wire_pairs.begin(); it1!=wire_pairs.end(); it1++){
+      int low_wire = it1->first;
+      int high_wire = it1->second;
+      for (int i = low_wire; i<= high_wire;i++){
+	num_this ++;
+	for (auto it2 = cluster_wire_pairs.begin(); it2!=cluster_wire_pairs.end(); it2++){
+	  int cluster_low_wire = it2->first;
+	  int cluster_high_wire = it2->second;
+	  if (i>= cluster_low_wire && i<= cluster_high_wire){
+	    num_this_in_cluster ++;
+	    break;
+	  }
+	}
+      }
+    }
+  }
+
+  int num_cluster = 0, num_cluster_in_this = 0;
+  
+  // calculate the number for clusters ...
+   for (auto it = cluster_time_wires_map.begin(); it!= cluster_time_wires_map.end(); it++){
+    int curr_time_slice = it->first;
+    std::list<std::pair<int,int>> cluster_wire_pairs = it->second;
+    std::list<std::pair<int,int>> wire_pairs;
+    if (time_wires_map.find(curr_time_slice) != time_wires_map.end()){
+      wire_pairs = time_wires_map[curr_time_slice];
+    }
+    
+    for (auto it1 = cluster_wire_pairs.begin(); it1!=cluster_wire_pairs.end(); it1++){
+      int cluster_low_wire = it1->first;
+      int cluster_high_wire = it1->second;
+      for (int i = cluster_low_wire; i<= cluster_high_wire;i++){
+	num_cluster ++;
+	for (auto it2 = wire_pairs.begin(); it2!=wire_pairs.end(); it2++){
+	  int low_wire = it2->first;
+	  int high_wire = it2->second;
+	  if (i>= low_wire && i<= high_wire){
+	    num_cluster_in_this ++;
+	    break;
+	  }
+	}
+      }
+    }
+  }
+
+ 
+
+  
+  
+  results.push_back(num_this);
+  results.push_back(num_cluster);
+  results.push_back(num_this_in_cluster);
+  results.push_back(num_cluster_in_this);
+  return results;
+}
+
+
+int Projected2DCluster::judge_coverage_alt(Projected2DCluster *cluster){
+  std::vector<int> results = calc_coverage(cluster);
+  if (results.at(0)==0 && results.at(1)==0){
+    return -2;
+  }else if (results.at(0)==results.at(1) && results.at(2)==results.at(0)){
+    return 2;
+  }else if (results.at(2)==results.at(0)){
+    return -1;
+  }else if (results.at(2) == results.at(1)){
+    return 1;
+  }else{
+    int value;
+    if (results.at(0) < results.at(1)){
+      value = -1; 
+    }else{
+      value = 1;
+    }
+    Double_t small_counts = std::min(results.at(0),results.at(1));
+    Double_t common_counts = results.at(2);
+    if (small_counts - common_counts <=3 //  difference can only be up to 3 bit
+	&& common_counts/small_counts < 0.15){ // fraction needs to be smaller than 15%
+      return value;
+    }else{
+      return 0;
+    }
+    
+  }
+}
+
 int Projected2DCluster::judge_coverage(Projected2DCluster *cluster){
   // +1 cluster belong to this
   // -1 this belong to cluster
