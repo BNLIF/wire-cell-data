@@ -13,7 +13,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
 
     /// Unbiased "center of mass" of boundary points
    
-    void AddWire(const GeomWire *wire, WirePlaneType_t plane);
+   void AddWire(const GeomWire *wire, WirePlaneType_t plane, float charge=0);
     void AddBoundary( const PointVector& boundary );
     
     
@@ -31,6 +31,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     void add_bad_planes(WirePlaneType_t type);
     bool Overlap(const WireCell::SlimMergeGeomCell* cell, float num=0.1) const;
     bool Overlap_fast(const WireCell::SlimMergeGeomCell* cell, int offset=1) const;
+    float Get_Wire_Charge(const GeomWire *wire);
     
   protected:
     int _ident;
@@ -40,6 +41,8 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     WireCell::GeomWireSelection vwires;
     WireCell::GeomWireSelection wwires;
     std::vector<WirePlaneType_t> bad_planes;
+
+    WireCell::WireChargeMap wirechargemap;
     int time_slice; 
     
   };

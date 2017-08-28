@@ -20,6 +20,14 @@ WireCell::SlimMergeGeomCell::~SlimMergeGeomCell(){
   wwires.clear();
 }
 
+float WireCell::SlimMergeGeomCell::Get_Wire_Charge(const GeomWire *wire){
+  if (wirechargemap.find(wire)!=wirechargemap.end()){
+    return wirechargemap[wire];
+  }else{
+    return 0;
+  }
+}
+
 void WireCell::SlimMergeGeomCell::add_bad_planes(WirePlaneType_t plane){
   if (find(bad_planes.begin(),bad_planes.end(),plane)!=bad_planes.end()){
   }else{
@@ -35,16 +43,22 @@ void WireCell::SlimMergeGeomCell::AddBoundary(const PointVector& boundary){
 
 
 
-void WireCell::SlimMergeGeomCell::AddWire(const GeomWire *wire, WirePlaneType_t plane){
+void WireCell::SlimMergeGeomCell::AddWire(const GeomWire *wire, WirePlaneType_t plane, float charge){
   if (plane == WirePlaneType_t(0)){
-    if (find(uwires.begin(),uwires.end(),wire)==uwires.end())
+    if (find(uwires.begin(),uwires.end(),wire)==uwires.end()){
       uwires.push_back(wire);
+      wirechargemap[wire] = charge;
+    }
   }else if (plane == WirePlaneType_t(1)){
-    if (find(vwires.begin(),vwires.end(),wire)==vwires.end())
+    if (find(vwires.begin(),vwires.end(),wire)==vwires.end()){
       vwires.push_back(wire);
+      wirechargemap[wire] = charge;
+    }
   }else if (plane == WirePlaneType_t(2)){
-    if (find(wwires.begin(),wwires.end(),wire)==wwires.end())
+    if (find(wwires.begin(),wwires.end(),wire)==wwires.end()){
       wwires.push_back(wire);
+      wirechargemap[wire] = charge;
+    }
   }
 }
 
