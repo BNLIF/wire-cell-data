@@ -157,15 +157,18 @@ std::vector<int> Projected2DCluster::calc_coverage(Projected2DCluster *cluster){
       int low_wire = it1->first;
       int high_wire = it1->second;
       for (int i = low_wire; i<= high_wire;i++){
-	num_this ++;
-	charge_this += time_wire_charge_map[std::make_pair(curr_time_slice,i)];
-	for (auto it2 = cluster_wire_pairs.begin(); it2!=cluster_wire_pairs.end(); it2++){
-	  int cluster_low_wire = it2->first;
-	  int cluster_high_wire = it2->second;
-	  if (i>= cluster_low_wire && i<= cluster_high_wire){
-	    num_this_in_cluster ++;
-	    charge_this_in_cluster += time_wire_charge_map[std::make_pair(curr_time_slice,i)];
-	    break;
+	float temp_charge = time_wire_charge_map[std::make_pair(curr_time_slice,i)];
+	if (temp_charge>0){
+	  num_this ++;
+	  charge_this += temp_charge;
+	  for (auto it2 = cluster_wire_pairs.begin(); it2!=cluster_wire_pairs.end(); it2++){
+	    int cluster_low_wire = it2->first;
+	    int cluster_high_wire = it2->second;
+	    if (i>= cluster_low_wire && i<= cluster_high_wire){
+	      num_this_in_cluster ++;
+	      charge_this_in_cluster += temp_charge;
+	      break;
+	    }
 	  }
 	}
       }
@@ -188,15 +191,18 @@ std::vector<int> Projected2DCluster::calc_coverage(Projected2DCluster *cluster){
       int cluster_low_wire = it1->first;
       int cluster_high_wire = it1->second;
       for (int i = cluster_low_wire; i<= cluster_high_wire;i++){
-	num_cluster ++;
-	charge_cluster += cluster->get_charge(std::make_pair(curr_time_slice,i));
-	for (auto it2 = wire_pairs.begin(); it2!=wire_pairs.end(); it2++){
-	  int low_wire = it2->first;
-	  int high_wire = it2->second;
-	  if (i>= low_wire && i<= high_wire){
-	    num_cluster_in_this ++;
-	    charge_cluster_in_this += cluster->get_charge(std::make_pair(curr_time_slice,i));
-	    break;
+	float temp_charge = cluster->get_charge(std::make_pair(curr_time_slice,i));
+	if (temp_charge >0){
+	  num_cluster ++;
+	  charge_cluster += temp_charge;
+	  for (auto it2 = wire_pairs.begin(); it2!=wire_pairs.end(); it2++){
+	    int low_wire = it2->first;
+	    int high_wire = it2->second;
+	    if (i>= low_wire && i<= high_wire){
+	      num_cluster_in_this ++;
+	      charge_cluster_in_this += temp_charge;
+	      break;
+	    }
 	  }
 	}
       }
@@ -210,18 +216,19 @@ std::vector<int> Projected2DCluster::calc_coverage(Projected2DCluster *cluster){
   results.push_back(num_this);
   results.push_back(num_cluster);
   results.push_back(num_this_in_cluster);
-  results.push_back(num_cluster_in_this);
+  // results.push_back(num_cluster_in_this);
   results.push_back(charge_this);
   results.push_back(charge_cluster);
   results.push_back(charge_this_in_cluster);
-  results.push_back(charge_cluster_in_this);
+  //results.push_back(charge_cluster_in_this);
   
   return results;
 }
 
 
 int Projected2DCluster::judge_coverage_alt(Projected2DCluster *cluster){
-  std::vector<int> results = calc_coverage(cluster);
+  std::vector<int> results = calc_coverage(cluster); // 6
+
   if (results.at(0)==0 && results.at(1)==0){
     return -2;
   }else if (results.at(0)==results.at(1) && results.at(2)==results.at(0)){
@@ -231,20 +238,37 @@ int Projected2DCluster::judge_coverage_alt(Projected2DCluster *cluster){
   }else if (results.at(2) == results.at(1)){
     return 1;
   }else{
+
+    
     int value;
     if (results.at(0) < results.at(1)){
       value = -1; 
     }else{
       value = 1;
     }
-    Double_t small_counts = std::min(results.at(0),results.at(1));
-    Double_t common_counts = results.at(2);
-    if (small_counts - common_counts <=3 //  difference can only be up to 3 bit
-	&& common_counts/small_counts <= 0.15){ // fraction needs to be smaller than 15%
+    float common_counts = results.at(2);
+    float small_counts = std::min(results.at(0),results.at(1));
+
+    float small_charge = std::min(results.at(3),results.at(4));
+    float common_charge = results.at(5);
+
+    if (((1-common_charge/small_charge) * (small_counts - common_counts) < 0.3 && // ratio ...
+	 (small_counts - common_counts) < 0.25* small_counts) ||
+	((1-common_charge/small_charge) < 0.25 && (small_counts - common_counts) < 0.25* small_counts)
+	){ //uncommon part is below 25%
       return value;
     }else{
       return 0;
     }
+    
+    // Double_t small_counts = std::min(results.at(0),results.at(1));
+    // Double_t common_counts = results.at(2);
+    // if (small_counts - common_counts <=3 //  difference can only be up to 3 bit
+    // 	&& common_counts/small_counts <= 0.15){ // fraction needs to be smaller than 15%
+    //   return value;
+    // }else{
+    //   return 0;
+    // }
     
   }
 }
