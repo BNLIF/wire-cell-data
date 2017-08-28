@@ -223,7 +223,7 @@ int Projected2DCluster::judge_coverage_alt(Projected2DCluster *cluster){
     Double_t small_counts = std::min(results.at(0),results.at(1));
     Double_t common_counts = results.at(2);
     if (small_counts - common_counts <=3 //  difference can only be up to 3 bit
-	&& common_counts/small_counts < 0.15){ // fraction needs to be smaller than 15%
+	&& common_counts/small_counts <= 0.15){ // fraction needs to be smaller than 15%
       return value;
     }else{
       return 0;
