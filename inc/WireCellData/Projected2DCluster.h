@@ -31,7 +31,7 @@ namespace WireCell{
     int get_high_wire_limit(){return wire_limit[1];};
     std::vector<int>& get_time_slice_array(){return time_slice_array;};
     std::map<int, std::list<std::pair<int,int>>>& get_time_wires_map(){return time_wires_map;};
-    
+    int get_charge(std::pair<int,int> time_wire){return time_wire_charge_map[time_wire];};
     void Print();
     
     
@@ -46,7 +46,7 @@ namespace WireCell{
 
     std::vector<int> time_slice_array;
     std::map<int,std::list<std::pair<int,int>>> time_wires_map;
-    
+    std::map<std::pair<int,int>,float> time_wire_charge_map;
   };
 }
 

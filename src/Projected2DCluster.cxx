@@ -40,6 +40,12 @@ void Projected2DCluster::AddCell(SlimMergeGeomCell *mcell){
     }else if (plane_no == WirePlaneType_t(2)){
       wires = mcell->get_wwires();
     }
+
+    for (auto it = wires.begin(); it!=wires.end(); it++){
+      time_wire_charge_map[std::make_pair(time_slice,(*it)->index())] = mcell->Get_Wire_Charge(*it);
+    }
+    
+    
     int low_wire = wires.front()->index();
     int high_wire = wires.back()->index();
 
@@ -137,6 +143,7 @@ std::vector<int> Projected2DCluster::calc_coverage(Projected2DCluster *cluster){
 
 
   int num_this = 0, num_this_in_cluster = 0;
+  float charge_this = 0, charge_this_in_cluster = 0;
   // calculate the number for this ...
   for (auto it = time_wires_map.begin(); it!= time_wires_map.end(); it++){
     int curr_time_slice = it->first;
@@ -151,11 +158,13 @@ std::vector<int> Projected2DCluster::calc_coverage(Projected2DCluster *cluster){
       int high_wire = it1->second;
       for (int i = low_wire; i<= high_wire;i++){
 	num_this ++;
+	charge_this += time_wire_charge_map[std::make_pair(curr_time_slice,i)];
 	for (auto it2 = cluster_wire_pairs.begin(); it2!=cluster_wire_pairs.end(); it2++){
 	  int cluster_low_wire = it2->first;
 	  int cluster_high_wire = it2->second;
 	  if (i>= cluster_low_wire && i<= cluster_high_wire){
 	    num_this_in_cluster ++;
+	    charge_this_in_cluster += time_wire_charge_map[std::make_pair(curr_time_slice,i)];
 	    break;
 	  }
 	}
@@ -164,6 +173,7 @@ std::vector<int> Projected2DCluster::calc_coverage(Projected2DCluster *cluster){
   }
 
   int num_cluster = 0, num_cluster_in_this = 0;
+  float charge_cluster = 0, charge_cluster_in_this = 0;
   
   // calculate the number for clusters ...
    for (auto it = cluster_time_wires_map.begin(); it!= cluster_time_wires_map.end(); it++){
@@ -179,18 +189,20 @@ std::vector<int> Projected2DCluster::calc_coverage(Projected2DCluster *cluster){
       int cluster_high_wire = it1->second;
       for (int i = cluster_low_wire; i<= cluster_high_wire;i++){
 	num_cluster ++;
+	charge_cluster += cluster->get_charge(std::make_pair(curr_time_slice,i));
 	for (auto it2 = wire_pairs.begin(); it2!=wire_pairs.end(); it2++){
 	  int low_wire = it2->first;
 	  int high_wire = it2->second;
 	  if (i>= low_wire && i<= high_wire){
 	    num_cluster_in_this ++;
+	    charge_cluster_in_this += cluster->get_charge(std::make_pair(curr_time_slice,i));
 	    break;
 	  }
 	}
       }
     }
   }
-
+   
  
 
   
@@ -199,6 +211,11 @@ std::vector<int> Projected2DCluster::calc_coverage(Projected2DCluster *cluster){
   results.push_back(num_cluster);
   results.push_back(num_this_in_cluster);
   results.push_back(num_cluster_in_this);
+  results.push_back(charge_this);
+  results.push_back(charge_cluster);
+  results.push_back(charge_this_in_cluster);
+  results.push_back(charge_cluster_in_this);
+  
   return results;
 }
 
