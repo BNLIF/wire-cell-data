@@ -9,6 +9,9 @@ Slim3DCluster::Slim3DCluster(SlimMergeGeomCell &cell)
   ,w_proj(0)
   ,flag_saved(0)
   ,flag_saved_1(0)
+  ,flag_saved_u(0)
+  ,flag_saved_v(0)
+  ,flag_saved_w(0)
 {
   std::set<SlimMergeGeomCell*>  abc;
   abc.insert(&cell);

@@ -30,10 +30,21 @@ namespace WireCell {
 
     int get_flag_saved_1(){return flag_saved_1;};
     void set_flag_saved_1(int value){flag_saved_1 = value;};
+
+    int get_flag_saved_u(){return flag_saved_u;};
+    void set_flag_saved_u(int value){flag_saved_u = value;};
+    int get_flag_saved_v(){return flag_saved_v;};
+    void set_flag_saved_v(int value){flag_saved_v = value;};
+    int get_flag_saved_w(){return flag_saved_w;};
+    void set_flag_saved_w(int value){flag_saved_w = value;};
+    
     
   protected:
     int flag_saved;
     int flag_saved_1;
+    int flag_saved_u;
+    int flag_saved_v;
+    int flag_saved_w;
     
     SlimMergeCellCluster cluster; // vector of time 
     GeomCellSelection gcluster; // all merged cell
