@@ -2,8 +2,9 @@
 
 using namespace WireCell;
 
-Projected2DCluster::Projected2DCluster(WirePlaneType_t plane_no)
+Projected2DCluster::Projected2DCluster(WirePlaneType_t plane_no, int id)
   : plane_no(plane_no)
+  , parent_cluster_id(id)
 {
   time_slice_limit[0] = -1;
   time_slice_limit[1] = -1;

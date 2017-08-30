@@ -37,9 +37,12 @@ namespace WireCell {
     void set_flag_saved_v(int value){flag_saved_v = value;};
     int get_flag_saved_w(){return flag_saved_w;};
     void set_flag_saved_w(int value){flag_saved_w = value;};
-    
+    void set_id(int value){id = value;};
+    int get_id(){return id;};
     
   protected:
+    int id;
+    
     int flag_saved;
     int flag_saved_1;
     int flag_saved_u;

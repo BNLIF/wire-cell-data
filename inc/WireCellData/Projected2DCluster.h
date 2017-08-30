@@ -11,7 +11,7 @@
 namespace WireCell{
   class Projected2DCluster{
   public:
-    Projected2DCluster(WirePlaneType_t plane_no);
+    Projected2DCluster(WirePlaneType_t plane_no, int id);
     ~Projected2DCluster();
   
     void AddCell(SlimMergeGeomCell *mcell);
@@ -33,10 +33,11 @@ namespace WireCell{
     std::map<int, std::list<std::pair<int,int>>>& get_time_wires_map(){return time_wires_map;};
     int get_charge(std::pair<int,int> time_wire){return time_wire_charge_map[time_wire];};
     void Print();
-    
+    int get_parent_cluster_id(){return parent_cluster_id;};
     
   protected:
-    GeomCell *parent_cell;
+    int parent_cluster_id;
+    //GeomCell *parent_cell;
     // which wire plane
     WirePlaneType_t plane_no;
     // range of time slices

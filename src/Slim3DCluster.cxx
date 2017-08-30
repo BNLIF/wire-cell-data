@@ -12,6 +12,7 @@ Slim3DCluster::Slim3DCluster(SlimMergeGeomCell &cell)
   ,flag_saved_u(0)
   ,flag_saved_v(0)
   ,flag_saved_w(0)
+  ,id(-1)
 {
   std::set<SlimMergeGeomCell*>  abc;
   abc.insert(&cell);
@@ -46,9 +47,9 @@ Projected2DCluster* Slim3DCluster::get_projection(WirePlaneType_t plane){
 }
 
 void Slim3DCluster::Calc_Projection(){
-  u_proj = new Projected2DCluster(WirePlaneType_t(0));
-  v_proj = new Projected2DCluster(WirePlaneType_t(1));
-  w_proj = new Projected2DCluster(WirePlaneType_t(2));
+  u_proj = new Projected2DCluster(WirePlaneType_t(0),id);
+  v_proj = new Projected2DCluster(WirePlaneType_t(1),id);
+  w_proj = new Projected2DCluster(WirePlaneType_t(2),id);
 
   for (auto it = cluster.begin(); it!= cluster.end(); it++){
     for (auto it1 = (*it).begin(); it1!= (*it).end(); it1++){
