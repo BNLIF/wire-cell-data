@@ -71,7 +71,7 @@ void Slim3DCluster::Calc_Projection(){
 }
 
 
-int Slim3DCluster::AddCell(SlimMergeGeomCell &cell){
+int Slim3DCluster::AddCell(SlimMergeGeomCell &cell,int offset){
   std::set<SlimMergeGeomCell*>  abc = cluster.at(cluster.size()-1);
   auto it = abc.begin();
   int curr_time = (*it)->GetTimeSlice();
@@ -98,7 +98,7 @@ int Slim3DCluster::AddCell(SlimMergeGeomCell &cell){
  	for (auto it2 = abc1.begin(); it2!=abc1.end(); ++ it2){
  	  SlimMergeGeomCell *mcell = (*it2);
 	  SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*)&cell;
-	  if (mcell->Overlap_fast(mcell1)){
+	  if (mcell->Overlap_fast(mcell1,offset)){
  	    //add this new cell
  	    cluster.at(cluster.size()-1).insert(mcell1);
  	    return 1;
@@ -113,7 +113,7 @@ int Slim3DCluster::AddCell(SlimMergeGeomCell &cell){
     // need to start to judge whether to add this cell
     for (auto it2 = abc.begin(); it2!=abc.end(); ++ it2){
       SlimMergeGeomCell *mcell = (*it2);
-      if (mcell->Overlap_fast(&cell)){
+      if (mcell->Overlap_fast(&cell,offset)){
  	//add this new cell
  	std::set<SlimMergeGeomCell*>  abc2;
  	abc2.insert(&cell);
