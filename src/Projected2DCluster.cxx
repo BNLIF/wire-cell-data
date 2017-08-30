@@ -253,11 +253,12 @@ int Projected2DCluster::judge_coverage_alt(Projected2DCluster *cluster){
     float small_charge = std::min(results.at(3),results.at(4));
     float common_charge = results.at(5);
 
-    if (((1-common_charge/small_charge) * (small_counts - common_counts) < 0.3 && // ratio ...
-	 (small_counts - common_counts) < 0.25* small_counts) ||
-	((1-common_charge/small_charge) < 0.33 || (small_counts - common_counts) < 0.33* small_counts)
-	){ //uncommon part is below 25%
-      return value;
+    //    if (((1-common_charge/small_charge) * (small_counts - common_counts) < 0.3 && // ratio ...
+    //	 (small_counts - common_counts) < 0.25* small_counts) ||
+    //	((1-common_charge/small_charge) < 0.33 || (small_counts - common_counts) < 0.33* small_counts)
+    //	){ //uncommon part is below 25%
+    if ( (1-common_charge/small_charge)<0.05 && (1-common_counts/small_counts)<0.15){
+    return value;
     }else{
       return 0;
     }
