@@ -228,6 +228,12 @@ std::vector<int> Projected2DCluster::calc_coverage(Projected2DCluster *cluster){
 
 
 int Projected2DCluster::judge_coverage_alt(Projected2DCluster *cluster){
+  if (wire_limit[0] > cluster->get_high_wire_limit() ||
+	wire_limit[1] < cluster->get_low_wire_limit() ||
+	time_slice_limit[0] > cluster->get_high_time_limit() ||
+	time_slice_limit[1] < cluster->get_low_time_limit())
+      return 0;
+  
   std::vector<int> results = calc_coverage(cluster); // 6
 
   if (results.at(0)==0 && results.at(1)==0){
@@ -239,8 +245,8 @@ int Projected2DCluster::judge_coverage_alt(Projected2DCluster *cluster){
   }else if (results.at(2) == results.at(1)){
     return 1;
   }else{
-
-    
+     
+     
     int value;
     if (results.at(0) < results.at(1)){
       value = -1; 
@@ -295,6 +301,13 @@ int Projected2DCluster::judge_coverage(Projected2DCluster *cluster){
   }else if (cluster->get_number_time_slices()!=0 && get_number_time_slices()==0){
     return -1; // this is part of cluster
   }else{ // both are not empty
+    if (wire_limit[0] > cluster->get_high_wire_limit() ||
+	wire_limit[1] < cluster->get_low_wire_limit() ||
+	time_slice_limit[0] > cluster->get_high_time_limit() ||
+	time_slice_limit[1] < cluster->get_low_time_limit())
+      return 0;
+    
+    
     bool is_this_inside_cluster = true;
     bool is_cluster_inside_this = true; 
 
