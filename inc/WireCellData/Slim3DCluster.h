@@ -42,6 +42,8 @@ namespace WireCell {
 
     float get_total_charge(){return total_charge;};
     float get_min_total_charge(){return min_total_charge;};
+
+    void Form_maps(int offset, std::map<const GeomCell*, GeomCellSelection>& front_cell_map, std::map<const GeomCell*, GeomCellSelection>& back_cell_map);
     
   protected:
     int id;
@@ -62,6 +64,9 @@ namespace WireCell {
     Projected2DCluster *u_proj;
     Projected2DCluster *v_proj;
     Projected2DCluster *w_proj;
+
+    /* std::map<const GeomCell*, GeomCellSelection> front_cell_map; */
+    /* std::map<const GeomCell*, GeomCellSelection> back_cell_map; */
     
   };
 

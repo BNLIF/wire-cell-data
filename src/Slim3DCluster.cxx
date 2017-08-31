@@ -24,6 +24,9 @@ Slim3DCluster::Slim3DCluster(SlimMergeGeomCell &cell)
 Slim3DCluster::~Slim3DCluster(){
   cluster.clear();
   gcluster.clear();
+
+  // front_cell_map.clear();
+  // back_cell_map.clear();
   
   if (u_proj!=0) delete u_proj;
   if (v_proj!=0) delete v_proj;
@@ -95,7 +98,6 @@ int Slim3DCluster::AddCell(SlimMergeGeomCell &cell,int offset){
 //   if (curr_face != face) return 0;
 //   //std::cout << time << " " << curr_time << std::endl;
 
-
   if (time - curr_time > 1){ // there is an empty time slot
     return 0; // do not add this cell
   }else if (time - curr_time == 0 ){ // same time slice
@@ -112,9 +114,10 @@ int Slim3DCluster::AddCell(SlimMergeGeomCell &cell,int offset){
  	  SlimMergeGeomCell *mcell = (*it2);
 	  SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*)&cell;
 	  if (mcell->Overlap_fast(mcell1,offset)){
- 	    //add this new cell
+	    //add this new cell
  	    cluster.at(cluster.size()-1).insert(mcell1);
- 	    return 1;
+	    
+	    return 1;
  	  }
  	}
 	return 0;
@@ -140,6 +143,42 @@ int Slim3DCluster::AddCell(SlimMergeGeomCell &cell,int offset){
   }
 }
 
+
+void Slim3DCluster::Form_maps(int offset, std::map<const GeomCell*, GeomCellSelection>& front_cell_map, std::map<const GeomCell*, GeomCellSelection>& back_cell_map){
+
+  //  front_cell_map.clear();
+  //  back_cell_map.clear();
+  
+  for (size_t i=0; i<int(cluster.size())-1; i++){
+    for (auto it1 = cluster.at(i).begin(); it1!= cluster.at(i).end();it1++){
+      SlimMergeGeomCell *mcell1 = (*it1);
+      for (auto it2 = cluster.at(i+1).begin(); it2!= cluster.at(i+1).end();it2++){
+	SlimMergeGeomCell *mcell2 = (*it2);
+	if (mcell1->Overlap_fast(mcell2,offset)){
+	  // add things to the map
+	  if (front_cell_map.find(mcell1)==front_cell_map.end()){
+	    GeomCellSelection cells;
+	    cells.push_back(mcell2);
+	    front_cell_map[mcell1] = cells;
+	  }else{
+	    front_cell_map[mcell1].push_back(mcell2);
+	  }
+	  
+	  if (back_cell_map.find(mcell2)==back_cell_map.end()){
+	    GeomCellSelection cells;
+	    cells.push_back(mcell1);
+	    back_cell_map[mcell2] = cells;
+	  }else{
+	    back_cell_map[mcell2].push_back(mcell1);
+	  }
+	  
+	}
+      }
+    }
+  }
+
+  //std::cout << front_cell_map.size() << " " << back_cell_map.size() << std::endl;
+}
 
 
 void Slim3DCluster::MergeCluster(Slim3DCluster& cluster_to_merge){
