@@ -22,6 +22,9 @@ Slim3DCluster::Slim3DCluster(SlimMergeGeomCell &cell)
 }
 
 Slim3DCluster::~Slim3DCluster(){
+  cluster.clear();
+  gcluster.clear();
+  
   if (u_proj!=0) delete u_proj;
   if (v_proj!=0) delete v_proj;
   if (w_proj!=0) delete w_proj;

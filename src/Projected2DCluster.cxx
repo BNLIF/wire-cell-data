@@ -15,6 +15,11 @@ Projected2DCluster::Projected2DCluster(WirePlaneType_t plane_no, int id)
 }
 
 Projected2DCluster::~Projected2DCluster(){
+  time_slice_array.clear();
+  time_wires_map.clear();
+  dead_time_slice_array.clear();
+  dead_time_wires_map.clear();
+  time_wire_charge_map.clear();
 }
 
 void Projected2DCluster::Print(){
