@@ -12,12 +12,77 @@ WireCell::SlimMergeGeomCell::SlimMergeGeomCell(int ident)
 {
 }
 
-
-
 WireCell::SlimMergeGeomCell::~SlimMergeGeomCell(){
   uwires.clear();
   vwires.clear();
   wwires.clear();
+}
+
+float WireCell::SlimMergeGeomCell::Estimate_minimum_charge(){
+  float u_charge = 0;
+  float v_charge = 0;
+  float w_charge = 0;
+  
+  float min_charge=1e9;
+
+  bool flag_u, flag_v, flag_w;
+
+  if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(0))==bad_planes.end()){
+    for (auto it = uwires.begin(); it!= uwires.end(); it++){
+      u_charge += wirechargemap[*it];
+    }
+    flag_u = true;
+  }else{
+    flag_u = false;
+  }
+  if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(1))==bad_planes.end()){
+    for (auto it = vwires.begin(); it!= vwires.end(); it++){
+      v_charge += wirechargemap[*it];
+    }
+    flag_v = true;
+  }else{
+    flag_v = false;
+  }
+  if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(2))==bad_planes.end()){
+    for (auto it = wwires.begin(); it!= wwires.end(); it++){
+      w_charge += wirechargemap[*it];
+    }
+    flag_w = true;
+  }else{
+    flag_w = false;
+  }
+  if (flag_u && u_charge < min_charge)     min_charge = u_charge;
+  if (flag_v && v_charge < min_charge)     min_charge = v_charge;
+  if (flag_w && w_charge < min_charge)     min_charge = w_charge;
+  
+  return min_charge;
+}
+
+float WireCell::SlimMergeGeomCell::Estimate_total_charge(){
+  float total_charge = 0;
+  float count = 0;
+  if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(0))==bad_planes.end()){
+    for (auto it = uwires.begin(); it!= uwires.end(); it++){
+      total_charge += wirechargemap[*it];
+    }
+    count ++;
+  }
+  if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(1))==bad_planes.end()){
+    for (auto it = vwires.begin(); it!= vwires.end(); it++){
+      total_charge += wirechargemap[*it];
+    }
+    count ++;
+  }
+  if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(2))==bad_planes.end()){
+    for (auto it = wwires.begin(); it!= wwires.end(); it++){
+      total_charge += wirechargemap[*it];
+    }
+    count ++;
+  }
+
+  total_charge /=count;
+  
+  return total_charge;
 }
 
 float WireCell::SlimMergeGeomCell::Get_Wire_Charge(const GeomWire *wire){

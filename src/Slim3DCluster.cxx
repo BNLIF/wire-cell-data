@@ -13,6 +13,8 @@ Slim3DCluster::Slim3DCluster(SlimMergeGeomCell &cell)
   ,flag_saved_v(0)
   ,flag_saved_w(0)
   ,id(-1)
+  , total_charge (0)
+  , min_total_charge(0)
 {
   std::set<SlimMergeGeomCell*>  abc;
   abc.insert(&cell);
@@ -51,14 +53,22 @@ void Slim3DCluster::Calc_Projection(){
   v_proj = new Projected2DCluster(WirePlaneType_t(1),id);
   w_proj = new Projected2DCluster(WirePlaneType_t(2),id);
 
+  total_charge = 0;
+  min_total_charge = 0;
   for (auto it = cluster.begin(); it!= cluster.end(); it++){
     for (auto it1 = (*it).begin(); it1!= (*it).end(); it1++){
       SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)(*it1);
+      total_charge += mcell->Estimate_total_charge();
+      min_total_charge += mcell->Estimate_minimum_charge();
       u_proj->AddCell(mcell);
       v_proj->AddCell(mcell);
       w_proj->AddCell(mcell);
     }
   }
+
+  u_proj->set_estimated_total_charge(min_total_charge);
+  v_proj->set_estimated_total_charge(min_total_charge);
+  w_proj->set_estimated_total_charge(min_total_charge);
 
   // std::cout << "Xin: U " << std::endl;
   // u_proj->Print();

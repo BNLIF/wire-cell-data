@@ -39,6 +39,9 @@ namespace WireCell {
     void set_flag_saved_w(int value){flag_saved_w = value;};
     void set_id(int value){id = value;};
     int get_id(){return id;};
+
+    float get_total_charge(){return total_charge;};
+    float get_min_total_charge(){return min_total_charge;};
     
   protected:
     int id;
@@ -48,6 +51,10 @@ namespace WireCell {
     int flag_saved_u;
     int flag_saved_v;
     int flag_saved_w;
+
+
+    float total_charge;
+    float min_total_charge;
     
     SlimMergeCellCluster cluster; // vector of time 
     GeomCellSelection gcluster; // all merged cell

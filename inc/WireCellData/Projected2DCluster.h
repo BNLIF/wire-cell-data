@@ -34,8 +34,12 @@ namespace WireCell{
     int get_charge(std::pair<int,int> time_wire){return time_wire_charge_map[time_wire];};
     void Print();
     int get_parent_cluster_id(){return parent_cluster_id;};
+    void set_estimated_total_charge(float value){estimated_total_charge = value;};
+    float get_estimated_total_charge(){return estimated_total_charge;};
+    int calc_dead_time_wire();
     
   protected:
+    float estimated_total_charge;
     int parent_cluster_id;
     //GeomCell *parent_cell;
     // which wire plane
@@ -47,6 +51,10 @@ namespace WireCell{
 
     std::vector<int> time_slice_array;
     std::map<int,std::list<std::pair<int,int>>> time_wires_map;
+
+    std::vector<int> dead_time_slice_array;
+    std::map<int,std::list<std::pair<int,int>>> dead_time_wires_map;
+    
     std::map<std::pair<int,int>,float> time_wire_charge_map;
   };
 }
