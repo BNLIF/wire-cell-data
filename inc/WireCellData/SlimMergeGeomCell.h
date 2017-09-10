@@ -31,6 +31,10 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    void add_bad_planes(WirePlaneType_t type);
    bool Overlap(const WireCell::SlimMergeGeomCell* cell, float num=0.1) const;
    bool Overlap_fast(const WireCell::SlimMergeGeomCell* cell, int offset=1) const;
+   
+   bool Adjacent(const WireCell::SlimMergeGeomCell* cell) const;
+   
+     
    float Get_Wire_Charge(const GeomWire *wire);
 
    float Estimate_total_charge();

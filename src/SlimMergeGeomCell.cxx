@@ -254,7 +254,63 @@ bool WireCell::SlimMergeGeomCell::Overlap_fast(const WireCell::SlimMergeGeomCell
   if (v_low_index > v1_high_index+offset || v1_low_index > v_high_index+offset) return false;
   if (w_low_index > w1_high_index+offset || w1_low_index > w_high_index+offset) return false;
   
-  return true;
+  return true;   
+}
+
+bool WireCell::SlimMergeGeomCell::Adjacent(const WireCell::SlimMergeGeomCell* cell) const {
+  int u_low_index = uwires.front()->index();
+  int u_high_index = uwires.back()->index();
+
+  int v_low_index = vwires.front()->index();
+  int v_high_index = vwires.back()->index();
+
+  int w_low_index = wwires.front()->index();
+  int w_high_index = wwires.back()->index();
+
+  int u1_low_index = cell->get_uwires().front()->index();
+  int u1_high_index = cell->get_uwires().back()->index();
+
+  int v1_low_index = cell->get_vwires().front()->index();
+  int v1_high_index = cell->get_vwires().back()->index();
+
+  int w1_low_index = cell->get_wwires().front()->index();
+  int w1_high_index = cell->get_wwires().back()->index();
+
+  int u_score = 0;
+  int v_score = 0;
+  int w_score = 0;
   
+  if ( u_low_index == u1_high_index+1 || u1_low_index == u_high_index+1){
+    u_score = 1;
+  }else if (u_low_index <= u1_high_index && u1_low_index <= u_high_index ){
+    u_score = 2;
+  }
+  
+  if (u_score==0) return false;
+  
+  if ( v_low_index == v1_high_index+1 || v1_low_index == v_high_index+1){
+    v_score = 1;
+  }else if (v_low_index <= v1_high_index && v1_low_index <= v_high_index ){
+    v_score = 2;
+  }
+  
+  if (v_score ==0) return false;
+
+   if ( w_low_index == w1_high_index+1 || w1_low_index == w_high_index+1){
+    w_score = 1;
+  }else if (w_low_index <= w1_high_index && w1_low_index <= w_high_index ){
+    w_score = 2;
+  }
+  
+  if (w_score ==0) return false;
+
+  
+  if (u_score + v_score + w_score >=5){
+    return true;
+  }else{
+    return false;
+  }
   
 }
+
+
