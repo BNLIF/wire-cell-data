@@ -11,7 +11,7 @@ WireCell::Opflash::Opflash(COphitSelection &ophits){
   total_PE = 0;
   for (size_t i=0; i!= ophits.size(); i++){
     fired_channels.push_back(ophits.at(i)->get_ch_no());
-    PE[ophits.at(i)->get_ch_no()] = ophits.at(i)->get_PE();
+    PE[ophits.at(i)->get_ch_no()] = ophits.at(i)->get_PE() - 0.15; // 250 kHz at 0.6 us ... 
     PE_err[ophits.at(i)->get_ch_no()] = ophits.at(i)->get_PE_err();
     time += ophits.at(i)->get_PE() * ophits.at(i)->get_time();
     total_PE += ophits.at(i)->get_PE() ;
