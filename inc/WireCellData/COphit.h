@@ -22,12 +22,12 @@ namespace WireCell{
     // derivated ... 
     double get_PE(){return PE;};
     double get_PE_err(){return PE_err;};
-
+    bool get_type(){return good_baseline;};
 
     
   protected:
     double cal_integral(double peak);
-
+    bool good_baseline;
     
     int channel_no; // FEM channel number
     double gain; // to be set

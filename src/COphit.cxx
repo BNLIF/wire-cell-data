@@ -23,7 +23,7 @@ WireCell::COphit::COphit(int ch_no, TH1S *hist, double time, double gain, double
   }
 
   // calculate PE and its error ... 
-  bool good_baseline = false;
+  good_baseline = false;
   if (integral > 20e3 || fabs(baseline-2050)<50) good_baseline = true;
 
   // special treatment of FEM channel 28 ... 
@@ -33,9 +33,14 @@ WireCell::COphit::COphit(int ch_no, TH1S *hist, double time, double gain, double
   if (good_baseline){
     PE = integral / gain * 2; // taking into account factor of 2 for 0.6 us window ... 
     PE_err = sqrt(pow(PE * gain_err/gain,2) + pow(PE*0.02,2)); // standard error below threshold would be 4.6 PE ... 8/sqrt(3)
+    if (PE < 14){
+      // some issues ... 
+      PE_err = sqrt(pow(PE_err,2) + pow(4.6,2));
+      good_baseline = false;
+    }
   }else{
     PE = integral/gain * 2;
-    PE_err = PE;
+    PE_err = sqrt(pow(PE,2)+4.6*4.6); // given 100% uncertainties ... 
   }
   
 }
