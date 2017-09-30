@@ -9,7 +9,7 @@ namespace WireCell{
 
   class COphit{
   public:
-    COphit(int ch_no, TH1S *hist, double time, double gain);
+    COphit(int ch_no, TH1S *hist, double time, double gain, double gain_err);
     ~COphit();
 
     double get_time(){return time;};
@@ -19,11 +19,19 @@ namespace WireCell{
     double get_gain(){return gain;}
     int get_ch_no(){return channel_no;};
 
-   
+    // derivated ... 
+    double get_PE(){return PE;};
+    double get_PE_err(){return PE_err;};
+
+
     
   protected:
+    double cal_integral(double peak);
+
+    
     int channel_no; // FEM channel number
     double gain; // to be set
+    double gain_err;
     
     double time; // start time in us ... 
     double baseline; // baseline 
