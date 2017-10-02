@@ -23,6 +23,9 @@ namespace WireCell{
     int get_type(){return type;}
     double get_low_time(){return low_time;};
     double get_high_time(){return high_time;};
+
+    std::vector<double>& get_l1_fired_time(){return l1_fired_time;};
+    std::vector<double>& get_l1_fired_pe(){return l1_fired_pe;};
     
   protected:
     
@@ -36,8 +39,8 @@ namespace WireCell{
     double PE[32];
     double PE_err[32];
 
-    
-    
+    std::vector<double> l1_fired_time;
+    std::vector<double> l1_fired_pe;
   };
   
   typedef std::vector<Opflash*> OpflashSelection;

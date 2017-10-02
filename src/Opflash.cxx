@@ -1,5 +1,7 @@
 #include "WireCellData/Opflash.h"
 
+#include <iostream>
+
 using namespace WireCell;
 
 WireCell::Opflash::Opflash(COphitSelection &ophits)
@@ -90,9 +92,31 @@ void WireCell::Opflash::Add_l1info(TH1F *hist_tot_pe, TH1F *hist_mult, double st
     double pe = hist_tot_pe->GetBinContent(i+1);
     double mult = hist_mult->GetBinContent(i+1);
     if (pe >=10 && mult>=3){
-      
+      fired_bin.push_back(i);
+      fired_pe.push_back(pe);
     }
   }
+
+  for (size_t i=0; i!=fired_bin.size();i++){
+    if (i==0){
+      double time = start_time + (fired_bin.at(0)+0.5)*bin_width;
+      l1_fired_time.push_back(time);
+      l1_fired_pe.push_back(fired_pe.at(0));
+    }else{
+      if (fired_bin.at(i)-fired_bin.at(i-1)==1){
+	l1_fired_pe.back() += fired_pe.at(i);
+      }else{
+	double time = start_time + (fired_bin.at(i)+0.5)*bin_width;
+	l1_fired_time.push_back(time);
+	l1_fired_pe.push_back(fired_pe.at(i));
+      }
+    }
+  }
+
+  // std::cout << l1_fired_time.size() << std::endl;
+  // for (size_t i = 0; i!= l1_fired_time.size(); i++){
+  //   std::cout << l1_fired_time.at(i) << " " << l1_fired_pe.at(i) << std::endl;
+  // }
   
 }
 
