@@ -83,7 +83,16 @@ WireCell::Opflash::~Opflash(){
   
 }
 
-void WireCell::Opflash::Add_l1info(TH1F **hist, TH1F *hist_tot_pe, TH1F *hist_mult, int start_bin, int end_bin){
+void WireCell::Opflash::Add_l1info(TH1F *hist_tot_pe, TH1F *hist_mult, double start_time, int start_bin, int end_bin, float bin_width){
+  std::vector<int> fired_bin;
+  std::vector<double> fired_pe;
+  for (int i=start_bin; i!=end_bin;i++){
+    double pe = hist_tot_pe->GetBinContent(i+1);
+    double mult = hist_mult->GetBinContent(i+1);
+    if (pe >=10 && mult>=3){
+      
+    }
+  }
   
 }
 
