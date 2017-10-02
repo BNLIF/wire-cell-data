@@ -83,6 +83,11 @@ WireCell::Opflash::~Opflash(){
   
 }
 
+void WireCell::Opflash::Add_l1info(TH1F **hist, TH1F *hist_tot_pe, TH1F *hist_mult, int start_bin, int end_bin){
+  
+}
+
+
 bool WireCell::Opflash::get_fired(int ch){
   if (find(fired_channels.begin(),fired_channels.end(),ch)==fired_channels.end()){
     return false;

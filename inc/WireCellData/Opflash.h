@@ -9,9 +9,10 @@ namespace WireCell{
   public:
     Opflash(COphitSelection &ophits);
     Opflash(TH1F **hist, double start_time, int start_bin, int end_bin, float bin_width=6*15.625/1000.);
-	    
     ~Opflash();
 
+    void Add_l1info(TH1F **hist, TH1F* hist1, TH1F *hist2, int start_bin, int end_bin);
+    
     double get_time(){return time;};
     double get_total_PE(){return total_PE;};
     double get_PE(int ch){return PE[ch];};
