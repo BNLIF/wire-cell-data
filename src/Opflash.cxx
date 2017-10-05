@@ -43,14 +43,20 @@ WireCell::Opflash::Opflash(TH1F **hist, double start_time, int start_bin, int en
 
   for (int i=start_bin; i!=end_bin;i++){
     double peak = 0;
+    double mult = 0;
     for (int j=0;j!=32;j++){
       double content = hist[j]->GetBinContent(i+1);
       if (content < 0.2) content = 0;
       peak += content;
       PE[j] += content;
+      if (content>1.5) {
+	//	std::cout << i << " " << j << " " << content << std::endl;
+	mult++;
+      }
     }
 
-    if (peak > max){
+    if (peak > max && mult >=3){
+      //std::cout << max << " " << peak << " " << max_bin << " " << i << " " << mult << std::endl;
       max = peak;
       max_bin = i;
     }
