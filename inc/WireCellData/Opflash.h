@@ -3,6 +3,7 @@
 
 #include "WireCellData/COphit.h"
 #include "TH1F.h"
+#include <set>
 
 namespace WireCell{
   class Opflash{
@@ -42,8 +43,20 @@ namespace WireCell{
     std::vector<double> l1_fired_time;
     std::vector<double> l1_fired_pe;
   };
+
+  struct OpFlashCompare{
+    bool operator() (Opflash *a, Opflash *b) const{
+      if (a->get_time() < b->get_time()){
+	return true;
+      }else{
+	return false;
+      }
+    }
+  };
   
   typedef std::vector<Opflash*> OpflashSelection;
+  typedef std::set<Opflash*, OpFlashCompare> OpFlashSet;
+  
 }
 
 #endif
