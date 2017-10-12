@@ -44,6 +44,43 @@ GeomCellSelection Slim3DCluster::get_allcell(){
   return gcluster;
 }
 
+
+GeomCellSelection Slim3DCluster::Is_Connected(Slim3DDeadCluster* cluster1 , int offset){
+  GeomCellSelection mcells;
+  for (auto it = gcluster.begin(); it!= gcluster.end();it++){
+    SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)(*it);
+    int time_slice = mcell->GetTimeSlice();
+
+    std::map<int,GeomCellSetp> time_mcell_map = cluster1->get_cluster();
+    std::vector<int> times;
+    if (time_mcell_map.find(time_slice)!=time_mcell_map.end())
+      times.push_back(time_slice);
+    if (time_mcell_map.find(time_slice-1)!=time_mcell_map.end())
+      times.push_back(time_slice-1);
+    if (time_mcell_map.find(time_slice+1)!=time_mcell_map.end())
+      times.push_back(time_slice+1);
+
+    bool flag = false;
+    
+    for (int i=0;i!=times.size();i++){
+      GeomCellSetp mcells1 = time_mcell_map[times.at(i)];
+      for (auto it1 = mcells1.begin(); it1!=mcells1.end();it1++){
+	SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*)(*it1);
+	if (mcell->Overlap_fast(mcell1,offset)){
+	  flag = true;
+	  break;
+	}
+      }
+      if (flag) break;
+    }
+
+    if (flag) mcells.push_back(mcell);
+  }
+  
+  return mcells;
+}
+
+
 Projected2DCluster* Slim3DCluster::get_projection(WirePlaneType_t plane){
   if (plane==WirePlaneType_t(0)){
     return u_proj;
