@@ -17,7 +17,14 @@ namespace WireCell{
     GeomCellSetp get_mcells(){return gcluster;};
     std::map<SlimMergeGeomCell*,std::set<int>> get_mcell_time_map(){return mcell_time_map;};
     
+    bool IsContain(SlimMergeGeomCell &cell, int time_slice);
+
+    bool Extend(int time_slice);
+    void set_id(int value){id = value;};
+    int get_id(){return id;};
+    
   protected:
+    int id;
     GeomCellSetp gcluster;
     std::map<int,GeomCellSetp> cluster;
     std::map<SlimMergeGeomCell*,std::set<int>> mcell_time_map;

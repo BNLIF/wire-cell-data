@@ -71,6 +71,30 @@ int Slim3DDeadCluster::AddCell(SlimMergeGeomCell &cell, int time_slice, int offs
   return 0;
 }
 
+bool Slim3DDeadCluster::Extend(int time_slice){
+  if (cluster.find(time_slice-1)!=cluster.end()){
+
+    cluster[time_slice] = cluster[time_slice-1];
+    for (auto it = cluster[time_slice].begin(); it!= cluster[time_slice].end(); it++){
+      SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)(*it);
+      mcell_time_map[mcell].insert(time_slice);
+    }
+    
+    return true;
+  }else{
+    return false;
+  }
+}
+
+
+bool Slim3DDeadCluster::IsContain(SlimMergeGeomCell &cell, int time_slice){
+  if (cluster.find(time_slice)!=cluster.end() && mcell_time_map.find(&cell) != mcell_time_map.end()){
+    return true;
+  }else{
+    return false;
+  }
+}
+
 
 void Slim3DDeadCluster::MergeCluster(Slim3DDeadCluster &cluster1){
   std::map<int,GeomCellSetp> cluster1_map = cluster1.get_cluster();
