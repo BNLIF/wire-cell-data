@@ -135,8 +135,20 @@ int Slim3DCluster::AddCell(SlimMergeGeomCell &cell,int offset){
 //   if (curr_face != face) return 0;
 //   //std::cout << time << " " << curr_time << std::endl;
 
-  if (time - curr_time > 1){ // there is an empty time slot
+  if (time - curr_time > 2){ // there is an empty time slot
     return 0; // do not add this cell
+  }else if (time-curr_time==2 && offset==2){
+    for (auto it2 = abc.begin(); it2!=abc.end(); ++ it2){
+      SlimMergeGeomCell *mcell = (*it2);
+      if (mcell->Overlap_fast(&cell,1)){
+ 	//add this new cell
+ 	std::set<SlimMergeGeomCell*>  abc2;
+ 	abc2.insert(&cell);
+ 	cluster.push_back(abc2);
+	return 1;
+      }
+    }
+    return 0;
   }else if (time - curr_time == 0 ){ // same time slice
     // need to check previous slice to judge whether to add this cell
     if (cluster.size() < 2){
@@ -154,6 +166,18 @@ int Slim3DCluster::AddCell(SlimMergeGeomCell &cell,int offset){
 	    //add this new cell
  	    cluster.at(cluster.size()-1).insert(mcell1);
 	    
+	    return 1;
+ 	  }
+ 	}
+	return 0;
+      }else if (time-curr_time1 == 2 && offset==2){
+	//start to judge whether to add this cell
+ 	for (auto it2 = abc1.begin(); it2!=abc1.end(); ++ it2){
+ 	  SlimMergeGeomCell *mcell = (*it2);
+	  SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*)&cell;
+	  if (mcell->Overlap_fast(mcell1,1)){
+	    //add this new cell
+ 	    cluster.at(cluster.size()-1).insert(mcell1);
 	    return 1;
  	  }
  	}
