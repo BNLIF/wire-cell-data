@@ -51,7 +51,7 @@ GeomCellSelection Slim3DCluster::Is_Connected(Slim3DDeadCluster* cluster1 , int 
     SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)(*it);
     int time_slice = mcell->GetTimeSlice();
 
-    std::map<int,GeomCellSetp> time_mcell_map = cluster1->get_cluster();
+    std::map<int,GeomCellSetp>& time_mcell_map = cluster1->get_cluster();
     std::vector<int> times;
     if (time_mcell_map.find(time_slice)!=time_mcell_map.end())
       times.push_back(time_slice);
@@ -63,7 +63,8 @@ GeomCellSelection Slim3DCluster::Is_Connected(Slim3DDeadCluster* cluster1 , int 
     bool flag = false;
     
     for (int i=0;i!=times.size();i++){
-      GeomCellSetp mcells1 = time_mcell_map[times.at(i)];
+      //if (time_mcell_map.find(time_slice)!=time_mcell_map.end()){
+      GeomCellSetp& mcells1 = time_mcell_map[times.at(i)];
       for (auto it1 = mcells1.begin(); it1!=mcells1.end();it1++){
 	SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*)(*it1);
 	if (mcell->Overlap_fast(mcell1,offset)){
@@ -73,7 +74,6 @@ GeomCellSelection Slim3DCluster::Is_Connected(Slim3DDeadCluster* cluster1 , int 
       }
       if (flag) break;
     }
-
     if (flag) mcells.push_back(mcell);
   }
   

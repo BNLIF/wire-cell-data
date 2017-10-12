@@ -97,10 +97,10 @@ bool Slim3DDeadCluster::IsContain(SlimMergeGeomCell &cell, int time_slice){
 
 
 void Slim3DDeadCluster::MergeCluster(Slim3DDeadCluster &cluster1){
-  std::map<int,GeomCellSetp> cluster1_map = cluster1.get_cluster();
+  std::map<int,GeomCellSetp>& cluster1_map = cluster1.get_cluster();
   for (auto it=cluster1_map.begin(); it!= cluster1_map.end(); it++){
     int time_slice = it->first;
-    GeomCellSetp mcells = it->second;
+    GeomCellSetp& mcells = it->second;
     for (auto it= mcells.begin(); it!= mcells.end(); it++){
       SlimMergeGeomCell *cell = (SlimMergeGeomCell*)(*it);
       
