@@ -12,11 +12,18 @@ namespace WireCell{
     
     int AddCell(SlimMergeGeomCell &cell, int time_slice, int offset=1);
     void MergeCluster(Slim3DDeadCluster &cluster1);
+
+    std::map<int,GeomCellSetp> get_cluster(){return cluster;};
+    GeomCellSetp get_mcells(){return gcluster;};
+    std::map<SlimMergeGeomCell*,std::set<int>> get_mcell_time_map(){return mcell_time_map;};
     
   protected:
-    GeomCellSelection gcluster;
-    std::map<int,GeomCellSelection> cluster;
+    GeomCellSetp gcluster;
+    std::map<int,GeomCellSetp> cluster;
+    std::map<SlimMergeGeomCell*,std::set<int>> mcell_time_map;
   };
+  typedef std::set<Slim3DDeadCluster*> Slim3DDeadClusterSet;
+  
 }
 
 #endif

@@ -227,8 +227,8 @@ bool WireCell::SlimMergeGeomCell::Overlap(const WireCell::SlimMergeGeomCell* cel
 
 
 bool WireCell::SlimMergeGeomCell::Overlap_fast(const WireCell::SlimMergeGeomCell* cell, int offset) const{
-  //std::cout << uwires.size() << " " << vwires.size() << " " << wwires.size() << " "
-  //	    << cell->get_uwires().size() << " " << cell->get_vwires().size() << " " << cell->get_wwires().size() << std::endl;
+  // std::cout << uwires.size() << " " << vwires.size() << " " << wwires.size() << " "
+  // 	    << cell->get_uwires().size() << " " << cell->get_vwires().size() << " " << cell->get_wwires().size() << std::endl;
   
   int u_low_index = uwires.front()->index();
   int u_high_index = uwires.back()->index();
@@ -248,7 +248,7 @@ bool WireCell::SlimMergeGeomCell::Overlap_fast(const WireCell::SlimMergeGeomCell
   int w1_low_index = cell->get_wwires().front()->index();
   int w1_high_index = cell->get_wwires().back()->index();
 
-  
+  // std::cout << u_low_index << " " << u_high_index << " " << u1_low_index << " " << u1_high_index << " " << v_low_index << " " << v_high_index << " " << v1_low_index << " " << v1_high_index << " " << w_low_index << " " << w_high_index << " " << w1_low_index << " " << w1_high_index << " " << std::endl;
   
   if (u_low_index > u1_high_index+offset || u1_low_index > u_high_index+offset) return false;
   if (v_low_index > v1_high_index+offset || v1_low_index > v_high_index+offset) return false;
