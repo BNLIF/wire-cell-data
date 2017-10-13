@@ -13,7 +13,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
 
     /// Unbiased "center of mass" of boundary points
    
-   void AddWire(const GeomWire *wire, WirePlaneType_t plane, float charge=0);
+   void AddWire(const GeomWire *wire, WirePlaneType_t plane, float charge=0, float charge_err = 0);
    void AddBoundary( const PointVector& boundary );
     
     
@@ -36,14 +36,33 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    
      
    float Get_Wire_Charge(const GeomWire *wire);
-
+   float Get_Wire_Charge_Err(const GeomWire *wire);
+   
    float Estimate_total_charge();
    float Estimate_minimum_charge();
 
+   float get_uq(){return uq;};
+   float get_vq(){return vq;};
+   float get_wq(){return wq;};
+   float get_udq(){return udq;};
+   float get_vdq(){return vdq;};
+   float get_wdq(){return wdq;};
+   float get_q(){return q;}
+
+   void set_uq(float value){uq=value;};
+   void set_vq(float value){vq=value;};
+   void set_wq(float value){wq=value;};
+   void set_udq(float value){udq=value;};
+   void set_vdq(float value){vdq=value;};
+   void set_wdq(float value){wdq=value;};
+   void set_q(float value){q=value;};
    
   protected:
     int _ident;
+    int time_slice;
 
+    float uq, udq, vq, vdq, wq, wdq, q;
+    
     //int order_boundary();
     WireCell::GeomWireSelection uwires;
     WireCell::GeomWireSelection vwires;
@@ -51,7 +70,8 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     std::vector<WirePlaneType_t> bad_planes;
 
     WireCell::WireChargeMap wirechargemap;
-    int time_slice; 
+    WireCell::WireChargeMap wirechargeerrmap;
+    
     
   };
 }
