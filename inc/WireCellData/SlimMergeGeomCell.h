@@ -75,6 +75,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     
   };
  typedef std::vector<SlimMergeGeomCell*> SMGCSelection;
+ typedef std::set<SlimMergeGeomCell*> SMGCSet;
  
 }
 
