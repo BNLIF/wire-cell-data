@@ -144,6 +144,10 @@ void WireCell::SlimMergeGeomCell::AddBoundary(const PointVector& boundary){
   order_boundary();
 }
 
+void WireCell::SlimMergeGeomCell::AddSamplingPoints(const PointVector& sampling_points){
+  sample_points = sampling_points;
+}
+
 
 
 void WireCell::SlimMergeGeomCell::AddWire(const GeomWire *wire, WirePlaneType_t plane, float charge, float charge_err){
