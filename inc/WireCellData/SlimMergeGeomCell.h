@@ -15,7 +15,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    
    void AddWire(const GeomWire *wire, WirePlaneType_t plane, float charge=0, float charge_err = 0);
    void AddBoundary( const PointVector& boundary );
-    
+   
     
    GeomWireSelection get_uwires() const{return uwires;};
    GeomWireSelection get_vwires() const{return vwires;};
@@ -58,12 +58,16 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    void set_q(float value){q=value;};
 
    bool IsSame(SlimMergeGeomCell* mcell1);
+
+   PointVector get_sample_points(){return sample_points;};
    
   protected:
     int _ident;
     int time_slice;
 
     float uq, udq, vq, vdq, wq, wdq, q;
+
+    PointVector sample_points;
     
     //int order_boundary();
     WireCell::GeomWireSelection uwires;
