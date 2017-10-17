@@ -1,3 +1,6 @@
+#ifndef WIRECELL_PR3DCLUSTER_H
+#define WIRECELL_PR3DCLUSTER_H 
+
 #include "WireCellData/SlimMergeGeomCell.h"
 
 
@@ -30,3 +33,5 @@ namespace WireCell{
   };
   typedef std::vector<PR3DCluster*> PR3DClusterSelection;
 }
+
+#endif
