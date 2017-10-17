@@ -28,6 +28,19 @@ bool SlimMergeGeomCell::IsSame(SlimMergeGeomCell *mcell1){
       wwires.size() != mcell1_wwires.size()){
     return false;
   }
+
+  for (size_t i=0;i!=uwires.size();i++){
+    if (uwires.at(i)!=mcell1_uwires.at(i))
+      return false;
+  }
+  for (size_t i=0;i!=vwires.size();i++){
+    if (vwires.at(i)!=mcell1_vwires.at(i))
+      return false;
+  }
+  for (size_t i=0;i!=wwires.size();i++){
+    if (wwires.at(i)!=mcell1_wwires.at(i))
+      return false;
+  }
   
   
   return true;
