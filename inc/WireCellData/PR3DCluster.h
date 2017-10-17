@@ -16,7 +16,8 @@ namespace WireCell{
     void Remove_duplicated_mcells();
     SMGCSelection Is_Connected(PR3DCluster* cluster1, int offset);
     std::map<int,SMGCSet>& get_time_cells_set_map(){return time_cells_set_map;};
-    
+    SMGCSelection& get_mcells(){return mcells;};
+    std::map<SlimMergeGeomCell*, std::set<int>>& get_cell_times_set_map(){return cell_times_set_map;};
     
   protected:
     int cluster_id;
