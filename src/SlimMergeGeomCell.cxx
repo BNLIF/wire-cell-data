@@ -18,6 +18,22 @@ WireCell::SlimMergeGeomCell::~SlimMergeGeomCell(){
   wwires.clear();
 }
 
+bool SlimMergeGeomCell::IsSame(SlimMergeGeomCell *mcell1){
+  GeomWireSelection mcell1_uwires = mcell1->get_uwires();
+  GeomWireSelection mcell1_vwires = mcell1->get_vwires();
+  GeomWireSelection mcell1_wwires = mcell1->get_wwires();
+
+  if (uwires.size() != mcell1_uwires.size() ||
+      vwires.size() != mcell1_vwires.size() ||
+      wwires.size() != mcell1_wwires.size()){
+    return false;
+  }
+  
+  
+  return true;
+  
+}
+
 float WireCell::SlimMergeGeomCell::Estimate_minimum_charge(){
   float u_charge = 0;
   float v_charge = 0;

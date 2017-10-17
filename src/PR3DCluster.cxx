@@ -38,3 +38,7 @@ void PR3DCluster::AddCell(SlimMergeGeomCell* mcell, int time_slice){
     //}
   }
 }
+
+void PR3DCluster::Remove_duplicated_mcells(){
+  
+}

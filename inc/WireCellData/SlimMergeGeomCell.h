@@ -56,6 +56,8 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    void set_vdq(float value){vdq=value;};
    void set_wdq(float value){wdq=value;};
    void set_q(float value){q=value;};
+
+   bool IsSame(SlimMergeGeomCell* mcell1);
    
   protected:
     int _ident;
