@@ -78,7 +78,41 @@ void PR3DCluster::Remove_duplicated_mcells(){
   }
   to_be_removed.clear();
   
-  
-  
   //std::cout << mcells.size() << " " << to_be_saved.size() << " " << to_be_removed.size() << std::endl;
+}
+
+
+SMGCSelection PR3DCluster::Is_Connected(PR3DCluster* cluster1 , int offset){
+  SMGCSelection temp_mcells;
+
+  for (auto it = mcells.begin(); it!= mcells.end();it++){
+    SlimMergeGeomCell *mcell = *it;
+    int time_slice = mcell->GetTimeSlice();
+    std::map<int,SMGCSet>& time_mcell_map = cluster1->get_time_cells_set_map();
+    // std::cout << time_slice << " " << time_mcell_map.size() << std::endl;
+    // std::vector<int> times;
+    // if (time_cells_set_map.find(time_slice)!=time_cells_set_map.end())
+    //   times.push_back(time_slice);
+    // if (time_cells_set_map.find(time_slice-1)!=time_cells_set_map.end())
+    //   times.push_back(time_slice-1);
+    // if (time_cells_set_map.find(time_slice+1)!=time_cells_set_map.end())
+    //   times.push_back(time_slice+1);
+
+    bool flag = false;
+    // for (int i=0;i!=times.size();i++){
+    if (time_mcell_map.find(time_slice)!=time_mcell_map.end()){
+      SMGCSet& mcells1 = time_mcell_map[time_slice];
+      for (auto it1 = mcells1.begin(); it1!=mcells1.end();it1++){
+   	SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*)(*it1);
+   	if (mcell->Overlap_fast(mcell1,offset)){
+   	  flag = true;
+   	  break;
+   	}
+      }
+      //     //  if (flag) break;
+    }
+    if (flag) temp_mcells.push_back(mcell);
+  }
+  
+  return temp_mcells;
 }
