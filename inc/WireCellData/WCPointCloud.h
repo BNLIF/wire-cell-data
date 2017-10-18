@@ -1,3 +1,6 @@
+#ifndef GeomWireCellData_WCPOINT_CLOUD_H
+#define GeomWireCellData_WCPOINT_CLOUD_H
+
 #include "WireCellData/SlimMergeGeomCell.h"
 
 namespace WireCell{
@@ -36,3 +39,5 @@ namespace WireCell{
     };
   
 }
+
+#endif
