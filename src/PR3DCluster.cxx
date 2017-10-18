@@ -28,7 +28,14 @@ void PR3DCluster::Calc_PCA(){
       nsum ++;
     }
   }
-  if (nsum>0){
+
+  for (int i=0;i!=3;i++){
+    PCA_axis[i].x = 0;
+    PCA_axis[i].y = 0;
+    PCA_axis[i].z = 0;
+  }
+  
+  if (nsum>=3){
     center.x /=nsum;
     center.y /=nsum;
     center.z /=nsum;
