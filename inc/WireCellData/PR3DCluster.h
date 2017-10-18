@@ -21,12 +21,21 @@ namespace WireCell{
     std::map<int,SMGCSet>& get_time_cells_set_map(){return time_cells_set_map;};
     SMGCSelection& get_mcells(){return mcells;};
     std::map<SlimMergeGeomCell*, std::set<int>>& get_cell_times_set_map(){return cell_times_set_map;};
+
+    void Calc_PCA();
+    Vector get_center(){return center;};
+    Vector get_PCA_axis(int axis){return PCA_axis[axis];};
     
   protected:
     int cluster_id;
     SMGCSelection mcells;
     /* std::map<int,SMGCSelection> time_cells_map; */
     /* std::map<SlimMergeGeomCell*, std::vector<int>> cell_times_map; */
+
+    Vector center;
+    Vector PCA_axis[3];
+    
+    
     
     std::map<int,SMGCSet> time_cells_set_map;
     std::map<SlimMergeGeomCell*, std::set<int>> cell_times_set_map;   
