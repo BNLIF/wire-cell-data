@@ -22,6 +22,9 @@ namespace WireCell{
     SMGCSelection& get_mcells(){return mcells;};
     std::map<SlimMergeGeomCell*, std::set<int>>& get_cell_times_set_map(){return cell_times_set_map;};
 
+    void Create_point_cloud();
+    ToyPointCloud* get_point_cloud(){return point_cloud;};
+    
     void Calc_PCA();
     Vector get_center(){return center;};
     Vector get_PCA_axis(int axis){return PCA_axis[axis];};

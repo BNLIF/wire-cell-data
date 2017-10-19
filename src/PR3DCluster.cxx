@@ -16,8 +16,23 @@ PR3DCluster::~PR3DCluster(){
 }
 
 // void AddCell(SlimMergeGeomCell* mcell, int *time_slices, int ntime_slice){
-  
 // }
+
+void PR3DCluster::Create_point_cloud(){
+  if (point_cloud!=(ToyPointCloud*)0)
+    return;
+  
+  point_cloud = new ToyPointCloud();
+  for (auto it = mcells.begin(); it!=mcells.end(); it++){
+    SlimMergeGeomCell *mcell = (*it);
+    PointVector pts = mcell->get_sampling_points();
+    point_cloud->AddPoints(pts,mcell);
+  }
+  point_cloud->build_kdtree_index();
+  //  std::cout << point_cloud->get_num_points() << std::endl;
+  
+}
+
 
 void PR3DCluster::Calc_PCA(){
   center.x=0; center.y=0; center.z=0;
