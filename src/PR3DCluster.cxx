@@ -2,7 +2,8 @@
 
 #include "TMatrixDEigen.h"
 #include "TH2F.h"
-#include "TVector3.h"
+
+
 
 
 using namespace WireCell;
@@ -36,33 +37,61 @@ void PR3DCluster::Create_point_cloud(){
   
 }
 
-std::pair<double,double> PR3DCluster::HoughTrans(Point&p , double dis){
-  double theta, phi;
-  TH2F *hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
-  double x0 = p.x;
-  double y0 = p.y;
-  double z0 = p.z;
-
-  std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>>pts = point_cloud->get_closest_points(p,dis);
-  double x,y,z,q;
-  for (size_t i=0; i!=pts.size(); i++){
-    x = pts.at(i).second.x;
-    y = pts.at(i).second.y;
-    z = pts.at(i).second.z;
-    q = pts.at(i).first->get_q()/pts.at(i).first->get_sampling_points().size();
-    if (q ==0) q = 1;
-    TVector3 vec(x-x0,y-y0,z-z0);
-    hough->Fill(vec.Theta(),vec.Phi(),q);
+TVector3 PR3DCluster::calc_dir(Point& p_test, Point& p, double dis){
+  std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
+  TVector3 dir(0,0,0);
+  for (auto it = pts.begin(); it!= pts.end(); it++){
+    SlimMergeGeomCell *mcell = (*it).first;
+    Point point = mcell->center();
+    double q = mcell->get_q();
+    TVector3 dir1(point.x-p_test.x,point.y-p_test.y,point.z-p_test.z);
+    dir += dir1 * q;
   }
-  int maxbin = hough->GetMaximumBin();
-  int a,b,c;
-  hough->GetBinXYZ(maxbin,a,b,c);
-  theta = hough->GetXaxis()->GetBinCenter(a);
-  phi = hough->GetYaxis()->GetBinCenter(b);
-  
-  delete hough;
-  return std::make_pair(theta,phi);
+  if (dir.Mag()!=0)
+    dir.SetMag(1);
+  return dir;
 }
+
+// std::pair<double,double> PR3DCluster::HoughTrans(Point&p , double dis){
+//   double theta, phi;
+//   TH2F *hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
+//   double x0 = p.x;
+//   double y0 = p.y;
+//   double z0 = p.z;
+  
+//   std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>>pts = point_cloud->get_closest_points(p,dis);
+
+//   // std::cout << "Num " <<  pts.size() << std::endl;
+    
+//   double x,y,z,q;
+//   for (size_t i=0; i!=pts.size(); i++){
+//     x = pts.at(i).second.x;
+//     y = pts.at(i).second.y;
+//     z = pts.at(i).second.z;
+//     q = pts.at(i).first->get_q()/pts.at(i).first->get_sampling_points().size();
+//     if (q<=0) continue;
+
+//     for (int i1=0; i1!=5; i1++){
+//       for (int j1=0; j1!=5; j1++){
+// 	for (int k1=0; k1!=5; k1++){
+// 	  TVector3 vec(x-x0 + (-2+i1)*0.13*units::mm,y-y0 + (-2+j1)*6*units::mm,z-z0 + (-2+k1)*6*units::mm);
+// 	  hough->Fill(vec.Theta(),vec.Phi(), q * exp(-pow(-2+i1,2)/2.) * exp(-pow(-2+j1,2)/2.) * exp(-pow(-2+k1,2)/2.));
+// 	}
+//       }
+//     }
+    
+//   }
+//   int maxbin = hough->GetMaximumBin();
+//   int a,b,c;
+//   hough->GetBinXYZ(maxbin,a,b,c);
+//   theta = hough->GetXaxis()->GetBinCenter(a);
+//   phi = hough->GetYaxis()->GetBinCenter(b);
+
+//   // std::cout << hough->GetSum() << " " << hough->GetBinContent(a,b)<< std::endl;
+  
+//   delete hough;
+//   return std::make_pair(theta,phi);
+// }
 
 
 void PR3DCluster::Calc_PCA(){
