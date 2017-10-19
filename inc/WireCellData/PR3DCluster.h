@@ -28,6 +28,8 @@ namespace WireCell{
     void Calc_PCA();
     Vector get_center(){return center;};
     Vector get_PCA_axis(int axis){return PCA_axis[axis];};
+
+    std::pair<double,double> HoughTrans(Point& p, double dis);
     
   protected:
     int cluster_id;

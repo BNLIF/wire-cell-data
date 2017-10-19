@@ -1,6 +1,9 @@
 #include "WireCellData/PR3DCluster.h"
 
 #include "TMatrixDEigen.h"
+#include "TH2F.h"
+#include "TVector3.h"
+
 
 using namespace WireCell;
 
@@ -31,6 +34,34 @@ void PR3DCluster::Create_point_cloud(){
   point_cloud->build_kdtree_index();
   //  std::cout << point_cloud->get_num_points() << std::endl;
   
+}
+
+std::pair<double,double> PR3DCluster::HoughTrans(Point&p , double dis){
+  double theta, phi;
+  TH2F *hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
+  double x0 = p.x;
+  double y0 = p.y;
+  double z0 = p.z;
+
+  std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>>pts = point_cloud->get_closest_points(p,dis);
+  double x,y,z,q;
+  for (size_t i=0; i!=pts.size(); i++){
+    x = pts.at(i).second.x;
+    y = pts.at(i).second.y;
+    z = pts.at(i).second.z;
+    q = pts.at(i).first->get_q()/pts.at(i).first->get_sampling_points().size();
+    if (q ==0) q = 1;
+    TVector3 vec(x-x0,y-y0,z-z0);
+    hough->Fill(vec.Theta(),vec.Phi(),q);
+  }
+  int maxbin = hough->GetMaximumBin();
+  int a,b,c;
+  hough->GetBinXYZ(maxbin,a,b,c);
+  theta = hough->GetXaxis()->GetBinCenter(a);
+  phi = hough->GetYaxis()->GetBinCenter(b);
+  
+  delete hough;
+  return std::make_pair(theta,phi);
 }
 
 

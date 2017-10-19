@@ -61,7 +61,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
 
    bool IsSame(SlimMergeGeomCell* mcell1);
 
-   PointVector get_sampling_points(){return sample_points;};
+   PointVector& get_sampling_points(){return sample_points;};
    
   protected:
     int _ident;

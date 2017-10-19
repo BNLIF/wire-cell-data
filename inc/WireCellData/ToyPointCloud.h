@@ -29,8 +29,10 @@ namespace WireCell{
     std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, double radius);
 
     std::map<WireCell::SlimMergeGeomCell*, WireCell::Point> get_closest_mcell(WireCell::Point& p, int N);
-
     std::map<WireCell::SlimMergeGeomCell*, WireCell::Point> get_closest_mcell(WireCell::Point& p, double radius);
+    
+    std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> get_closest_points(WireCell::Point& p, int N);
+    std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> get_closest_points(WireCell::Point& p, double radius);
     
     std::vector<std::pair<WireCell::SlimMergeGeomCell*, WireCell::Point>> get_hull();
     int get_num_points(){return cloud.pts.size();};
