@@ -22,6 +22,30 @@ WireCell::SlimMergeGeomCell::~SlimMergeGeomCell(){
   
 // }
 
+Point SlimMergeGeomCell::center() const{
+   
+  if (flag_center ==0){
+    ret.x = 0;
+    ret.y = 0;
+    ret.z = 0;
+    const size_t npoints = sample_points.size();
+    for (size_t ipoint=0; ipoint < npoints; ++ipoint) {
+      const Point& point = sample_points[ipoint];
+      ret.x += point.x;
+      ret.y += point.y;
+      ret.z += point.z;
+      //std::cout << "qx1 " << point.y << " " << ret.y << std::endl;
+    }
+    
+    ret.x /= npoints;
+    ret.y /= npoints;
+    ret.z /= npoints;
+    flag_center = 1;
+  }
+  
+  return ret;
+}
+
 
 bool SlimMergeGeomCell::IsSame(SlimMergeGeomCell *mcell1){
   GeomWireSelection mcell1_uwires = mcell1->get_uwires();
