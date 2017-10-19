@@ -7,9 +7,12 @@ using namespace WireCell;
 PR3DCluster::PR3DCluster(int cluster_id)
   : cluster_id(cluster_id)
 {
+  point_cloud = 0;
 }
 
 PR3DCluster::~PR3DCluster(){
+  if (point_cloud!=(ToyPointCloud*)0)
+    delete point_cloud;
 }
 
 // void AddCell(SlimMergeGeomCell* mcell, int *time_slices, int ntime_slice){

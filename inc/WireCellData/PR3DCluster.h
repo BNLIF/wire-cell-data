@@ -2,7 +2,7 @@
 #define WIRECELL_PR3DCLUSTER_H 
 
 #include "WireCellData/SlimMergeGeomCell.h"
-
+#include "WireCellData/ToyPointCloud.h"
 
 
 namespace WireCell{
@@ -35,6 +35,7 @@ namespace WireCell{
     Vector center;
     Vector PCA_axis[3];
     
+    ToyPointCloud *point_cloud;
     
     
     std::map<int,SMGCSet> time_cells_set_map;
