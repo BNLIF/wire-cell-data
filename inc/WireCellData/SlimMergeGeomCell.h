@@ -16,7 +16,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    void AddWire(const GeomWire *wire, WirePlaneType_t plane, float charge=0, float charge_err = 0);
    void AddBoundary( const PointVector& boundary );
    void AddSamplingPoints(const PointVector& sampling_points);
-   
+   //Point get_sampling_points_center();
     
    GeomWireSelection get_uwires() const{return uwires;};
    GeomWireSelection get_vwires() const{return vwires;};

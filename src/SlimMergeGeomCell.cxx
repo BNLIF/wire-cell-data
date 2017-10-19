@@ -18,6 +18,11 @@ WireCell::SlimMergeGeomCell::~SlimMergeGeomCell(){
   wwires.clear();
 }
 
+// Point SlimMergeGeomCell::get_sampling_points_center(){
+  
+// }
+
+
 bool SlimMergeGeomCell::IsSame(SlimMergeGeomCell *mcell1){
   GeomWireSelection mcell1_uwires = mcell1->get_uwires();
   GeomWireSelection mcell1_vwires = mcell1->get_vwires();
