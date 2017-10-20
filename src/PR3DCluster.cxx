@@ -37,6 +37,11 @@ void PR3DCluster::Create_point_cloud(){
   
 }
 
+std::pair<SlimMergeGeomCell*, Point> PR3DCluster::get_closest_point_mcell(Point& p_test){
+  std::map<SlimMergeGeomCell*,Point> pts = point_cloud->get_closest_mcell(p_test,1);
+  return std::make_pair((*pts.begin()).first,(*pts.begin()).second);
+}
+
 TVector3 PR3DCluster::calc_dir(Point& p_test, Point& p, double dis){
   std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
   TVector3 dir(0,0,0);
