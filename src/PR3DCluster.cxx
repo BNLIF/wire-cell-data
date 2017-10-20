@@ -64,6 +64,67 @@ std::pair<SlimMergeGeomCell*, Point> PR3DCluster::get_closest_point_mcell(Point&
   return std::make_pair((*pts.begin()).first,(*pts.begin()).second);
 }
 
+TVector3 PR3DCluster::calc_PCA_dir(Point& p, double dis){
+  std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
+  Point center1(0,0,0);
+  // double charge=0;
+  // for (auto it = pts.begin(); it!= pts.end(); it++){
+  //   SlimMergeGeomCell *mcell = (*it).first;
+  //   Point point = mcell->center();
+  //   double q = mcell->get_q();
+  //   center1.x += point.x * q;
+  //   center1.y += point.y * q;
+  //   center1.z += point.z * q;
+  //   charge+=q;
+  // }
+  // center1.x/=charge;
+  // center1.y/=charge;
+  // center1.z/=charge;
+  center1.x = p.x;
+  center1.y = p.y;
+  center1.z = p.z;
+
+  TMatrixD cov_matrix(3,3);
+  for (int i=0;i!=3;i++){
+    for (int j=i;j!=3;j++){
+      cov_matrix(i,j)=0;
+      for (auto it = pts.begin(); it!= pts.end(); it++){
+	SlimMergeGeomCell *mcell = (*it).first;
+	double q = mcell->get_q();
+	PointVector ps = mcell->get_sampling_points();
+	for (int k=0;k!=ps.size();k++){
+	  if (i==0 && j==0){
+	    cov_matrix(i,j) += (ps.at(k).x - center.x) * (ps.at(k).x - center.x);//*q*q/ps.size()/ps.size();
+	  }else if (i==0 && j==1){
+	    cov_matrix(i,j) += (ps.at(k).x - center.x) * (ps.at(k).y - center.y);//*q*q/ps.size()/ps.size();
+	  }else if (i==0 && j==2){
+	    cov_matrix(i,j) += (ps.at(k).x - center.x) * (ps.at(k).z - center.z);//*q*q/ps.size()/ps.size();
+	  }else if (i==1 && j==1){
+	    cov_matrix(i,j) += (ps.at(k).y - center.y) * (ps.at(k).y - center.y);//*q*q/ps.size()/ps.size();
+	  }else if (i==1 && j==2){
+	    cov_matrix(i,j) += (ps.at(k).y - center.y) * (ps.at(k).z - center.z);//*q*q/ps.size()/ps.size();
+	  }else if (i==2 && j==2){
+	    cov_matrix(i,j) += (ps.at(k).z - center.z) * (ps.at(k).z - center.z);//*q*q/ps.size()/ps.size();
+	  }
+	}
+      }
+    }
+  }
+
+  cov_matrix(1,0) = cov_matrix(0,1);
+  cov_matrix(2,0) = cov_matrix(0,2);
+  cov_matrix(2,1) = cov_matrix(1,2);
+  
+  TMatrixDEigen eigen(cov_matrix);
+  TMatrixD eigen_values = eigen.GetEigenValues();
+  TMatrixD eigen_vectors = eigen.GetEigenVectors();
+  TVector3 dir(eigen_vectors(0,0)/sqrt(eigen_vectors(0,0)*eigen_vectors(0,0) + eigen_vectors(1,0)*eigen_vectors(1,0) + eigen_vectors(2,0)*eigen_vectors(2,0)),
+	       eigen_vectors(1,0)/sqrt(eigen_vectors(0,0)*eigen_vectors(0,0) + eigen_vectors(1,0)*eigen_vectors(1,0) + eigen_vectors(2,0)*eigen_vectors(2,0)),
+	       eigen_vectors(2,0)/sqrt(eigen_vectors(0,0)*eigen_vectors(0,0) + eigen_vectors(1,0)*eigen_vectors(1,0) + eigen_vectors(2,0)*eigen_vectors(2,0)));
+  return dir;
+  
+}
+
 TVector3 PR3DCluster::calc_dir(Point& p_test, Point& p, double dis){
   std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
   TVector3 dir(0,0,0);

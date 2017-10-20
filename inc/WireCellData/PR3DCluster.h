@@ -32,6 +32,8 @@ namespace WireCell{
 
     //  std::pair<double,double> HoughTrans(Point& p, double dis);
     TVector3 calc_dir(Point& p_test, Point& p, double dis);
+    TVector3 calc_PCA_dir(Point& p, double dis);
+    
     std::pair<SlimMergeGeomCell*,Point> get_closest_point_mcell(Point& p_test);
     Point calc_ave_pos(Point& p, double dis);
     
