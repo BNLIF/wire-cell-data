@@ -41,6 +41,7 @@ Point PR3DCluster::calc_ave_pos(Point& p, double dis){
   std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
   Point pt(0,0,0);
   double charge = 0;
+  std::cout << pts.size() << std::endl;
   for (auto it = pts.begin(); it!= pts.end(); it++){
     SlimMergeGeomCell *mcell = (*it).first;
     Point pc = mcell->center();
@@ -49,6 +50,8 @@ Point PR3DCluster::calc_ave_pos(Point& p, double dis){
     pt.y += pc.y * q;
     pt.z += pc.z * q;
     charge += q;
+    std::cout << pc.x/units::cm << " " << pc.y/units::cm << " " << pc.z/units::cm << " " << q << " " <<
+      sqrt(pow(pc.x-p.x,2)+pow(pc.y-p.y,2)+pow(pc.z-p.z,2))/units::cm << std::endl;
   }
   if (charge!=0){
     pt.x/=charge;

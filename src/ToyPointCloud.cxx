@@ -69,7 +69,7 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index
   query_pt[2] = p.z;
   std::vector<std::pair<size_t,double> >   ret_matches;
   nanoflann::SearchParams params;
-  const size_t nMatches = index->radiusSearch(&query_pt[0], search_radius, ret_matches, params);
+  const size_t nMatches = index->radiusSearch(&query_pt[0], search_radius*search_radius, ret_matches, params);
   
   return ret_matches;
 }
@@ -113,19 +113,25 @@ std::map<WireCell::SlimMergeGeomCell*, Point> WireCell::ToyPointCloud::get_close
   for (auto it = results.begin(); it!= results.end(); it++){
     size_t index = (*it).first;
     double dis = (*it).second;
+
+    //    std::cout << index << " " << dis/units::cm << std::endl;
+    
     SlimMergeGeomCell *mcell = cloud.pts[index].mcell;
-    Point p;
-    p.x = cloud.pts[index].x;
-    p.y = cloud.pts[index].y;
-    p.z = cloud.pts[index].z;
+    Point p1;
+    p1.x = cloud.pts[index].x;
+    p1.y = cloud.pts[index].y;
+    p1.z = cloud.pts[index].z;
+
+    // Point pc = mcell->center();
+    // std::cout << index << " " << dis/units::cm << " " << sqrt(pow(p1.x-p.x,2)+pow(p1.y-p.y,2)+pow(p1.z-p.z,2))/units::cm << " " << sqrt(pow(pc.x-p.x,2)+pow(pc.y-p.y,2)+pow(pc.z-p.z,2))/units::cm << std::endl;
     
     if (mcell_dis_map.find(mcell)==mcell_dis_map.end()){
       mcell_dis_map[mcell]=dis;
-      mcell_point_map[mcell] = p;
+      mcell_point_map[mcell] = p1;
     }else{
       if (dis < mcell_dis_map[mcell]){
 	mcell_dis_map[mcell]=dis;
-	mcell_point_map[mcell]=p;
+	mcell_point_map[mcell]=p1;
       }
     }
   }
