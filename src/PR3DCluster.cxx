@@ -37,6 +37,28 @@ void PR3DCluster::Create_point_cloud(){
   
 }
 
+Point PR3DCluster::calc_ave_pos(Point& p, double dis){
+  std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
+  Point pt(0,0,0);
+  double charge = 0;
+  for (auto it = pts.begin(); it!= pts.end(); it++){
+    SlimMergeGeomCell *mcell = (*it).first;
+    Point pc = mcell->center();
+    double q = mcell->get_q();
+    pt.x += pc.x * q;
+    pt.y += pc.y * q;
+    pt.z += pc.z * q;
+    charge += q;
+  }
+  if (charge!=0){
+    pt.x/=charge;
+    pt.y/=charge;
+    pt.z/=charge;
+  }
+  return pt;
+    
+}
+
 std::pair<SlimMergeGeomCell*, Point> PR3DCluster::get_closest_point_mcell(Point& p_test){
   std::map<SlimMergeGeomCell*,Point> pts = point_cloud->get_closest_mcell(p_test,1);
   return std::make_pair((*pts.begin()).first,(*pts.begin()).second);
