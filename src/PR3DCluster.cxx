@@ -143,6 +143,15 @@ TVector3 PR3DCluster::calc_dir(Point& p_test, Point& p, double dis){
   return dir;
 }
 
+TVector3 PR3DCluster::VHoughTrans(Point&p, double dis){
+  double theta, phi;
+  std::pair<double,double> angles_1 = HoughTrans(p,dis);
+  theta = angles_1.first;
+  phi = angles_1.second;
+  TVector3 temp(sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta));
+  return temp;
+}
+
 std::pair<double,double> PR3DCluster::HoughTrans(Point&p , double dis){
   double theta, phi;
   TH2F *hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);

@@ -31,6 +31,7 @@ namespace WireCell{
     Vector get_PCA_axis(int axis){return PCA_axis[axis];};
 
     std::pair<double,double> HoughTrans(Point& p, double dis);
+    TVector3 VHoughTrans(Point& p, double dis);
     TVector3 calc_dir(Point& p_test, Point& p, double dis);
     TVector3 calc_PCA_dir(Point& p, double dis);
     
