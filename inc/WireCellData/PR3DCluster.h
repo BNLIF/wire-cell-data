@@ -15,7 +15,8 @@ using namespace boost;
 namespace WireCell{
 
   struct VertexProp {
-    WCPointCloud<double>::WCPoint* wcpoint;
+    int index;
+    //WCPointCloud<double>::WCPoint wcpoint;
     // add pointer to merged cell
   };
   struct EdgeProp {

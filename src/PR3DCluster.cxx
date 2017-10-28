@@ -43,51 +43,57 @@ void PR3DCluster::Create_point_cloud(){
 
 
 void PR3DCluster::Create_graph(){
-  if (point_cloud==0)
+  if (point_cloud==(ToyPointCloud*)0)
     Create_point_cloud();
 
   // create Graph ...
   const int N = point_cloud->get_num_points();
   graph = new MCUGraph(N);
 
-  std::map<SlimMergeGeomCell*, std::map<int, std::set<WCPointCloud<double>::WCPoint*>>> map_mcell_uindex_wcps;
-  std::map<SlimMergeGeomCell*, std::map<int, std::set<WCPointCloud<double>::WCPoint*>>> map_mcell_vindex_wcps;
-  std::map<SlimMergeGeomCell*, std::map<int, std::set<WCPointCloud<double>::WCPoint*>>> map_mcell_windex_wcps;
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  
+  std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_uindex_wcps;
+  std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_vindex_wcps;
+  std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_windex_wcps;
+  
+  //point_cloud->Print();
   
   //create all vertices
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = (*it);
-    std::map<int, std::set<WCPointCloud<double>::WCPoint*>> map_uindex_wcps;
-    std::map<int, std::set<WCPointCloud<double>::WCPoint*>> map_vindex_wcps;
-    std::map<int, std::set<WCPointCloud<double>::WCPoint*>> map_windex_wcps;
-    std::vector<WCPointCloud<double>::WCPoint*>& wcps = point_cloud->get_mcell_wcpoints(mcell);
+    std::map<int, std::set<int>> map_uindex_wcps;
+    std::map<int, std::set<int>> map_vindex_wcps;
+    std::map<int, std::set<int>> map_windex_wcps;
+    std::vector<int>& wcps = point_cloud->get_mcell_indices(mcell);
     for (auto it1 = wcps.begin(); it1!=wcps.end(); it1++){
-      WCPointCloud<double>::WCPoint* wcp = (*it1);
-      int index = point_cloud->get_wcpoint_index(wcp);
-      auto v = vertex(index, *graph); // retrieve vertex descriptor
-      (*graph)[v].wcpoint = wcp;
-      if (map_uindex_wcps.find(wcp->index_u)==map_uindex_wcps.end()){
-	std::set<WCPointCloud<double>::WCPoint*> wcps;
-	wcps.insert(wcp);
-	map_uindex_wcps[wcp->index_u] = wcps;
+      WCPointCloud<double>::WCPoint& wcp = cloud.pts[*it1]; 
+      // int index = wcp.index;
+      // std::cout << index << " " << wcp.x << " " << wcp.y << " " << wcp.z << " " << wcp.index_u << " " << wcp.index_v << " " << wcp.index_w << std::endl;
+      
+      auto v = vertex(wcp.index, *graph); // retrieve vertex descriptor
+      (*graph)[v].index = wcp.index;
+      if (map_uindex_wcps.find(wcp.index_u)==map_uindex_wcps.end()){
+   	std::set<int> wcps;
+   	wcps.insert(wcp.index);
+   	map_uindex_wcps[wcp.index_u] = wcps;
       }else{
-	map_uindex_wcps[wcp->index_u].insert(wcp);
+   	map_uindex_wcps[wcp.index_u].insert(wcp.index);
       }
       
-      if (map_vindex_wcps.find(wcp->index_v)==map_vindex_wcps.end()){
-	std::set<WCPointCloud<double>::WCPoint*> wcps;
-	wcps.insert(wcp);
-	map_vindex_wcps[wcp->index_v] = wcps;
+      if (map_vindex_wcps.find(wcp.index_v)==map_vindex_wcps.end()){
+  	std::set<int> wcps;
+  	wcps.insert(wcp.index);
+  	map_vindex_wcps[wcp.index_v] = wcps;
       }else{
-	map_vindex_wcps[wcp->index_v].insert(wcp);
+  	map_vindex_wcps[wcp.index_v].insert(wcp.index);
       }
 
-      if (map_windex_wcps.find(wcp->index_w)==map_windex_wcps.end()){
-	std::set<WCPointCloud<double>::WCPoint*> wcps;
-	wcps.insert(wcp);
-	map_windex_wcps[wcp->index_w] = wcps;
+      if (map_windex_wcps.find(wcp.index_w)==map_windex_wcps.end()){
+  	std::set<int> wcps;
+  	wcps.insert(wcp.index);
+  	map_windex_wcps[wcp.index_w] = wcps;
       }else{
-	map_windex_wcps[wcp->index_w].insert(wcp);
+  	map_windex_wcps[wcp.index_w].insert(wcp.index);
       }
       
       
@@ -100,11 +106,11 @@ void PR3DCluster::Create_graph(){
   // create graph for points inside the same mcell
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = (*it);
-    std::vector<WCPointCloud<double>::WCPoint*>& wcps = point_cloud->get_mcell_wcpoints(mcell);
+    std::vector<int>& wcps = point_cloud->get_mcell_indices(mcell);
     int max_wire_interval = mcell->get_max_wire_interval();
     int min_wire_interval = mcell->get_min_wire_interval();
-    std::map<int, std::set<WCPointCloud<double>::WCPoint*>>* map_max_index_wcps;
-    std::map<int, std::set<WCPointCloud<double>::WCPoint*>>* map_min_index_wcps;
+    std::map<int, std::set<int>>* map_max_index_wcps;
+    std::map<int, std::set<int>>* map_min_index_wcps;
     if (mcell->get_max_wire_type()==WirePlaneType_t(0)){
       map_max_index_wcps = &map_mcell_uindex_wcps[mcell];
     }else if (mcell->get_max_wire_type()==WirePlaneType_t(1)){
@@ -121,65 +127,94 @@ void PR3DCluster::Create_graph(){
     }
     
     for (auto it1 = wcps.begin(); it1!=wcps.end(); it1++){
-      WCPointCloud<double>::WCPoint* wcp1 = (*it1);
-      int index1 = point_cloud->get_wcpoint_index(wcp1);
+      WCPointCloud<double>::WCPoint& wcp1 = cloud.pts[*it1];
+      int index1 = wcp1.index;
       int index_max_wire;
       int index_min_wire;
       if (mcell->get_max_wire_type()==WirePlaneType_t(0)){
-	index_max_wire = wcp1->index_u;
+  	index_max_wire = wcp1.index_u;
       }else if (mcell->get_max_wire_type()==WirePlaneType_t(1)){
-	index_max_wire = wcp1->index_v;
+  	index_max_wire = wcp1.index_v;
       }else{
-	index_max_wire = wcp1->index_w;
+  	index_max_wire = wcp1.index_w;
       }
       if (mcell->get_min_wire_type()==WirePlaneType_t(0)){
-	index_min_wire = wcp1->index_u;
+  	index_min_wire = wcp1.index_u;
       }else if (mcell->get_min_wire_type()==WirePlaneType_t(1)){
-	index_min_wire = wcp1->index_v;
+  	index_min_wire = wcp1.index_v;
       }else{
-	index_min_wire = wcp1->index_w;
+  	index_min_wire = wcp1.index_w;
       }
 
-      std::vector<std::set<WCPointCloud<double>::WCPoint*>*> max_wcps_set;
-      std::vector<std::set<WCPointCloud<double>::WCPoint*>*> min_wcps_set;
+      std::vector<std::set<int>*> max_wcps_set;
+      std::vector<std::set<int>*> min_wcps_set;
       
       // go through the first map and find the ones satisfying the condition
       for (auto it2 = map_max_index_wcps->begin(); it2!=map_max_index_wcps->end(); it2++){
-	if (fabs(it2->first - index_max_wire)<=max_wire_interval){
-	  max_wcps_set.push_back(&(it2->second));
-	}
+   	if (fabs(it2->first - index_max_wire)<=max_wire_interval){
+   	  max_wcps_set.push_back(&(it2->second));
+   	}
       }
       // go through the second map and find the ones satisfying the condition
       for (auto it2 = map_min_index_wcps->begin(); it2!=map_min_index_wcps->end(); it2++){
-	if (fabs(it2->first - index_min_wire)<=min_wire_interval){
-	  min_wcps_set.push_back(&(it2->second));
-	}
+   	if (fabs(it2->first - index_min_wire)<=min_wire_interval){
+   	  min_wcps_set.push_back(&(it2->second));
+   	}
       }
       // std::cout << max_wcps_set.size() << " " << min_wcps_set.size() << std::endl;
       for (auto it2 = max_wcps_set.begin(); it2!=max_wcps_set.end(); it2++){
-	for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
-	  std::set<WCPointCloud<double>::WCPoint*> common_set;
-	  set_intersection((*it2)->begin(), (*it2)->end(), (*it3)->begin(), (*it3)->end(),std::inserter(common_set,common_set.begin()));
-	  for (auto it4 = common_set.begin(); it4!=common_set.end(); it4++){
-	    WCPointCloud<double>::WCPoint* wcp2 = (*it4);
-	    if (wcp2 != wcp1){
-	      int index2 = point_cloud->get_wcpoint_index(wcp2);
-	      //std::cout << index1 << " " << index2 << std::endl;
-	      // add edge ...
-	      auto edge = add_edge(index1,index2,*graph);
-	      if (edge.second){
-		(*graph)[edge.first].dist = sqrt(pow(wcp1->x-wcp2->x,2)+pow(wcp1->y-wcp2->y,2)+pow(wcp1->z-wcp2->z,2));
-	      }
-	    }
-	  }
-	}
+   	for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
+   	  std::set<int> common_set;
+   	  set_intersection((*it2)->begin(), (*it2)->end(), (*it3)->begin(), (*it3)->end(),std::inserter(common_set,common_set.begin()));
+  	  for (auto it4 = common_set.begin(); it4!=common_set.end(); it4++){
+   	    WCPointCloud<double>::WCPoint& wcp2 = cloud.pts[*it4];
+   	    if (wcp2.index != wcp1.index){
+   	      int index2 = wcp2.index;
+   	      //  std::cout << index1 << " " << index2 << std::endl;
+   	      // add edge ...
+   	      auto edge = add_edge(index1,index2,*graph);
+   	      if (edge.second){
+   		(*graph)[edge.first].dist = sqrt(pow(wcp1.x-wcp2.x,2)+pow(wcp1.y-wcp2.y,2)+pow(wcp1.z-wcp2.z,2));
+		//	std::cout << wcp1.x << " " << wcp1.y << " " << wcp1.z << " " << wcp1.index_u << " " << wcp1.index_v << " " << wcp1.index_w << " " << wcp2.index_u << " " << wcp2.index_v << " " << wcp2.index_w << std::endl;
+   	      }
+   	    }
+   	  }
+   	}
+      }
+    }
+  }
+
+  
+  // create graph for points in mcell inside the same time slice
+  std::vector<std::pair<SlimMergeGeomCell*,SlimMergeGeomCell*>> same_time_mcells;
+
+  for (auto it1 = time_cells_set_map.begin(); it1!=time_cells_set_map.end(); it1++){
+    SMGCSet mcells_set = (*it1).second;
+    if (mcells_set.size()>=2){
+      for (auto it2 = mcells_set.begin(); it2!=mcells_set.end();it2++){
+  	SlimMergeGeomCell *mcell1 = *it2;
+  	auto it2p = it2;
+  	if (it2p!=mcells_set.end()){
+  	  it2p++;
+  	  for (auto it3 = it2p; it3!=mcells_set.end(); it3++){
+  	    SlimMergeGeomCell *mcell2 = *(it3);
+  	    //std::cout << mcell1 << " " << mcell2 << " " << mcell1->Overlap_fast(mcell2,2) << std::endl;
+  	    same_time_mcells.push_back(std::make_pair(mcell1,mcell2));
+  	  }
+  	}
       }
     }
   }
   
-  // create graph for points in mcell inside the same time slice
-  // create graph for points between connected mcells in adjacent time slices
-  // create graph for points between not connected mcells ...
+  
+  // create graph for points between connected mcells in adjacent time slices + 1, if not, + 2
+
+  // get the connected components from the graph
+
+  //for separated kd tree to find the closest points between disconnected components,
+
+  // connect these graphs according to closest distance some how ...
+
   
 }
 

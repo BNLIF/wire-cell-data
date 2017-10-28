@@ -35,8 +35,12 @@ namespace WireCell{
     
     
     int get_num_points(){return cloud.pts.size();};
-    int get_wcpoint_index(WCPointCloud<double>::WCPoint* wcpoint){return map_wcpoint_index[wcpoint];};
-    std::vector<WCPointCloud<double>::WCPoint*>& get_mcell_wcpoints(WireCell::SlimMergeGeomCell* mcell){return map_mcell_wcpoints[mcell];};
+    std::vector<int>& get_mcell_indices(WireCell::SlimMergeGeomCell* mcell){
+      return map_mcell_indices[mcell];
+    };
+    WireCell::WCPointCloud<double>& get_cloud(){return cloud;};
+
+    void Print();
     
   protected:
     std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, int N);
@@ -45,11 +49,9 @@ namespace WireCell{
     
     WireCell::WCPointCloud<double> cloud;
     my_kd_tree_t *index;
-    
     // map of mcells to WCPoints
-    std::map<WireCell::SlimMergeGeomCell*, std::vector<WCPointCloud<double>::WCPoint*>> map_mcell_wcpoints; 
-    // map of WCPoint to index in the cloud 
-    std::map<WCPointCloud<double>::WCPoint*,int> map_wcpoint_index;
+    std::map<WireCell::SlimMergeGeomCell*, std::vector<int>> map_mcell_indices; 
+    
     
 
   };
