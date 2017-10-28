@@ -30,10 +30,22 @@ void PR3DCluster::Create_point_cloud(){
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = (*it);
     PointVector pts = mcell->get_sampling_points();
-    point_cloud->AddPoints(pts,mcell);
+    
+    point_cloud->AddPoints(pts,mcell->get_sampling_points_wires(),mcell);
   }
   point_cloud->build_kdtree_index();
   //  std::cout << point_cloud->get_num_points() << std::endl;
+
+  // for (auto it = mcells.begin(); it!=mcells.end(); it++){
+  //   SlimMergeGeomCell *mcell = (*it);
+  //   std::vector<WCPointCloud<double>::WCPoint*>& wcpoints = point_cloud->get_mcell_wcpoints(mcell);
+  //   //    std::cout << wcpoints.size() << " ";
+  //   for (size_t i=0;i!=wcpoints.size();i++){
+  //     // std::cout << point_cloud->get_wcpoint_index(wcpoints.at(i)) << " " << wcpoints.at(i)->x << " ";
+  //   }
+  //   //    std::cout << std::endl;
+    
+  // }
   
 }
 

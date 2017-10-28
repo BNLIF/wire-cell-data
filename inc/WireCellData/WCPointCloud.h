@@ -12,6 +12,7 @@ namespace WireCell{
       {
 	T  x,y,z;
 	SlimMergeGeomCell *mcell;
+	int index_u, index_v, index_w;
       };
       
       std::vector<WCPoint>  pts;
