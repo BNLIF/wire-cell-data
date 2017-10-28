@@ -12,11 +12,14 @@ PR3DCluster::PR3DCluster(int cluster_id)
   : cluster_id(cluster_id)
 {
   point_cloud = 0;
+  g = 0;
 }
 
 PR3DCluster::~PR3DCluster(){
   if (point_cloud!=(ToyPointCloud*)0)
     delete point_cloud;
+  if (g!=(MCUGraph*)0)
+    delete g;
 }
 
 // void AddCell(SlimMergeGeomCell* mcell, int *time_slices, int ntime_slice){
@@ -36,6 +39,12 @@ void PR3DCluster::Create_point_cloud(){
   point_cloud->build_kdtree_index();
   //  std::cout << point_cloud->get_num_points() << std::endl;
 
+
+  
+  // create Graph ...
+  const int N = point_cloud->get_num_points();
+  g = new MCUGraph(N);
+  
   // for (auto it = mcells.begin(); it!=mcells.end(); it++){
   //   SlimMergeGeomCell *mcell = (*it);
   //   std::vector<WCPointCloud<double>::WCPoint*>& wcpoints = point_cloud->get_mcell_wcpoints(mcell);

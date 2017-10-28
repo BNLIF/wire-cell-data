@@ -5,9 +5,24 @@
 #include "WireCellData/ToyPointCloud.h"
 #include "TVector3.h"
 
+#include <boost/graph/adjacency_list.hpp>
+#include <boost/graph/dijkstra_shortest_paths.hpp>
 
+using namespace boost;
 
 namespace WireCell{
+  struct VertexProp {
+    WCPointCloud<double>::WCPoint* wcpoint;
+    // add pointer to merged cell
+  };
+  struct EdgeProp {
+    float dist; // edge distance
+  };
+  
+  typedef adjacency_list<vecS, vecS, undirectedS, VertexProp, EdgeProp> MCUGraph;
+  typedef graph_traits<MCUGraph>::vertex_descriptor vertex_descriptor;
+  typedef graph_traits<MCUGraph>::edge_descriptor edge_descriptor;
+  
   class PR3DCluster{
   public:
     PR3DCluster(int cluster_id);
@@ -53,7 +68,8 @@ namespace WireCell{
     
     Vector PCA_axis[3];
 
-    
+    // graph 
+    MCUGraph *g;
 
   };
   typedef std::vector<PR3DCluster*> PR3DClusterSelection;
