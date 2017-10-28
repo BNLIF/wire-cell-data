@@ -9,7 +9,8 @@ WireCell::ToyPointCloud::ToyPointCloud(){
 WireCell::ToyPointCloud::~ToyPointCloud(){
   if (index!=0)
     delete index;
-
+  map_wcpoint_index.clear();
+  map_mcell_wcpoints.clear();
   cloud.pts.clear();
 }
 
@@ -19,17 +20,35 @@ void WireCell::ToyPointCloud::AddPoint(Point& p, SlimMergeGeomCell *mcell){
   point.y = p.y;
   point.z = p.z;
   point.mcell = mcell;
+  if (map_mcell_wcpoints.find(mcell)==map_mcell_wcpoints.end()){
+    std::vector<WCPointCloud<double>::WCPoint*> temp_pts;
+    temp_pts.push_back(&point);
+    map_mcell_wcpoints[mcell] = temp_pts;
+  }else{
+    map_mcell_wcpoints[mcell].push_back(&point);
+  }
+  map_wcpoint_index[&point] = cloud.pts.size();
+
   cloud.pts.push_back(point);
 }
 
 void WireCell::ToyPointCloud::AddPoints(PointVector& ps, SlimMergeGeomCell *mcell){
   size_t current_size = cloud.pts.size();
   cloud.pts.resize(current_size + ps.size());
+
+  if (map_mcell_wcpoints.find(mcell)==map_mcell_wcpoints.end()){
+    std::vector<WCPointCloud<double>::WCPoint*> temp_pts;
+    map_mcell_wcpoints[mcell] = temp_pts;
+  }
+  
   for (size_t i=0;i!=ps.size();i++){
     cloud.pts[current_size+i].x = ps.at(i).x;
     cloud.pts[current_size+i].y = ps.at(i).y;
     cloud.pts[current_size+i].z = ps.at(i).z;
     cloud.pts[current_size+i].mcell = mcell;
+
+    map_mcell_wcpoints[mcell].push_back(&cloud.pts[current_size+i]);
+    map_wcpoint_index[&cloud.pts[current_size+i]]=current_size+i;
   }
 }
 
