@@ -39,15 +39,13 @@ void PR3DCluster::Create_point_cloud(){
   point_cloud->build_kdtree_index();
   //  std::cout << point_cloud->get_num_points() << std::endl;
 
-
-  create_graph();
-  
-  
-  
 }
 
 
-void PR3DCluster::create_graph(){
+void PR3DCluster::Create_graph(){
+  if (point_cloud==0)
+    Create_point_cloud();
+
   // create Graph ...
   const int N = point_cloud->get_num_points();
   graph = new MCUGraph(N);

@@ -46,6 +46,8 @@ namespace WireCell{
 
     void Create_point_cloud();
     ToyPointCloud* get_point_cloud(){return point_cloud;};
+
+    void Create_graph();
     
     void Calc_PCA();
     Vector get_center(){return center;};
@@ -60,7 +62,7 @@ namespace WireCell{
     Point calc_ave_pos(Point& p, double dis);
     
   protected:
-    void create_graph();
+    
 
     
     int cluster_id;
