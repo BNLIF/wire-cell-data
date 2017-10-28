@@ -44,17 +44,12 @@ void PR3DCluster::Create_point_cloud(){
   // create Graph ...
   const int N = point_cloud->get_num_points();
   g = new MCUGraph(N);
+  // create graph for points inside the same mcell
+  // create graph for points in mcell inside the same time slice
+  // create graph for points between connected mcells in adjacent time slices
+  // create graph for points between not connected mcells ...
   
-  // for (auto it = mcells.begin(); it!=mcells.end(); it++){
-  //   SlimMergeGeomCell *mcell = (*it);
-  //   std::vector<WCPointCloud<double>::WCPoint*>& wcpoints = point_cloud->get_mcell_wcpoints(mcell);
-  //   //    std::cout << wcpoints.size() << " ";
-  //   for (size_t i=0;i!=wcpoints.size();i++){
-  //     // std::cout << point_cloud->get_wcpoint_index(wcpoints.at(i)) << " " << wcpoints.at(i)->x << " ";
-  //   }
-  //   //    std::cout << std::endl;
-    
-  // }
+  
   
 }
 
