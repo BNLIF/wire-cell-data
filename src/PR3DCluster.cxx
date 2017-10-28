@@ -51,23 +51,60 @@ void PR3DCluster::create_graph(){
   // create Graph ...
   const int N = point_cloud->get_num_points();
   graph = new MCUGraph(N);
+
+  std::map<SlimMergeGeomCell*, std::map<int, std::vector<WCPointCloud<double>::WCPoint*>>> map_mcell_uindex_wcps;
+  std::map<SlimMergeGeomCell*, std::map<int, std::vector<WCPointCloud<double>::WCPoint*>>> map_mcell_vindex_wcps;
+  std::map<SlimMergeGeomCell*, std::map<int, std::vector<WCPointCloud<double>::WCPoint*>>> map_mcell_windex_wcps;
   
   //create all vertices
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = (*it);
+    std::map<int, std::vector<WCPointCloud<double>::WCPoint*>> map_uindex_wcps;
+    std::map<int, std::vector<WCPointCloud<double>::WCPoint*>> map_vindex_wcps;
+    std::map<int, std::vector<WCPointCloud<double>::WCPoint*>> map_windex_wcps;
     std::vector<WCPointCloud<double>::WCPoint*>& wcps = point_cloud->get_mcell_wcpoints(mcell);
     for (auto it1 = wcps.begin(); it1!=wcps.end(); it1++){
       WCPointCloud<double>::WCPoint* wcp = (*it1);
       int index = point_cloud->get_wcpoint_index(wcp);
       auto v = vertex(index, *graph); // retrieve vertex descriptor
       (*graph)[v].wcpoint = wcp;
+      if (map_uindex_wcps.find(wcp->index_u)==map_uindex_wcps.end()){
+	std::vector<WCPointCloud<double>::WCPoint*> wcps;
+	wcps.push_back(wcp);
+	map_uindex_wcps[wcp->index_u] = wcps;
+      }else{
+	map_uindex_wcps[wcp->index_u].push_back(wcp);
+      }
+      
+      if (map_vindex_wcps.find(wcp->index_v)==map_vindex_wcps.end()){
+	std::vector<WCPointCloud<double>::WCPoint*> wcps;
+	wcps.push_back(wcp);
+	map_vindex_wcps[wcp->index_v] = wcps;
+      }else{
+	map_vindex_wcps[wcp->index_v].push_back(wcp);
+      }
+
+      if (map_windex_wcps.find(wcp->index_w)==map_windex_wcps.end()){
+	std::vector<WCPointCloud<double>::WCPoint*> wcps;
+	wcps.push_back(wcp);
+	map_windex_wcps[wcp->index_w] = wcps;
+      }else{
+	map_windex_wcps[wcp->index_w].push_back(wcp);
+      }
+      
+      
     }
+    map_mcell_uindex_wcps[mcell] = map_uindex_wcps;
+    map_mcell_vindex_wcps[mcell] = map_vindex_wcps;
+    map_mcell_windex_wcps[mcell] = map_windex_wcps;
   }
   
-
   // create graph for points inside the same mcell
+
   // create graph for points in mcell inside the same time slice
+
   // create graph for points between connected mcells in adjacent time slices
+
   // create graph for points between not connected mcells ...
 }
 
