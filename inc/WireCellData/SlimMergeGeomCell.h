@@ -3,7 +3,9 @@
 
 #include "WireCellData/GeomCell.h"
 #include "WireCellData/GeomWireCellMap.h"
- 
+#include <tuple>
+
+
 namespace WireCell{
 class SlimMergeGeomCell : public WireCell::GeomCell{
   public:
@@ -16,6 +18,9 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    void AddWire(const GeomWire *wire, WirePlaneType_t plane, float charge=0, float charge_err = 0);
    void AddBoundary( const PointVector& boundary );
    void AddSamplingPoints(const PointVector& sampling_points);
+   void AddSamplingPointsWires(std::vector<std::tuple<int,int,int>>& sampling_points_wires);
+   void SetMaxWireInterval(WirePlaneType_t type, int value);
+   void SetMinWireInterval(WirePlaneType_t type, int value);
    //Point get_sampling_points_center();
     
    GeomWireSelection get_uwires() const{return uwires;};
@@ -62,6 +67,11 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    bool IsSame(SlimMergeGeomCell* mcell1);
 
    PointVector& get_sampling_points(){return sample_points;};
+   std::vector<std::tuple<int,int,int>>& get_sampling_points_wires(){return sample_points_wires;};
+   int get_max_wire_interval(){return max_wire_interval;};
+   int get_min_wire_interval(){return min_wire_interval;};
+   WirePlaneType_t get_max_wire_type(){return max_wire_type;};
+   WirePlaneType_t get_min_wire_type(){return min_wire_type;};
    
   protected:
     int _ident;
@@ -70,6 +80,9 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     float uq, udq, vq, vdq, wq, wdq, q;
 
     PointVector sample_points;
+    std::vector<std::tuple<int,int,int>> sample_points_wires;
+    int max_wire_interval, min_wire_interval;
+    WirePlaneType_t max_wire_type, min_wire_type;
     
     //int order_boundary();
     WireCell::GeomWireSelection uwires;

@@ -39,19 +39,21 @@ namespace WireCell{
     Point calc_ave_pos(Point& p, double dis);
     
   protected:
-    int cluster_id;
-    SMGCSelection mcells;
-    /* std::map<int,SMGCSelection> time_cells_map; */
-    /* std::map<SlimMergeGeomCell*, std::vector<int>> cell_times_map; */
 
-    Vector center;
-    Vector PCA_axis[3];
+    int cluster_id;
     
-    ToyPointCloud *point_cloud;
-    
-    
+    SMGCSelection mcells;
     std::map<int,SMGCSet> time_cells_set_map;
     std::map<SlimMergeGeomCell*, std::set<int>> cell_times_set_map;   
+
+    
+    ToyPointCloud *point_cloud;
+    Vector center;
+    
+    Vector PCA_axis[3];
+
+    
+
   };
   typedef std::vector<PR3DCluster*> PR3DClusterSelection;
 }

@@ -177,6 +177,19 @@ void WireCell::SlimMergeGeomCell::AddSamplingPoints(const PointVector& sampling_
   sample_points = sampling_points;
 }
 
+void WireCell::SlimMergeGeomCell::AddSamplingPointsWires(std::vector<std::tuple<int,int,int>>& sampling_points_wires){
+  sample_points_wires = sampling_points_wires;
+}
+
+void WireCell::SlimMergeGeomCell::SetMaxWireInterval(WirePlaneType_t type, int value){
+  max_wire_interval = value;
+  max_wire_type = type;
+}
+
+void WireCell::SlimMergeGeomCell::SetMinWireInterval(WirePlaneType_t type, int value){
+  min_wire_interval = value;
+  min_wire_type = type;
+}
 
 
 void WireCell::SlimMergeGeomCell::AddWire(const GeomWire *wire, WirePlaneType_t plane, float charge, float charge_err){
