@@ -10,7 +10,10 @@
 
 using namespace boost;
 
+
+
 namespace WireCell{
+
   struct VertexProp {
     WCPointCloud<double>::WCPoint* wcpoint;
     // add pointer to merged cell
@@ -22,6 +25,8 @@ namespace WireCell{
   typedef adjacency_list<vecS, vecS, undirectedS, VertexProp, EdgeProp> MCUGraph;
   typedef graph_traits<MCUGraph>::vertex_descriptor vertex_descriptor;
   typedef graph_traits<MCUGraph>::edge_descriptor edge_descriptor;
+  
+  
   
   class PR3DCluster{
   public:
@@ -55,7 +60,9 @@ namespace WireCell{
     Point calc_ave_pos(Point& p, double dis);
     
   protected:
+    void create_graph();
 
+    
     int cluster_id;
     
     SMGCSelection mcells;
@@ -69,7 +76,7 @@ namespace WireCell{
     Vector PCA_axis[3];
 
     // graph 
-    MCUGraph *g;
+    MCUGraph *graph;
 
   };
   typedef std::vector<PR3DCluster*> PR3DClusterSelection;

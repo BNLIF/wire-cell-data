@@ -12,14 +12,14 @@ PR3DCluster::PR3DCluster(int cluster_id)
   : cluster_id(cluster_id)
 {
   point_cloud = 0;
-  g = 0;
+  graph = 0;
 }
 
 PR3DCluster::~PR3DCluster(){
   if (point_cloud!=(ToyPointCloud*)0)
     delete point_cloud;
-  if (g!=(MCUGraph*)0)
-    delete g;
+  if (graph!=(MCUGraph*)0)
+    delete graph;
 }
 
 // void AddCell(SlimMergeGeomCell* mcell, int *time_slices, int ntime_slice){
@@ -40,17 +40,35 @@ void PR3DCluster::Create_point_cloud(){
   //  std::cout << point_cloud->get_num_points() << std::endl;
 
 
+  create_graph();
   
+  
+  
+}
+
+
+void PR3DCluster::create_graph(){
   // create Graph ...
   const int N = point_cloud->get_num_points();
-  g = new MCUGraph(N);
+  graph = new MCUGraph(N);
+  
+  //create all vertices
+  for (auto it = mcells.begin(); it!=mcells.end(); it++){
+    SlimMergeGeomCell *mcell = (*it);
+    std::vector<WCPointCloud<double>::WCPoint*>& wcps = point_cloud->get_mcell_wcpoints(mcell);
+    for (auto it1 = wcps.begin(); it1!=wcps.end(); it1++){
+      WCPointCloud<double>::WCPoint* wcp = (*it1);
+      int index = point_cloud->get_wcpoint_index(wcp);
+      auto v = vertex(index, *graph); // retrieve vertex descriptor
+      (*graph)[v].wcpoint = wcp;
+    }
+  }
+  
+
   // create graph for points inside the same mcell
   // create graph for points in mcell inside the same time slice
   // create graph for points between connected mcells in adjacent time slices
   // create graph for points between not connected mcells ...
-  
-  
-  
 }
 
 Point PR3DCluster::calc_ave_pos(Point& p, double dis){
