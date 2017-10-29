@@ -2,6 +2,7 @@
 
 #include "TMatrixDEigen.h"
 #include "TH2F.h"
+#include "TVector3.h"
 
 #include <boost/graph/connected_components.hpp>
 
@@ -507,9 +508,154 @@ void PR3DCluster::cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target){
     if (i==prev_i) break;
     prev_i = i;
   }
-  path_wcps.push_front(cloud.pts[dest_wcp_index]);
-  if (cloud.pts[dest_wcp_index].mcell!=path_mcells.front())
-    path_mcells.push_front(cloud.pts[dest_wcp_index].mcell);
+  path_wcps.push_front(cloud.pts[source_wcp_index]);
+  if (cloud.pts[source_wcp_index].mcell!=path_mcells.front())
+    path_mcells.push_front(cloud.pts[source_wcp_index].mcell);
+  
+}
+
+void PR3DCluster::fine_tracking(){
+  // cut ... 
+  if (path_wcps.size() < 10) return;
+
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  
+  //skip anypoint which is further away than 0.5 cm
+  double low_dis_limit = 0.5*units::cm;
+  std::vector<WCPointCloud<double>::WCPoint> path_wcps_vec;
+  std::vector<double> distances;
+  for (auto it = path_wcps.begin(); it!=path_wcps.end(); it++){
+    if (path_wcps_vec.size()==0){
+      path_wcps_vec.push_back(*it);
+    }else{
+      double dis = sqrt(pow((*it).x - path_wcps_vec.back().x,2)
+			+pow((*it).y - path_wcps_vec.back().y,2)
+			+pow((*it).z - path_wcps_vec.back().z,2));
+      if (dis > low_dis_limit){
+	path_wcps_vec.push_back(*it);
+	distances.push_back(dis);
+      }
+    }
+  }
+  // for (size_t i=0;i!=distances.size();i++){
+  //   std::cout << i << " " << distances.at(i)/units::cm << std::endl;
+  // }
+
+  
+  
+
+  //Loop any point and try to find its 3-level neibours ...
+  typedef boost::property_map<MCUGraph, boost::vertex_index_t>::type IndexMap;
+  IndexMap index = get(boost::vertex_index,*graph);
+  typedef boost::graph_traits<MCUGraph>::adjacency_iterator adjacency_iterator;
+  int nlevel = 3;
+  for (size_t i=0;i!=path_wcps_vec.size();i++){
+    int current_index = path_wcps_vec.at(i).index;
+    std::set<int> total_vertices_found;
+    std::set<int> vertices_to_be_examined;
+    std::set<int> vertices_saved_for_next;
+    total_vertices_found.insert(current_index);
+    vertices_to_be_examined.insert(current_index);
+
+    for (int j=0;j!=nlevel;j++){
+      for (auto it = vertices_to_be_examined.begin(); it!=vertices_to_be_examined.end(); it++){
+	current_index = (*it);
+	std::pair<adjacency_iterator, adjacency_iterator> neighbors = boost::adjacent_vertices(vertex(current_index,*graph),*graph);
+	for (; neighbors.first!=neighbors.second; ++neighbors.first){
+	  if (total_vertices_found.find(index(*neighbors.first))==total_vertices_found.end()){
+	    total_vertices_found.insert(index(*neighbors.first));
+	    vertices_saved_for_next.insert(index(*neighbors.first));
+	  }
+	}
+      }
+      vertices_to_be_examined = vertices_saved_for_next;
+    }
+    SMGCSet nearby_mcells_set;
+    for (auto it = total_vertices_found.begin(); it!=total_vertices_found.end(); it++){
+      SlimMergeGeomCell *mcell = cloud.pts[*it].mcell;
+      nearby_mcells_set.insert(mcell);
+    }
+    //std::cout << i << " " << total_vertices_found.size() << " " << nearby_mcells_set.size() << std::endl;
+    
+  }
+
+	 
+  
+  // copy the list into a vector...
+  //std::vector<WCPointCloud<double>::WCPoint> path_wcps_vec(std::begin(path_wcps), std::end(path_wcps));
+  
+  
+  
+  
+  // go along the vector, and create a new set of points, according to prechosen Dt
+  //double dt = 0.5*units::cm;
+
+  // max of( a certain distance (predefined) and three times the closest distance)
+  // save the corresponding mcells for these points as candidate 
+  
+  // current point, nearby points, and points satisfying a certain distance cut as candidates
+  
+
+
+
+  
+  
+  
+  
+  // need a Kalman filter like alg to organize the points???
+  // std::vector<bool> flag_prev_dirs, flag_next_dirs;
+  // flag_prev_dirs.resize(path_wcps_vec.size(), true);
+  // flag_next_dirs.resize(path_wcps_vec.size(), true);
+
+  // TVector3 prev_pos,next_pos,dir,dir1;
+  // for (size_t j=0; j!=path_wcps_vec.size(); j++){
+  //   int current_index = j;
+    
+  //   // calculate the direction vector
+  //   prev_pos.SetXYZ(0,0,0);
+  //   int num_pos = 0;
+  //   for (int i=std::max(0,current_index - 10);i!=current_index+1;i++){
+  //     prev_pos.SetXYZ(prev_pos.X() - path_wcps_vec.at(i).x,
+  // 		      prev_pos.Y() - path_wcps_vec.at(i).y,
+  // 		      prev_pos.Z() - path_wcps_vec.at(i).z);
+  //     num_pos ++;
+  //   }
+  //   prev_pos *= 1./num_pos;
+
+  //   next_pos.SetXYZ(0,0,0);
+  //   num_pos = 0;
+  //   for (int i=current_index; i!=std::min(current_index+11,int(path_wcps_vec.size()));i++){
+  //     next_pos.SetXYZ(next_pos.X() + path_wcps_vec.at(i).x,
+  // 		      next_pos.Y() + path_wcps_vec.at(i).y,
+  // 		      next_pos.Z() + path_wcps_vec.at(i).z
+  // 		      );
+  //     num_pos++;
+  //   }
+  //   next_pos *= 1./num_pos;
+  //   dir = next_pos - prev_pos;
+
+  //   if (j>0){
+  //     dir1.SetXYZ(path_wcps_vec.at(j).x - path_wcps_vec.at(j-1).x,
+  // 		  path_wcps_vec.at(j).y - path_wcps_vec.at(j-1).y,
+  // 		  path_wcps_vec.at(j).z - path_wcps_vec.at(j-1).z);
+  //     if (dir1.Dot(dir)<0) flag_prev_dirs.at(j) = false;
+  //   }
+  //   if (j+1<path_wcps_vec.size()){
+  //     dir1.SetXYZ(path_wcps_vec.at(j+1).x - path_wcps_vec.at(j).x,
+  // 		  path_wcps_vec.at(j+1).y - path_wcps_vec.at(j).y,
+  // 		  path_wcps_vec.at(j+1).z - path_wcps_vec.at(j).z);
+  //     if (dir1.Dot(dir)<0) flag_next_dirs.at(j) = false;
+  //   }
+    
+  // }
+
+  // for (size_t i=0; i!=flag_prev_dirs.size(); i++){
+  //   std::cout << i << " " << flag_prev_dirs.at(i) << " " << flag_next_dirs.at(i) << " " <<
+  //     path_wcps_vec.at(i).x << " " << path_wcps_vec.at(i).y << " " << path_wcps_vec.at(i).z << std::endl;
+  // }
+  
+  
+  
   
 }
 
