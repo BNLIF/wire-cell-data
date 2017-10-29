@@ -541,9 +541,71 @@ void PR3DCluster::fine_tracking(){
   //   std::cout << i << " " << distances.at(i)/units::cm << std::endl;
   // }
 
-  
-  
+   //form a map, (U,T) --> charge and error
+  //form a map, (V,T) --> charge and error
+  //form a map, (Z,T) --> charge and error
+  std::map<std::pair<int,int>,double> map_2D_ut_charge, map_2D_ut_charge_err;
+  std::map<std::pair<int,int>,double> map_2D_vt_charge, map_2D_vt_charge_err;
+  std::map<std::pair<int,int>,double> map_2D_wt_charge, map_2D_wt_charge_err;
+  for (auto it=mcells.begin();it!=mcells.end();it++){
+    SlimMergeGeomCell *mcell = (*it);
+    int time_slice = mcell->GetTimeSlice();
+    WireChargeMap& wire_charge_map = mcell->get_wirecharge_map();
+    WireChargeMap& wire_charge_err_map = mcell->get_wirechargeerr_map();
+    for (auto it = wire_charge_map.begin(); it!= wire_charge_map.end(); it++){
+      const GeomWire* wire = it->first;
+      double charge = it->second;
+      double charge_err = wire_charge_err_map[wire];
+      //std::cout << wire << " " << charge << " " << charge_err << std::endl;
+      if (charge >0){
+	if (wire->iplane()==0){
+	  map_2D_ut_charge[std::make_pair(wire->index(),time_slice)] = charge;
+	  map_2D_ut_charge_err[std::make_pair(wire->index(),time_slice)] = charge_err;
+	}else if (wire->iplane()==1){
+	  map_2D_vt_charge[std::make_pair(wire->index(),time_slice)] = charge;
+	  map_2D_vt_charge_err[std::make_pair(wire->index(),time_slice)] = charge_err;
+	}else{
+	  map_2D_wt_charge[std::make_pair(wire->index(),time_slice)] = charge;
+	  map_2D_wt_charge_err[std::make_pair(wire->index(),time_slice)] = charge_err;
+	}
+      }
+    }
+    //    std::cout << wire_charge_map.size() << " " << wire_charge_err_map.size() << std::endl;
+  }
 
+
+  // Now prepare all the maps ...
+  // map 3D index to set of 2D points
+  std::map<int,std::set<std::pair<int,int>>> map_3D_2DU_set;
+  std::map<int,std::set<std::pair<int,int>>> map_3D_2DV_set;
+  std::map<int,std::set<std::pair<int,int>>> map_3D_2DW_set;
+  // map 2D points to 3D indices
+  std::map<std::pair<int,int>,std::set<int>> map_2DU_3D_set;
+  std::map<std::pair<int,int>,std::set<int>> map_2DV_3D_set;
+  std::map<std::pair<int,int>,std::set<int>> map_2DW_3D_set;
+  // map 2D points to its index
+  std::map<std::pair<int,int>,int> map_2DU_index;
+  std::map<std::pair<int,int>,int> map_2DV_index;
+  std::map<std::pair<int,int>,int> map_2DW_index;
+
+  int num_index = 0;
+  for (auto it = map_2D_ut_charge.begin(); it!= map_2D_ut_charge.end(); it++){
+    map_2DU_index[it->first] = num_index;
+    num_index++;
+  }
+  num_index = 0;
+  for (auto it = map_2D_vt_charge.begin(); it!= map_2D_vt_charge.end(); it++){
+    map_2DV_index[it->first] = num_index;
+    num_index++;
+  }
+  num_index = 0;
+  for (auto it = map_2D_wt_charge.begin(); it!= map_2D_wt_charge.end(); it++){
+    map_2DW_index[it->first] = num_index;
+    num_index++;
+  }
+  //std::cout << map_2DU_index.size() << " " << map_2DV_index.size() << " " << map_2DW_index.size() << std::endl;
+
+  
   //Loop any point and try to find its 3-level neibours ...
   typedef boost::property_map<MCUGraph, boost::vertex_index_t>::type IndexMap;
   IndexMap index = get(boost::vertex_index,*graph);
@@ -575,11 +637,23 @@ void PR3DCluster::fine_tracking(){
       SlimMergeGeomCell *mcell = cloud.pts[*it].mcell;
       nearby_mcells_set.insert(mcell);
     }
-    //std::cout << i << " " << total_vertices_found.size() << " " << nearby_mcells_set.size() << std::endl;
+    // std::cout << i << " " << total_vertices_found.size() << " " << nearby_mcells_set.size() << std::endl;
+
+    int cur_time_slice = cloud.pts[current_index].mcell->GetTimeSlice();
+    int cur_wire_u = cloud.pts[current_index].index_u;
+    int cur_wire_v = cloud.pts[current_index].index_v;
+    int cur_wire_w = cloud.pts[current_index].index_w;
+    // Now fill the other maps ...
+    for (auto it = nearby_mcells_set.begin(); it!=nearby_mcells_set.end(); it++){
+      SlimMergeGeomCell *mcell = *it;
+    }
     
   }
 
-	 
+ 
+  
+  
+  
   
   // copy the list into a vector...
   //std::vector<WCPointCloud<double>::WCPoint> path_wcps_vec(std::begin(path_wcps), std::end(path_wcps));

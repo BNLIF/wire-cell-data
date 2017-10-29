@@ -72,6 +72,9 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    int get_min_wire_interval(){return min_wire_interval;};
    WirePlaneType_t get_max_wire_type(){return max_wire_type;};
    WirePlaneType_t get_min_wire_type(){return min_wire_type;};
+
+   WireCell::WireChargeMap& get_wirecharge_map(){return wirechargemap;};
+   WireCell::WireChargeMap& get_wirechargeerr_map(){return wirechargeerrmap;};
    
   protected:
     int _ident;
