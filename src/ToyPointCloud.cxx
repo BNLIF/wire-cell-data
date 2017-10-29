@@ -13,6 +13,28 @@ WireCell::ToyPointCloud::~ToyPointCloud(){
   cloud.pts.clear();
 }
 
+std::tuple<int,int,double> WireCell::ToyPointCloud::get_closest_points(ToyPointCloud *point_cloud){
+  WireCell::WCPointCloud<double>::WCPoint p1 = cloud.pts[0];
+  WireCell::WCPointCloud<double>::WCPoint p2 = cloud.pts[0];
+  int prev_index1 = -1;
+  int prev_index2 = -1;
+  while(p1.index!=prev_index1 || p2.index!=prev_index2){
+    prev_index1 = p1.index;
+    prev_index2 = p2.index;
+    p2 = point_cloud->get_closest_wcpoint(p1);
+    p1 = get_closest_wcpoint(p2);
+  }
+  
+  return std::make_tuple(p1.index,p2.index,sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2)));
+}
+
+WireCell::WCPointCloud<double>::WCPoint& WireCell::ToyPointCloud::get_closest_wcpoint(WireCell::WCPointCloud<double>::WCPoint& wcp){
+  Point p(wcp.x,wcp.y,wcp.z);
+  std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
+  return cloud.pts[results.front().first];
+}
+
+
 void WireCell::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& wcp){
   SlimMergeGeomCell *mcell = wcp.mcell;
   int index = wcp.index;

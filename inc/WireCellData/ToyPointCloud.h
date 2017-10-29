@@ -21,6 +21,9 @@ namespace WireCell{
   public:
     ToyPointCloud();
     ~ToyPointCloud();
+
+    std::tuple<int,int,double> get_closest_points(ToyPointCloud *point_could);
+    
     void AddPoint(WCPointCloud<double>::WCPoint& wcp);
     void AddPoint(WireCell::Point& p, std::tuple<int,int,int>& wires_index, WireCell::SlimMergeGeomCell *mcell);
     void AddPoints(WireCell::PointVector& ps, std::vector<std::tuple<int,int,int>>& wires_indices, WireCell::SlimMergeGeomCell *mcell);
@@ -31,7 +34,8 @@ namespace WireCell{
     std::map<WireCell::SlimMergeGeomCell*, WireCell::Point> get_closest_mcell(WireCell::Point& p, double radius);
     std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> get_closest_points(WireCell::Point& p, int N);
     std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> get_closest_points(WireCell::Point& p, double radius);
-    
+
+    WireCell::WCPointCloud<double>::WCPoint& get_closest_wcpoint(WireCell::WCPointCloud<double>::WCPoint& wcp);
     
     
     int get_num_points(){return cloud.pts.size();};

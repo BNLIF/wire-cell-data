@@ -418,15 +418,54 @@ void PR3DCluster::Create_graph(){
 	pt_clouds.at(j)->build_kdtree_index();
       }
       // connect these graphs according to closest distance some how ...
-      
+      std::tuple<int,int,double> index_index_dis[num][num];
+      for (int j=0;j!=num;j++){
+	for (int k=j+1;k!=num;k++){
+	  index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
+	  //std::cout << j << " "<< k << std::get<0>(index_index_dis[j][k]) << " " << std::get<1>(index_index_dis[j][k]) << " " << std::get<2>(index_index_dis[j][k]) << std::endl;
+	}
+      }
+
+      for (int j=0;j!=num-1;j++){
+	// find the minimum
+	std::tuple<int,int,double> min_dis = index_index_dis[j][j+1];
+	int min_index = j+1;
+	for (int k=j+2;k<num;k++){
+	  if (std::get<2>(index_index_dis[j][k]) < std::get<2>(min_dis)){
+	    min_dis = index_index_dis[j][k];
+	    min_index = k;
+	  }
+	}
+
+	for (int k=j+1;k<min_index;k++){
+	  if (std::get<2>(index_index_dis[j][k]) < std::get<2>(index_index_dis[k][min_index]) ){
+	    index_index_dis[k][min_index] = index_index_dis[j][k];
+	  }
+	}
+	for (int k=min_index+1;k<num;k++){
+	  if (std::get<2>(index_index_dis[j][k]) < std::get<2>(index_index_dis[min_index][k]) ){
+	    index_index_dis[min_index][k]=index_index_dis[j][k];
+	  }
+	}
+	//std::cout << j << " " << min_index << " " << std::get<0>(min_dis) << " " << std::get<1>(min_dis) << " "<< std::get<2>(min_dis) << std::endl;
+
+	auto edge = add_edge(std::get<0>(min_dis),std::get<1>(min_dis),*graph);
+	if (edge.second){
+	  (*graph)[edge.first].dist = std::get<2>(min_dis);
+	}
+      }
       
       for (int i=0;i!=num;i++){
 	delete pt_clouds.at(i);
       }
     }
-
-    
   }
+
+  // {
+  //   std::vector<int> component(num_vertices(*graph));
+  //   const int num = connected_components(*graph,&component[0]);
+  //   if (num>1) std::cout << "Wrong! " << num << std::endl;
+  // }
 
   
 
