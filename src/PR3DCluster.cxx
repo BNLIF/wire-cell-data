@@ -399,18 +399,38 @@ void PR3DCluster::Create_graph(){
   // get the connected components from the graph
   {
     std::vector<int> component(num_vertices(*graph));
-    int num = connected_components(*graph,&component[0]);
-    std::vector<int>::size_type i;
-    for (i=0;i!=component.size(); ++i){
-      std::cout << "Vertex " << i << " " << cloud.pts[i].x << " " << cloud.pts[i].y << " " << cloud.pts[i].z << " " << cloud.pts[i].index_u << " " << cloud.pts[i].index_v << " " << cloud.pts[i].index_w << " " << cloud.pts[i].mcell << " " << cloud.pts[i].mcell->GetTimeSlice()  << " is in component " << component[i] << std::endl;
+    const int num = connected_components(*graph,&component[0]);
+
+    if (num >1){
+      //for separated kd tree to find the closest points between disconnected components,
+      std::vector<ToyPointCloud*> pt_clouds;
+      for (int j=0;j!=num;j++){
+	ToyPointCloud *pt_cloud = new ToyPointCloud();
+	pt_clouds.push_back(pt_cloud);
+      }
+      
+      std::vector<int>::size_type i;
+      for (i=0;i!=component.size(); ++i){
+	pt_clouds.at(component[i])->AddPoint(cloud.pts[i]);
+	//   std::cout << "Vertex " << i << " " << cloud.pts[i].x << " " << cloud.pts[i].y << " " << cloud.pts[i].z << " " << cloud.pts[i].index_u << " " << cloud.pts[i].index_v << " " << cloud.pts[i].index_w << " " << cloud.pts[i].mcell << " " << cloud.pts[i].mcell->GetTimeSlice()  << " is in component " << component[i] << std::endl;
+      }
+      for (int j=0;j!=num;j++){
+	pt_clouds.at(j)->build_kdtree_index();
+      }
+      // connect these graphs according to closest distance some how ...
+      
+      
+      for (int i=0;i!=num;i++){
+	delete pt_clouds.at(i);
+      }
     }
-    if (num>1)
-      std::cout << "Wrong: " << num << std::endl;
+
+    
   }
 
-  //for separated kd tree to find the closest points between disconnected components,
+  
 
-  // connect these graphs according to closest distance some how ...
+
 
   
 }

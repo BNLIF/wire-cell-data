@@ -21,7 +21,7 @@ namespace WireCell{
   public:
     ToyPointCloud();
     ~ToyPointCloud();
-
+    void AddPoint(WCPointCloud<double>::WCPoint& wcp);
     void AddPoint(WireCell::Point& p, std::tuple<int,int,int>& wires_index, WireCell::SlimMergeGeomCell *mcell);
     void AddPoints(WireCell::PointVector& ps, std::vector<std::tuple<int,int,int>>& wires_indices, WireCell::SlimMergeGeomCell *mcell);
     void build_kdtree_index();

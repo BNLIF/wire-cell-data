@@ -13,6 +13,23 @@ WireCell::ToyPointCloud::~ToyPointCloud(){
   cloud.pts.clear();
 }
 
+void WireCell::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& wcp){
+  SlimMergeGeomCell *mcell = wcp.mcell;
+  int index = wcp.index;
+  
+  if (map_mcell_indices.find(mcell)==map_mcell_indices.end()){
+    std::vector<int> temp_indices;
+    temp_indices.push_back(index);
+    map_mcell_indices[mcell] = temp_indices;
+  }else{
+    map_mcell_indices[mcell].push_back(index);
+  }
+  
+
+  cloud.pts.push_back(wcp);
+}
+
+
 void WireCell::ToyPointCloud::AddPoint(Point& p, std::tuple<int,int,int>& wires_index, SlimMergeGeomCell *mcell){
   WCPointCloud<double>::WCPoint point;
   point.x = p.x;
@@ -37,6 +54,7 @@ void WireCell::ToyPointCloud::AddPoint(Point& p, std::tuple<int,int,int>& wires_
 
   cloud.pts.push_back(point);
 }
+
 
 
 
