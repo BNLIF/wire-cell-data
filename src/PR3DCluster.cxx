@@ -3,6 +3,7 @@
 #include "TMatrixDEigen.h"
 #include "TH2F.h"
 
+#include <boost/graph/connected_components.hpp>
 
 
 
@@ -185,11 +186,19 @@ void PR3DCluster::Create_graph(){
   }
 
   
-  // create graph for points in mcell inside the same time slice
-  std::vector<std::pair<SlimMergeGeomCell*,SlimMergeGeomCell*>> same_time_mcells;
-
+  
+  
+  std::vector<int> time_slices;
   for (auto it1 = time_cells_set_map.begin(); it1!=time_cells_set_map.end(); it1++){
-    SMGCSet mcells_set = (*it1).second;
+    time_slices.push_back((*it1).first);
+  }
+
+  std::vector<std::pair<SlimMergeGeomCell*,SlimMergeGeomCell*>> connected_mcells;
+  
+  for (size_t i=0; i!= time_slices.size(); i++){
+    SMGCSet& mcells_set = time_cells_set_map[time_slices.at(i)];
+    
+    // create graph for points in mcell inside the same time slice
     if (mcells_set.size()>=2){
       for (auto it2 = mcells_set.begin(); it2!=mcells_set.end();it2++){
   	SlimMergeGeomCell *mcell1 = *it2;
@@ -199,17 +208,205 @@ void PR3DCluster::Create_graph(){
   	  for (auto it3 = it2p; it3!=mcells_set.end(); it3++){
   	    SlimMergeGeomCell *mcell2 = *(it3);
   	    //std::cout << mcell1 << " " << mcell2 << " " << mcell1->Overlap_fast(mcell2,2) << std::endl;
-  	    same_time_mcells.push_back(std::make_pair(mcell1,mcell2));
+  	    connected_mcells.push_back(std::make_pair(mcell1,mcell2));
   	  }
   	}
       }
     }
+    // create graph for points between connected mcells in adjacent time slices + 1, if not, + 2
+    std::vector<SMGCSet> vec_mcells_set;
+    if (i+1 < time_slices.size()){
+      if (time_slices.at(i+1)-time_slices.at(i)==1){
+	vec_mcells_set.push_back(time_cells_set_map[time_slices.at(i+1)]);
+	if (i+2 < time_slices.size())
+	  if (time_slices.at(i+2)-time_slices.at(i)==2)
+	    vec_mcells_set.push_back(time_cells_set_map[time_slices.at(i+2)]);
+      }else if (time_slices.at(i+1) - time_slices.at(i)==2){
+	vec_mcells_set.push_back(time_cells_set_map[time_slices.at(i+1)]);
+      }
+    }
+    bool flag = false;
+    for (size_t j=0; j!=vec_mcells_set.size(); j++){
+      if (flag) break;
+      SMGCSet& next_mcells_set = vec_mcells_set.at(j);
+      for (auto it1 = mcells_set.begin(); it1!= mcells_set.end(); it1++){
+	SlimMergeGeomCell *mcell1 = (*it1);
+	for (auto it2 = next_mcells_set.begin(); it2!=next_mcells_set.end(); it2++){
+	  SlimMergeGeomCell *mcell2 = (*it2);
+	  if (mcell1->Overlap_fast(mcell2,2)){
+	    flag = true;
+	    connected_mcells.push_back(std::make_pair(mcell1,mcell2));
+	  }
+	}
+      }
+    }
   }
   
-  
-  // create graph for points between connected mcells in adjacent time slices + 1, if not, + 2
+  // establish edge ... 
+  // std::cout << connected_mcells.size() << std::endl;
+  for (auto it = connected_mcells.begin(); it!= connected_mcells.end(); it++){
+    SlimMergeGeomCell *mcell1 = (*it).first;
+    SlimMergeGeomCell *mcell2 = (*it).second;
 
+    std::vector<int>& wcps1 = point_cloud->get_mcell_indices(mcell1);
+    std::vector<int>& wcps2 = point_cloud->get_mcell_indices(mcell2);
+
+    // test 2 against 1 ... 
+    int max_wire_interval = mcell1->get_max_wire_interval();
+    int min_wire_interval = mcell1->get_min_wire_interval();
+    std::map<int, std::set<int>>* map_max_index_wcps;
+    std::map<int, std::set<int>>* map_min_index_wcps;
+    
+    if (mcell1->get_max_wire_type()==WirePlaneType_t(0)){
+      map_max_index_wcps = &map_mcell_uindex_wcps[mcell2];
+    }else if (mcell1->get_max_wire_type()==WirePlaneType_t(1)){
+      map_max_index_wcps = &map_mcell_vindex_wcps[mcell2];
+    }else{
+      map_max_index_wcps = &map_mcell_windex_wcps[mcell2];
+    }
+    if (mcell1->get_min_wire_type()==WirePlaneType_t(0)){
+      map_min_index_wcps = &map_mcell_uindex_wcps[mcell2];
+    }else if (mcell1->get_min_wire_type()==WirePlaneType_t(1)){
+      map_min_index_wcps = &map_mcell_vindex_wcps[mcell2];
+    }else{
+      map_min_index_wcps = &map_mcell_windex_wcps[mcell2];
+    }
+
+    for (auto it1 = wcps1.begin(); it1!=wcps1.end(); it1++){
+      WCPointCloud<double>::WCPoint& wcp1 = cloud.pts[*it1];
+      int index1 = wcp1.index;
+      int index_max_wire;
+      int index_min_wire;
+      if (mcell1->get_max_wire_type()==WirePlaneType_t(0)){
+  	index_max_wire = wcp1.index_u;
+      }else if (mcell1->get_max_wire_type()==WirePlaneType_t(1)){
+  	index_max_wire = wcp1.index_v;
+      }else{
+  	index_max_wire = wcp1.index_w;
+      }
+      if (mcell1->get_min_wire_type()==WirePlaneType_t(0)){
+  	index_min_wire = wcp1.index_u;
+      }else if (mcell1->get_min_wire_type()==WirePlaneType_t(1)){
+  	index_min_wire = wcp1.index_v;
+      }else{
+  	index_min_wire = wcp1.index_w;
+      }
+      std::vector<std::set<int>*> max_wcps_set;
+      std::vector<std::set<int>*> min_wcps_set;
+      // go through the first map and find the ones satisfying the condition
+      for (auto it2 = map_max_index_wcps->begin(); it2!=map_max_index_wcps->end(); it2++){
+   	if (fabs(it2->first - index_max_wire)<=max_wire_interval){
+   	  max_wcps_set.push_back(&(it2->second));
+   	}
+      }
+      // go through the second map and find the ones satisfying the condition
+      for (auto it2 = map_min_index_wcps->begin(); it2!=map_min_index_wcps->end(); it2++){
+   	if (fabs(it2->first - index_min_wire)<=min_wire_interval){
+   	  min_wcps_set.push_back(&(it2->second));
+   	}
+      }
+
+      for (auto it2 = max_wcps_set.begin(); it2!=max_wcps_set.end(); it2++){
+   	for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
+   	  std::set<int> common_set;
+   	  set_intersection((*it2)->begin(), (*it2)->end(), (*it3)->begin(), (*it3)->end(),std::inserter(common_set,common_set.begin()));
+  	  for (auto it4 = common_set.begin(); it4!=common_set.end(); it4++){
+   	    WCPointCloud<double>::WCPoint& wcp2 = cloud.pts[*it4];
+   	    if (wcp2.index != wcp1.index){
+   	      int index2 = wcp2.index;
+	      auto edge = add_edge(index1,index2,*graph);
+   	      if (edge.second){
+   		(*graph)[edge.first].dist = sqrt(pow(wcp1.x-wcp2.x,2)+pow(wcp1.y-wcp2.y,2)+pow(wcp1.z-wcp2.z,2));
+	      }
+   	    }
+   	  }
+   	}
+      }
+      
+    }
+
+
+    // test 1 against 2 ...
+    max_wire_interval = mcell2->get_max_wire_interval();
+    min_wire_interval = mcell2->get_min_wire_interval();
+    if (mcell2->get_max_wire_type()==WirePlaneType_t(0)){
+      map_max_index_wcps = &map_mcell_uindex_wcps[mcell1];
+    }else if (mcell2->get_max_wire_type()==WirePlaneType_t(1)){
+      map_max_index_wcps = &map_mcell_vindex_wcps[mcell1];
+    }else{
+      map_max_index_wcps = &map_mcell_windex_wcps[mcell1];
+    }
+    if (mcell2->get_min_wire_type()==WirePlaneType_t(0)){
+      map_min_index_wcps = &map_mcell_uindex_wcps[mcell1];
+    }else if (mcell2->get_min_wire_type()==WirePlaneType_t(1)){
+      map_min_index_wcps = &map_mcell_vindex_wcps[mcell1];
+    }else{
+      map_min_index_wcps = &map_mcell_windex_wcps[mcell1];
+    }
+    for (auto it1 = wcps2.begin(); it1!=wcps2.end(); it1++){
+      WCPointCloud<double>::WCPoint& wcp1 = cloud.pts[*it1];
+      int index1 = wcp1.index;
+      int index_max_wire;
+      int index_min_wire;
+      if (mcell2->get_max_wire_type()==WirePlaneType_t(0)){
+  	index_max_wire = wcp1.index_u;
+      }else if (mcell2->get_max_wire_type()==WirePlaneType_t(1)){
+  	index_max_wire = wcp1.index_v;
+      }else{
+  	index_max_wire = wcp1.index_w;
+      }
+      if (mcell2->get_min_wire_type()==WirePlaneType_t(0)){
+  	index_min_wire = wcp1.index_u;
+      }else if (mcell2->get_min_wire_type()==WirePlaneType_t(1)){
+  	index_min_wire = wcp1.index_v;
+      }else{
+  	index_min_wire = wcp1.index_w;
+      }
+      std::vector<std::set<int>*> max_wcps_set;
+      std::vector<std::set<int>*> min_wcps_set;
+      // go through the first map and find the ones satisfying the condition
+      for (auto it2 = map_max_index_wcps->begin(); it2!=map_max_index_wcps->end(); it2++){
+   	if (fabs(it2->first - index_max_wire)<=max_wire_interval){
+   	  max_wcps_set.push_back(&(it2->second));
+   	}
+      }
+      // go through the second map and find the ones satisfying the condition
+      for (auto it2 = map_min_index_wcps->begin(); it2!=map_min_index_wcps->end(); it2++){
+   	if (fabs(it2->first - index_min_wire)<=min_wire_interval){
+   	  min_wcps_set.push_back(&(it2->second));
+   	}
+      }
+
+      for (auto it2 = max_wcps_set.begin(); it2!=max_wcps_set.end(); it2++){
+   	for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
+   	  std::set<int> common_set;
+   	  set_intersection((*it2)->begin(), (*it2)->end(), (*it3)->begin(), (*it3)->end(),std::inserter(common_set,common_set.begin()));
+  	  for (auto it4 = common_set.begin(); it4!=common_set.end(); it4++){
+   	    WCPointCloud<double>::WCPoint& wcp2 = cloud.pts[*it4];
+   	    if (wcp2.index != wcp1.index){
+   	      int index2 = wcp2.index;
+	      auto edge = add_edge(index1,index2,*graph);
+   	      if (edge.second){
+   		(*graph)[edge.first].dist = sqrt(pow(wcp1.x-wcp2.x,2)+pow(wcp1.y-wcp2.y,2)+pow(wcp1.z-wcp2.z,2));
+	      }
+   	    }
+   	  }
+   	}
+      }
+    }
+  }
+  
   // get the connected components from the graph
+  {
+    std::vector<int> component(num_vertices(*graph));
+    int num = connected_components(*graph,&component[0]);
+    std::vector<int>::size_type i;
+    for (i=0;i!=component.size(); ++i){
+      std::cout << "Vertex " << i << " " << cloud.pts[i].x << " " << cloud.pts[i].y << " " << cloud.pts[i].z << " " << cloud.pts[i].index_u << " " << cloud.pts[i].index_v << " " << cloud.pts[i].index_w << " " << cloud.pts[i].mcell << " " << cloud.pts[i].mcell->GetTimeSlice()  << " is in component " << component[i] << std::endl;
+    }
+    if (num>1)
+      std::cout << "Wrong: " << num << std::endl;
+  }
 
   //for separated kd tree to find the closest points between disconnected components,
 
