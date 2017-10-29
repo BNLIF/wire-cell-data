@@ -14,6 +14,7 @@ PR3DCluster::PR3DCluster(int cluster_id)
 {
   point_cloud = 0;
   graph = 0;
+  source_wcp_index = -1;
 }
 
 PR3DCluster::~PR3DCluster(){
@@ -466,13 +467,66 @@ void PR3DCluster::Create_graph(){
   //   const int num = connected_components(*graph,&component[0]);
   //   if (num>1) std::cout << "Wrong! " << num << std::endl;
   // }
-
-  
-
-
-
   
 }
+
+void PR3DCluster::dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp){
+  if (graph==(MCUGraph*)0)
+    Create_graph();
+  if (wcp.index==source_wcp_index)
+    return;
+  source_wcp_index = wcp.index;
+  parents.resize(num_vertices(*graph));
+  distances.resize(num_vertices(*graph));
+  
+  auto v0 = vertex(wcp.index,*graph);
+  boost::dijkstra_shortest_paths(*graph, v0,
+				 weight_map(get(&EdgeProp::dist, *graph))
+				 .predecessor_map(&parents[0])
+				 .distance_map(&distances[0])
+				 );
+}
+
+
+void PR3DCluster::cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target){
+  dest_wcp_index = wcp_target.index;
+  path_wcps.clear();
+  path_mcells.clear();
+
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  int prev_i = -1;
+  for(int i = dest_wcp_index; i!=source_wcp_index; i = parents[i]) {
+    if (path_wcps.size()==0){
+      path_wcps.push_front(cloud.pts[i]);
+      path_mcells.push_front(cloud.pts[i].mcell);
+    }else{
+      path_wcps.push_front(cloud.pts[i]);
+      if (cloud.pts[i].mcell!=path_mcells.front())
+	path_mcells.push_front(cloud.pts[i].mcell);
+    }
+    if (i==prev_i) break;
+    prev_i = i;
+  }
+  path_wcps.push_front(cloud.pts[dest_wcp_index]);
+  if (cloud.pts[dest_wcp_index].mcell!=path_mcells.front())
+    path_mcells.push_front(cloud.pts[dest_wcp_index].mcell);
+  
+}
+
+std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_highest_lowest_wcps(){
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
+  WCPointCloud<double>::WCPoint lowest_wcp = cloud.pts[0];
+  for (size_t i=1;i<cloud.pts.size();i++){
+    if (cloud.pts[i].y > highest_wcp.y)
+      highest_wcp = cloud.pts[i];
+    if (cloud.pts[i].y < lowest_wcp.y)
+      lowest_wcp = cloud.pts[i];
+  }
+  return std::make_pair(highest_wcp,lowest_wcp);
+}
+
+
 
 Point PR3DCluster::calc_ave_pos(Point& p, double dis){
   std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);

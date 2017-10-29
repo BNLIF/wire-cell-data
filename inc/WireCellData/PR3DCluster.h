@@ -49,6 +49,10 @@ namespace WireCell{
     ToyPointCloud* get_point_cloud(){return point_cloud;};
 
     void Create_graph();
+    void dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp_source);
+    void cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target);
+
+    std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_highest_lowest_wcps();
     
     void Calc_PCA();
     Vector get_center(){return center;};
@@ -61,10 +65,11 @@ namespace WireCell{
     
     std::pair<SlimMergeGeomCell*,Point> get_closest_point_mcell(Point& p_test);
     Point calc_ave_pos(Point& p, double dis);
+
+    std::list<WCPointCloud<double>::WCPoint>& get_path_wcps(){return path_wcps;};
+    std::list<SlimMergeGeomCell*>& get_path_mcells(){return path_mcells;};
     
   protected:
-    
-
     
     int cluster_id;
     
@@ -81,6 +86,15 @@ namespace WireCell{
     // graph 
     MCUGraph *graph;
 
+    // create things for Dijkstra
+    std::vector<vertex_descriptor> parents;
+    std::vector<int> distances;
+    int source_wcp_index;
+    // return ... 
+    std::list<WCPointCloud<double>::WCPoint> path_wcps;
+    std::list<SlimMergeGeomCell*> path_mcells;
+    int dest_wcp_index;
+    
   };
   typedef std::vector<PR3DCluster*> PR3DClusterSelection;
 }
