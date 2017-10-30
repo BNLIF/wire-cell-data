@@ -8,6 +8,8 @@
 
 #include <boost/graph/connected_components.hpp>
 
+#include <Eigen/Sparse>
+#include <Eigen/IterativeLinearSolvers>
 
 
 using namespace WireCell;
@@ -848,10 +850,26 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   //}
 
   
-  
+  // form matrix ...
+  int n_3D_pos = 3 * path_wcps_vec.size();
+  int n_2D_u = 2 * map_2DU_index.size();
+  int n_2D_v = 2 * map_2DV_index.size();
+  int n_2D_w = 2 * map_2DW_index.size();
+  Eigen::VectorXd pos_3D(n_3D_pos), data_u_2D(n_2D_u), data_v_2D(n_2D_v), data_w_2D(n_2D_w);
+  Eigen::SparseMatrix<double> FMatrix(n_3D_pos, n_3D_pos) ;
+  Eigen::SparseMatrix<double> RU(n_2D_u, n_3D_pos) ;
+  Eigen::SparseMatrix<double> RV(n_2D_v, n_3D_pos) ;
+  Eigen::SparseMatrix<double> RW(n_2D_w, n_3D_pos) ;
 
-  
+  Eigen::SparseMatrix<double> RUT = Eigen::SparseMatrix<double>(RU.transpose());
+  Eigen::SparseMatrix<double> RVT = Eigen::SparseMatrix<double>(RV.transpose());
+  Eigen::SparseMatrix<double> RWT = Eigen::SparseMatrix<double>(RW.transpose());
+  Eigen::SparseMatrix<double> FMatrixT = Eigen::SparseMatrix<double>(FMatrix.transpose());
 
+  Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
+
+  Eigen::VectorXd b = RUT * data_u_2D + RVT * data_v_2D + RWT * data_w_2D;g
+  Eigen::VectorXd A = RUT * RU + RVT * RV + RWT * RW + FMatrixT * FMatrix;
   
   // copy the list into a vector...
   //std::vector<WCPointCloud<double>::WCPoint> path_wcps_vec(std::begin(path_wcps), std::end(path_wcps));
