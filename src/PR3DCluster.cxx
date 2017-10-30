@@ -925,7 +925,7 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   
 
   
-  double lambda = 1e6;
+  double lambda = 1;
   Eigen::SparseMatrix<double> FMatrix(n_3D_pos, n_3D_pos) ;
   // distances[i]
   for (size_t i=0;i!=path_wcps_vec.size();i++){
@@ -985,7 +985,7 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
     p.y = pos_3D(3*i+1);
     p.z = pos_3D(3*i+2);
     fine_tracking_path.push_back(p);
-    std::cout << p.x << " " << p.y << " " << p.z << " " << path_wcps_vec.at(i).x << " " << path_wcps_vec.at(i).y << " " << path_wcps_vec.at(i).z << std::endl;
+    // std::cout << p.x << " " << p.y << " " << p.z << " " << path_wcps_vec.at(i).x << " " << path_wcps_vec.at(i).y << " " << path_wcps_vec.at(i).z << std::endl;
  }
 
 
