@@ -547,7 +547,7 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   //   std::cout << i << " " << distances.at(i)/2./units::cm << std::endl;
   // }
 
-   //form a map, (U,T) --> charge and error
+  //form a map, (U,T) --> charge and error
   //form a map, (V,T) --> charge and error
   //form a map, (Z,T) --> charge and error
   std::map<std::pair<int,int>,double> map_2D_ut_charge, map_2D_ut_charge_err;
@@ -563,18 +563,24 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
       double charge = it->second;
       double charge_err = wire_charge_err_map[wire];
       //std::cout << wire << " " << charge << " " << charge_err << std::endl;
-      if (charge >0){
-	if (wire->iplane()==0){
-	  map_2D_ut_charge[std::make_pair(wire->index(),time_slice)] = charge;
-	  map_2D_ut_charge_err[std::make_pair(wire->index(),time_slice)] = charge_err;
-	}else if (wire->iplane()==1){
-	  map_2D_vt_charge[std::make_pair(wire->index(),time_slice)] = charge;
-	  map_2D_vt_charge_err[std::make_pair(wire->index(),time_slice)] = charge_err;
-	}else{
-	  map_2D_wt_charge[std::make_pair(wire->index(),time_slice)] = charge;
-	  map_2D_wt_charge_err[std::make_pair(wire->index(),time_slice)] = charge_err;
-	}
+
+      // hack the charge ... 
+      if (charge <=0){
+	charge = 1000;
+	charge_err = 1000;
       }
+      
+      if (wire->iplane()==0){
+	map_2D_ut_charge[std::make_pair(wire->index(),time_slice)] = charge;
+	map_2D_ut_charge_err[std::make_pair(wire->index(),time_slice)] = charge_err;
+      }else if (wire->iplane()==1){
+	map_2D_vt_charge[std::make_pair(wire->index(),time_slice)] = charge;
+	map_2D_vt_charge_err[std::make_pair(wire->index(),time_slice)] = charge_err;
+      }else{
+	map_2D_wt_charge[std::make_pair(wire->index(),time_slice)] = charge;
+	map_2D_wt_charge_err[std::make_pair(wire->index(),time_slice)] = charge_err;
+      }
+	
     }
     //    std::cout << wire_charge_map.size() << " " << wire_charge_err_map.size() << std::endl;
   }
@@ -619,7 +625,7 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
     }else{
       dis_cut = std::min(std::max(distances.at(i-1)*0.75,distances.at(i)*0.75),1.2*units::cm);
     }
-    time_cut = 3; // allow +- 3 time slices and then distance cut ... 
+    time_cut = 2; // allow +- 3 time slices and then distance cut ... 
     std::set<std::pair<int,int>> T2DU_set;
     std::set<std::pair<int,int>> T2DV_set;
     std::set<std::pair<int,int>> T2DW_set;
@@ -728,49 +734,49 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
 	  
     	  WireChargeMap& wire_charge_map = mcell->get_wirecharge_map();
     	  for (auto it1 = wire_charge_map.begin(); it1!= wire_charge_map.end(); it1++){
-    	  const GeomWire *wire = it1->first;
-    	  if (it1->second >0){
-    	    if (wire->iplane()==0){
-    	      // U plane ...
-    	      if (wire->index() >= low_u_limit && wire->index() <= high_u_limit){
-    		map_3D_2DU_set[i].insert(std::make_pair(wire->index(),this_time_slice));
-    		if (map_2DU_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DU_3D_set.end()){
-    		  std::set<int>  temp_set;
-    		  temp_set.insert(i);
-    		  map_2DU_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
-    		}else{
-    		  map_2DU_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i);
-    		}
-    	      }
-    	    }else if (wire->iplane()==1){
-    	      // V plane ...
-    	      if (wire->index() >= low_v_limit && wire->index() <= high_v_limit){
-    		map_3D_2DV_set[i].insert(std::make_pair(wire->index(),this_time_slice));
-    		if (map_2DV_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DV_3D_set.end()){
-    		  std::set<int>  temp_set;
-    		  temp_set.insert(i);
-    		  map_2DV_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
-    		}else{
+	    const GeomWire *wire = it1->first;
+	    //if (it1->second >0){
+	    if (1>0){
+	      if (wire->iplane()==0){
+		// U plane ...
+		if (wire->index() >= low_u_limit && wire->index() <= high_u_limit){
+		  map_3D_2DU_set[i].insert(std::make_pair(wire->index(),this_time_slice));
+		  if (map_2DU_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DU_3D_set.end()){
+		    std::set<int>  temp_set;
+		    temp_set.insert(i);
+		    map_2DU_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
+		  }else{
+		    map_2DU_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i);
+		  }
+		}
+	      }else if (wire->iplane()==1){
+		// V plane ...
+		if (wire->index() >= low_v_limit && wire->index() <= high_v_limit){
+		  map_3D_2DV_set[i].insert(std::make_pair(wire->index(),this_time_slice));
+		  if (map_2DV_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DV_3D_set.end()){
+		    std::set<int>  temp_set;
+		    temp_set.insert(i);
+		    map_2DV_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
+		  }else{
     		  map_2DV_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i);
-    		}
-    	      }
-    	    }else{
-    	      // W plane ... 
-    	      if (wire->index() >= low_w_limit && wire->index() <= high_w_limit){
-    		map_3D_2DW_set[i].insert(std::make_pair(wire->index(),this_time_slice));
-    		if (map_2DW_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DW_3D_set.end()){
-    		  std::set<int> temp_set;
-    		  temp_set.insert(i);
-    		  map_2DW_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
-    		}else{
-    		  map_2DW_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i);
-    		}
-    	      }
-    	    }
+		  }
+		}
+	      }else{
+		// W plane ... 
+		if (wire->index() >= low_w_limit && wire->index() <= high_w_limit){
+		  map_3D_2DW_set[i].insert(std::make_pair(wire->index(),this_time_slice));
+		  if (map_2DW_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DW_3D_set.end()){
+		    std::set<int> temp_set;
+		    temp_set.insert(i);
+		    map_2DW_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
+		  }else{
+		    map_2DW_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i);
+		  }
+		}
+	      }
+	    }
     	  }
-    	  }
-	  
-    	}
+	}
       }
     }
   } // i loop ... 
@@ -867,7 +873,7 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
     int n_divide = it->second.size();
     double charge = map_2D_ut_charge[it->first];
     double charge_err = map_2D_ut_charge_err[it->first];
-    double scaling = charge/n_divide/charge_err;
+    double scaling = charge/charge_err;
     data_u_2D(2*index) =  scaling * (it->first.first - offset_u) * n_divide;
     data_u_2D(2*index+1) = scaling * (it->first.second - offset_t) * n_divide;
     // std::cout << index << " " << n_divide << " " << charge << " " << charge_err << std::endl;
@@ -884,7 +890,7 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
     int n_divide = it->second.size();
     double charge = map_2D_vt_charge[it->first];
     double charge_err = map_2D_vt_charge_err[it->first];
-    double scaling = charge/n_divide/charge_err;
+    double scaling = charge/charge_err;
     data_v_2D(2*index) = scaling * (it->first.first - offset_v) * n_divide;
     data_v_2D(2*index+1) = scaling * (it->first.second - offset_t) * n_divide;
     // std::cout << index << " " << n_divide << " " << charge << " " << charge_err << std::endl;
@@ -901,7 +907,7 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
     int n_divide = it->second.size();
     double charge = map_2D_wt_charge[it->first];
     double charge_err = map_2D_wt_charge_err[it->first];
-    double scaling = charge/n_divide/charge_err;
+    double scaling = charge/charge_err;
     data_w_2D(2*index) = scaling * (it->first.first - offset_w)* n_divide;
     data_w_2D(2*index+1) = scaling * (it->first.second - offset_t)* n_divide;
     // std::cout << index << " " << n_divide << " " << charge << " " << charge_err << std::endl;
@@ -925,36 +931,64 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   
 
   
-  double lambda = 1;
+  double lambda = 10;
   Eigen::SparseMatrix<double> FMatrix(n_3D_pos, n_3D_pos) ;
   // distances[i]
+  // 2nd order ...
+  // for (size_t i=0;i!=path_wcps_vec.size();i++){
+  //   if (i==0){
+  //     FMatrix.insert(0,0) = -1./distances.at(0); // X
+  //     FMatrix.insert(0,3) = 1./distances.at(0);
+  //     FMatrix.insert(1,1) = -1./distances.at(0); // Y
+  //     FMatrix.insert(1,4) = 1./distances.at(0);
+  //     FMatrix.insert(2,2) = -1./distances.at(0); // Z
+  //     FMatrix.insert(2,5) = 1./distances.at(0);
+  //   }else if (i==path_wcps_vec.size()-1){
+  //     FMatrix.insert(3*i,3*i) = -1./distances.at(path_wcps_vec.size()-2); // X
+  //     FMatrix.insert(3*i,3*i-3) = 1./distances.at(path_wcps_vec.size()-2);
+  //     FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(path_wcps_vec.size()-2);
+  //     FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(path_wcps_vec.size()-2);
+  //     FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(path_wcps_vec.size()-2);
+  //     FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(path_wcps_vec.size()-2);
+  //   }else{
+  //     FMatrix.insert(3*i,3*i-3) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+  //     FMatrix.insert(3*i,3*i) = -1./distances.at(i-1)/distances.at(i);
+  //     FMatrix.insert(3*i,3*i+3) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+  //     FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+  //     FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(i-1)/distances.at(i);
+  //     FMatrix.insert(3*i+1,3*i+4) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+  //     FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+  //     FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(i-1)/distances.at(i);
+  //     FMatrix.insert(3*i+2,3*i+5) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+  //   }
+  // }
+  
+  // 2nd order
   for (size_t i=0;i!=path_wcps_vec.size();i++){
     if (i==0){
-      FMatrix.insert(0,0) = -1./distances.at(0); // X
-      FMatrix.insert(0,3) = 1./distances.at(0);
-      FMatrix.insert(1,1) = -1./distances.at(0); // Y
-      FMatrix.insert(1,4) = 1./distances.at(0);
-      FMatrix.insert(2,2) = -1./distances.at(0); // Z
-      FMatrix.insert(2,5) = 1./distances.at(0);
+      FMatrix.insert(0,0) = -1;
+      FMatrix.insert(0,3) = 1.;
+      FMatrix.insert(1,1) = -1.;
+      FMatrix.insert(1,4) = 1.;
+      FMatrix.insert(2,2) = -1.;
+      FMatrix.insert(2,5) = 1.;
     }else if (i==path_wcps_vec.size()-1){
-      FMatrix.insert(3*i,3*i) = -1./distances.at(path_wcps_vec.size()-2); // X
-      FMatrix.insert(3*i,3*i-3) = 1./distances.at(path_wcps_vec.size()-2);
-      FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(path_wcps_vec.size()-2);
-      FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(path_wcps_vec.size()-2);
-      FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(path_wcps_vec.size()-2);
-      FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(path_wcps_vec.size()-2);
+      FMatrix.insert(3*i,3*i) = -1.;
+      FMatrix.insert(3*i,3*i-3) = 1.;
+      FMatrix.insert(3*i+1,3*i+1) = -1.;
+      FMatrix.insert(3*i+1,3*i-2) = 1.;
+      FMatrix.insert(3*i+2,3*i+2) = -1.;
+      FMatrix.insert(3*i+2,3*i-1) = 1.;
     }else{
-      FMatrix.insert(3*i,3*i-3) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
-      FMatrix.insert(3*i,3*i) = -1./distances.at(i-1)/distances.at(i);
-      FMatrix.insert(3*i,3*i+3) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
-
-      FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
-      FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(i-1)/distances.at(i);
-      FMatrix.insert(3*i+1,3*i+4) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
-
-      FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
-      FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(i-1)/distances.at(i);
-      FMatrix.insert(3*i+2,3*i+5) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+      FMatrix.insert(3*i,3*i-3) = 1.;
+      FMatrix.insert(3*i,3*i) = -2.;
+      FMatrix.insert(3*i,3*i+3) = 1.;
+      FMatrix.insert(3*i+1,3*i-2) = 1.;
+      FMatrix.insert(3*i+1,3*i+1) = -2.;
+      FMatrix.insert(3*i+1,3*i+4) = 1.;
+      FMatrix.insert(3*i+2,3*i-1) = 1.;
+      FMatrix.insert(3*i+2,3*i+2) = -2.;
+      FMatrix.insert(3*i+2,3*i+5) = 1.;
     }
   }
   FMatrix *= lambda;
