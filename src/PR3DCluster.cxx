@@ -516,7 +516,7 @@ void PR3DCluster::cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target){
   
 }
 
-void PR3DCluster::fine_tracking(){
+void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double first_w_dis){
   // cut ... 
   if (path_wcps.size() < 10) return;
 
@@ -592,8 +592,13 @@ void PR3DCluster::fine_tracking(){
   double pitch_u = mp.get_pitch_u();
   double pitch_v = mp.get_pitch_v();
   double pitch_w = mp.get_pitch_w();
+  double angle_u = mp.get_angle_u();
+  double angle_v = mp.get_angle_v();
+  double angle_w = mp.get_angle_w();
   double time_slice_width = mp.get_ts_width();
-
+  float coef1 = 2 * pow(sin(angle_u),2);
+  float coef2 = 2 * (pow(sin(angle_u),2) - pow(cos(angle_u),2));
+  
   //std::cout << pitch_u/units::cm << " " << pitch_v/units::cm << " " << pitch_w/units::cm << " " << time_slice_width/units::cm << std::endl;
   // Loop any point and try to find its 3-level neibours ...
   typedef boost::property_map<MCUGraph, boost::vertex_index_t>::type IndexMap;
@@ -695,9 +700,13 @@ void PR3DCluster::fine_tracking(){
     	}else{
     	  min_w_dis = cur_wire_w-wwires.back()->index();
     	}
-    	float range_u = rem_dis_cut*1.5*1.5 - pow(min_v_dis*pitch_v,2) - pow(min_w_dis*pitch_w,2);
-    	float range_v = rem_dis_cut*1.5*1.5 - pow(min_u_dis*pitch_u,2) - pow(min_w_dis*pitch_w,2);
-    	float range_w = rem_dis_cut*1.5*1.5 - pow(min_u_dis*pitch_u,2) - pow(min_v_dis*pitch_v,2);
+
+	// Note this assumes w is vertical wires, U and V have equal angle between then ...
+
+    	float range_u = rem_dis_cut*coef1 - pow(min_v_dis*pitch_v,2) - coef2*pow(min_w_dis*pitch_w,2);
+    	float range_v = rem_dis_cut*coef1 - pow(min_u_dis*pitch_u,2) - coef2*pow(min_w_dis*pitch_w,2);
+    	float range_w = (rem_dis_cut*coef1 - pow(min_u_dis*pitch_u,2) - pow(min_v_dis*pitch_v,2))/coef2;
+	//std::cout << coef1 << " " << coef2 << std::endl;
 
     	// if (abs(cur_time_slice-1261)==0)
     	//   std::cout << min_u_dis << " " << min_v_dis << " " << min_w_dis << std::endl;
@@ -771,44 +780,78 @@ void PR3DCluster::fine_tracking(){
   int num_index = 0;
   for (auto it = map_2DU_3D_set.begin(); it!= map_2DU_3D_set.end(); it++){
     map_2DU_index[it->first] = num_index;
-     std::cout << "U_1: " << it->first.first << " " << it->first.second << std::endl;
+    // std::cout << "U_1: " << it->first.first << " " << it->first.second << std::endl;
     num_index++;
   }
   num_index = 0;
   for (auto it = map_2DV_3D_set.begin(); it!= map_2DV_3D_set.end(); it++){
     map_2DV_index[it->first] = num_index;
-    std::cout << "V_1: " << it->first.first << " " << it->first.second << std::endl;
+    //std::cout << "V_1: " << it->first.first << " " << it->first.second << std::endl;
     num_index++;
   }
   num_index = 0;
   for (auto it = map_2DW_3D_set.begin(); it!= map_2DW_3D_set.end(); it++){
     map_2DW_index[it->first] = num_index;
-    std::cout << "W_1: " << it->first.first << " " << it->first.second << std::endl;
+    // std::cout << "W_1: " << it->first.first << " " << it->first.second << std::endl;
     num_index++;
   }
 
-  for (auto it = map_2D_ut_charge.begin(); it!=map_2D_ut_charge.end();it++){
-    std::cout << "U_2: " << it->first.first << " " << it->first.second << std::endl;
-  }
-  for (auto it = map_2D_vt_charge.begin(); it!=map_2D_vt_charge.end();it++){
-    std::cout << "V_2: " << it->first.first << " " << it->first.second << std::endl;
-  }
-  for (auto it = map_2D_wt_charge.begin(); it!=map_2D_wt_charge.end();it++){
-    std::cout << "W_2: " << it->first.first << " " << it->first.second << std::endl;
-  }
+  // for (auto it = map_2D_ut_charge.begin(); it!=map_2D_ut_charge.end();it++){
+  //   std::cout << "U_2: " << it->first.first << " " << it->first.second << std::endl;
+  // }
+  // for (auto it = map_2D_vt_charge.begin(); it!=map_2D_vt_charge.end();it++){
+  //   std::cout << "V_2: " << it->first.first << " " << it->first.second << std::endl;
+  // }
+  // for (auto it = map_2D_wt_charge.begin(); it!=map_2D_wt_charge.end();it++){
+  //   std::cout << "W_2: " << it->first.first << " " << it->first.second << std::endl;
+  // }
   // for (size_t i=0;i!=path_wcps_vec.size();i++){
   //   std::cout << i << " " << path_wcps_vec.at(i).mcell->GetTimeSlice() << std::endl;
   //   std::cout << "U_3: " << path_wcps_vec.at(i).index_u << " " << path_wcps_vec.at(i).x << std::endl;
   //   std::cout << "V_3: " << path_wcps_vec.at(i).index_v << " " << path_wcps_vec.at(i).x << std::endl;
   //   std::cout << "W_3: " << path_wcps_vec.at(i).index_w << " " << path_wcps_vec.at(i).x << std::endl;
   // }
+  // std::cout << map_2DU_index.size() << " " << map_2D_ut_charge.size() << " "
+  // 	    << map_2DV_index.size() << " " << map_2D_vt_charge.size() << " "
+  //   	    << map_2DW_index.size() << " " << map_2D_wt_charge.size() << " "
+  // 	    << path_wcps_vec.size() << std::endl;
+  
 
-  std::cout << map_2DU_index.size() << " " << map_2D_ut_charge.size() << " "
-	    << map_2DV_index.size() << " " << map_2D_vt_charge.size() << " "
-    	    << map_2DW_index.size() << " " << map_2D_wt_charge.size() << " "
-	    << path_wcps_vec.size() << std::endl;
+  
+  // Now start to prepare the matrix and solve it ...
+  // need to establish how to convert X position to T index
+  // T = slope_x * ( x + offset_x);
+  double slope_x = 1./time_slice_width;
+  double first_t_dis = path_wcps_vec.at(0).mcell->GetTimeSlice()*time_slice_width - path_wcps_vec.at(0).x;
+  double offset_t = first_t_dis / time_slice_width;
   
   
+  
+  //  convert Z to W ... 
+  double slope_zw = 1./pitch_w * cos(angle_w);
+  double slope_yw = 1./pitch_w * sin(angle_w);
+  
+  double slope_yu = -1./pitch_u * sin(angle_u);
+  double slope_zu = 1./pitch_u * cos(angle_u);
+  double slope_yv = -1./pitch_v * sin(angle_v);
+  double slope_zv = 1./pitch_v * cos(angle_v);
+  //convert Y,Z to U,V
+  double offset_w = -first_w_dis/pitch_w;
+  double offset_u = -first_u_dis/pitch_u;
+  double offset_v = -first_v_dis/pitch_v;
+ 
+  //  for (size_t i=0;i!=path_wcps_vec.size();i++){
+    //std::cout << i << " " << path_wcps_vec.at(i).mcell->GetTimeSlice() - offset_t << " " << slope_x * path_wcps_vec.at(i).x << " " << path_wcps_vec.at(i).mcell->GetTimeSlice() - offset_t - slope_x * path_wcps_vec.at(i).x << std::endl;
+    //std::cout << i << " " << path_wcps_vec.at(i).index_w - offset_w << " " << slope_zw * path_wcps_vec.at(i).z << " " << path_wcps_vec.at(i).index_w - offset_w-slope_zw * path_wcps_vec.at(i).z <<  std::endl;
+    //std::cout << i << " " << path_wcps_vec.at(i).index_u - offset_u << " " << slope_yu * path_wcps_vec.at(i).y + slope_zu * path_wcps_vec.at(i).z << " " << path_wcps_vec.at(i).index_u - offset_u - (slope_yu * path_wcps_vec.at(i).y + slope_zu * path_wcps_vec.at(i).z) << std::endl;
+    // std::cout << i << " " << path_wcps_vec.at(i).index_v - offset_v << " " << slope_yv * path_wcps_vec.at(i).y + slope_zv * path_wcps_vec.at(i).z << " " << path_wcps_vec.at(i).index_v - offset_v - (slope_yv * path_wcps_vec.at(i).y + slope_zv * path_wcps_vec.at(i).z) << std::endl;
+  //}
+
+  
+  
+
+  
+
   
   // copy the list into a vector...
   //std::vector<WCPointCloud<double>::WCPoint> path_wcps_vec(std::begin(path_wcps), std::end(path_wcps));

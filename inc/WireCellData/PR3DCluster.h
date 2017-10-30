@@ -51,7 +51,7 @@ namespace WireCell{
     void Create_graph();
     void dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp_source);
     void cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target);
-    void fine_tracking();
+    void fine_tracking(double first_u_dis, double first_v_dis, double first_w_dis);
     
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_highest_lowest_wcps();
     
