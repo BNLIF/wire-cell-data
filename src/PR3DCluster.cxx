@@ -1,4 +1,6 @@
 #include "WireCellData/PR3DCluster.h"
+#include "WireCellData/TPCParams.h"
+#include "WireCellData/Singleton.h"
 
 #include "TMatrixDEigen.h"
 #include "TH2F.h"
@@ -538,7 +540,7 @@ void PR3DCluster::fine_tracking(){
     }
   }
   // for (size_t i=0;i!=distances.size();i++){
-  //   std::cout << i << " " << distances.at(i)/units::cm << std::endl;
+  //   std::cout << i << " " << distances.at(i)/2./units::cm << std::endl;
   // }
 
    //form a map, (U,T) --> charge and error
@@ -583,36 +585,41 @@ void PR3DCluster::fine_tracking(){
   std::map<std::pair<int,int>,std::set<int>> map_2DU_3D_set;
   std::map<std::pair<int,int>,std::set<int>> map_2DV_3D_set;
   std::map<std::pair<int,int>,std::set<int>> map_2DW_3D_set;
-  // map 2D points to its index
-  std::map<std::pair<int,int>,int> map_2DU_index;
-  std::map<std::pair<int,int>,int> map_2DV_index;
-  std::map<std::pair<int,int>,int> map_2DW_index;
-
-  int num_index = 0;
-  for (auto it = map_2D_ut_charge.begin(); it!= map_2D_ut_charge.end(); it++){
-    map_2DU_index[it->first] = num_index;
-    num_index++;
-  }
-  num_index = 0;
-  for (auto it = map_2D_vt_charge.begin(); it!= map_2D_vt_charge.end(); it++){
-    map_2DV_index[it->first] = num_index;
-    num_index++;
-  }
-  num_index = 0;
-  for (auto it = map_2D_wt_charge.begin(); it!= map_2D_wt_charge.end(); it++){
-    map_2DW_index[it->first] = num_index;
-    num_index++;
-  }
+  
   //std::cout << map_2DU_index.size() << " " << map_2DV_index.size() << " " << map_2DW_index.size() << std::endl;
 
-  
-  //Loop any point and try to find its 3-level neibours ...
+  TPCParams& mp = Singleton<TPCParams>::Instance();
+  double pitch_u = mp.get_pitch_u();
+  double pitch_v = mp.get_pitch_v();
+  double pitch_w = mp.get_pitch_w();
+  double time_slice_width = mp.get_ts_width();
+
+  //std::cout << pitch_u/units::cm << " " << pitch_v/units::cm << " " << pitch_w/units::cm << " " << time_slice_width/units::cm << std::endl;
+  // Loop any point and try to find its 3-level neibours ...
   typedef boost::property_map<MCUGraph, boost::vertex_index_t>::type IndexMap;
   IndexMap index = get(boost::vertex_index,*graph);
   typedef boost::graph_traits<MCUGraph>::adjacency_iterator adjacency_iterator;
   int nlevel = 3;
+  double dis_cut,time_cut;
   for (size_t i=0;i!=path_wcps_vec.size();i++){
     int current_index = path_wcps_vec.at(i).index;
+    if (i==0){
+      dis_cut = std::min(distances.at(i) * 0.75,0.75*units::cm);
+    }else if (i==path_wcps_vec.size()-1){
+      dis_cut = std::min(distances.back() * 0.75,0.75*units::cm);
+    }else{
+      dis_cut = std::min(std::max(distances.at(i-1)*0.75,distances.at(i)*0.75),1.2*units::cm);
+    }
+    time_cut = 3; // allow +- 3 time slices and then distance cut ... 
+    std::set<std::pair<int,int>> T2DU_set;
+    std::set<std::pair<int,int>> T2DV_set;
+    std::set<std::pair<int,int>> T2DW_set;
+    map_3D_2DU_set[i] = T2DU_set;
+    map_3D_2DV_set[i] = T2DV_set;
+    map_3D_2DW_set[i] = T2DW_set;
+    
+    
+    
     std::set<int> total_vertices_found;
     std::set<int> vertices_to_be_examined;
     std::set<int> vertices_saved_for_next;
@@ -621,14 +628,15 @@ void PR3DCluster::fine_tracking(){
 
     for (int j=0;j!=nlevel;j++){
       for (auto it = vertices_to_be_examined.begin(); it!=vertices_to_be_examined.end(); it++){
-	current_index = (*it);
-	std::pair<adjacency_iterator, adjacency_iterator> neighbors = boost::adjacent_vertices(vertex(current_index,*graph),*graph);
-	for (; neighbors.first!=neighbors.second; ++neighbors.first){
-	  if (total_vertices_found.find(index(*neighbors.first))==total_vertices_found.end()){
+     	int temp_current_index = (*it);
+     	std::pair<adjacency_iterator, adjacency_iterator> neighbors = boost::adjacent_vertices(vertex(temp_current_index,*graph),*graph);
+     	for (; neighbors.first!=neighbors.second; ++neighbors.first){
+    	  //std::cout << *neighbors.first << " " << *neighbors.second << std::endl;
+    	  if (total_vertices_found.find(index(*neighbors.first))==total_vertices_found.end()){
 	    total_vertices_found.insert(index(*neighbors.first));
 	    vertices_saved_for_next.insert(index(*neighbors.first));
-	  }
-	}
+    	  }
+    	}
       }
       vertices_to_be_examined = vertices_saved_for_next;
     }
@@ -638,20 +646,167 @@ void PR3DCluster::fine_tracking(){
       nearby_mcells_set.insert(mcell);
     }
     // std::cout << i << " " << total_vertices_found.size() << " " << nearby_mcells_set.size() << std::endl;
+    
 
     int cur_time_slice = cloud.pts[current_index].mcell->GetTimeSlice();
     int cur_wire_u = cloud.pts[current_index].index_u;
     int cur_wire_v = cloud.pts[current_index].index_v;
     int cur_wire_w = cloud.pts[current_index].index_w;
+
+    // if (abs(cur_time_slice-1261)==0)
+    //   std::cout << "Center: " << i << " " << path_wcps_vec.at(i).mcell << " " << current_index <<  " " << cloud.pts[current_index].index << " " <<
+    // 	cloud.pts[current_index].mcell << " " << cloud.pts[current_index].x << " " << cur_time_slice << " " << cur_wire_u << " " << cur_wire_v << " " << cur_wire_v << std::endl;
+
     // Now fill the other maps ...
     for (auto it = nearby_mcells_set.begin(); it!=nearby_mcells_set.end(); it++){
       SlimMergeGeomCell *mcell = *it;
+      int this_time_slice = mcell->GetTimeSlice();
+      double rem_dis_cut = pow(dis_cut,2) - pow((cur_time_slice - this_time_slice)*time_slice_width,2);
+      if (rem_dis_cut >0 && fabs(cur_time_slice-this_time_slice)<=time_cut){
+    	//	std::cout << this_time_slice << std::endl;
+    	GeomWireSelection uwires = mcell->get_uwires();
+    	GeomWireSelection vwires = mcell->get_vwires();
+    	GeomWireSelection wwires = mcell->get_wwires();
+	
+    	float min_u_dis;
+    	if (cur_wire_u < uwires.front()->index()){
+    	  min_u_dis = uwires.front()->index()-cur_wire_u;
+    	}else if (cur_wire_u >= uwires.front()->index() &&
+    		  cur_wire_u <= uwires.back()->index()){
+    	  min_u_dis = 0;
+    	}else{
+    	  min_u_dis = cur_wire_u-uwires.back()->index();
+    	}
+    	float min_v_dis;
+    	if (cur_wire_v < vwires.front()->index()){
+    	  min_v_dis = vwires.front()->index()-cur_wire_v;
+    	}else if (cur_wire_v >= vwires.front()->index() &&
+    		  cur_wire_v <= vwires.back()->index()){
+    	  min_v_dis = 0;
+    	}else{
+    	  min_v_dis = cur_wire_v-vwires.back()->index();
+    	}
+    	float min_w_dis;
+    	if (cur_wire_w < wwires.front()->index()){
+    	  min_w_dis = wwires.front()->index()-cur_wire_w;
+    	}else if (cur_wire_w >= wwires.front()->index() &&
+    		  cur_wire_w <= wwires.back()->index()){
+    	  min_w_dis = 0;
+    	}else{
+    	  min_w_dis = cur_wire_w-wwires.back()->index();
+    	}
+    	float range_u = rem_dis_cut*1.5*1.5 - pow(min_v_dis*pitch_v,2) - pow(min_w_dis*pitch_w,2);
+    	float range_v = rem_dis_cut*1.5*1.5 - pow(min_u_dis*pitch_u,2) - pow(min_w_dis*pitch_w,2);
+    	float range_w = rem_dis_cut*1.5*1.5 - pow(min_u_dis*pitch_u,2) - pow(min_v_dis*pitch_v,2);
+
+    	// if (abs(cur_time_slice-1261)==0)
+    	//   std::cout << min_u_dis << " " << min_v_dis << " " << min_w_dis << std::endl;
+	
+    	if ( range_u > 0 && range_v >0 && range_w > 0){
+    	  float low_u_limit = cur_wire_u - sqrt(range_u)/pitch_u;
+    	  float high_u_limit = cur_wire_u + sqrt(range_u)/pitch_u;
+    	  float low_v_limit = cur_wire_v - sqrt(range_v)/pitch_v;
+    	  float high_v_limit = cur_wire_v + sqrt(range_v)/pitch_v;
+    	  float low_w_limit = cur_wire_w - sqrt(range_w)/pitch_w;
+    	  float high_w_limit = cur_wire_w + sqrt(range_w)/pitch_w;
+
+    	  // if (abs(cur_time_slice-1261)==0)
+    	  //   std::cout << low_u_limit << " " << high_u_limit << " " << low_v_limit << " " << high_v_limit << " " << low_w_limit << " " << high_w_limit << std::endl;
+	  
+    	  WireChargeMap& wire_charge_map = mcell->get_wirecharge_map();
+    	  for (auto it1 = wire_charge_map.begin(); it1!= wire_charge_map.end(); it1++){
+    	  const GeomWire *wire = it1->first;
+    	  if (it1->second >0){
+    	    if (wire->iplane()==0){
+    	      // U plane ...
+    	      if (wire->index() >= low_u_limit && wire->index() <= high_u_limit){
+    		map_3D_2DU_set[i].insert(std::make_pair(wire->index(),this_time_slice));
+    		if (map_2DU_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DU_3D_set.end()){
+    		  std::set<int>  temp_set;
+    		  temp_set.insert(i);
+    		  map_2DU_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
+    		}else{
+    		  map_2DU_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i);
+    		}
+    	      }
+    	    }else if (wire->iplane()==1){
+    	      // V plane ...
+    	      if (wire->index() >= low_v_limit && wire->index() <= high_v_limit){
+    		map_3D_2DV_set[i].insert(std::make_pair(wire->index(),this_time_slice));
+    		if (map_2DV_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DV_3D_set.end()){
+    		  std::set<int>  temp_set;
+    		  temp_set.insert(i);
+    		  map_2DV_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
+    		}else{
+    		  map_2DV_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i);
+    		}
+    	      }
+    	    }else{
+    	      // W plane ... 
+    	      if (wire->index() >= low_w_limit && wire->index() <= high_w_limit){
+    		map_3D_2DW_set[i].insert(std::make_pair(wire->index(),this_time_slice));
+    		if (map_2DW_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DW_3D_set.end()){
+    		  std::set<int> temp_set;
+    		  temp_set.insert(i);
+    		  map_2DW_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
+    		}else{
+    		  map_2DW_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i);
+    		}
+    	      }
+    	    }
+    	  }
+    	  }
+	  
+    	}
+      }
     }
-    
+  } // i loop ... 
+
+
+  // map 2D points to its index
+  std::map<std::pair<int,int>,int> map_2DU_index;
+  std::map<std::pair<int,int>,int> map_2DV_index;
+  std::map<std::pair<int,int>,int> map_2DW_index;
+
+  int num_index = 0;
+  for (auto it = map_2DU_3D_set.begin(); it!= map_2DU_3D_set.end(); it++){
+    map_2DU_index[it->first] = num_index;
+     std::cout << "U_1: " << it->first.first << " " << it->first.second << std::endl;
+    num_index++;
+  }
+  num_index = 0;
+  for (auto it = map_2DV_3D_set.begin(); it!= map_2DV_3D_set.end(); it++){
+    map_2DV_index[it->first] = num_index;
+    std::cout << "V_1: " << it->first.first << " " << it->first.second << std::endl;
+    num_index++;
+  }
+  num_index = 0;
+  for (auto it = map_2DW_3D_set.begin(); it!= map_2DW_3D_set.end(); it++){
+    map_2DW_index[it->first] = num_index;
+    std::cout << "W_1: " << it->first.first << " " << it->first.second << std::endl;
+    num_index++;
   }
 
- 
-  
+  for (auto it = map_2D_ut_charge.begin(); it!=map_2D_ut_charge.end();it++){
+    std::cout << "U_2: " << it->first.first << " " << it->first.second << std::endl;
+  }
+  for (auto it = map_2D_vt_charge.begin(); it!=map_2D_vt_charge.end();it++){
+    std::cout << "V_2: " << it->first.first << " " << it->first.second << std::endl;
+  }
+  for (auto it = map_2D_wt_charge.begin(); it!=map_2D_wt_charge.end();it++){
+    std::cout << "W_2: " << it->first.first << " " << it->first.second << std::endl;
+  }
+  // for (size_t i=0;i!=path_wcps_vec.size();i++){
+  //   std::cout << i << " " << path_wcps_vec.at(i).mcell->GetTimeSlice() << std::endl;
+  //   std::cout << "U_3: " << path_wcps_vec.at(i).index_u << " " << path_wcps_vec.at(i).x << std::endl;
+  //   std::cout << "V_3: " << path_wcps_vec.at(i).index_v << " " << path_wcps_vec.at(i).x << std::endl;
+  //   std::cout << "W_3: " << path_wcps_vec.at(i).index_w << " " << path_wcps_vec.at(i).x << std::endl;
+  // }
+
+  std::cout << map_2DU_index.size() << " " << map_2D_ut_charge.size() << " "
+	    << map_2DV_index.size() << " " << map_2D_vt_charge.size() << " "
+    	    << map_2DW_index.size() << " " << map_2D_wt_charge.size() << " "
+	    << path_wcps_vec.size() << std::endl;
   
   
   
