@@ -79,7 +79,6 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
   protected:
     int _ident;
     int time_slice;
-
     float uq, udq, vq, vdq, wq, wdq, q;
 
     PointVector sample_points;

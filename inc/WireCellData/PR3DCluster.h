@@ -69,6 +69,9 @@ namespace WireCell{
 
     std::list<WCPointCloud<double>::WCPoint>& get_path_wcps(){return path_wcps;};
     std::list<SlimMergeGeomCell*>& get_path_mcells(){return path_mcells;};
+
+    bool get_fine_tracking_flag(){return flag_fine_tracking;};
+    PointVector& get_fine_tracking_path(){return fine_tracking_path;};
     
   protected:
     
@@ -95,6 +98,10 @@ namespace WireCell{
     std::list<WCPointCloud<double>::WCPoint> path_wcps;
     std::list<SlimMergeGeomCell*> path_mcells;
     int dest_wcp_index;
+    // fine tracking related ...
+    bool flag_fine_tracking;
+    PointVector fine_tracking_path;
+     
     
   };
   typedef std::vector<PR3DCluster*> PR3DClusterSelection;

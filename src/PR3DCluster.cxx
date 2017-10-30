@@ -20,6 +20,7 @@ PR3DCluster::PR3DCluster(int cluster_id)
   point_cloud = 0;
   graph = 0;
   source_wcp_index = -1;
+  flag_fine_tracking = false;
 }
 
 PR3DCluster::~PR3DCluster(){
@@ -540,6 +541,7 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
 	distances.push_back(dis);
       }
     }
+    //    if (path_wcps_vec.size()==2) break;
   }
   // for (size_t i=0;i!=distances.size();i++){
   //   std::cout << i << " " << distances.at(i)/2./units::cm << std::endl;
@@ -856,20 +858,174 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   int n_2D_v = 2 * map_2DV_index.size();
   int n_2D_w = 2 * map_2DW_index.size();
   Eigen::VectorXd pos_3D(n_3D_pos), data_u_2D(n_2D_u), data_v_2D(n_2D_v), data_w_2D(n_2D_w);
-  Eigen::SparseMatrix<double> FMatrix(n_3D_pos, n_3D_pos) ;
   Eigen::SparseMatrix<double> RU(n_2D_u, n_3D_pos) ;
   Eigen::SparseMatrix<double> RV(n_2D_v, n_3D_pos) ;
   Eigen::SparseMatrix<double> RW(n_2D_w, n_3D_pos) ;
+  // fill in the measurement ...
+  for (auto it = map_2DU_3D_set.begin(); it!= map_2DU_3D_set.end(); it++){
+    int index = map_2DU_index[it->first];
+    int n_divide = it->second.size();
+    double charge = map_2D_ut_charge[it->first];
+    double charge_err = map_2D_ut_charge_err[it->first];
+    double scaling = charge/n_divide/charge_err;
+    data_u_2D(2*index) =  scaling * (it->first.first - offset_u) * n_divide;
+    data_u_2D(2*index+1) = scaling * (it->first.second - offset_t) * n_divide;
+    // std::cout << index << " " << n_divide << " " << charge << " " << charge_err << std::endl;
+    for (auto it1 = it->second.begin(); it1!=it->second.end(); it1++){
+      int index_3D = (*it1); // 3*index_3D -->x  3*index_3D+1 --> y 3*index_3D+2 --> z
+      RU.insert(2*index,3*index_3D+1) = scaling * slope_yu; // Y--> U
+      RU.insert(2*index,3*index_3D+2) = scaling * slope_zu; // Z--> U
+      RU.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
+      //std::cout << index_3D << std::endl;
+    }
+  }
+  for (auto it = map_2DV_3D_set.begin(); it!= map_2DV_3D_set.end(); it++){
+    int index = map_2DV_index[it->first];
+    int n_divide = it->second.size();
+    double charge = map_2D_vt_charge[it->first];
+    double charge_err = map_2D_vt_charge_err[it->first];
+    double scaling = charge/n_divide/charge_err;
+    data_v_2D(2*index) = scaling * (it->first.first - offset_v) * n_divide;
+    data_v_2D(2*index+1) = scaling * (it->first.second - offset_t) * n_divide;
+    // std::cout << index << " " << n_divide << " " << charge << " " << charge_err << std::endl;
+    for (auto it1 = it->second.begin(); it1!=it->second.end(); it1++){
+      int index_3D = (*it1); // 3*index_3D -->x  3*index_3D+1 --> y 3*index_3D+2 --> z
+      RV.insert(2*index,3*index_3D+1) = scaling * slope_yv; // Y--> V
+      RV.insert(2*index,3*index_3D+2) = scaling * slope_zv; // Z--> V
+      RV.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
+      //std::cout << index_3D << std::endl;
+    }
+  }
+  for (auto it = map_2DW_3D_set.begin(); it!= map_2DW_3D_set.end(); it++){
+    int index = map_2DW_index[it->first];
+    int n_divide = it->second.size();
+    double charge = map_2D_wt_charge[it->first];
+    double charge_err = map_2D_wt_charge_err[it->first];
+    double scaling = charge/n_divide/charge_err;
+    data_w_2D(2*index) = scaling * (it->first.first - offset_w)* n_divide;
+    data_w_2D(2*index+1) = scaling * (it->first.second - offset_t)* n_divide;
+    // std::cout << index << " " << n_divide << " " << charge << " " << charge_err << std::endl;
+    for (auto it1 = it->second.begin(); it1!=it->second.end(); it1++){
+      int index_3D = (*it1); // 3*index_3D -->x  3*index_3D+1 --> y 3*index_3D+2 --> z
+      RW.insert(2*index,3*index_3D+2) = scaling * slope_zw; // Z--> W
+      RW.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
+      //std::cout << index_3D << std::endl;
+    }
+  }
 
+ //  for (int k=0;k<RV.outerSize();++k){
+ //    for (Eigen::SparseMatrix<double>::InnerIterator it(RV,k); it; ++it){
+ //      std::cout << it.value() << " " << it.row() << " "<< it.col() << " " << it.index() << std::endl;
+ //    }
+ // }
+  
   Eigen::SparseMatrix<double> RUT = Eigen::SparseMatrix<double>(RU.transpose());
   Eigen::SparseMatrix<double> RVT = Eigen::SparseMatrix<double>(RV.transpose());
   Eigen::SparseMatrix<double> RWT = Eigen::SparseMatrix<double>(RW.transpose());
+  
+
+  
+  double lambda = 1e6;
+  Eigen::SparseMatrix<double> FMatrix(n_3D_pos, n_3D_pos) ;
+  // distances[i]
+  for (size_t i=0;i!=path_wcps_vec.size();i++){
+    if (i==0){
+      FMatrix.insert(0,0) = -1./distances.at(0); // X
+      FMatrix.insert(0,3) = 1./distances.at(0);
+      FMatrix.insert(1,1) = -1./distances.at(0); // Y
+      FMatrix.insert(1,4) = 1./distances.at(0);
+      FMatrix.insert(2,2) = -1./distances.at(0); // Z
+      FMatrix.insert(2,5) = 1./distances.at(0);
+    }else if (i==path_wcps_vec.size()-1){
+      FMatrix.insert(3*i,3*i) = -1./distances.at(path_wcps_vec.size()-2); // X
+      FMatrix.insert(3*i,3*i-3) = 1./distances.at(path_wcps_vec.size()-2);
+      FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(path_wcps_vec.size()-2);
+      FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(path_wcps_vec.size()-2);
+      FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(path_wcps_vec.size()-2);
+      FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(path_wcps_vec.size()-2);
+    }else{
+      FMatrix.insert(3*i,3*i-3) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+      FMatrix.insert(3*i,3*i) = -1./distances.at(i-1)/distances.at(i);
+      FMatrix.insert(3*i,3*i+3) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+
+      FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+      FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(i-1)/distances.at(i);
+      FMatrix.insert(3*i+1,3*i+4) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+
+      FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+      FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(i-1)/distances.at(i);
+      FMatrix.insert(3*i+2,3*i+5) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+    }
+  }
+  FMatrix *= lambda;
+  
   Eigen::SparseMatrix<double> FMatrixT = Eigen::SparseMatrix<double>(FMatrix.transpose());
-
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
+  Eigen::VectorXd b = RUT * data_u_2D + RVT * data_v_2D + RWT * data_w_2D;
+  Eigen::SparseMatrix<double> A =  RUT * RU + RVT * RV + RWT * RW + FMatrixT * FMatrix;
+  solver.compute(A);
+  Eigen::VectorXd pos_3D1(n_3D_pos);
+  for (size_t i=0;i!=path_wcps_vec.size();i++){
+    pos_3D1(3*i) = path_wcps_vec.at(i).x;
+    pos_3D1(3*i+1) = path_wcps_vec.at(i).y;
+    pos_3D1(3*i+2) = path_wcps_vec.at(i).z;
+    //std::cout << pos_3D(3*i)/units::cm << " " << pos_3D(3*i+1)/units::cm << " " << pos_3D(3*i+2)/units::cm << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << std::endl;
+  }
+  pos_3D = solver.solveWithGuess(b,pos_3D1);
+  
+  //std::cout << "#iterations: " << solver.iterations() << std::endl;
+  //std::cout << "#estimated error: " << solver.error() << std::endl;
+  //std::cout << path_wcps_vec.size() << " " << map_2DU_index.size() << " " << map_2DV_index.size() << " " << map_2DW_index.size() << std::endl;
 
-  Eigen::VectorXd b = RUT * data_u_2D + RVT * data_v_2D + RWT * data_w_2D;g
-  Eigen::VectorXd A = RUT * RU + RVT * RV + RWT * RW + FMatrixT * FMatrix;
+  flag_fine_tracking = true;
+  fine_tracking_path.clear();
+  for (size_t i=0;i!=path_wcps_vec.size();i++){
+    Point p;
+    p.x = pos_3D(3*i);
+    p.y = pos_3D(3*i+1);
+    p.z = pos_3D(3*i+2);
+    fine_tracking_path.push_back(p);
+    std::cout << p.x << " " << p.y << " " << p.z << " " << path_wcps_vec.at(i).x << " " << path_wcps_vec.at(i).y << " " << path_wcps_vec.at(i).z << std::endl;
+ }
+
+
+
+  
+  // Eigen::VectorXd data_v_2D_p1 = RVT * RV * pos_3D1;
+  // Eigen::VectorXd data_v_2D_p2 = RVT * RV * pos_3D;
+  // Eigen::VectorXd data_v_2D_p3 = RVT * data_v_2D;
+  // for (size_t i=0;i!=path_wcps_vec.size();i++){
+  //   std::cout << i << " " << data_v_2D_p3(3*i) << " " << data_v_2D_p1(3*i) << " " << data_v_2D_p2(3*i)
+  // 	      << " " << data_v_2D_p3(3*i+1) << " " << data_v_2D_p1(3*i+1) << " " << data_v_2D_p2(3*i+1)
+  // 	      << " " << data_v_2D_p3(3*i+2) << " " << data_v_2D_p1(3*i+2) << " " << data_v_2D_p2(3*i+2) << std::endl;
+  // }
+  // for (size_t i=0;i!= map_2DV_index.size();i++){
+  //   std::cout << i << " X " << data_v_2D(2*i) << " " << data_v_2D_p1(2*i) << " " << data_v_2D_p2(2*i) << " "
+  // 	      << data_v_2D(2*i+1) << " " << data_v_2D_p1(2*i+1) << " " << data_v_2D_p2(2*i+1) << " " << std::endl;
+  // }
+  // Eigen::VectorXd data_v_2D_p1 = RV * pos_3D1;
+  // for (size_t i=0;i!=n_2D_v;i++){
+  //   std::cout << data_v_2D(i) << " " << data_v_2D_p1(i) << std::endl;
+  // }
+  
+  // for (int k=0;k<RV.outerSize();++k){
+  //   for (Eigen::SparseMatrix<double>::InnerIterator it(RV,k); it; ++it){
+  //     std::cout << it.value() << " " << it.row() << " "<< it.col() << " " << it.index() << std::endl;
+  //   }
+  // }
+
+  // for (size_t i=0;i!=path_wcps_vec.size();i++){
+  //   std::cout << pos_3D(3*i) << " " << pos_3D(3*i+1) << " " << pos_3D(3*i+2) << " " << path_wcps_vec.at(i).x << " " << path_wcps_vec.at(i).y << " " << path_wcps_vec.at(i).z << std::endl;
+  // }
+  
+  
+  // Eigen::VectorXd test1(3); test1(0)=1;test1(1)=2; test1(2)=3;
+  // Eigen::MatrixXd test2(2,3);
+  // test2(0,0)=1; 
+  // test2(1,1) = 1; test2(1,2) = 1;
+  // Eigen::VectorXd test3 = test2 * test1;
+  // std::cout << test3(0) << " " << test3(1) << std::endl;
+  
   
   // copy the list into a vector...
   //std::vector<WCPointCloud<double>::WCPoint> path_wcps_vec(std::begin(path_wcps), std::end(path_wcps));
