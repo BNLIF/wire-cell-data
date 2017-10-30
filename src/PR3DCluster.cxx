@@ -867,6 +867,13 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   Eigen::SparseMatrix<double> RU(n_2D_u, n_3D_pos) ;
   Eigen::SparseMatrix<double> RV(n_2D_v, n_3D_pos) ;
   Eigen::SparseMatrix<double> RW(n_2D_w, n_3D_pos) ;
+  Eigen::VectorXd pos_3D_init(n_3D_pos);
+  for (size_t i=0;i!=path_wcps_vec.size();i++){
+    pos_3D_init(3*i) = path_wcps_vec.at(i).x;
+    pos_3D_init(3*i+1) = path_wcps_vec.at(i).y;
+    pos_3D_init(3*i+2) = path_wcps_vec.at(i).z;
+  }
+  
   // fill in the measurement ...
   for (auto it = map_2DU_3D_set.begin(); it!= map_2DU_3D_set.end(); it++){
     int index = map_2DU_index[it->first];
@@ -928,84 +935,134 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   Eigen::SparseMatrix<double> RUT = Eigen::SparseMatrix<double>(RU.transpose());
   Eigen::SparseMatrix<double> RVT = Eigen::SparseMatrix<double>(RV.transpose());
   Eigen::SparseMatrix<double> RWT = Eigen::SparseMatrix<double>(RW.transpose());
-  
+
+  // double ave_distance = 0;
+  // for (size_t i=0;i!=distances.size();i++){
+  //   ave_distance += distances.at(i);
+  // }
+  // ave_distance /= distances.size();
 
   
-  double lambda = 10;
+  // get initial chi2 ...
+  // Eigen::VectorXd chi_u = data_u_2D - RU * pos_3D_init;
+  // Eigen::VectorXd chi_v = data_v_2D - RV * pos_3D_init;
+  // Eigen::VectorXd chi_w = data_w_2D - RW * pos_3D_init;
+
+  // double chi2 = chi_u.squaredNorm() + chi_v.squaredNorm() + chi_w.squaredNorm();
+  // std::cout << sqrt(chi2 /(path_wcps_vec.size() * 1.)) << " " << lambda/units::cm*3 << std::endl;
+  
+  double lambda = 2 // strength 
+    * sqrt(9. //  average chi2 guessted
+	   * (map_2DU_index.size() + map_2DV_index.size() + map_2DW_index.size()) // how many of them
+	   * 6 * 6 // charge/charge_err estimation ... 
+	   /(path_wcps_vec.size() * 1.)); //weighting
+  double dis_range = 0.5*units::cm/sqrt(3.);
+  double angle_range = 0.25;
+ 
+  //std::cout << lambda/ dis_range << std::endl;
+  
   Eigen::SparseMatrix<double> FMatrix(n_3D_pos, n_3D_pos) ;
+  Eigen::SparseMatrix<double> PMatrix(n_3D_pos, n_3D_pos) ;
   // distances[i]
   // 2nd order ...
+  for (size_t i=0;i!=path_wcps_vec.size();i++){
+    PMatrix.insert(3*i,3*i)=1;
+    PMatrix.insert(3*i+1,3*i+1)=1;
+    PMatrix.insert(3*i+2,3*i+2)=1;
+    if (i==0){
+      FMatrix.insert(0,0) = -1./distances.at(0); // X
+      FMatrix.insert(0,3) = 1./distances.at(0);
+      FMatrix.insert(1,1) = -1./distances.at(0); // Y
+      FMatrix.insert(1,4) = 1./distances.at(0);
+      FMatrix.insert(2,2) = -1./distances.at(0); // Z
+      FMatrix.insert(2,5) = 1./distances.at(0);
+    }else if (i==path_wcps_vec.size()-1){
+      FMatrix.insert(3*i,3*i) = -1./distances.at(path_wcps_vec.size()-2); // X
+      FMatrix.insert(3*i,3*i-3) = 1./distances.at(path_wcps_vec.size()-2);
+      FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(path_wcps_vec.size()-2);
+      FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(path_wcps_vec.size()-2);
+      FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(path_wcps_vec.size()-2);
+      FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(path_wcps_vec.size()-2);
+    }else{
+      FMatrix.insert(3*i,3*i-3) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+      FMatrix.insert(3*i,3*i) = -1./distances.at(i-1)/distances.at(i);
+      FMatrix.insert(3*i,3*i+3) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+      FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+      FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(i-1)/distances.at(i);
+      FMatrix.insert(3*i+1,3*i+4) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+      FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+      FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(i-1)/distances.at(i);
+      FMatrix.insert(3*i+2,3*i+5) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+    }
+  }
+
+   //0th order
   // for (size_t i=0;i!=path_wcps_vec.size();i++){
   //   if (i==0){
-  //     FMatrix.insert(0,0) = -1./distances.at(0); // X
-  //     FMatrix.insert(0,3) = 1./distances.at(0);
-  //     FMatrix.insert(1,1) = -1./distances.at(0); // Y
-  //     FMatrix.insert(1,4) = 1./distances.at(0);
-  //     FMatrix.insert(2,2) = -1./distances.at(0); // Z
-  //     FMatrix.insert(2,5) = 1./distances.at(0);
+  //     FMatrix.insert(0,0) = -1;
+  //     FMatrix.insert(0,3) = 1.;
+  //     FMatrix.insert(1,1) = -1.;
+  //     FMatrix.insert(1,4) = 1.;
+  //     FMatrix.insert(2,2) = -1.;
+  //     FMatrix.insert(2,5) = 1.;
   //   }else if (i==path_wcps_vec.size()-1){
-  //     FMatrix.insert(3*i,3*i) = -1./distances.at(path_wcps_vec.size()-2); // X
-  //     FMatrix.insert(3*i,3*i-3) = 1./distances.at(path_wcps_vec.size()-2);
-  //     FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(path_wcps_vec.size()-2);
-  //     FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(path_wcps_vec.size()-2);
-  //     FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(path_wcps_vec.size()-2);
-  //     FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(path_wcps_vec.size()-2);
+  //     FMatrix.insert(3*i,3*i) = -1.;
+  //     FMatrix.insert(3*i,3*i-3) = 1.;
+  //     FMatrix.insert(3*i+1,3*i+1) = -1.;
+  //     FMatrix.insert(3*i+1,3*i-2) = 1.;
+  //     FMatrix.insert(3*i+2,3*i+2) = -1.;
+  //     FMatrix.insert(3*i+2,3*i-1) = 1.;
   //   }else{
-  //     FMatrix.insert(3*i,3*i-3) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
-  //     FMatrix.insert(3*i,3*i) = -1./distances.at(i-1)/distances.at(i);
-  //     FMatrix.insert(3*i,3*i+3) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
-  //     FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
-  //     FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(i-1)/distances.at(i);
-  //     FMatrix.insert(3*i+1,3*i+4) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
-  //     FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
-  //     FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(i-1)/distances.at(i);
-  //     FMatrix.insert(3*i+2,3*i+5) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+  //     FMatrix.insert(3*i,3*i) = -1.;
+  //     FMatrix.insert(3*i,3*i+3) = 1.;
+  //     FMatrix.insert(3*i+1,3*i+1) = -1.;
+  //     FMatrix.insert(3*i+1,3*i+4) = 1.;
+  //     FMatrix.insert(3*i+2,3*i+2) = -1.;
+  //     FMatrix.insert(3*i+2,3*i+5) = 1.;
   //   }
   // }
   
   // 2nd order
-  for (size_t i=0;i!=path_wcps_vec.size();i++){
-    if (i==0){
-      FMatrix.insert(0,0) = -1;
-      FMatrix.insert(0,3) = 1.;
-      FMatrix.insert(1,1) = -1.;
-      FMatrix.insert(1,4) = 1.;
-      FMatrix.insert(2,2) = -1.;
-      FMatrix.insert(2,5) = 1.;
-    }else if (i==path_wcps_vec.size()-1){
-      FMatrix.insert(3*i,3*i) = -1.;
-      FMatrix.insert(3*i,3*i-3) = 1.;
-      FMatrix.insert(3*i+1,3*i+1) = -1.;
-      FMatrix.insert(3*i+1,3*i-2) = 1.;
-      FMatrix.insert(3*i+2,3*i+2) = -1.;
-      FMatrix.insert(3*i+2,3*i-1) = 1.;
-    }else{
-      FMatrix.insert(3*i,3*i-3) = 1.;
-      FMatrix.insert(3*i,3*i) = -2.;
-      FMatrix.insert(3*i,3*i+3) = 1.;
-      FMatrix.insert(3*i+1,3*i-2) = 1.;
-      FMatrix.insert(3*i+1,3*i+1) = -2.;
-      FMatrix.insert(3*i+1,3*i+4) = 1.;
-      FMatrix.insert(3*i+2,3*i-1) = 1.;
-      FMatrix.insert(3*i+2,3*i+2) = -2.;
-      FMatrix.insert(3*i+2,3*i+5) = 1.;
-    }
-  }
-  FMatrix *= lambda;
+  // for (size_t i=0;i!=path_wcps_vec.size();i++){
+  //   if (i==0){
+  //     FMatrix.insert(0,0) = -1;
+  //     FMatrix.insert(0,3) = 1.;
+  //     FMatrix.insert(1,1) = -1.;
+  //     FMatrix.insert(1,4) = 1.;
+  //     FMatrix.insert(2,2) = -1.;
+  //     FMatrix.insert(2,5) = 1.;
+  //   }else if (i==path_wcps_vec.size()-1){
+  //     FMatrix.insert(3*i,3*i) = -1.;
+  //     FMatrix.insert(3*i,3*i-3) = 1.;
+  //     FMatrix.insert(3*i+1,3*i+1) = -1.;
+  //     FMatrix.insert(3*i+1,3*i-2) = 1.;
+  //     FMatrix.insert(3*i+2,3*i+2) = -1.;
+  //     FMatrix.insert(3*i+2,3*i-1) = 1.;
+  //   }else{
+  //     FMatrix.insert(3*i,3*i-3) = 1.;
+  //     FMatrix.insert(3*i,3*i) = -2.;
+  //     FMatrix.insert(3*i,3*i+3) = 1.;
+  //     FMatrix.insert(3*i+1,3*i-2) = 1.;
+  //     FMatrix.insert(3*i+1,3*i+1) = -2.;
+  //     FMatrix.insert(3*i+1,3*i+4) = 1.;
+  //     FMatrix.insert(3*i+2,3*i-1) = 1.;
+  //     FMatrix.insert(3*i+2,3*i+2) = -2.;
+  //     FMatrix.insert(3*i+2,3*i+5) = 1.;
+  //   }
+  // }
+
+  
+  FMatrix *= lambda/angle_range ; // disable the angue cut ... 
+  
   
   Eigen::SparseMatrix<double> FMatrixT = Eigen::SparseMatrix<double>(FMatrix.transpose());
+  Eigen::SparseMatrix<double> PMatrixT = Eigen::SparseMatrix<double>(PMatrix.transpose());
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
-  Eigen::VectorXd b = RUT * data_u_2D + RVT * data_v_2D + RWT * data_w_2D;
-  Eigen::SparseMatrix<double> A =  RUT * RU + RVT * RV + RWT * RW + FMatrixT * FMatrix;
+  Eigen::VectorXd b = RUT * data_u_2D + RVT * data_v_2D + RWT * data_w_2D + PMatrixT * pos_3D_init * pow(lambda/dis_range,2);
+  Eigen::SparseMatrix<double> A =   RUT * RU + RVT * RV + RWT * RW + FMatrixT * FMatrix + PMatrixT * PMatrix * pow(lambda/dis_range,2);
   solver.compute(A);
-  Eigen::VectorXd pos_3D1(n_3D_pos);
-  for (size_t i=0;i!=path_wcps_vec.size();i++){
-    pos_3D1(3*i) = path_wcps_vec.at(i).x;
-    pos_3D1(3*i+1) = path_wcps_vec.at(i).y;
-    pos_3D1(3*i+2) = path_wcps_vec.at(i).z;
-    //std::cout << pos_3D(3*i)/units::cm << " " << pos_3D(3*i+1)/units::cm << " " << pos_3D(3*i+2)/units::cm << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << std::endl;
-  }
-  pos_3D = solver.solveWithGuess(b,pos_3D1);
+  
+  pos_3D = solver.solveWithGuess(b,pos_3D_init);
   
   //std::cout << "#iterations: " << solver.iterations() << std::endl;
   //std::cout << "#estimated error: " << solver.error() << std::endl;
