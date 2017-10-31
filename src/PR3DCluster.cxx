@@ -30,8 +30,36 @@ PR3DCluster::~PR3DCluster(){
     delete graph;
 }
 
-// void AddCell(SlimMergeGeomCell* mcell, int *time_slices, int ntime_slice){
-// }
+std::vector<int> PR3DCluster::get_uvwt_range(){
+  std::set<int> set_u, set_v, set_w, set_t;
+  for (auto it=mcells.begin();it!=mcells.end();it++){
+    SlimMergeGeomCell *mcell = *it;
+    int time_slice = mcell->GetTimeSlice();
+    set_t.insert(time_slice);
+    GeomWireSelection uwires = mcell->get_uwires();
+    GeomWireSelection vwires = mcell->get_vwires();
+    GeomWireSelection wwires = mcell->get_wwires();
+    for (auto it1 = uwires.begin(); it1!=uwires.end(); it1++){
+      const GeomWire* wire = (*it1);
+      set_u.insert(wire->index());
+    }
+    for (auto it1 = vwires.begin(); it1!=vwires.end(); it1++){
+      const GeomWire* wire = (*it1);
+      set_v.insert(wire->index());
+    }
+    for (auto it1 = wwires.begin(); it1!=wwires.end(); it1++){
+      const GeomWire* wire = (*it1);
+      set_w.insert(wire->index());
+    }
+  }
+  std::vector<int> results;
+  results.push_back(set_u.size());
+  results.push_back(set_v.size());
+  results.push_back(set_w.size());
+  results.push_back(set_t.size());
+  
+  return results;
+}
 
 void PR3DCluster::Create_point_cloud(){
   if (point_cloud!=(ToyPointCloud*)0)

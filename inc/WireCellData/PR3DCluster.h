@@ -72,6 +72,8 @@ namespace WireCell{
 
     bool get_fine_tracking_flag(){return flag_fine_tracking;};
     PointVector& get_fine_tracking_path(){return fine_tracking_path;};
+
+    std::vector<int> get_uvwt_range();
     
   protected:
     
@@ -102,8 +104,6 @@ namespace WireCell{
     bool flag_fine_tracking;
     PointVector fine_tracking_path;
 
-
-    
     
   };
   typedef std::vector<PR3DCluster*> PR3DClusterSelection;
