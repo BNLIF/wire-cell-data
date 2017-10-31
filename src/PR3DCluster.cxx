@@ -620,12 +620,13 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   for (size_t i=0;i!=path_wcps_vec.size();i++){
     int current_index = path_wcps_vec.at(i).index;
     if (i==0){
-      dis_cut = std::min(distances.at(i) * 0.75,0.75*units::cm);
+      dis_cut = std::min(distances.at(i) * 0.6,0.8*units::cm);
     }else if (i==path_wcps_vec.size()-1){
-      dis_cut = std::min(distances.back() * 0.75,0.75*units::cm);
+      dis_cut = std::min(distances.back() * 0.6,0.8*units::cm);
     }else{
-      dis_cut = std::min(std::max(distances.at(i-1)*1.0,distances.at(i)*1.0),1.5*units::cm);
+      dis_cut = std::min(std::max(distances.at(i-1)*0.9,distances.at(i)*0.9),1.2*units::cm);
     }
+    
     time_cut = 3; // allow +- 3 time slices and then distance cut ... 
     std::set<std::pair<int,int>> T2DU_set;
     std::set<std::pair<int,int>> T2DV_set;
