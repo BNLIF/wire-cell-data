@@ -566,8 +566,9 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
 
       // hack the charge ... 
       if (charge <=0){
-	charge = 1000;
-	charge_err = 1000;
+	continue;
+	//charge = 1000;
+	//charge_err = 1000;
       }
       
       if (wire->iplane()==0){
@@ -625,7 +626,7 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
     }else{
       dis_cut = std::min(std::max(distances.at(i-1)*0.75,distances.at(i)*0.75),1.2*units::cm);
     }
-    time_cut = 2; // allow +- 3 time slices and then distance cut ... 
+    time_cut = 3; // allow +- 3 time slices and then distance cut ... 
     std::set<std::pair<int,int>> T2DU_set;
     std::set<std::pair<int,int>> T2DV_set;
     std::set<std::pair<int,int>> T2DW_set;
@@ -735,8 +736,8 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
     	  WireChargeMap& wire_charge_map = mcell->get_wirecharge_map();
     	  for (auto it1 = wire_charge_map.begin(); it1!= wire_charge_map.end(); it1++){
 	    const GeomWire *wire = it1->first;
-	    //if (it1->second >0){
-	    if (1>0){
+	    if (it1->second >0){
+	      //if (1>0){
 	      if (wire->iplane()==0){
 		// U plane ...
 		if (wire->index() >= low_u_limit && wire->index() <= high_u_limit){
@@ -783,28 +784,28 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
 
 
   // map 2D points to its index
-  std::map<std::pair<int,int>,int> map_2DU_index;
-  std::map<std::pair<int,int>,int> map_2DV_index;
-  std::map<std::pair<int,int>,int> map_2DW_index;
+  std::vector<std::pair<std::pair<int,int>,int>> vec_2DU_index;
+  std::vector<std::pair<std::pair<int,int>,int>> vec_2DV_index;
+  std::vector<std::pair<std::pair<int,int>,int>> vec_2DW_index;
 
-  int num_index = 0;
   for (auto it = map_2DU_3D_set.begin(); it!= map_2DU_3D_set.end(); it++){
-    map_2DU_index[it->first] = num_index;
-    // std::cout << "U_1: " << it->first.first << " " << it->first.second << std::endl;
-    num_index++;
+    for (auto it1 =it->second.begin(); it1!=it->second.end(); it1++){
+      vec_2DU_index.push_back(std::make_pair(it->first,*it1));
+    }
   }
-  num_index = 0;
   for (auto it = map_2DV_3D_set.begin(); it!= map_2DV_3D_set.end(); it++){
-    map_2DV_index[it->first] = num_index;
-    //std::cout << "V_1: " << it->first.first << " " << it->first.second << std::endl;
-    num_index++;
+    for (auto it1 =it->second.begin(); it1!=it->second.end(); it1++){
+      vec_2DV_index.push_back(std::make_pair(it->first,*it1));
+    }
   }
-  num_index = 0;
   for (auto it = map_2DW_3D_set.begin(); it!= map_2DW_3D_set.end(); it++){
-    map_2DW_index[it->first] = num_index;
-    // std::cout << "W_1: " << it->first.first << " " << it->first.second << std::endl;
-    num_index++;
+    for (auto it1 =it->second.begin(); it1!=it->second.end(); it1++){
+      vec_2DW_index.push_back(std::make_pair(it->first,*it1));
+    }
   }
+
+  //  std::cout << vec_2DU_index.size() << " " << vec_2DV_index.size() << " " << vec_2DW_index.size() << std::endl;
+  
 
   // for (auto it = map_2D_ut_charge.begin(); it!=map_2D_ut_charge.end();it++){
   //   std::cout << "U_2: " << it->first.first << " " << it->first.second << std::endl;
@@ -860,9 +861,9 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   
   // form matrix ...
   int n_3D_pos = 3 * path_wcps_vec.size();
-  int n_2D_u = 2 * map_2DU_index.size();
-  int n_2D_v = 2 * map_2DV_index.size();
-  int n_2D_w = 2 * map_2DW_index.size();
+  int n_2D_u = 2 * vec_2DU_index.size();
+  int n_2D_v = 2 * vec_2DV_index.size();
+  int n_2D_w = 2 * vec_2DW_index.size();
   Eigen::VectorXd pos_3D(n_3D_pos), data_u_2D(n_2D_u), data_v_2D(n_2D_v), data_w_2D(n_2D_w);
   Eigen::SparseMatrix<double> RU(n_2D_u, n_3D_pos) ;
   Eigen::SparseMatrix<double> RV(n_2D_v, n_3D_pos) ;
@@ -875,56 +876,47 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   }
   
   // fill in the measurement ...
-  for (auto it = map_2DU_3D_set.begin(); it!= map_2DU_3D_set.end(); it++){
-    int index = map_2DU_index[it->first];
-    int n_divide = it->second.size();
-    double charge = map_2D_ut_charge[it->first];
-    double charge_err = map_2D_ut_charge_err[it->first];
-    double scaling = charge/charge_err;
-    data_u_2D(2*index) =  scaling * (it->first.first - offset_u) * n_divide;
-    data_u_2D(2*index+1) = scaling * (it->first.second - offset_t) * n_divide;
-    // std::cout << index << " " << n_divide << " " << charge << " " << charge_err << std::endl;
-    for (auto it1 = it->second.begin(); it1!=it->second.end(); it1++){
-      int index_3D = (*it1); // 3*index_3D -->x  3*index_3D+1 --> y 3*index_3D+2 --> z
-      RU.insert(2*index,3*index_3D+1) = scaling * slope_yu; // Y--> U
-      RU.insert(2*index,3*index_3D+2) = scaling * slope_zu; // Z--> U
-      RU.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
-      //std::cout << index_3D << std::endl;
-    }
+  for (size_t index = 0; index!=vec_2DU_index.size(); index++){
+    double charge = map_2D_ut_charge[vec_2DU_index.at(index).first];
+    double charge_err = map_2D_ut_charge_err[vec_2DU_index.at(index).first];
+    int n_divide = map_2DU_3D_set[vec_2DU_index.at(index).first].size();
+    double scaling = charge/charge_err/n_divide;
+    data_u_2D(2*index) =  scaling * (vec_2DU_index.at(index).first.first - offset_u);
+    data_u_2D(2*index+1) = scaling * (vec_2DU_index.at(index).first.second - offset_t);
+
+    int index_3D = vec_2DU_index.at(index).second; // 3*index_3D -->x  3*index_3D+1 --> y 3*index_3D+2 --> z
+    RU.insert(2*index,3*index_3D+1) = scaling * slope_yu; // Y--> U
+    RU.insert(2*index,3*index_3D+2) = scaling * slope_zu; // Z--> U
+    RU.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
+    //std::cout << index << " " << index_3D << std::endl;
   }
-  for (auto it = map_2DV_3D_set.begin(); it!= map_2DV_3D_set.end(); it++){
-    int index = map_2DV_index[it->first];
-    int n_divide = it->second.size();
-    double charge = map_2D_vt_charge[it->first];
-    double charge_err = map_2D_vt_charge_err[it->first];
-    double scaling = charge/charge_err;
-    data_v_2D(2*index) = scaling * (it->first.first - offset_v) * n_divide;
-    data_v_2D(2*index+1) = scaling * (it->first.second - offset_t) * n_divide;
-    // std::cout << index << " " << n_divide << " " << charge << " " << charge_err << std::endl;
-    for (auto it1 = it->second.begin(); it1!=it->second.end(); it1++){
-      int index_3D = (*it1); // 3*index_3D -->x  3*index_3D+1 --> y 3*index_3D+2 --> z
-      RV.insert(2*index,3*index_3D+1) = scaling * slope_yv; // Y--> V
-      RV.insert(2*index,3*index_3D+2) = scaling * slope_zv; // Z--> V
-      RV.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
-      //std::cout << index_3D << std::endl;
-    }
+  for (size_t index = 0; index!=vec_2DV_index.size(); index++){
+    double charge = map_2D_vt_charge[vec_2DV_index.at(index).first];
+    double charge_err = map_2D_vt_charge_err[vec_2DV_index.at(index).first];
+    int n_divide = map_2DV_3D_set[vec_2DV_index.at(index).first].size();
+    double scaling = charge/charge_err/n_divide;
+    data_v_2D(2*index) =  scaling * (vec_2DV_index.at(index).first.first - offset_v);
+    data_v_2D(2*index+1) = scaling * (vec_2DV_index.at(index).first.second - offset_t);
+
+    int index_3D = vec_2DV_index.at(index).second; // 3*index_3D -->x  3*index_3D+1 --> y 3*index_3D+2 --> z
+    RV.insert(2*index,3*index_3D+1) = scaling * slope_yv; // Y--> V
+    RV.insert(2*index,3*index_3D+2) = scaling * slope_zv; // Z--> V
+    RV.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
+    //std::cout << index << " " << index_3D << std::endl;
   }
-  for (auto it = map_2DW_3D_set.begin(); it!= map_2DW_3D_set.end(); it++){
-    int index = map_2DW_index[it->first];
-    int n_divide = it->second.size();
-    double charge = map_2D_wt_charge[it->first];
-    double charge_err = map_2D_wt_charge_err[it->first];
-    double scaling = charge/charge_err;
-    data_w_2D(2*index) = scaling * (it->first.first - offset_w)* n_divide;
-    data_w_2D(2*index+1) = scaling * (it->first.second - offset_t)* n_divide;
-    // std::cout << index << " " << n_divide << " " << charge << " " << charge_err << std::endl;
-    for (auto it1 = it->second.begin(); it1!=it->second.end(); it1++){
-      int index_3D = (*it1); // 3*index_3D -->x  3*index_3D+1 --> y 3*index_3D+2 --> z
-      RW.insert(2*index,3*index_3D+2) = scaling * slope_zw; // Z--> W
-      RW.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
-      //std::cout << index_3D << std::endl;
-    }
+  for (size_t index = 0; index!=vec_2DW_index.size(); index++){
+    double charge = map_2D_wt_charge[vec_2DW_index.at(index).first];
+    double charge_err = map_2D_wt_charge_err[vec_2DW_index.at(index).first];
+    int n_divide = map_2DW_3D_set[vec_2DW_index.at(index).first].size();
+    double scaling = charge/charge_err/n_divide;
+    data_w_2D(2*index) =  scaling * (vec_2DW_index.at(index).first.first - offset_w);
+    data_w_2D(2*index+1) = scaling * (vec_2DW_index.at(index).first.second - offset_t);
+
+    int index_3D = vec_2DW_index.at(index).second; // 3*index_3D -->x  3*index_3D+1 --> y 3*index_3D+2 --> z
+    RW.insert(2*index,3*index_3D+2) = scaling * slope_zw; // Z--> W
+    RW.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
   }
+ 
 
  //  for (int k=0;k<RV.outerSize();++k){
  //    for (Eigen::SparseMatrix<double>::InnerIterator it(RV,k); it; ++it){
@@ -953,22 +945,23 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   
   double lambda = 2 // strength 
     * sqrt(9. //  average chi2 guessted
-	   * (map_2DU_index.size() + map_2DV_index.size() + map_2DW_index.size()) // how many of them
-	   * 6 * 6 // charge/charge_err estimation ... 
-	   /(path_wcps_vec.size() * 1.)); //weighting
-  double dis_range = 0.5*units::cm/sqrt(3.);
+ 	   * (vec_2DU_index.size() + vec_2DV_index.size() + vec_2DW_index.size()) // how many of them
+ 	   * 6 * 6 // charge/charge_err estimation ... 
+ 	   /(path_wcps_vec.size() * 1.)); //weighting
+  lambda = 0;
+  //double dis_range = 0.5*units::cm/sqrt(3.);
   double angle_range = 0.25;
  
   //std::cout << lambda/ dis_range << std::endl;
   
   Eigen::SparseMatrix<double> FMatrix(n_3D_pos, n_3D_pos) ;
-  Eigen::SparseMatrix<double> PMatrix(n_3D_pos, n_3D_pos) ;
+  //Eigen::SparseMatrix<double> PMatrix(n_3D_pos, n_3D_pos) ;
   // distances[i]
   // 2nd order ...
   for (size_t i=0;i!=path_wcps_vec.size();i++){
-    PMatrix.insert(3*i,3*i)=1;
-    PMatrix.insert(3*i+1,3*i+1)=1;
-    PMatrix.insert(3*i+2,3*i+2)=1;
+    // PMatrix.insert(3*i,3*i)=1;
+    // PMatrix.insert(3*i+1,3*i+1)=1;
+    // PMatrix.insert(3*i+2,3*i+2)=1;
     if (i==0){
       FMatrix.insert(0,0) = -1./distances.at(0); // X
       FMatrix.insert(0,3) = 1./distances.at(0);
@@ -1056,10 +1049,10 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   
   
   Eigen::SparseMatrix<double> FMatrixT = Eigen::SparseMatrix<double>(FMatrix.transpose());
-  Eigen::SparseMatrix<double> PMatrixT = Eigen::SparseMatrix<double>(PMatrix.transpose());
+  // Eigen::SparseMatrix<double> PMatrixT = Eigen::SparseMatrix<double>(PMatrix.transpose());
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
-  Eigen::VectorXd b = RUT * data_u_2D + RVT * data_v_2D + RWT * data_w_2D + PMatrixT * pos_3D_init * pow(lambda/dis_range,2);
-  Eigen::SparseMatrix<double> A =   RUT * RU + RVT * RV + RWT * RW + FMatrixT * FMatrix + PMatrixT * PMatrix * pow(lambda/dis_range,2);
+  Eigen::VectorXd b = RUT * data_u_2D + RVT * data_v_2D + RWT * data_w_2D;// + PMatrixT * pos_3D_init * pow(lambda/dis_range,2);
+  Eigen::SparseMatrix<double> A =   RUT * RU + RVT * RV + RWT * RW + FMatrixT * FMatrix;// + PMatrixT * PMatrix * pow(lambda/dis_range,2);
   solver.compute(A);
   
   pos_3D = solver.solveWithGuess(b,pos_3D_init);
