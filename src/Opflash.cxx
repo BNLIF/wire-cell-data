@@ -1,5 +1,5 @@
 #include "WireCellData/Opflash.h"
-
+#include <algorithm>
 #include <iostream>
 
 using namespace WireCell;
@@ -128,7 +128,7 @@ void WireCell::Opflash::Add_l1info(TH1F *hist_tot_pe, TH1F *hist_mult, double st
 
 
 bool WireCell::Opflash::get_fired(int ch){
-  if (find(fired_channels.begin(),fired_channels.end(),ch)==fired_channels.end()){
+  if (std::find(fired_channels.begin(),fired_channels.end(),ch)==fired_channels.end()){
     return false;
   }else{
     return true;

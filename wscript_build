@@ -1,6 +1,6 @@
 # -*- python -*-
 
-bld.make_package('WireCellData', use='EIGEN WireCellQuickhull WireCellNanoflann')
+bld.make_package('WireCellData', use='EIGEN BOOST WireCellQuickhull WireCellNanoflann')
 
 # bld.shared_library(name)
 # bld.api_headers(name)
