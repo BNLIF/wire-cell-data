@@ -34,7 +34,7 @@ int Slim3DDeadCluster::AddCell(SlimMergeGeomCell &cell, int time_slice, int offs
 
   if (time_slices.size()>0){
     for (size_t i = 0; i!= time_slices.size(); i++){
-      GeomCellSetp mcells = cluster[time_slices.at(i)];
+      GeomCellSetp& mcells = cluster[time_slices.at(i)];
       for (auto it = mcells.begin(); it!=mcells.end(); it++){
 	SlimMergeGeomCell *mcell1 = (SlimMergeGeomCell*)&cell;
 	SlimMergeGeomCell *mcell = (SlimMergeGeomCell*)(*it);
