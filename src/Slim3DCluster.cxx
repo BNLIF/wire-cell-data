@@ -125,7 +125,7 @@ void Slim3DCluster::Calc_Projection(){
 
 
 int Slim3DCluster::AddCell(SlimMergeGeomCell &cell,int offset){
-  std::set<SlimMergeGeomCell*>  abc = cluster.at(cluster.size()-1);
+  std::set<SlimMergeGeomCell*>&  abc = cluster.at(cluster.size()-1);
   auto it = abc.begin();
   int curr_time = (*it)->GetTimeSlice();
   int time = cell.GetTimeSlice();
@@ -154,7 +154,7 @@ int Slim3DCluster::AddCell(SlimMergeGeomCell &cell,int offset){
     if (cluster.size() < 2){
       return 0;
     }else{
-      std::set<SlimMergeGeomCell*>  abc1 = cluster.at(cluster.size()-2);
+      std::set<SlimMergeGeomCell*>&  abc1 = cluster.at(cluster.size()-2);
       auto it1 = abc1.begin();
       int curr_time1 = (*it1)->GetTimeSlice();
       if (time - curr_time1 == 1){
@@ -244,51 +244,53 @@ void Slim3DCluster::Form_maps(int offset, std::map<const GeomCell*, GeomCellSele
 
 void Slim3DCluster::MergeCluster(Slim3DCluster& cluster_to_merge){
   //need to write a merge cluster alg. 
-  SlimMergeCellCluster cluster1 = cluster_to_merge.get_ordercell();
+  SlimMergeCellCluster& cluster1 = cluster_to_merge.get_ordercell();
   SlimMergeCellCluster cluster2;
   
   int i =0,  j=0;
   
   int flag = 1;
   while(flag){
-    std::set<SlimMergeGeomCell*>  abc = cluster.at(i);
-    auto it = abc.begin();
-    int time = (*it)->GetTimeSlice();
+    {
+      std::set<SlimMergeGeomCell*>&  abc = cluster.at(i);
+      auto it = abc.begin();
+      int time = (*it)->GetTimeSlice();
       
-    std::set<SlimMergeGeomCell*>  abc1 = cluster1.at(j);
-    auto it1 = abc1.begin();
-    int time1 = (*it1)->GetTimeSlice();
-   
-    
-    if (time == time1){
-      std::set<SlimMergeGeomCell*> abc2;
-      //merge both and push
-      abc2.insert(abc.begin(),abc.end());
-      abc2.insert(abc1.begin(),abc1.end());
-      cluster2.push_back(abc2);
-      i++;
-      j++;
-    }else if (time < time1){
-      // push time
-      std::set<SlimMergeGeomCell*> abc2;
-      abc2.insert(abc.begin(),abc.end());
-      cluster2.push_back(abc2);
-      i++;
-    }else if (time > time1){
-      // push time1
-      std::set<SlimMergeGeomCell*> abc2;
-      abc2.insert(abc1.begin(),abc1.end());
-      cluster2.push_back(abc2);
-      j++;
+      std::set<SlimMergeGeomCell*>&  abc1 = cluster1.at(j);
+      auto it1 = abc1.begin();
+      int time1 = (*it1)->GetTimeSlice();
+      
+      
+      if (time == time1){
+	std::set<SlimMergeGeomCell*> abc2;
+	//merge both and push
+	abc2.insert(abc.begin(),abc.end());
+	abc2.insert(abc1.begin(),abc1.end());
+	cluster2.push_back(abc2);
+	i++;
+	j++;
+      }else if (time < time1){
+	// push time
+	std::set<SlimMergeGeomCell*> abc2;
+	abc2.insert(abc.begin(),abc.end());
+	cluster2.push_back(abc2);
+	i++;
+      }else if (time > time1){
+	// push time1
+	std::set<SlimMergeGeomCell*> abc2;
+	abc2.insert(abc1.begin(),abc1.end());
+	cluster2.push_back(abc2);
+	j++;
+      }
     }
-
+    
     //judge i and j
     if (i==cluster.size() && j==cluster1.size()){
       flag = 0;
     }else if (i==cluster.size() && j!=cluster1.size()){
       for (int k=j;k!=cluster1.size();k++){
 	std::set<SlimMergeGeomCell*> abc2;
-	std::set<SlimMergeGeomCell*>  abc1 = cluster1.at(k);
+	std::set<SlimMergeGeomCell*>&  abc1 = cluster1.at(k);
 	abc2.insert(abc1.begin(),abc1.end());
 	cluster2.push_back(abc2);
       }
@@ -296,7 +298,7 @@ void Slim3DCluster::MergeCluster(Slim3DCluster& cluster_to_merge){
     }else if (i!=cluster.size() && j==cluster1.size()){
       for (int k=i;k!=cluster.size();k++){
 	std::set<SlimMergeGeomCell*> abc2;
-	std::set<SlimMergeGeomCell*>  abc = cluster.at(k);
+	std::set<SlimMergeGeomCell*>&  abc = cluster.at(k);
 	abc2.insert(abc.begin(),abc.end());
 	cluster2.push_back(abc2);
       }
