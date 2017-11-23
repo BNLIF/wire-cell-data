@@ -23,11 +23,11 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    void SetMinWireInterval(WirePlaneType_t type, int value);
    //Point get_sampling_points_center();
     
-   GeomWireSelection get_uwires() const{return uwires;};
-   GeomWireSelection get_vwires() const{return vwires;};
-   GeomWireSelection get_wwires() const{return wwires;};
+   GeomWireSelection& get_uwires() {return uwires;};
+   GeomWireSelection& get_vwires() {return vwires;};
+   GeomWireSelection& get_wwires() {return wwires;};
    
-   int GetTimeSlice() const { return time_slice;}; 
+   int GetTimeSlice() { return time_slice;}; 
    void SetTimeSlice(int time){time_slice = time;}; 
    
    void OrderWires();
@@ -35,10 +35,10 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    int GetIdent() {return _ident;};
    std::vector<WirePlaneType_t> get_bad_planes(){return bad_planes;};
    void add_bad_planes(WirePlaneType_t type);
-   bool Overlap(const WireCell::SlimMergeGeomCell* cell, float num=0.1) const;
-   bool Overlap_fast(const WireCell::SlimMergeGeomCell* cell, int offset=1) const;
+   bool Overlap(WireCell::SlimMergeGeomCell* cell, float num=0.1) ;
+   bool Overlap_fast(WireCell::SlimMergeGeomCell* cell, int offset=1) ;
    
-   bool Adjacent(const WireCell::SlimMergeGeomCell* cell) const;
+   bool Adjacent(WireCell::SlimMergeGeomCell* cell) ;
    
      
    float Get_Wire_Charge(const GeomWire *wire);

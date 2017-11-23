@@ -48,9 +48,9 @@ Point SlimMergeGeomCell::center() const{
 
 
 bool SlimMergeGeomCell::IsSame(SlimMergeGeomCell *mcell1){
-  GeomWireSelection mcell1_uwires = mcell1->get_uwires();
-  GeomWireSelection mcell1_vwires = mcell1->get_vwires();
-  GeomWireSelection mcell1_wwires = mcell1->get_wwires();
+  GeomWireSelection& mcell1_uwires = mcell1->get_uwires();
+  GeomWireSelection& mcell1_vwires = mcell1->get_vwires();
+  GeomWireSelection& mcell1_wwires = mcell1->get_wwires();
 
   if (uwires.size() != mcell1_uwires.size() ||
       vwires.size() != mcell1_vwires.size() ||
@@ -222,7 +222,7 @@ void WireCell::SlimMergeGeomCell::OrderWires(){
 }
 
 
-bool WireCell::SlimMergeGeomCell::Overlap(const WireCell::SlimMergeGeomCell* cell, float num) const{
+bool WireCell::SlimMergeGeomCell::Overlap(WireCell::SlimMergeGeomCell* cell, float num) {
 
   double cut_limit = 1.2;
   
@@ -313,7 +313,7 @@ bool WireCell::SlimMergeGeomCell::Overlap(const WireCell::SlimMergeGeomCell* cel
 }
 
 
-bool WireCell::SlimMergeGeomCell::Overlap_fast(const WireCell::SlimMergeGeomCell* cell, int offset) const{
+bool WireCell::SlimMergeGeomCell::Overlap_fast( WireCell::SlimMergeGeomCell* cell, int offset) {
   // std::cout << uwires.size() << " " << vwires.size() << " " << wwires.size() << " "
   // 	    << cell->get_uwires().size() << " " << cell->get_vwires().size() << " " << cell->get_wwires().size() << std::endl;
   
@@ -344,7 +344,7 @@ bool WireCell::SlimMergeGeomCell::Overlap_fast(const WireCell::SlimMergeGeomCell
   return true;   
 }
 
-bool WireCell::SlimMergeGeomCell::Adjacent(const WireCell::SlimMergeGeomCell* cell) const {
+bool WireCell::SlimMergeGeomCell::Adjacent( WireCell::SlimMergeGeomCell* cell)  {
   int u_low_index = uwires.front()->index();
   int u_high_index = uwires.back()->index();
 
