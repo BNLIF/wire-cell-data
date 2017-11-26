@@ -33,7 +33,7 @@ Slim3DCluster::~Slim3DCluster(){
   if (w_proj!=0) delete w_proj;
 }
 
-GeomCellSelection Slim3DCluster::get_allcell(){
+GeomCellSelection& Slim3DCluster::get_allcell(){
   gcluster.clear();
   for (int i=0;i!=cluster.size();i++){
     std::set<SlimMergeGeomCell*>  abc = cluster.at(i);
