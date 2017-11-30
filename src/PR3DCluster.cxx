@@ -547,9 +547,9 @@ void PR3DCluster::cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target){
   
 }
 
-void PR3DCluster::fine_tracking(){
+void PR3DCluster::fine_tracking(int num_pts_cut){
   // cut ... 
-  if (path_wcps.size() < 10) return;
+  if (path_wcps.size() < num_pts_cut) return;
 
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   
