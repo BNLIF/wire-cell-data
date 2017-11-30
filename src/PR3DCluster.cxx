@@ -547,7 +547,7 @@ void PR3DCluster::cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target){
   
 }
 
-void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double first_w_dis){
+void PR3DCluster::fine_tracking(){
   // cut ... 
   if (path_wcps.size() < 10) return;
 
@@ -635,6 +635,10 @@ void PR3DCluster::fine_tracking(double first_u_dis, double first_v_dis, double f
   double angle_v = mp.get_angle_v();
   double angle_w = mp.get_angle_w();
   double time_slice_width = mp.get_ts_width();
+  double first_u_dis = mp.get_first_u_dis();
+  double first_v_dis = mp.get_first_v_dis();
+  double first_w_dis = mp.get_first_w_dis();
+  
   float coef1 = 2 * pow(sin(angle_u),2);
   float coef2 = 2 * (pow(sin(angle_u),2) - pow(cos(angle_u),2));
   

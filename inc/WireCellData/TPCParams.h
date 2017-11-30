@@ -3,10 +3,17 @@ namespace WireCell{
     double m_pitch_u; // wire pitch u
     double m_pitch_v; // wire pitch v
     double m_pitch_w; // wire pitch w
+    
     double m_ts_width; // time slice width 2 us * 1.6 mm/us ~ 3.2 mm
+
     double m_angle_u;
     double m_angle_v;
     double m_angle_w;
+
+    double first_u_dis;
+    double first_v_dis;
+    double first_w_dis;
+    
   public:
     // set defaults
   TPCParams() : m_pitch_u(3)
@@ -16,7 +23,24 @@ namespace WireCell{
       , m_angle_u(1.0472)
       , m_angle_v(-1.0472)
       , m_angle_w(0)
+      , first_u_dis(0)
+      , first_v_dis(0)
+      , first_w_dis(0)
       {};
+
+    //set/get u first dis
+    void set_first_u_dis(double p){ first_u_dis = p;}
+    double get_first_u_dis(){return first_u_dis;}
+
+    //set/get u first dis
+    void set_first_v_dis(double p){ first_v_dis = p;}
+    double get_first_v_dis(){return first_v_dis;}
+
+    //set/get u first dis
+    void set_first_w_dis(double p){ first_w_dis = p;}
+    double get_first_w_dis(){return first_w_dis;}
+
+    
     
     // set/get u pitches
     void set_pitch_u(double p) { m_pitch_u = p; }
