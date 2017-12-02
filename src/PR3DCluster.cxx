@@ -81,7 +81,7 @@ void PR3DCluster::Create_point_cloud(){
 void PR3DCluster::Create_graph(){
   if (point_cloud==(ToyPointCloud*)0)
     Create_point_cloud();
-
+  
   // create Graph ...
   const int N = point_cloud->get_num_points();
   graph = new MCUGraph(N);

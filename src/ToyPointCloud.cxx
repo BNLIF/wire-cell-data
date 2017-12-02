@@ -34,6 +34,11 @@ WireCell::WCPointCloud<double>::WCPoint& WireCell::ToyPointCloud::get_closest_wc
   return cloud.pts[results.front().first];
 }
 
+WireCell::WCPointCloud<double>::WCPoint& WireCell::ToyPointCloud::get_closest_wcpoint(WireCell::Point& p){
+  std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
+  return cloud.pts[results.front().first];
+}
+
 
 void WireCell::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& wcp){
   SlimMergeGeomCell *mcell = wcp.mcell;

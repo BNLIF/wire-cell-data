@@ -37,6 +37,8 @@ namespace WireCell{
 
     WireCell::WCPointCloud<double>::WCPoint& get_closest_wcpoint(WireCell::WCPointCloud<double>::WCPoint& wcp);
     
+    WireCell::WCPointCloud<double>::WCPoint& get_closest_wcpoint(WireCell::Point& p);
+    
     
     int get_num_points(){return cloud.pts.size();};
     std::vector<int>& get_mcell_indices(WireCell::SlimMergeGeomCell* mcell){

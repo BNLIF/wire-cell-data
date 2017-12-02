@@ -38,7 +38,7 @@ namespace WireCell{
     int get_cluster_id(){return cluster_id;};
     int get_num_mcells(){return mcells.size();};
     int get_num_time_slices(){return time_cells_set_map.size();};
-
+       
     void Remove_duplicated_mcells();
     SMGCSelection Is_Connected(PR3DCluster* cluster1, int offset);
     std::map<int,SMGCSet>& get_time_cells_set_map(){return time_cells_set_map;};
