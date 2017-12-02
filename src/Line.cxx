@@ -2,11 +2,20 @@
 
 using namespace WireCell;
 
-Line::Line(Point p1, Point p2)
+Line::Line(Point& p1, Point& p2)
   : p1(p1)
   , p2(p2)
 {
   update_dir();
+}
+
+Line::Line(Point& p1, TVector3& dir)
+  : p1(p1)
+  , dir(dir)
+{
+  p2.x = p1.x +dir.X();
+  p2.y = p1.y +dir.Y();
+  p2.z = p1.z +dir.Z();
 }
 
 Line::~Line(){
@@ -29,6 +38,15 @@ double Line::closest_dis(Point &p3){
   return dis;
 }
 
+double Line::closest_dis(Line &l1){
+  double dis = 0;
+  
+  TVector3 ca(p1.x-l1.get_p1().x,p1.y-l1.get_p1().y,p1.z-l1.get_p1().z);
+  TVector3 bd = dir.Cross(l1.get_dir());
+  dis = ca.Dot(bd)/bd.Mag();
+  return fabs(dis);
+}
+
 
 void Line::UpdatePoint(int flag, Point &p3){
   if (flag == 1){
@@ -40,6 +58,7 @@ void Line::UpdatePoint(int flag, Point &p3){
     p2.y = p3.y;
     p2.z = p3.z;
   }
+  update_dir();
 }
 
 void Line::ReverseDir(){
@@ -47,4 +66,5 @@ void Line::ReverseDir(){
   p3 = p1;
   p1 = p2;
   p2 = p3;
+  update_dir();
 }

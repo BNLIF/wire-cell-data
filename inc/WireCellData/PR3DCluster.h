@@ -72,7 +72,9 @@ namespace WireCell{
 
     bool get_fine_tracking_flag(){return flag_fine_tracking;};
     PointVector& get_fine_tracking_path(){return fine_tracking_path;};
+    TVector3 get_ft_dir_end(float mean_dis, float dis_cut);
 
+    
     std::vector<int> get_uvwt_range();
     
   protected:

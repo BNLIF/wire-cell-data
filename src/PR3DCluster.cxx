@@ -1103,7 +1103,7 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     p.z = pos_3D(3*i+2);
     fine_tracking_path.push_back(p);
     // std::cout << p.x << " " << p.y << " " << p.z << " " << path_wcps_vec.at(i).x << " " << path_wcps_vec.at(i).y << " " << path_wcps_vec.at(i).z << std::endl;
- }
+  }
 
 
 
@@ -1217,10 +1217,25 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   //     path_wcps_vec.at(i).x << " " << path_wcps_vec.at(i).y << " " << path_wcps_vec.at(i).z << std::endl;
   // }
   
-  
-  
-  
+   
 }
+
+TVector3 PR3DCluster::get_ft_dir_end(float mean_dis, float dis_cut){
+  TVector3 dir(0,0,0);
+  for (size_t i=1; i<fine_tracking_path.size();i++){
+    float dis = sqrt(pow(fine_tracking_path.at(i).x - fine_tracking_path.at(0).x,2) + pow(fine_tracking_path.at(i).y - fine_tracking_path.at(0).y,2) + pow(fine_tracking_path.at(i).z - fine_tracking_path.at(0).z,2));
+    if ( dis < dis_cut ){
+      dir.SetX(dir.X() + (fine_tracking_path.at(i).x - fine_tracking_path.at(0).x) * exp(-dis/mean_dis));
+      dir.SetY(dir.Y() + (fine_tracking_path.at(i).y - fine_tracking_path.at(0).y) * exp(-dis/mean_dis));
+      dir.SetZ(dir.Z() + (fine_tracking_path.at(i).z - fine_tracking_path.at(0).z) * exp(-dis/mean_dis));
+    }else{
+      break;
+    }
+  }
+  
+  return dir.Unit();
+}
+
 
 std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_highest_lowest_wcps(){
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
