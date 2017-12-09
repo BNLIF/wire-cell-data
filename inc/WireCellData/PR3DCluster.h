@@ -37,6 +37,7 @@ namespace WireCell{
     // void AddCell(SlimMergeGeomCell* mcell, int *time_slices, int ntime_slice);
     int get_cluster_id(){return cluster_id;};
     int get_num_mcells(){return mcells.size();};
+    int get_num_points(){return point_cloud->get_num_points(); };
     int get_num_time_slices(){return time_cells_set_map.size();};
        
     void Remove_duplicated_mcells();
