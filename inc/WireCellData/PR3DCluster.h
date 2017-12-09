@@ -66,7 +66,9 @@ namespace WireCell{
     
     std::pair<SlimMergeGeomCell*,Point> get_closest_point_mcell(Point& p_test);
     Point calc_ave_pos(Point& p, double dis);
+    int get_num_points(Point& p_test, double dis);
 
+    
     std::list<WCPointCloud<double>::WCPoint>& get_path_wcps(){return path_wcps;};
     std::list<SlimMergeGeomCell*>& get_path_mcells(){return path_mcells;};
 
