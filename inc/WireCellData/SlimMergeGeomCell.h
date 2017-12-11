@@ -53,7 +53,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    float get_udq(){return udq;};
    float get_vdq(){return vdq;};
    float get_wdq(){return wdq;};
-   float get_q(){return q;}
+   float get_q(){if (q==0) {return 1;}else{ return q;}}
    Point center() const;
 
    void set_uq(float value){uq=value;};
