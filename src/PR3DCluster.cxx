@@ -61,6 +61,26 @@ std::vector<int> PR3DCluster::get_uvwt_range(){
   return results;
 }
 
+std::pair<int,int> PR3DCluster::get_num_points(Point& p, TVector3& dir){
+  int num_p1 = 0;
+  int num_p2 = 0;
+
+  // loop through all the points
+  const int N = point_cloud->get_num_points();
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  for (int i=0;i!=N;i++){
+    TVector3 dir1(cloud.pts[i].x - p.x, cloud.pts[i].y - p.y, cloud.pts[i].z - p.z);
+    if (dir1.Dot(dir)>=0){
+      num_p1++;
+    }else{
+      num_p2++;
+    }
+  }
+  
+  return std::make_pair(num_p1,num_p2);
+}
+
+
 void PR3DCluster::Create_point_cloud(){
   if (point_cloud!=(ToyPointCloud*)0)
     return;

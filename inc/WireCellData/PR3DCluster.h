@@ -60,6 +60,8 @@ namespace WireCell{
     Vector get_center(){return center;};
     Vector get_PCA_axis(int axis){return PCA_axis[axis];};
 
+    std::pair<int,int> get_num_points(Point& p, TVector3& dir);
+    
     std::pair<double,double> HoughTrans(Point& p, double dis);
     TVector3 VHoughTrans(Point& p, double dis);
     TVector3 calc_dir(Point& p_test, Point& p, double dis);
