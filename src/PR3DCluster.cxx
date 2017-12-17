@@ -1270,6 +1270,19 @@ std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DClust
   return std::make_pair(highest_wcp,lowest_wcp);
 }
 
+std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_earliest_latest_wcps(){
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
+  WCPointCloud<double>::WCPoint lowest_wcp = cloud.pts[0];
+  for (size_t i=1;i<cloud.pts.size();i++){
+    if (cloud.pts[i].x > highest_wcp.x)
+      highest_wcp = cloud.pts[i];
+    if (cloud.pts[i].x < lowest_wcp.x)
+      lowest_wcp = cloud.pts[i];
+  }
+  return std::make_pair(lowest_wcp,highest_wcp);
+}
+
 
 
 Point PR3DCluster::calc_ave_pos(Point& p, double dis){

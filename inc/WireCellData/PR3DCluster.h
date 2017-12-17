@@ -55,6 +55,7 @@ namespace WireCell{
     void fine_tracking(int num_pts_cut = 10);
     
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_highest_lowest_wcps();
+    std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_earliest_latest_wcps();
     
     void Calc_PCA();
     Vector get_center(){return center;};
