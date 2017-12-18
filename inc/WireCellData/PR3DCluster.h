@@ -55,6 +55,7 @@ namespace WireCell{
     void fine_tracking(int num_pts_cut = 10);
     
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_highest_lowest_wcps();
+    std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_front_back_wcps();
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_earliest_latest_wcps();
     
     void Calc_PCA();
@@ -70,6 +71,7 @@ namespace WireCell{
     
     std::pair<SlimMergeGeomCell*,Point> get_closest_point_mcell(Point& p_test);
     Point calc_ave_pos(Point& p, double dis);
+    Point calc_ave_pos(Point& p, int N);
     int get_num_points(Point& p_test, double dis);
 
     

@@ -1270,6 +1270,20 @@ std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DClust
   return std::make_pair(highest_wcp,lowest_wcp);
 }
 
+std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_front_back_wcps(){
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
+  WCPointCloud<double>::WCPoint lowest_wcp = cloud.pts[0];
+  for (size_t i=1;i<cloud.pts.size();i++){
+    if (cloud.pts[i].z > highest_wcp.z)
+      highest_wcp = cloud.pts[i];
+    if (cloud.pts[i].z < lowest_wcp.z)
+      lowest_wcp = cloud.pts[i];
+  }
+  return std::make_pair(highest_wcp,lowest_wcp);
+}
+
+
 std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_earliest_latest_wcps(){
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
@@ -1284,6 +1298,29 @@ std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DClust
 }
 
 
+Point PR3DCluster::calc_ave_pos(Point&p, int N){
+  std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,N);
+  Point pt(0,0,0);
+  double charge = 0;
+  //std::cout << pts.size() << std::endl;
+  for (auto it = pts.begin(); it!= pts.end(); it++){
+    SlimMergeGeomCell *mcell = (*it).first;
+    Point pc = mcell->center();
+    double q = mcell->get_q();
+    pt.x += pc.x * q;
+    pt.y += pc.y * q;
+    pt.z += pc.z * q;
+    charge += q;
+    // std::cout << pc.x/units::cm << " " << pc.y/units::cm << " " << pc.z/units::cm << " " << q << " " <<
+    //  sqrt(pow(pc.x-p.x,2)+pow(pc.y-p.y,2)+pow(pc.z-p.z,2))/units::cm << std::endl;
+  }
+  if (charge!=0){
+    pt.x/=charge;
+    pt.y/=charge;
+    pt.z/=charge;
+  }
+  return pt;
+}
 
 Point PR3DCluster::calc_ave_pos(Point& p, double dis){
   std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
