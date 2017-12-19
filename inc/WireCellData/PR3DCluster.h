@@ -46,9 +46,10 @@ namespace WireCell{
     SMGCSelection& get_mcells(){return mcells;};
     std::map<SlimMergeGeomCell*, std::set<int>>& get_cell_times_set_map(){return cell_times_set_map;};
 
-    void Create_point_cloud();
+    void Create_point_cloud(WireCell::ToyPointCloud *global_point_cloud = 0);
     ToyPointCloud* get_point_cloud(){return point_cloud;};
-
+    void Update_mcell_cluster_map(std::map<WireCell::SlimMergeGeomCell*,WireCell::PR3DCluster*>& mcell_cluster_map);
+    
     void Create_graph();
     void dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp_source);
     void cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target);

@@ -81,7 +81,14 @@ std::pair<int,int> PR3DCluster::get_num_points(Point& p, TVector3& dir){
 }
 
 
-void PR3DCluster::Create_point_cloud(){
+void PR3DCluster::Update_mcell_cluster_map(std::map<WireCell::SlimMergeGeomCell*,WireCell::PR3DCluster*>& mcell_cluster_map){
+  for (auto it = mcells.begin(); it!=mcells.end(); it++){
+    SlimMergeGeomCell *mcell = (*it);
+    mcell_cluster_map[mcell] = this;
+  }
+}
+
+void PR3DCluster::Create_point_cloud(WireCell::ToyPointCloud *global_point_cloud){
   if (point_cloud!=(ToyPointCloud*)0)
     return;
   
@@ -89,6 +96,9 @@ void PR3DCluster::Create_point_cloud(){
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = (*it);
     PointVector pts = mcell->get_sampling_points();
+
+    if (global_point_cloud!=(ToyPointCloud*)0)
+      global_point_cloud->AddPoints(pts,mcell->get_sampling_points_wires(),mcell);
     
     point_cloud->AddPoints(pts,mcell->get_sampling_points_wires(),mcell);
   }
