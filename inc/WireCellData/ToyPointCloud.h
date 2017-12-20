@@ -27,24 +27,25 @@ namespace WireCell{
     void AddPoint(WCPointCloud<double>::WCPoint& wcp);
     void AddPoint(WireCell::Point& p, std::tuple<int,int,int>& wires_index, WireCell::SlimMergeGeomCell *mcell);
     void AddPoints(WireCell::PointVector& ps, std::vector<std::tuple<int,int,int>>& wires_indices, WireCell::SlimMergeGeomCell *mcell);
+    
     void build_kdtree_index();
+
     std::vector<std::pair<WireCell::SlimMergeGeomCell*, WireCell::Point>> get_hull();
 
     std::map<WireCell::SlimMergeGeomCell*, WireCell::Point> get_closest_mcell(WireCell::Point& p, int N);
     std::map<WireCell::SlimMergeGeomCell*, WireCell::Point> get_closest_mcell(WireCell::Point& p, double radius);
     std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> get_closest_points(WireCell::Point& p, int N);
     std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> get_closest_points(WireCell::Point& p, double radius);
-
     WireCell::WCPointCloud<double>::WCPoint& get_closest_wcpoint(WireCell::WCPointCloud<double>::WCPoint& wcp);
-    
     WireCell::WCPointCloud<double>::WCPoint& get_closest_wcpoint(WireCell::Point& p);
     
     
     int get_num_points(){return cloud.pts.size();};
+    WireCell::WCPointCloud<double>& get_cloud(){return cloud;};
     std::vector<int>& get_mcell_indices(WireCell::SlimMergeGeomCell* mcell){
       return map_mcell_indices[mcell];
     };
-    WireCell::WCPointCloud<double>& get_cloud(){return cloud;};
+    
 
     void Print();
     
