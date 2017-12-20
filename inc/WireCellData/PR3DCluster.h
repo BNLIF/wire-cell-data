@@ -69,6 +69,8 @@ namespace WireCell{
     TVector3 VHoughTrans(Point& p, double dis);
     TVector3 calc_dir(Point& p_test, Point& p, double dis);
     TVector3 calc_PCA_dir(Point& p, double dis);
+
+    std::pair<Point, double> get_closest_point_along_vec(Point& p_test, TVector3 dir, double test_dis, double dis_step, double angle_cut, double dis_cut);
     
     std::pair<SlimMergeGeomCell*,Point> get_closest_point_mcell(Point& p_test);
     Point calc_ave_pos(Point& p, double dis);

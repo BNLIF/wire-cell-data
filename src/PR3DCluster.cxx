@@ -1357,6 +1357,26 @@ Point PR3DCluster::calc_ave_pos(Point& p, double dis){
     
 }
 
+std::pair<Point, double> PR3DCluster::get_closest_point_along_vec(Point& p_test1, TVector3 dir, double test_dis, double dis_step, double angle_cut, double dis_cut){
+  bool flag = false;
+  Point p_test;
+  for (int i=0; i!= int(test_dis/dis_step)+1;i++){
+    p_test.x = p_test1.x + dir.X() * i * dis_step;
+    p_test.y = p_test1.y + dir.Y() * i * dis_step;
+    p_test.z = p_test1.z + dir.Z() * i * dis_step;
+    
+    std::pair<SlimMergeGeomCell*, Point> pts = get_closest_point_mcell(p_test);
+    double dis = sqrt(pow(p_test.x - pts.second.x,2)+pow(p_test.y - pts.second.y,2)+pow(p_test.z - pts.second.z,2));
+    double dis1 = sqrt(pow(p_test1.x - pts.second.x,2)+pow(p_test1.y - pts.second.y,2)+pow(p_test1.z - pts.second.z,2));
+    if (dis < std::min(dis1 * tan(angle_cut/180.*3.1415926),dis_cut)){
+      return std::make_pair(pts.second,dis1);
+    }
+  }
+
+  return std::make_pair(p_test1,1e9);
+  
+}
+
 std::pair<SlimMergeGeomCell*, Point> PR3DCluster::get_closest_point_mcell(Point& p_test){
   std::map<SlimMergeGeomCell*,Point> pts = point_cloud->get_closest_mcell(p_test,1);
   return std::make_pair((*pts.begin()).first,(*pts.begin()).second);
