@@ -51,7 +51,7 @@ WireCell::WCPointCloud<double>::WCPoint& WireCell::ToyPointCloud::get_closest_wc
 }
 
 
-void WireCell::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& wcp){
+void WireCell::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& wcp, WC2DPointCloud<double>::WC2DPoint& wcp_u, WC2DPointCloud<double>::WC2DPoint& wcp_v, WC2DPointCloud<double>::WC2DPoint& wcp_w){
   SlimMergeGeomCell *mcell = wcp.mcell;
   int index = wcp.index;
   
@@ -65,6 +65,12 @@ void WireCell::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& wcp){
   
 
   cloud.pts.push_back(wcp);
+  cloud_u.pts.push_back(wcp_u);
+  cloud_v.pts.push_back(wcp_v);
+  cloud_w.pts.push_back(wcp_w);
+
+  
+  
 }
 
 
@@ -80,7 +86,22 @@ void WireCell::ToyPointCloud::AddPoint(Point& p, std::tuple<int,int,int>& wires_
     
   point.mcell = mcell;
   point.index =cloud.pts.size();
-    
+
+  WC2DPointCloud<double>::WC2DPoint point_u;
+  point_u.x = p.x;
+  point_u.y = cos(angle_u) * p.z - sin(angle_u) *p.y;
+  point_u.index = cloud_u.pts.size();
+  
+  WC2DPointCloud<double>::WC2DPoint point_v;
+  point_v.x = p.x;
+  point_v.y = cos(angle_v) * p.z - sin(angle_v) *p.y;
+  point_v.index = cloud_v.pts.size();
+  
+  WC2DPointCloud<double>::WC2DPoint point_w;
+  point_w.x = p.x;
+  point_w.y = cos(angle_w) * p.z - sin(angle_w) *p.y;
+  point_w.index = cloud_w.pts.size();
+  
   if (map_mcell_indices.find(mcell)==map_mcell_indices.end()){
     std::vector<int> temp_indices;
     temp_indices.push_back(point.index);
@@ -91,6 +112,10 @@ void WireCell::ToyPointCloud::AddPoint(Point& p, std::tuple<int,int,int>& wires_
   
 
   cloud.pts.push_back(point);
+  cloud_u.pts.push_back(point_u);
+  cloud_v.pts.push_back(point_v);
+  cloud_w.pts.push_back(point_w);
+  
 }
 
 
@@ -99,7 +124,11 @@ void WireCell::ToyPointCloud::AddPoint(Point& p, std::tuple<int,int,int>& wires_
 void WireCell::ToyPointCloud::AddPoints(PointVector& ps, std::vector<std::tuple<int,int,int>>& wires_indices, SlimMergeGeomCell *mcell){
   size_t current_size = cloud.pts.size();
   cloud.pts.resize(current_size + ps.size());
-
+  cloud_u.pts.resize(current_size + ps.size());
+  cloud_v.pts.resize(current_size + ps.size());
+  cloud_w.pts.resize(current_size + ps.size());
+  
+  
   if (map_mcell_indices.find(mcell)==map_mcell_indices.end()){
     std::vector<int> temp_pts;
     map_mcell_indices[mcell] = temp_pts;
@@ -114,6 +143,19 @@ void WireCell::ToyPointCloud::AddPoints(PointVector& ps, std::vector<std::tuple<
     cloud.pts[current_size+i].index_w = std::get<2>(wires_indices.at(i)) ;
     cloud.pts[current_size+i].mcell = mcell;
     cloud.pts[current_size+i].index = current_size+i;
+
+    cloud_u.pts[current_size+i].x = ps.at(i).x;
+    cloud_u.pts[current_size+i].y = cos(angle_u) * ps.at(i).z - sin(angle_u) *ps.at(i).y;
+    cloud_u.pts[current_size+i].index = current_size+i;
+    
+    cloud_v.pts[current_size+i].x = ps.at(i).x;
+    cloud_v.pts[current_size+i].y = cos(angle_v) * ps.at(i).z - sin(angle_v) *ps.at(i).y;
+    cloud_v.pts[current_size+i].index = current_size+i;
+    
+    cloud_w.pts[current_size+i].x = ps.at(i).x;
+    cloud_w.pts[current_size+i].y = cos(angle_w) * ps.at(i).z - sin(angle_w) *ps.at(i).y;
+    cloud_w.pts[current_size+i].index = current_size+i;
+    
 
     map_mcell_indices[mcell].push_back(current_size+i);
   }

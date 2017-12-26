@@ -117,6 +117,11 @@ void PR3DCluster::Create_graph(){
   graph = new MCUGraph(N);
 
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WireCell::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
+  WireCell::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
+  WireCell::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
+  
+
   
   std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_uindex_wcps;
   std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_vindex_wcps;
@@ -476,7 +481,7 @@ void PR3DCluster::Create_graph(){
       
       std::vector<int>::size_type i;
       for (i=0;i!=component.size(); ++i){
-	pt_clouds.at(component[i])->AddPoint(cloud.pts[i]);
+	pt_clouds.at(component[i])->AddPoint(cloud.pts[i],cloud_u.pts[i],cloud_v.pts[i],cloud_w.pts[i]);
 	//   std::cout << "Vertex " << i << " " << cloud.pts[i].x << " " << cloud.pts[i].y << " " << cloud.pts[i].z << " " << cloud.pts[i].index_u << " " << cloud.pts[i].index_v << " " << cloud.pts[i].index_w << " " << cloud.pts[i].mcell << " " << cloud.pts[i].mcell->GetTimeSlice()  << " is in component " << component[i] << std::endl;
       }
       for (int j=0;j!=num;j++){
