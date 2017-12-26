@@ -28,23 +28,30 @@ namespace WireCell{
     ToyPointCloud(double angle_u = 1.0472, double angle_v = -1.0472, double angle_w = 0);
     ~ToyPointCloud();
 
-    std::tuple<int,int,double> get_closest_points(ToyPointCloud *point_could);
     
+    // build point cloud
     void AddPoint(WCPointCloud<double>::WCPoint& wcp, WC2DPointCloud<double>::WC2DPoint& wcp_u, WC2DPointCloud<double>::WC2DPoint& wcp_v, WC2DPointCloud<double>::WC2DPoint& wcp_w);
     void AddPoint(WireCell::Point& p, std::tuple<int,int,int>& wires_index, WireCell::SlimMergeGeomCell *mcell);
     void AddPoints(WireCell::PointVector& ps, std::vector<std::tuple<int,int,int>>& wires_indices, WireCell::SlimMergeGeomCell *mcell);
-    
     void build_kdtree_index();
 
+    // find 3D oiubts
+    std::tuple<int,int,double> get_closest_points(ToyPointCloud *point_could);
+
+    // hull, not useful ...
     std::vector<std::pair<WireCell::SlimMergeGeomCell*, WireCell::Point>> get_hull();
 
+    // function to find 3D close points
     std::map<WireCell::SlimMergeGeomCell*, WireCell::Point> get_closest_mcell(WireCell::Point& p, int N);
     std::map<WireCell::SlimMergeGeomCell*, WireCell::Point> get_closest_mcell(WireCell::Point& p, double radius);
     std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> get_closest_points(WireCell::Point& p, int N);
     std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> get_closest_points(WireCell::Point& p, double radius);
     WireCell::WCPointCloud<double>::WCPoint& get_closest_wcpoint(WireCell::WCPointCloud<double>::WCPoint& wcp);
     WireCell::WCPointCloud<double>::WCPoint& get_closest_wcpoint(WireCell::Point& p);
-    
+
+    //function to find 2D points ... 
+    std::vector<size_t> get_closest_2d_index(WireCell::Point& p, int N, int plane);
+    std::vector<size_t> get_closest_2d_index(WireCell::Point& p, double radius, int plane);
     
     int get_num_points(){return cloud.pts.size();};
     WireCell::WCPointCloud<double>& get_cloud(){return cloud;};
@@ -63,6 +70,7 @@ namespace WireCell{
     std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, int N);
     std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, double radius);
 
+    
     std::vector<std::pair<size_t,double>> get_closest_2d_index(double x, double y, int N, int plane);
     std::vector<std::pair<size_t,double>> get_closest_2d_index(double x, double y, double radius, int plane);
 
