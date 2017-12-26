@@ -2,15 +2,26 @@
 
 using namespace WireCell;
 
-WireCell::ToyPointCloud::ToyPointCloud(){
+WireCell::ToyPointCloud::ToyPointCloud(double angle_u, double angle_v, double angle_w)
+  : angle_u(angle_u)
+  , angle_v(angle_v)
+  , angle_w(angle_w)
+{
   index = 0;
 }
 
 WireCell::ToyPointCloud::~ToyPointCloud(){
-  if (index!=0)
+  if (index!=0){
     delete index;
+    delete index_u;
+    delete index_v;
+    delete index_w;
+  }
   map_mcell_indices.clear();
   cloud.pts.clear();
+  cloud_u.pts.clear();
+  cloud_v.pts.clear();
+  cloud_w.pts.clear();
 }
 
 std::tuple<int,int,double> WireCell::ToyPointCloud::get_closest_points(ToyPointCloud *point_cloud){

@@ -25,7 +25,7 @@ namespace WireCell{
   
   class ToyPointCloud {
   public:
-    ToyPointCloud();
+    ToyPointCloud(double angle_u = 1.0472, double angle_v = -1.0472, double angle_w = 0);
     ~ToyPointCloud();
 
     std::tuple<int,int,double> get_closest_points(ToyPointCloud *point_could);
@@ -59,6 +59,8 @@ namespace WireCell{
     std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, int N);
     std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, double radius);
 
+    double angle_u, angle_v, angle_w;
+    
     
     WireCell::WCPointCloud<double> cloud;
     my_kd_tree_t *index;
