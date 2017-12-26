@@ -15,6 +15,12 @@ typedef nanoflann::KDTreeSingleIndexAdaptor<
     3 /* dim */
   > my_kd_tree_t;
 
+typedef nanoflann::KDTreeSingleIndexAdaptor<
+    nanoflann::L2_Simple_Adaptor<double, WireCell::WC2DPointCloud<double> > ,
+    WireCell::WC2DPointCloud<double>,
+    2 /* dim */
+  > my_kd_tree_2d_t;
+
 namespace WireCell{
   
   class ToyPointCloud {
@@ -56,6 +62,13 @@ namespace WireCell{
     
     WireCell::WCPointCloud<double> cloud;
     my_kd_tree_t *index;
+    WireCell::WC2DPointCloud<double> cloud_u;
+    my_kd_tree_2d_t *index_u;
+    WireCell::WC2DPointCloud<double> cloud_v;
+    my_kd_tree_2d_t *index_v;
+    WireCell::WC2DPointCloud<double> cloud_w;
+    my_kd_tree_2d_t *index_w;
+    
     // map of mcells to WCPoints
     std::map<WireCell::SlimMergeGeomCell*, std::vector<int>> map_mcell_indices; 
     

@@ -117,9 +117,19 @@ void WireCell::ToyPointCloud::Print(){
 void WireCell::ToyPointCloud::build_kdtree_index(){
   if (index!=(my_kd_tree_t*)0){
     delete index;
+    delete index_u;
+    // delete index_v;
+    // delete index_w;
   }
   index = new my_kd_tree_t(3 /*dim*/, cloud, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
   index->buildIndex();
+  index_u = new my_kd_tree_2d_t(2, cloud_u, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
+  index_u->buildIndex();
+  index_v = new my_kd_tree_2d_t(2, cloud_v, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
+  index_v->buildIndex();
+  index_w = new my_kd_tree_2d_t(2, cloud_w, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
+  index_w->buildIndex();
+  
 }
 
 std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index(WireCell::Point& p, int N){
