@@ -192,7 +192,7 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index
   double query_pt[3];
   query_pt[0] = p.x;
   query_pt[1] = p.y;
-  query_pt[2] = p.z;
+  query_pt[2] = p.z;  
   
   N = index->knnSearch(&query_pt[0], N, &ret_index[0], &out_dist_sqr[0]);
   ret_index.resize(N);
@@ -206,6 +206,35 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index
   return results;
 }
 
+
+std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_2d_index(double x, double y, int N, int plane){
+  std::vector<size_t> ret_index(N);
+  std::vector<double> out_dist_sqr(N);
+  
+  double query_pt[2];
+  query_pt[0] = x;
+  query_pt[1] = y;
+  if (plane==0){
+    N = index_u->knnSearch(&query_pt[0], N, &ret_index[0], &out_dist_sqr[0]);
+  }else if (plane==1){
+    N = index_v->knnSearch(&query_pt[0], N, &ret_index[0], &out_dist_sqr[0]);
+  }else{
+    N = index_w->knnSearch(&query_pt[0], N, &ret_index[0], &out_dist_sqr[0]);
+  }
+  ret_index.resize(N);
+  out_dist_sqr.resize(N);
+  
+  std::vector<std::pair<size_t,double>> results(N);
+  for(size_t i=0; i!=N; i++){
+    results.at(i) = std::make_pair(ret_index.at(i),out_dist_sqr.at(i));
+  }
+  
+  return results;
+}
+
+
+
+
 std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index(WireCell::Point& p, double search_radius){
   double query_pt[3];
   query_pt[0] = p.x;
@@ -217,6 +246,24 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index
   
   return ret_matches;
 }
+
+
+std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_2d_index(double x, double y, double search_radius, int plane){
+  double query_pt[2];
+  query_pt[0] = x;
+  query_pt[1] = y;
+  std::vector<std::pair<size_t,double> >   ret_matches;
+  nanoflann::SearchParams params;
+  if (plane ==0){
+    const size_t nMatches = index_u->radiusSearch(&query_pt[0], search_radius*search_radius, ret_matches, params);
+  }else if (plane==1){
+    const size_t nMatches = index_v->radiusSearch(&query_pt[0], search_radius*search_radius, ret_matches, params);
+  }else{
+    const size_t nMatches = index_w->radiusSearch(&query_pt[0], search_radius*search_radius, ret_matches, params);
+  }
+  return ret_matches;
+}
+
 
 std::map<WireCell::SlimMergeGeomCell*, Point> WireCell::ToyPointCloud::get_closest_mcell(WireCell::Point& p, int N){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,N);

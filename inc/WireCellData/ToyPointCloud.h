@@ -63,6 +63,9 @@ namespace WireCell{
     std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, int N);
     std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, double radius);
 
+    std::vector<std::pair<size_t,double>> get_closest_2d_index(double x, double y, int N, int plane);
+    std::vector<std::pair<size_t,double>> get_closest_2d_index(double x, double y, double radius, int plane);
+
     double angle_u, angle_v, angle_w;
     
     
