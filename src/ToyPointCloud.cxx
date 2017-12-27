@@ -430,7 +430,7 @@ std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> WireCell::ToyPointClo
 
 
 
-std::vector<std::pair<WireCell::SlimMergeGeomCell*, WireCell::Point>> WireCell::ToyPointCloud::get_hull(){
+std::vector<WCPointCloud<double>::WCPoint> WireCell::ToyPointCloud::get_hull(){
   quickhull::QuickHull<float> qh;
   std::vector<quickhull::Vector3<float>> pc;
   for (size_t i=0;i!=cloud.pts.size();i++){
@@ -443,14 +443,17 @@ std::vector<std::pair<WireCell::SlimMergeGeomCell*, WireCell::Point>> WireCell::
     indices.insert(hull.getIndexBuffer().at(i));
   }
   
-  std::vector<std::pair<WireCell::SlimMergeGeomCell*, WireCell::Point>> results;
+  std::vector<WCPointCloud<double>::WCPoint> results;
+  //std::copy(indices.begin(),indices.end(),results.begin());
   for (auto it = indices.begin(); it!=indices.end(); it++){
-    Point p;
-    p.x = cloud.pts.at(*it).x;
-    p.y = cloud.pts.at(*it).y;
-    p.z = cloud.pts.at(*it).z;
-    SlimMergeGeomCell *mcell = cloud.pts.at(*it).mcell;
-    results.push_back(std::make_pair(mcell,p));
+  // Point p;
+  // p.x = cloud.pts.at(*it).x;
+  // p.y = cloud.pts.at(*it).y;
+  // p.z = cloud.pts.at(*it).z;
+  // SlimMergeGeomCell *mcell = cloud.pts.at(*it).mcell;
+  // results.push_back(std::make_pair(mcell,p));
+  //results.push_back(*it);
+    results.push_back(cloud.pts.at(*it));
   }
   return results;
 }

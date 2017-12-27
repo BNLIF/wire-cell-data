@@ -60,8 +60,10 @@ namespace WireCell{
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_earliest_latest_wcps();
     
     void Calc_PCA();
+    void Calc_PCA(WireCell::PointVector& points);
     Vector get_center(){return center;};
     Vector get_PCA_axis(int axis){return PCA_axis[axis];};
+    double get_PCA_value(int axis){return PCA_values[axis];};
 
     std::pair<int,int> get_num_points(Point& p, TVector3& dir);
     
@@ -101,7 +103,7 @@ namespace WireCell{
     Vector center;
     
     Vector PCA_axis[3];
-
+    double PCA_values[3];
     // graph 
     MCUGraph *graph;
 

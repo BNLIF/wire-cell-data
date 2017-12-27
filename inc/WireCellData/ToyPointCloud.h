@@ -39,7 +39,7 @@ namespace WireCell{
     std::tuple<int,int,double> get_closest_points(ToyPointCloud *point_could);
 
     // hull, not useful ...
-    std::vector<std::pair<WireCell::SlimMergeGeomCell*, WireCell::Point>> get_hull();
+    std::vector<WCPointCloud<double>::WCPoint> get_hull();
 
     // function to find 3D close points
     std::map<WireCell::SlimMergeGeomCell*, WireCell::Point> get_closest_mcell(WireCell::Point& p, int N);
