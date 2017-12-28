@@ -433,10 +433,12 @@ std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> WireCell::ToyPointClo
 std::vector<WCPointCloud<double>::WCPoint> WireCell::ToyPointCloud::get_hull(){
   quickhull::QuickHull<float> qh;
   std::vector<quickhull::Vector3<float>> pc;
+  // std::cout << cloud.pts.size() << std::endl;
   for (size_t i=0;i!=cloud.pts.size();i++){
+    // std::cout << cloud.pts.at(i).x << " " << cloud.pts.at(i).y << " " << cloud.pts.at(i).z << std::endl;
     pc.emplace_back(cloud.pts.at(i).x,cloud.pts.at(i).y,cloud.pts.at(i).z);
   }
-  quickhull::ConvexHull<float> hull = qh.getConvexHull(pc,false,false);
+  quickhull::ConvexHull<float> hull = qh.getConvexHull(pc,false,true);
   std::set<int> indices;
   
   for (size_t i=0;i!=hull.getIndexBuffer().size();i++){
@@ -446,6 +448,7 @@ std::vector<WCPointCloud<double>::WCPoint> WireCell::ToyPointCloud::get_hull(){
   std::vector<WCPointCloud<double>::WCPoint> results;
   //std::copy(indices.begin(),indices.end(),results.begin());
   for (auto it = indices.begin(); it!=indices.end(); it++){
+    //std::cout << pc.at(*it).x << " " << pc.at(*it).y <<  " " << pc.at(*it).z << std::endl;
   // Point p;
   // p.x = cloud.pts.at(*it).x;
   // p.y = cloud.pts.at(*it).y;
