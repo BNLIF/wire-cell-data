@@ -33,6 +33,7 @@ namespace WireCell{
     void AddPoint(WCPointCloud<double>::WCPoint& wcp, WC2DPointCloud<double>::WC2DPoint& wcp_u, WC2DPointCloud<double>::WC2DPoint& wcp_v, WC2DPointCloud<double>::WC2DPoint& wcp_w);
     void AddPoint(WireCell::Point& p, std::tuple<int,int,int>& wires_index, WireCell::SlimMergeGeomCell *mcell);
     void AddPoints(WireCell::PointVector& ps, std::vector<std::tuple<int,int,int>>& wires_indices, WireCell::SlimMergeGeomCell *mcell);
+    void AddPoints(WireCell::PointVector& ps);
     void build_kdtree_index();
 
     // find 3D oiubts
@@ -52,6 +53,8 @@ namespace WireCell{
     //function to find 2D points ... 
     std::vector<size_t> get_closest_2d_index(WireCell::Point& p, int N, int plane);
     std::vector<size_t> get_closest_2d_index(WireCell::Point& p, double radius, int plane);
+
+    double get_closest_2d_dis(WireCell::Point& p, int plane);
     
     int get_num_points(){return cloud.pts.size();};
     WireCell::WCPointCloud<double>& get_cloud(){return cloud;};

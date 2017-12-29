@@ -120,6 +120,39 @@ void WireCell::ToyPointCloud::AddPoint(Point& p, std::tuple<int,int,int>& wires_
 
 
 
+void WireCell::ToyPointCloud::AddPoints(PointVector& ps){
+  size_t current_size = cloud.pts.size();
+  cloud.pts.resize(current_size + ps.size());
+  cloud_u.pts.resize(current_size + ps.size());
+  cloud_v.pts.resize(current_size + ps.size());
+  cloud_w.pts.resize(current_size + ps.size());
+  
+  for (size_t i=0;i!=ps.size();i++){
+    cloud.pts[current_size+i].x = ps.at(i).x;
+    cloud.pts[current_size+i].y = ps.at(i).y;
+    cloud.pts[current_size+i].z = ps.at(i).z;
+    cloud.pts[current_size+i].index_u = 0;
+    cloud.pts[current_size+i].index_v = 0;
+    cloud.pts[current_size+i].index_w = 0;
+    cloud.pts[current_size+i].mcell = 0;
+    cloud.pts[current_size+i].index = current_size+i;
+
+    cloud_u.pts[current_size+i].x = ps.at(i).x;
+    cloud_u.pts[current_size+i].y = cos(angle_u) * ps.at(i).z - sin(angle_u) *ps.at(i).y;
+    cloud_u.pts[current_size+i].index = current_size+i;
+    
+    cloud_v.pts[current_size+i].x = ps.at(i).x;
+    cloud_v.pts[current_size+i].y = cos(angle_v) * ps.at(i).z - sin(angle_v) *ps.at(i).y;
+    cloud_v.pts[current_size+i].index = current_size+i;
+    
+    cloud_w.pts[current_size+i].x = ps.at(i).x;
+    cloud_w.pts[current_size+i].y = cos(angle_w) * ps.at(i).z - sin(angle_w) *ps.at(i).y;
+    cloud_w.pts[current_size+i].index = current_size+i;
+    
+
+  }
+}
+
 
 void WireCell::ToyPointCloud::AddPoints(PointVector& ps, std::vector<std::tuple<int,int,int>>& wires_indices, SlimMergeGeomCell *mcell){
   size_t current_size = cloud.pts.size();
@@ -185,6 +218,8 @@ void WireCell::ToyPointCloud::build_kdtree_index(){
   
 }
 
+
+
 std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index(WireCell::Point& p, int N){
   std::vector<size_t> ret_index(N);
   std::vector<double> out_dist_sqr(N);
@@ -205,7 +240,6 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index
   
   return results;
 }
-
 
 
 
@@ -232,6 +266,41 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_2d_in
   }
   
   return results;
+}
+
+double WireCell::ToyPointCloud::get_closest_2d_dis(WireCell::Point& p, int plane){
+   double x, y;
+  if (plane==0){
+    x = p.x;
+    y = cos(angle_u) * p.z - sin(angle_u) *p.y;
+  }else if (plane==1){
+    x = p.x;
+    y = cos(angle_v) * p.z - sin(angle_v) *p.y;
+  }else{
+    x = p.x;
+    y = cos(angle_w) * p.z - sin(angle_w) *p.y;
+  }
+
+  double query_pt[2];
+  query_pt[0] = x;
+  query_pt[1] = y;
+  int N = 1;
+  std::vector<size_t> ret_index(N);
+  std::vector<double> out_dist_sqr(N);
+  if (plane==0){
+    N = index_u->knnSearch(&query_pt[0], N, &ret_index[0], &out_dist_sqr[0]);
+  }else if (plane==1){
+    N = index_v->knnSearch(&query_pt[0], N, &ret_index[0], &out_dist_sqr[0]);
+  }else{
+    N = index_w->knnSearch(&query_pt[0], N, &ret_index[0], &out_dist_sqr[0]);
+  }
+  ret_index.resize(N);
+  out_dist_sqr.resize(N);
+
+  if (N>0)
+    return sqrt(out_dist_sqr[0]);
+  else
+    return 1e9;
 }
 
 

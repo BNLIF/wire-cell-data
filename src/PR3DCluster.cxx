@@ -21,6 +21,7 @@ PR3DCluster::PR3DCluster(int cluster_id)
   graph = 0;
   source_wcp_index = -1;
   flag_fine_tracking = false;
+  flag_PCA = false;
 }
 
 PR3DCluster::~PR3DCluster(){
@@ -1530,6 +1531,8 @@ std::pair<double,double> PR3DCluster::HoughTrans(Point&p , double dis){
 }
 
 void PR3DCluster::Calc_PCA(PointVector& points){
+  if (flag_PCA) return;
+  flag_PCA = true;
   center.x=0; center.y=0; center.z=0;
   int nsum = 0;
   for (auto it = mcells.begin(); it!=mcells.end();it++){
@@ -1603,6 +1606,8 @@ void PR3DCluster::Calc_PCA(PointVector& points){
 
 
 void PR3DCluster::Calc_PCA(){
+  
+  
   center.x=0; center.y=0; center.z=0;
   int nsum = 0;
   for (auto it = mcells.begin(); it!=mcells.end();it++){

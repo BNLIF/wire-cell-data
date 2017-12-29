@@ -35,7 +35,9 @@ namespace WireCell{
     ~PR3DCluster();
     void AddCell(SlimMergeGeomCell* mcell, int time_slice);
     // void AddCell(SlimMergeGeomCell* mcell, int *time_slices, int ntime_slice);
+    
     int get_cluster_id(){return cluster_id;};
+    void set_cluster_id(int value){cluster_id=value;};
     int get_num_mcells(){return mcells.size();};
     int get_num_points(){return point_cloud->get_num_points(); };
     int get_num_time_slices(){return time_cells_set_map.size();};
@@ -60,6 +62,7 @@ namespace WireCell{
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_earliest_latest_wcps();
     
     void Calc_PCA();
+    bool flag_PCA;
     void Calc_PCA(WireCell::PointVector& points);
     Vector get_center(){return center;};
     Vector get_PCA_axis(int axis){return PCA_axis[axis];};
