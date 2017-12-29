@@ -91,8 +91,14 @@ void PR3DCluster::Update_mcell_cluster_map(std::map<WireCell::SlimMergeGeomCell*
 void PR3DCluster::Create_point_cloud(WireCell::ToyPointCloud *global_point_cloud){
   if (point_cloud!=(ToyPointCloud*)0)
     return;
+
+  TPCParams& mp = Singleton<TPCParams>::Instance();
+  double angle_u = mp.get_angle_u();
+  double angle_v = mp.get_angle_v();
+  double angle_w = mp.get_angle_w();
   
-  point_cloud = new ToyPointCloud();
+  
+  point_cloud = new ToyPointCloud(angle_u, angle_v, angle_w);
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = (*it);
     PointVector pts = mcell->get_sampling_points();
