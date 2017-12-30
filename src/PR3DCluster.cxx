@@ -31,6 +31,63 @@ PR3DCluster::~PR3DCluster(){
     delete graph;
 }
 
+WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<double>::WCPoint old_wcp, TVector3 dir, double step, int allowed_nstep){
+  dir.SetMag(1);
+  Point test_point;
+  bool flag_continue = true;
+
+  while(flag_continue){
+    // first step
+    test_point.x = old_wcp.x + dir.X() * step;
+    test_point.y = old_wcp.y + dir.Y() * step;
+    test_point.z = old_wcp.z + dir.Z() * step;
+    WCPointCloud<double>::WCPoint new_wcp = point_cloud->get_closest_wcpoint(test_point);
+    
+    TVector3 dir1(new_wcp.x - old_wcp.x,new_wcp.y - old_wcp.y,new_wcp.z - old_wcp.z);
+    double dis = dir1.Mag();
+    double angle = dir1.Angle(dir)/3.1415926*180.;
+    
+    if ((angle < 10 || dis * sin(angle/180.*3.1415926 < 0.5*units::cm)) && dis > 0.2*units::cm){
+      old_wcp = new_wcp;
+    }else{
+      flag_continue = false;
+      //  failure
+      // update direction 
+      TVector3 dir2 = VHoughTrans(test_point,80*units::cm);
+      if (dir2.Dot(dir) > 0 ){
+	dir = dir2;
+      }else{
+	dir = dir2 * (-1);
+      }
+
+      // start jump gaps
+      for (int i=0;i!=allowed_nstep*5;i++){
+	test_point.x = old_wcp.x + dir.X() * step * (1+1./5.* i);
+	test_point.y = old_wcp.y + dir.Y() * step * (1+1./5.* i);
+	test_point.z = old_wcp.z + dir.Z() * step * (1+1./5.* i);
+	new_wcp = point_cloud->get_closest_wcpoint(test_point);
+	double dis1 = sqrt(pow(new_wcp.x-test_point.x,2)+pow(new_wcp.y-test_point.y,2)+pow(new_wcp.z-test_point.z,2));
+	dir1.SetXYZ(new_wcp.x - old_wcp.x,new_wcp.y - old_wcp.y,new_wcp.z - old_wcp.z);
+	dis = dir1.Mag();
+	angle = dir1.Angle(dir)/3.1415926*180.;
+	
+	//std::cout << i << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << std::endl;
+	if (dis1 < 0.75 * step/5. || (angle < 10 || dis * sin(angle/180.*3.1415926) < 0.6*units::cm) && dis > step*0.8){
+	  old_wcp = new_wcp;
+	  flag_continue = true;
+	  break;
+	}
+      }
+    }
+  }
+  
+  
+  return old_wcp;
+}
+
+
+
+
 std::vector<int> PR3DCluster::get_uvwt_range(){
   std::set<int> set_u, set_v, set_w, set_t;
   for (auto it=mcells.begin();it!=mcells.end();it++){
@@ -1397,6 +1454,9 @@ std::pair<Point, double> PR3DCluster::get_closest_point_along_vec(Point& p_test1
   return std::make_pair(min_point,min_dis1);
   
 }
+
+
+
 
 std::pair<SlimMergeGeomCell*, Point> PR3DCluster::get_closest_point_mcell(Point& p_test){
   std::map<SlimMergeGeomCell*,Point> pts = point_cloud->get_closest_mcell(p_test,1);
