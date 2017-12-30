@@ -35,8 +35,20 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
   dir.SetMag(1);
   Point test_point;
   bool flag_continue = true;
-
+  Point orig_point(old_wcp.x,old_wcp.y,old_wcp.z);
+  TVector3 orig_dir = dir;
+  // int counter = 0;
   while(flag_continue){
+    // if (counter == 5){
+    //   TVector3 dir2 = VHoughTrans(test_point,80*units::cm);
+    //   if (dir2.Dot(dir) > 0 ){
+    // 	dir = dir2;
+    //   }else{
+    // 	dir = dir2 * (-1);
+    //   }
+    //   counter = 0;
+    // }
+    // counter++;
     // first step
     test_point.x = old_wcp.x + dir.X() * step;
     test_point.y = old_wcp.y + dir.Y() * step;
@@ -46,8 +58,11 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
     TVector3 dir1(new_wcp.x - old_wcp.x,new_wcp.y - old_wcp.y,new_wcp.z - old_wcp.z);
     double dis = dir1.Mag();
     double angle = dir1.Angle(dir)/3.1415926*180.;
+    TVector3 dir2(new_wcp.x-orig_point.x,new_wcp.y-orig_point.y,new_wcp.z-orig_point.z);
+    double dis1 = dir2.Mag();
+    double angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
     
-    if ((angle < 10 || dis * sin(angle/180.*3.1415926 < 0.5*units::cm)) && dis > 0.2*units::cm){
+    if ((angle < 10 || dis * sin(angle/180.*3.1415926) < 0.5*units::cm || angle1 < 15 || dis1 * sin(angle1/180.*3.1415926) < 5*units::cm) && dis > 0.2*units::cm){
       old_wcp = new_wcp;
     }else{
       flag_continue = false;
@@ -70,9 +85,12 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	dir1.SetXYZ(new_wcp.x - old_wcp.x,new_wcp.y - old_wcp.y,new_wcp.z - old_wcp.z);
 	dis = dir1.Mag();
 	angle = dir1.Angle(dir)/3.1415926*180.;
-	
+	dir2.SetXYZ(new_wcp.x-orig_point.x,new_wcp.y-orig_point.y,new_wcp.z-orig_point.z);
+	dis1 = dir2.Mag();
+	angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
+    
 	//std::cout << i << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << std::endl;
-	if (dis1 < 0.75 * step/5. || (angle < 10 || dis * sin(angle/180.*3.1415926) < 0.6*units::cm) && dis > step*0.8){
+	if (dis1 < 0.75 * step/5. || (angle < 10 || dis * sin(angle/180.*3.1415926) < 0.6*units::cm || angle1 < 15 || dis1 * sin(angle1/180.*3.1415926) < 5*units::cm) && dis > step*0.8){
 	  old_wcp = new_wcp;
 	  flag_continue = true;
 	  break;
@@ -551,6 +569,8 @@ void PR3DCluster::Create_graph(){
       for (int j=0;j!=num;j++){
 	pt_clouds.at(j)->build_kdtree_index();
       }
+
+      
       // connect these graphs according to closest distance some how ...
       std::tuple<int,int,double> index_index_dis[num][num];
       for (int j=0;j!=num;j++){
