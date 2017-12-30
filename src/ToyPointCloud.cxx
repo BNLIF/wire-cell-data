@@ -204,15 +204,18 @@ void WireCell::ToyPointCloud::build_kdtree_index(){
   if (index!=(my_kd_tree_t*)0){
     delete index;
     delete index_u;
-    // delete index_v;
-    // delete index_w;
+    delete index_v;
+    delete index_w;
   }
   index = new my_kd_tree_t(3 /*dim*/, cloud, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
   index->buildIndex();
+
   index_u = new my_kd_tree_2d_t(2, cloud_u, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
   index_u->buildIndex();
+
   index_v = new my_kd_tree_2d_t(2, cloud_v, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
   index_v->buildIndex();
+
   index_w = new my_kd_tree_2d_t(2, cloud_w, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
   index_w->buildIndex();
   
@@ -268,7 +271,7 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_2d_in
   return results;
 }
 
-double WireCell::ToyPointCloud::get_closest_2d_dis(WireCell::Point& p, int plane){
+std::pair<int,double> WireCell::ToyPointCloud::get_closest_2d_dis(WireCell::Point& p, int plane){
    double x, y;
   if (plane==0){
     x = p.x;
@@ -298,9 +301,9 @@ double WireCell::ToyPointCloud::get_closest_2d_dis(WireCell::Point& p, int plane
   out_dist_sqr.resize(N);
 
   if (N>0)
-    return sqrt(out_dist_sqr[0]);
+    return std::make_pair(ret_index[0],sqrt(out_dist_sqr[0]));
   else
-    return 1e9;
+    return std::make_pair(-1,1e9);
 }
 
 

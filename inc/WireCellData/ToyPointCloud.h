@@ -54,7 +54,7 @@ namespace WireCell{
     std::vector<size_t> get_closest_2d_index(WireCell::Point& p, int N, int plane);
     std::vector<size_t> get_closest_2d_index(WireCell::Point& p, double radius, int plane);
 
-    double get_closest_2d_dis(WireCell::Point& p, int plane);
+    std::pair<int,double> get_closest_2d_dis(WireCell::Point& p, int plane);
     
     int get_num_points(){return cloud.pts.size();};
     WireCell::WCPointCloud<double>& get_cloud(){return cloud;};
