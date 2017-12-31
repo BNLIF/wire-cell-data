@@ -596,14 +596,14 @@ void PR3DCluster::Create_graph(){
       	  dir1 *= -1;
       	  dir2 *= -1;
 
-      	  std::pair<int,double> result1 = pt_clouds.at(k)->get_closest_point_along_vec(p1, dir1, 80*units::cm, 5*units::cm, 15, 10*units::cm);
+      	  std::pair<int,double> result1 = pt_clouds.at(k)->get_closest_point_along_vec(p1, dir1, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
       	  if (result1.first >=0){
       	    index_index_dis_dir1[j][k] = std::make_tuple(std::get<0>(index_index_dis[j][k]), result1.first, result1.second);
       	  }else{
       	    index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
       	  }
 
-      	  std::pair<int,double> result2 = pt_clouds.at(j)->get_closest_point_along_vec(p2, dir2, 80*units::cm, 5*units::cm, 15, 10*units::cm);
+      	  std::pair<int,double> result2 = pt_clouds.at(j)->get_closest_point_along_vec(p2, dir2, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
       	  if (result2.first >=0){
       	    index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);
       	  }else{
@@ -644,7 +644,11 @@ void PR3DCluster::Create_graph(){
 
 	auto edge = add_edge(std::get<0>(min_dis),std::get<1>(min_dis),*graph);
 	if (edge.second){
-	  (*graph)[edge.first].dist = std::get<2>(min_dis);
+	  if (std::get<2>(min_dis) > 5*units::cm){
+	    (*graph)[edge.first].dist = std::get<2>(min_dis)*1.05;
+	  }else{
+	    (*graph)[edge.first].dist = std::get<2>(min_dis);
+	  }
 	}
       }
 
@@ -655,15 +659,23 @@ void PR3DCluster::Create_graph(){
       	  if (std::get<0>(index_index_dis_dir1[j][k])>=0){
       	    auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
       	    if (edge.second){
-      	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
-      	    }
+	      if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
+		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.05;
+	      }else{
+		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
+	      }
+	    }
       	  }
       	  if (std::get<0>(index_index_dis_dir2[j][k])>=0){
       	    auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
       	    if (edge.second){
-      	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
-      	    }
-      	  }
+	      if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
+		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.05;
+	      }else{
+		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
+	      }
+	    }
+	  }
       	}
       }
 
