@@ -7,6 +7,8 @@
 #include "WireCellQuickhull/QuickHull.h"
 #include "WireCellQuickhull/MathUtils.h"
 
+#include "TVector3.h"
+
 #include  <map>
 
 typedef nanoflann::KDTreeSingleIndexAdaptor<
@@ -38,7 +40,9 @@ namespace WireCell{
 
     // find 3D oiubts
     std::tuple<int,int,double> get_closest_points(ToyPointCloud *point_could);
-
+    std::pair<int,double> get_closest_point_along_vec(Point& p_test, TVector3& dir, double test_dis, double dis_step, double angle_cut, double dis_cut);
+    
+    
     // hull, not useful ...
     std::vector<WCPointCloud<double>::WCPoint> get_hull();
 

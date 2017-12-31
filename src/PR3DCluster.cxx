@@ -62,7 +62,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
     double dis1 = dir2.Mag();
     double angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
     
-    if ((angle < 10 || dis * sin(angle/180.*3.1415926) < 0.5*units::cm || angle1 < 15 || dis1 * sin(angle1/180.*3.1415926) < 5*units::cm) && dis > 0.2*units::cm){
+    if ((angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > 0.2*units::cm){
       old_wcp = new_wcp;
     }else{
       flag_continue = false;
@@ -90,7 +90,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
     
 	//std::cout << i << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << std::endl;
-	if (dis1 < 0.75 * step/5. || (angle < 10 || dis * sin(angle/180.*3.1415926) < 0.6*units::cm || angle1 < 15 || dis1 * sin(angle1/180.*3.1415926) < 5*units::cm) && dis > step*0.8){
+	if (dis1 < 0.75 * step/5. || (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > step*0.8){
 	  old_wcp = new_wcp;
 	  flag_continue = true;
 	  break;
@@ -573,12 +573,49 @@ void PR3DCluster::Create_graph(){
       
       // connect these graphs according to closest distance some how ...
       std::tuple<int,int,double> index_index_dis[num][num];
+      std::tuple<int,int,double> index_index_dis_dir1[num][num];
+      std::tuple<int,int,double> index_index_dis_dir2[num][num];
       for (int j=0;j!=num;j++){
+
 	for (int k=j+1;k!=num;k++){
 	  index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
 	  //std::cout << j << " "<< k << std::get<0>(index_index_dis[j][k]) << " " << std::get<1>(index_index_dis[j][k]) << " " << std::get<2>(index_index_dis[j][k]) << std::endl;
 	}
       }
+
+      // figure out the direction ... 
+      for (int j=0;j!=num;j++){
+      	for (int k=j+1;k!=num;k++){
+      	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
+      	  WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
+      	  Point p1(wp1.x,wp1.y,wp1.z);
+      	  Point p2(wp2.x,wp2.y,wp2.z);
+
+      	  TVector3 dir1 = VHoughTrans(p1, 80*units::cm);
+      	  TVector3 dir2 = VHoughTrans(p2, 80*units::cm);
+      	  dir1 *= -1;
+      	  dir2 *= -1;
+
+      	  std::pair<int,double> result1 = pt_clouds.at(k)->get_closest_point_along_vec(p1, dir1, 80*units::cm, 5*units::cm, 15, 10*units::cm);
+      	  if (result1.first >=0){
+      	    index_index_dis_dir1[j][k] = std::make_tuple(std::get<0>(index_index_dis[j][k]), result1.first, result1.second);
+      	  }else{
+      	    index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
+      	  }
+
+      	  std::pair<int,double> result2 = pt_clouds.at(j)->get_closest_point_along_vec(p2, dir2, 80*units::cm, 5*units::cm, 15, 10*units::cm);
+      	  if (result2.first >=0){
+      	    index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);
+      	  }else{
+      	    index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
+      	  }
+	  
+      	}
+      }
+
+      
+      
+      
 
       for (int j=0;j!=num-1;j++){
 	// find the minimum
@@ -602,12 +639,38 @@ void PR3DCluster::Create_graph(){
 	  }
 	}
 	//std::cout << j << " " << min_index << " " << std::get<0>(min_dis) << " " << std::get<1>(min_dis) << " "<< std::get<2>(min_dis) << std::endl;
+	
+	
 
 	auto edge = add_edge(std::get<0>(min_dis),std::get<1>(min_dis),*graph);
 	if (edge.second){
 	  (*graph)[edge.first].dist = std::get<2>(min_dis);
 	}
       }
+
+      // now complete graph according to the direction
+      // according to direction ...
+      for (int j=0;j!=num;j++){
+      	for (int k=j+1;k!=num;k++){
+      	  if (std::get<0>(index_index_dis_dir1[j][k])>=0){
+      	    auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
+      	    if (edge.second){
+      	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
+      	    }
+      	  }
+      	  if (std::get<0>(index_index_dis_dir2[j][k])>=0){
+      	    auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
+      	    if (edge.second){
+      	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
+      	    }
+      	  }
+      	}
+      }
+
+     
+
+
+
       
       for (int i=0;i!=num;i++){
 	delete pt_clouds.at(i);

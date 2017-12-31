@@ -24,9 +24,44 @@ WireCell::ToyPointCloud::~ToyPointCloud(){
   cloud_w.pts.clear();
 }
 
+std::pair<int,double> WireCell::ToyPointCloud::get_closest_point_along_vec(Point& p_test1, TVector3& dir, double test_dis, double dis_step, double angle_cut, double dis_cut){
+  if (dir.Mag()!=1)
+    dir.SetMag(1);
+  
+  bool flag = false;
+  Point p_test;
+  double min_dis = 1e9;
+  double min_dis1 = 1e9;
+  int min_index = -1;
+  for (int i=0; i!= int(test_dis/dis_step)+1;i++){
+    p_test.x = p_test1.x + dir.X() * i * dis_step;
+    p_test.y = p_test1.y + dir.Y() * i * dis_step;
+    p_test.z = p_test1.z + dir.Z() * i * dis_step;
+    
+    WireCell::WCPointCloud<double>::WCPoint& closest_pt = get_closest_wcpoint(p_test);
+    double dis = sqrt(pow(p_test.x - closest_pt.x,2)+pow(p_test.y - closest_pt.y,2)+pow(p_test.z - closest_pt.z,2));
+    double dis1 = sqrt(pow(p_test1.x - closest_pt.x,2)+pow(p_test1.y - closest_pt.y,2)+pow(p_test1.z - closest_pt.z,2));
+    if (dis < std::min(dis1 * tan(angle_cut/180.*3.1415926),dis_cut)){
+      if (dis < min_dis){
+	min_dis = dis;
+	min_index = closest_pt.index;
+	min_dis1 = dis1;
+      }
+      if (dis < 3*units::cm)
+	return std::make_pair(closest_pt.index,dis1);
+    }
+  }
+
+  return std::make_pair(min_index,min_dis1);
+}
+
 std::tuple<int,int,double> WireCell::ToyPointCloud::get_closest_points(ToyPointCloud *point_cloud){
-  WireCell::WCPointCloud<double>::WCPoint p1 = cloud.pts[0];
-  WireCell::WCPointCloud<double>::WCPoint p2 = cloud.pts[0];
+  WireCell::WCPointCloud<double>::WCPoint p1 = cloud.pts.front();
+  WireCell::WCPointCloud<double>::WCPoint p2 = cloud.pts.front();
+  WireCell::WCPointCloud<double>::WCPoint p1_save;
+  WireCell::WCPointCloud<double>::WCPoint p2_save;
+  double min_dis = 1e9;
+  
   int prev_index1 = -1;
   int prev_index2 = -1;
   while(p1.index!=prev_index1 || p2.index!=prev_index2){
@@ -35,8 +70,68 @@ std::tuple<int,int,double> WireCell::ToyPointCloud::get_closest_points(ToyPointC
     p2 = point_cloud->get_closest_wcpoint(p1);
     p1 = get_closest_wcpoint(p2);
   }
+  double dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+  if (dis < min_dis){
+    min_dis = dis;
+    p1_save = p1;
+    p2_save = p2;
+  }
+
+  prev_index1 = -1;
+  prev_index2 = -1;
+  p1 = cloud.pts.back();
+  p2 = cloud.pts.front();
+  while(p1.index!=prev_index1 || p2.index!=prev_index2){
+    prev_index1 = p1.index;
+    prev_index2 = p2.index;
+    p2 = point_cloud->get_closest_wcpoint(p1);
+    p1 = get_closest_wcpoint(p2);
+  }
+  dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+  if (dis < min_dis){
+    min_dis = dis;
+    p1_save = p1;
+    p2_save = p2;
+  }
+
+  prev_index1 = -1;
+  prev_index2 = -1;
+  p1 = cloud.pts.back();
+  p2 = cloud.pts.front();
+  while(p1.index!=prev_index1 || p2.index!=prev_index2){
+    prev_index1 = p1.index;
+    prev_index2 = p2.index;
+    p1 = get_closest_wcpoint(p2);
+    p2 = point_cloud->get_closest_wcpoint(p1);
+  }
+  dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+  if (dis < min_dis){
+    min_dis = dis;
+    p1_save = p1;
+    p2_save = p2;
+  }
+
+  prev_index1 = -1;
+  prev_index2 = -1;
+  p1 = cloud.pts.back();
+  p2 = cloud.pts.back();
+  while(p1.index!=prev_index1 || p2.index!=prev_index2){
+    prev_index1 = p1.index;
+    prev_index2 = p2.index;
+    p1 = get_closest_wcpoint(p2);
+    p2 = point_cloud->get_closest_wcpoint(p1);
+  }
+  dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+  if (dis < min_dis){
+    min_dis = dis;
+    p1_save = p1;
+    p2_save = p2;
+  }
+
   
-  return std::make_tuple(p1.index,p2.index,sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2)));
+  
+  
+  return std::make_tuple(p1_save.index,p2_save.index,min_dis);
 }
 
 WireCell::WCPointCloud<double>::WCPoint& WireCell::ToyPointCloud::get_closest_wcpoint(WireCell::WCPointCloud<double>::WCPoint& wcp){
