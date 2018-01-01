@@ -90,7 +90,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
     
 	//std::cout << i << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << std::endl;
-	if (dis1 < 0.75 * step/5. || (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > step*0.8){
+	if (dis1 < 0.75 * step/5. && dis > 0.2*units::cm || (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > step*0.8){
 	  old_wcp = new_wcp;
 	  flag_continue = true;
 	  break;
