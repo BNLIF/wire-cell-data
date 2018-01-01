@@ -37,8 +37,8 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
   bool flag_continue = true;
   Point orig_point(old_wcp.x,old_wcp.y,old_wcp.z);
   TVector3 orig_dir = dir;
-  // int counter = 0;
-  while(flag_continue){
+  int counter = 0;
+  while(flag_continue && counter < 400){
     // if (counter == 5){
     //   TVector3 dir2 = VHoughTrans(test_point,80*units::cm);
     //   if (dir2.Dot(dir) > 0 ){
@@ -48,7 +48,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
     //   }
     //   counter = 0;
     // }
-    // counter++;
+    counter++;
     // first step
     test_point.x = old_wcp.x + dir.X() * step;
     test_point.y = old_wcp.y + dir.Y() * step;
@@ -97,6 +97,8 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	}
       }
     }
+
+    
   }
   
   
