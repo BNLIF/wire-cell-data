@@ -38,15 +38,22 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
   Point orig_point(old_wcp.x,old_wcp.y,old_wcp.z);
   TVector3 orig_dir = dir;
   int counter = 0;
+  TVector3 drift_dir(1,0,0);
+
+  double old_dis = 15*units::cm;
+
+  
   while(flag_continue && counter < 400){
-    // if (counter == 5){
-    //   TVector3 dir2 = VHoughTrans(test_point,80*units::cm);
-    //   if (dir2.Dot(dir) > 0 ){
-    // 	dir = dir2;
-    //   }else{
-    // 	dir = dir2 * (-1);
-    //   }
-    //   counter = 0;
+    // if (counter%5==0&&counter>0 && fabs(dir.Angle(drift_dir)-3.1415926/2.)>7.5*180./3.1415926){// about 30 cm ... 
+    //   test_point.x = old_wcp.x ;
+    //   test_point.y = old_wcp.y ;
+    //   test_point.z = old_wcp.z ;
+    //   TVector3 dir2 = VHoughTrans(test_point,25*units::cm);
+    //    if (dir2.Dot(dir) > 0 ){
+    // 	 dir = dir2;
+    //    }else{
+    // 	 dir = dir2 * (-1);
+    //    }
     // }
     counter++;
     // first step
@@ -64,6 +71,12 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
     
     if ((angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > 0.2*units::cm){
       old_wcp = new_wcp;
+      if (dis > 3*units::cm){
+	TVector3 dir2 = dir * old_dis + dir1 ;
+	dir2.SetMag(1);
+	dir = dir2;
+	old_dis = dis;
+      }
     }else{
       flag_continue = false;
       //  failure
@@ -92,6 +105,15 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	//std::cout << i << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << std::endl;
 	if (dis1 < 0.75 * step/5. && dis > 0.2*units::cm || (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > step*0.8){
 	  old_wcp = new_wcp;
+
+	  if (dis > 3*units::cm){
+	    TVector3 dir2 = dir * old_dis + dir1 ;
+	    dir2.SetMag(1);
+	    dir = dir2;
+	    old_dis = dis;
+	  }
+
+	  
 	  flag_continue = true;
 	  break;
 	}
@@ -588,7 +610,7 @@ void PR3DCluster::Create_graph(){
       for (int j=0;j!=num;j++){
       	for (int k=j+1;k!=num;k++){
 	  if (pt_clouds.at(j)->get_num_points()>100 && pt_clouds.at(k)->get_num_points()>100 &&
-	      (pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 600){
+	      (pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 400){
 	    WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
 	    WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
 	    Point p1(wp1.x,wp1.y,wp1.z);
@@ -651,7 +673,7 @@ void PR3DCluster::Create_graph(){
 	auto edge = add_edge(std::get<0>(min_dis),std::get<1>(min_dis),*graph);
 	if (edge.second){
 	  if (std::get<2>(min_dis) > 5*units::cm){
-	    (*graph)[edge.first].dist = std::get<2>(min_dis)*1.05;
+	    (*graph)[edge.first].dist = std::get<2>(min_dis)*1.075;
 	  }else{
 	    (*graph)[edge.first].dist = std::get<2>(min_dis);
 	  }
@@ -666,7 +688,7 @@ void PR3DCluster::Create_graph(){
       	    auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
       	    if (edge.second){
       	      if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
-      		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.05;
+      		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.075;
       	      }else{
       		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
       	      }
@@ -676,7 +698,7 @@ void PR3DCluster::Create_graph(){
       	    auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
       	    if (edge.second){
       	      if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
-      		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.05;
+      		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.075;
       	      }else{
       		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
       	      }
