@@ -71,21 +71,22 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
     
     if ((angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > 0.2*units::cm){
       old_wcp = new_wcp;
-      if (dis > 3*units::cm){
-	TVector3 dir2 = dir * old_dis + dir1 ;
-	dir2.SetMag(1);
-	dir = dir2;
+      if (dis > 3*units::cm ){
+	//	std::cout << "A: " << dir.X() << " " << dir.Y() << " " << dir.Z() << " " << dir1.X() << " " << dir1.Y() << dir1.Z() << " " << new_wcp.x/units::cm << " " << new_wcp.y/units::cm << " " << new_wcp.z/units::cm << " " << dir1.Angle(dir)/3.1415926*180. << std::endl;
+	dir  = dir * old_dis + dir1 ;
+      	dir.SetMag(1);
 	old_dis = dis;
       }
     }else{
       flag_continue = false;
       //  failure
       // update direction 
-      TVector3 dir2 = VHoughTrans(test_point,80*units::cm);
-      if (dir2.Dot(dir) > 0 ){
-	dir = dir2;
-      }else{
-	dir = dir2 * (-1);
+      TVector3 dir2 = VHoughTrans(test_point,30*units::cm);
+      if (dir2.Angle(dir) < 25/180.*3.1415926){
+	dir2.SetMag(1);
+        dir = dir * old_dis + dir2*15*units::cm;
+      	dir.SetMag(1);
+	old_dis = 15*units::cm;
       }
 
       // start jump gaps
@@ -106,10 +107,10 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	if (dis1 < 0.75 * step/5. && dis > 0.2*units::cm || (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > step*0.8){
 	  old_wcp = new_wcp;
 
-	  if (dis > 3*units::cm){
-	    TVector3 dir2 = dir * old_dis + dir1 ;
-	    dir2.SetMag(1);
-	    dir = dir2;
+	  if (dis > 3*units::cm ){
+	    // std::cout << "B: " << dir.X() << " " << dir.Y() << " " << dir.Z() << " " << dir1.X() << " " << dir1.Y() << dir1.Z() << " " << new_wcp.x/units::cm << " " << new_wcp.y/units::cm << " " << new_wcp.z/units::cm << " " << dir1.Angle(dir)/3.1415926*180. << std::endl;
+	    dir = dir * old_dis + dir1 ;
+	    dir.SetMag(1);
 	    old_dis = dis;
 	  }
 
