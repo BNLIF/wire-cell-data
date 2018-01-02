@@ -62,6 +62,8 @@ namespace WireCell{
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_earliest_latest_wcps();
 
     WCPointCloud<double>::WCPoint get_furthest_wcpoint(WCPointCloud<double>::WCPoint wcp, TVector3 dir, double step = 5*units::cm, int allowed_nstep = 12);
+    void adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_wcp, WCPointCloud<double>::WCPoint& end_wcp);
+
     
     void Calc_PCA();
     bool flag_PCA;

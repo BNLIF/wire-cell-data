@@ -31,6 +31,122 @@ PR3DCluster::~PR3DCluster(){
     delete graph;
 }
 
+void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_wcp, WCPointCloud<double>::WCPoint& end_wcp){
+  TVector3 dir(end_wcp.x - start_wcp.x, end_wcp.y - start_wcp.y, end_wcp.z - start_wcp.z);
+  // How to write this fast ???
+  double low_x, high_x;
+  low_x = start_wcp.x - 1*units::cm;
+  if (end_wcp.x - 1*units::cm < low_x) low_x = end_wcp.x - 1*units::cm;
+  high_x = start_wcp.x + 1*units::cm;
+  if (end_wcp.x+1*units::cm > high_x) high_x = end_wcp.x + 1*units::cm;
+
+  WCPointCloud<double>::WCPoint low_u_wcp = start_wcp;
+  WCPointCloud<double>::WCPoint low_v_wcp = start_wcp;
+  WCPointCloud<double>::WCPoint low_w_wcp = start_wcp;
+  WCPointCloud<double>::WCPoint high_u_wcp = start_wcp;
+  WCPointCloud<double>::WCPoint high_v_wcp = start_wcp;
+  WCPointCloud<double>::WCPoint high_w_wcp = start_wcp;
+
+  for (size_t i=0;i!=point_cloud->get_cloud().pts.size(); i++){
+    if (point_cloud->get_cloud().pts.at(i).x > high_x ||
+	point_cloud->get_cloud().pts.at(i).x < low_x) continue;
+    if (point_cloud->get_cloud().pts.at(i).index_u < low_u_wcp.index_u)
+      low_u_wcp = point_cloud->get_cloud().pts.at(i);
+    if (point_cloud->get_cloud().pts.at(i).index_u > high_u_wcp.index_u)
+      high_u_wcp = point_cloud->get_cloud().pts.at(i);
+
+    if (point_cloud->get_cloud().pts.at(i).index_v < low_u_wcp.index_v)
+      low_v_wcp = point_cloud->get_cloud().pts.at(i);
+    if (point_cloud->get_cloud().pts.at(i).index_v > high_u_wcp.index_v)
+      high_v_wcp = point_cloud->get_cloud().pts.at(i);
+
+    if (point_cloud->get_cloud().pts.at(i).index_w < low_u_wcp.index_w)
+      low_w_wcp = point_cloud->get_cloud().pts.at(i);
+    if (point_cloud->get_cloud().pts.at(i).index_w > high_u_wcp.index_w)
+      high_w_wcp = point_cloud->get_cloud().pts.at(i);
+  }
+
+  std::vector<size_t> indices, temp_indices;
+  std::set<size_t> indices_set;
+  Point test_p;
+
+  bool flag_u = true, flag_v = true, flag_w = true;
+
+  if (high_u_wcp.index_u - low_u_wcp.index_u < high_v_wcp.index_v - low_v_wcp.index_v){
+    if (high_u_wcp.index_u - low_u_wcp.index_u < high_w_wcp.index_w - low_w_wcp.index_w){
+      flag_u = false;
+    }else{
+      flag_w = false;
+    }
+  }else{
+    if (high_v_wcp.index_u - low_v_wcp.index_u < high_w_wcp.index_w - low_w_wcp.index_w){
+      flag_v = false;
+    }else{
+      flag_w = false;
+    }
+  }
+  
+  
+  if (flag_u){
+    test_p.x = low_u_wcp.x;
+    test_p.y = low_u_wcp.y;
+    test_p.z = low_u_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 0);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+
+    test_p.x = high_u_wcp.x;
+    test_p.y = high_u_wcp.y;
+    test_p.z = high_u_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 0);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+  }
+
+  if (flag_v){
+    test_p.x = low_v_wcp.x;
+    test_p.y = low_v_wcp.y;
+    test_p.z = low_v_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 1);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+    
+    test_p.x = high_v_wcp.x;
+    test_p.y = high_v_wcp.y;
+    test_p.z = high_v_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 1);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+  }
+
+  if (flag_w){
+    test_p.x = low_w_wcp.x;
+    test_p.y = low_w_wcp.y;
+    test_p.z = low_w_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 2);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+    
+    test_p.x = high_w_wcp.x;
+    test_p.y = high_w_wcp.y;
+    test_p.z = high_w_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 2);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+  }
+  
+  std::copy(indices_set.begin(), indices_set.end(), std::back_inserter(indices));
+
+  //std::cout << indices.size() << std::endl;
+  double sum_value = 0;
+  for (size_t i=0; i!= indices.size(); i++){
+    for (size_t j=i+1; j!=indices.size(); j++){
+      double value = fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_u - point_cloud->get_cloud().pts.at(indices.at(j)).index_u) + fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_v - point_cloud->get_cloud().pts.at(indices.at(j)).index_v) + fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_w - point_cloud->get_cloud().pts.at(indices.at(j)).index_w);
+      if (value > sum_value){
+	sum_value = value;
+	start_wcp = point_cloud->get_cloud().pts.at(indices.at(i));
+	end_wcp = point_cloud->get_cloud().pts.at(indices.at(j));
+      }
+    }
+  }
+  
+} 
+
+
 WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<double>::WCPoint old_wcp, TVector3 dir, double step, int allowed_nstep){
   dir.SetMag(1);
   Point test_point;
