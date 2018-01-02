@@ -32,7 +32,7 @@ PR3DCluster::~PR3DCluster(){
 }
 
 void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_wcp, WCPointCloud<double>::WCPoint& end_wcp){
-  TVector3 dir(end_wcp.x - start_wcp.x, end_wcp.y - start_wcp.y, end_wcp.z - start_wcp.z);
+  //TVector3 dir(end_wcp.x - start_wcp.x, end_wcp.y - start_wcp.y, end_wcp.z - start_wcp.z);
   // How to write this fast ???
   double low_x, high_x;
   low_x = start_wcp.x - 1*units::cm;
@@ -55,14 +55,14 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
     if (point_cloud->get_cloud().pts.at(i).index_u > high_u_wcp.index_u)
       high_u_wcp = point_cloud->get_cloud().pts.at(i);
 
-    if (point_cloud->get_cloud().pts.at(i).index_v < low_u_wcp.index_v)
+    if (point_cloud->get_cloud().pts.at(i).index_v < low_v_wcp.index_v)
       low_v_wcp = point_cloud->get_cloud().pts.at(i);
-    if (point_cloud->get_cloud().pts.at(i).index_v > high_u_wcp.index_v)
+    if (point_cloud->get_cloud().pts.at(i).index_v > high_v_wcp.index_v)
       high_v_wcp = point_cloud->get_cloud().pts.at(i);
 
-    if (point_cloud->get_cloud().pts.at(i).index_w < low_u_wcp.index_w)
+    if (point_cloud->get_cloud().pts.at(i).index_w < low_w_wcp.index_w)
       low_w_wcp = point_cloud->get_cloud().pts.at(i);
-    if (point_cloud->get_cloud().pts.at(i).index_w > high_u_wcp.index_w)
+    if (point_cloud->get_cloud().pts.at(i).index_w > high_w_wcp.index_w)
       high_w_wcp = point_cloud->get_cloud().pts.at(i);
   }
 
@@ -131,9 +131,15 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
   
   std::copy(indices_set.begin(), indices_set.end(), std::back_inserter(indices));
 
-  //std::cout << indices.size() << std::endl;
+  // std::cout << start_wcp.index_u << " " << start_wcp.index_v << " " << start_wcp.index_w << " " << end_wcp.index_u << " " << end_wcp.index_v << " " << end_wcp.index_w << std::endl;
+  // std::cout << low_u_wcp.index_u << " " << low_v_wcp.index_v << " " << low_w_wcp.index_w << " " << high_u_wcp.index_u << " " << high_v_wcp.index_v << " " << high_w_wcp.index_w << std::endl;
+  
+  // std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << std::endl;
+  
+  //  std::cout << start_wcp.index << " " << end_wcp.index << std::endl;
   double sum_value = 0;
   for (size_t i=0; i!= indices.size(); i++){
+    //  std::cout << indices.at(i) << std::endl;
     for (size_t j=i+1; j!=indices.size(); j++){
       double value = fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_u - point_cloud->get_cloud().pts.at(indices.at(j)).index_u) + fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_v - point_cloud->get_cloud().pts.at(indices.at(j)).index_v) + fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_w - point_cloud->get_cloud().pts.at(indices.at(j)).index_w);
       if (value > sum_value){
@@ -143,6 +149,8 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
       }
     }
   }
+
+  // std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << std::endl;
   
 } 
 
