@@ -101,6 +101,8 @@ namespace WireCell{
     std::vector<int> get_uvwt_range();
     
   protected:
+
+    bool compare_edge(std::tuple<int,int,double>& index1, std::tuple<int,int,double>& index2);
     
     int cluster_id;
     
