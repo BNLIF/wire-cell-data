@@ -565,6 +565,11 @@ std::map<WireCell::SlimMergeGeomCell*, Point> WireCell::ToyPointCloud::get_close
   return mcell_point_map;
 }
 
+double WireCell::ToyPointCloud::get_closest_dis(WireCell::Point& p){
+  std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
+  return sqrt(results.front().second);
+}
+
 std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> WireCell::ToyPointCloud::get_closest_points(WireCell::Point& p, int N){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,N);
   std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> points;
