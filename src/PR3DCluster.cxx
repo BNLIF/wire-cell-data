@@ -193,10 +193,13 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
     double dis1 = dir2.Mag();
     double angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
     
-    if ((angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > 0.2*units::cm){
+    if ((angle < 25 || dis < 1.2*units::cm && angle < 60) && (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > 0.2*units::cm){
       old_wcp = new_wcp;
+
+      //std::cout << "A: " << " " << new_wcp.x/units::cm << " " << new_wcp.y/units::cm << " " << new_wcp.z/units::cm << " " << angle << " " << dis * sin(angle/180.*3.1415926)/units::cm << angle1 << " " << dis1 * sin(angle1/180.*3.1415926)/units::cm << " " << dis/units::cm << std::endl;
+      
+      
       if (dis > 3*units::cm ){
-	//	std::cout << "A: " << dir.X() << " " << dir.Y() << " " << dir.Z() << " " << dir1.X() << " " << dir1.Y() << dir1.Z() << " " << new_wcp.x/units::cm << " " << new_wcp.y/units::cm << " " << new_wcp.z/units::cm << " " << dir1.Angle(dir)/3.1415926*180. << std::endl;
 	dir  = dir * old_dis + dir1 ;
       	dir.SetMag(1);
 	old_dis = dis;
@@ -228,7 +231,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
     
 	//std::cout << i << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << std::endl;
-	if (dis1 < 0.75 * step/5. && dis > 0.2*units::cm || (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > step*0.8){
+	if (dis1 < 0.75 * step/5. && dis > 0.2*units::cm || (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis > step*0.8 && angle < 25){
 	  old_wcp = new_wcp;
 
 	  if (dis > 3*units::cm ){
