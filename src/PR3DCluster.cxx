@@ -198,9 +198,9 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
     //  std::cout <<  " A " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << std::endl;
 
     
-    if ((angle < 30 || dis < 1.2*units::cm && angle < 60 ||
+    if ((angle < 25 || dis < 1.2*units::cm && angle < 60 ||
 	 fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180. && angle < 60)
-	&& (angle < 20 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm || ((angle < 30 ||angle1 <=5)&& fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180.)) && dis > 0.2*units::cm){
+	&& (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm || ((angle < 30 ||angle1 <=5)&& fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180.)) && dis > 0.2*units::cm){
       old_wcp = new_wcp;
 
 
@@ -246,10 +246,10 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
     
 	//	std::cout << i << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << std::endl;
 	
-	if (dis1 < 0.75 * step/5. && dis > 0.2*units::cm || ((angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm)
+	if (dis1 < 0.75 * step/5. && dis > 0.2*units::cm || ((angle < 20 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm)
 							     || (angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm)
 							     || ((angle < 30 ||angle1 <=5)&& fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180.)
-							     ) && dis > step*0.8 && (angle < 25  || fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180. && angle < 60)){
+							     ) && dis > step*0.8 && (angle < 30  || fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180. && angle < 60)){
 	  old_wcp = new_wcp;
 
 	  if (dis > 3*units::cm ){
