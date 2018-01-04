@@ -7,6 +7,7 @@
 #include "TVector3.h"
 
 #include <boost/graph/connected_components.hpp>
+#include <boost/graph/prim_minimum_spanning_tree.hpp>
 
 #include <Eigen/Sparse>
 #include <Eigen/IterativeLinearSolvers>
@@ -725,22 +726,58 @@ void PR3DCluster::Create_graph(){
       
       // connect these graphs according to closest distance some how ...
       std::tuple<int,int,double> index_index_dis[num][num];
+      std::tuple<int,int,double> index_index_dis_mst[num][num];
       std::tuple<int,int,double> index_index_dis_dir1[num][num];
       std::tuple<int,int,double> index_index_dis_dir2[num][num];
       for (int j=0;j!=num;j++){
 	for (int k=0;k!=num;k++){
 	  index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+	  index_index_dis_mst[j][k] = std::make_tuple(-1,-1,1e9);
 	  index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
 	  index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
 	}
       }
 
+
+      //MST ...
+      const int N = num;
+      boost::adjacency_list<boost::setS, boost::vecS, boost::undirectedS,
+			    boost::no_property, boost::property<boost::edge_weight_t, double>>
+			    temp_graph(N);
+      
+     
+
+      for (int j=0;j!=num;j++){
+      	for (int k=j+1;k!=num;k++){
+	  index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
+      	  int index1 = j;
+      	  int index2 = k;
+      	  auto edge = add_edge(index1,index2, std::get<2>(index_index_dis[j][k]), temp_graph);
+	}
+      }
+
+      std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
+      
+      prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(1));
+
+      for (size_t j=0;j!=predecessors.size();++j){
+	if (predecessors[j]!=j){
+	  if (j < predecessors[j]){
+	    index_index_dis_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
+	  }else{
+	    index_index_dis_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+	  }
+	  //std::cout << j << " " << predecessors[j] << " " << std::endl;
+	}else{
+	  //std::cout << j << " " << std::endl;
+	}
+      }
+      //
+      
       
       for (int j=0;j!=num;j++){
 	for (int k=j+1;k!=num;k++){
 	  // closest distance one ... 
-	  index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
-	  
 	  
 	  if (pt_clouds.at(j)->get_num_points()>100 && pt_clouds.at(k)->get_num_points()>100 &&
 	      (pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 400){
@@ -774,74 +811,75 @@ void PR3DCluster::Create_graph(){
       
       
       
-      
-      for (int j=0;j!=num-1;j++){
-      	// find the minimum
-      	std::tuple<int,int,double> min_dis = index_index_dis[j][j+1];
-      	int min_index = j+1;
-      	for (int k=j+2;k<num;k++){
-      	  if (std::get<2>(index_index_dis[j][k]) < std::get<2>(min_dis)){
-      	    min_dis = index_index_dis[j][k];
-      	    min_index = k;
-      	  }
-      	}
+      // // old one 
+      // for (int j=0;j!=num-1;j++){
+      // 	// find the minimum
+      // 	std::tuple<int,int,double> min_dis = index_index_dis[j][j+1];
+      // 	int min_index = j+1;
+      // 	for (int k=j+2;k<num;k++){
+      // 	  if (std::get<2>(index_index_dis[j][k]) < std::get<2>(min_dis)){
+      // 	    min_dis = index_index_dis[j][k];
+      // 	    min_index = k;
+      // 	  }
+      // 	}
 
-      	for (int k=j+1;k<min_index;k++){
-      	  if (std::get<2>(index_index_dis[j][k]) < std::get<2>(index_index_dis[k][min_index]) ){
-      	    index_index_dis[k][min_index] = index_index_dis[j][k];
-      	  }
-      	}
-      	for (int k=min_index+1;k<num;k++){
-      	  if (std::get<2>(index_index_dis[j][k]) < std::get<2>(index_index_dis[min_index][k]) ){
-      	    index_index_dis[min_index][k]=index_index_dis[j][k];
-      	  }
-      	}
-      	//std::cout << j << " " << min_index << " " << std::get<0>(min_dis) << " " << std::get<1>(min_dis) << " "<< std::get<2>(min_dis) << std::endl;
-      	auto edge = add_edge(std::get<0>(min_dis),std::get<1>(min_dis),*graph);
-      	if (edge.second){
-      	  if (std::get<2>(min_dis) > 5*units::cm){
-      	    (*graph)[edge.first].dist = std::get<2>(min_dis)*1.075;
-      	  }else{
-      	    (*graph)[edge.first].dist = std::get<2>(min_dis);
-      	  }
-      	}
-      }
+      // 	for (int k=j+1;k<min_index;k++){
+      // 	  if (std::get<2>(index_index_dis[j][k]) < std::get<2>(index_index_dis[k][min_index]) ){
+      // 	    index_index_dis[k][min_index] = index_index_dis[j][k];
+      // 	  }
+      // 	}
+      // 	for (int k=min_index+1;k<num;k++){
+      // 	  if (std::get<2>(index_index_dis[j][k]) < std::get<2>(index_index_dis[min_index][k]) ){
+      // 	    index_index_dis[min_index][k]=index_index_dis[j][k];
+      // 	  }
+      // 	}
+      // 	//std::cout << j << " " << min_index << " " << std::get<0>(min_dis) << " " << std::get<1>(min_dis) << " "<< std::get<2>(min_dis) << std::endl;
+      // 	auto edge = add_edge(std::get<0>(min_dis),std::get<1>(min_dis),*graph);
+      // 	if (edge.second){
+      // 	  if (std::get<2>(min_dis) > 5*units::cm){
+      // 	    (*graph)[edge.first].dist = std::get<2>(min_dis)*1.075;
+      // 	  }else{
+      // 	    (*graph)[edge.first].dist = std::get<2>(min_dis);
+      // 	  }
+      // 	}
+      // }
+      
 
       // now complete graph according to the direction
       // according to direction ...
       for (int j=0;j!=num;j++){
       	for (int k=j+1;k!=num;k++){
-	  // if (std::get<0>(index_index_dis[j][k])>=0){
-      	  //   auto edge = add_edge(std::get<0>(index_index_dis[j][k]),std::get<1>(index_index_dis[j][k]),*graph);
+	  if (std::get<0>(index_index_dis_mst[j][k])>=0){
+      	    auto edge = add_edge(std::get<0>(index_index_dis_mst[j][k]),std::get<1>(index_index_dis_mst[j][k]),*graph);
+      	    if (edge.second){
+      	      if (std::get<2>(index_index_dis_mst[j][k])>5*units::cm){
+      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k])*1.075;
+      	      }else{
+      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
+      	      }
+      	    }
+      	  }
+	  
+      	  // if (std::get<0>(index_index_dis_dir1[j][k])>=0){
+      	  //   auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
       	  //   if (edge.second){
-      	  //     if (std::get<2>(index_index_dis[j][k])>5*units::cm){
-      	  // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis[j][k])*1.075;
+      	  //     if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
+      	  // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.075;
       	  //     }else{
-      	  // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis[j][k]);
+      	  // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
       	  //     }
       	  //   }
       	  // }
-	  
-      	  if (std::get<0>(index_index_dis_dir1[j][k])>=0){
-      	    auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
-      	    if (edge.second){
-      	      if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
-      		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.075;
-      	      }else{
-      		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
-      	      }
-      	    }
-      	  }
-      	  if (std::get<0>(index_index_dis_dir2[j][k])>=0){
-      	    auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
-      	    if (edge.second){
-      	      if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
-      		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.075;
-      	      }else{
-      		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
-      	      }
-      	    }
-      	  }
+      	  // if (std::get<0>(index_index_dis_dir2[j][k])>=0){
+      	  //   auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
+      	  //   if (edge.second){
+      	  //     if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
+      	  // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.075;
+      	  //     }else{
+      	  // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
+      	  //     }
+      	  //   }
+      	  // }
       	}
       }
 
