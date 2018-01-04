@@ -772,12 +772,17 @@ void PR3DCluster::Create_graph(){
 	  //std::cout << j << " " << std::endl;
 	}
       }
-      //
-      
+      //end of mst ...
+
+
+      // short distance part
       
       for (int j=0;j!=num;j++){
 	for (int k=j+1;k!=num;k++){
 	  // closest distance one ... 
+	  if (std::get<2>(index_index_dis[j][k])<3*units::cm){
+	    index_index_dis_mst[j][k] = index_index_dis[j][k];
+	  }
 	  
 	  if (pt_clouds.at(j)->get_num_points()>100 && pt_clouds.at(k)->get_num_points()>100 &&
 	      (pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 400){
@@ -792,15 +797,76 @@ void PR3DCluster::Create_graph(){
 	    dir2 *= -1;
 	    
 	    std::pair<int,double> result1 = pt_clouds.at(k)->get_closest_point_along_vec(p1, dir1, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
+
 	    if (result1.first >=0){
-	      // from j to k
-	      index_index_dis_dir1[j][k] = std::make_tuple(std::get<0>(index_index_dis[j][k]), result1.first, result1.second);
+	      TVector3 dir1, dir2;
+	      double dis;
+	      bool flag_save = true;
+	      double angle;
+	      dir2.SetXYZ(cloud.pts.at(result1.first).x-wp1.x,cloud.pts.at(result1.first).y-wp1.y,cloud.pts.at(result1.first).z-wp1.z);
+	      if (dir2.Mag()<3*units::cm) flag_save = false;
+	      
+	      for (int k1=0; k1!=j; k1++){
+		if (!flag_save) break;
+		if (std::get<1>(index_index_dis_mst[k1][j])>=0){
+		  dis = sqrt(pow(wp1.x -  cloud.pts.at(std::get<1>(index_index_dis_mst[k1][j])).x,2)+pow(wp1.y - cloud.pts.at(std::get<1>(index_index_dis_mst[k1][j])).y,2)+pow(wp1.z - cloud.pts.at(std::get<1>(index_index_dis_mst[k1][j])).z,2));
+		  dir1.SetXYZ(cloud.pts.at(std::get<0>(index_index_dis_mst[k1][j])).x-cloud.pts.at(std::get<1>(index_index_dis_mst[k1][j])).x,cloud.pts.at(std::get<0>(index_index_dis_mst[k1][j])).y-cloud.pts.at(std::get<1>(index_index_dis_mst[k1][j])).y,cloud.pts.at(std::get<0>(index_index_dis_mst[k1][j])).z-cloud.pts.at(std::get<1>(index_index_dis_mst[k1][j])).z);
+		  angle = dir1.Angle(dir2)/3.1415926*180.;
+		  if (dis < 3*units::cm && (angle < 15. || dir1.Mag() < 1*units::cm && angle<60 || dir1.Mag() < 3*units::cm && angle < 30))
+		    flag_save = false;
+		}
+	      }
+	      for (int k1 = j+1;k1!=num; k1++){
+		if (!flag_save) break;
+		if (std::get<0>(index_index_dis_mst[j][k1])>=0){
+		  dis = sqrt(pow(wp1.x-cloud.pts.at(std::get<0>(index_index_dis_mst[j][k1])).x,2)+pow(wp1.y-cloud.pts.at(std::get<0>(index_index_dis_mst[j][k1])).y,2)+pow(wp1.z-cloud.pts.at(std::get<0>(index_index_dis_mst[j][k1])).z,2));
+		  dir1.SetXYZ(cloud.pts.at(std::get<1>(index_index_dis_mst[j][k1])).x-cloud.pts.at(std::get<0>(index_index_dis_mst[j][k1])).x,cloud.pts.at(std::get<1>(index_index_dis_mst[j][k1])).y-cloud.pts.at(std::get<0>(index_index_dis_mst[j][k1])).y,cloud.pts.at(std::get<1>(index_index_dis_mst[j][k1])).z-cloud.pts.at(std::get<0>(index_index_dis_mst[j][k1])).z);
+		  angle = dir1.Angle(dir2)/3.1415926*180.;
+		  
+		  if (dis < 3*units::cm && (angle < 15. || dir1.Mag() < 1*units::cm && angle<60 || dir1.Mag() < 3*units::cm && angle < 30))
+		    flag_save = false;
+		}
+	      }
+	      
+	      
+	      if (flag_save)
+		index_index_dis_dir1[j][k] = std::make_tuple(std::get<0>(index_index_dis[j][k]), result1.first, result1.second);
 	    }
 	    
 	    std::pair<int,double> result2 = pt_clouds.at(j)->get_closest_point_along_vec(p2, dir2, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
+
 	    if (result2.first >=0){
+	      TVector3 dir1, dir2;
+	      double dis;
+	      bool flag_save = true;
+	      double angle;
+	      
+	      dir2.SetXYZ(cloud.pts.at(result2.first).x-wp2.x,cloud.pts.at(result2.first).y-wp2.y,cloud.pts.at(result2.first).z-wp2.z);
+	      if (dir2.Mag()<3*units::cm) flag_save = false;
+	      
+	      for (int k1=0;k1!=k;k1++){
+		if (!flag_save) break;
+		if (std::get<0>(index_index_dis_mst[k1][k])>=0){
+		  dis = sqrt(pow(cloud.pts.at(std::get<1>(index_index_dis_mst[k1][k])).x-wp2.x,2)+pow(cloud.pts.at(std::get<1>(index_index_dis_mst[k1][k])).y-wp2.y,2)+pow(cloud.pts.at(std::get<1>(index_index_dis_mst[k1][k])).z-wp2.z,2));
+		  dir1.SetXYZ(cloud.pts.at(std::get<0>(index_index_dis_mst[k1][k])).x-cloud.pts.at(std::get<1>(index_index_dis_mst[k1][k])).x,cloud.pts.at(std::get<0>(index_index_dis_mst[k1][k])).y-cloud.pts.at(std::get<1>(index_index_dis_mst[k1][k])).y,cloud.pts.at(std::get<0>(index_index_dis_mst[k1][k])).z-cloud.pts.at(std::get<1>(index_index_dis_mst[k1][k])).z);
+		  angle = dir1.Angle(dir2)*180./3.1415926;
+		  if (dis < 3*units::cm && (angle < 15.|| dir1.Mag() < 1*units::cm && angle<60 || dir1.Mag() < 3*units::cm && angle < 30))
+		    flag_save = false;
+		}
+	      }
+	      for(int k1=k+1;k1!=num;k1++){
+		if (!flag_save) break;
+		if (std::get<0>(index_index_dis_mst[k][k1])>=0){
+		  dis = sqrt(pow(cloud.pts.at(std::get<0>(index_index_dis_mst[k][k1])).x-wp2.x,2)+pow(cloud.pts.at(std::get<0>(index_index_dis_mst[k][k1])).y-wp2.y,2)+pow(cloud.pts.at(std::get<0>(index_index_dis_mst[k][k1])).z-wp2.z,2));
+		  dir1.SetXYZ(cloud.pts.at(std::get<1>(index_index_dis_mst[k][k1])).x-cloud.pts.at(std::get<0>(index_index_dis_mst[k][k1])).x,cloud.pts.at(std::get<1>(index_index_dis_mst[k][k1])).y-cloud.pts.at(std::get<0>(index_index_dis_mst[k][k1])).y,cloud.pts.at(std::get<1>(index_index_dis_mst[k][k1])).z-cloud.pts.at(std::get<0>(index_index_dis_mst[k][k1])).z);
+		  angle = dir1.Angle(dir2)*180./3.1415926;
+		  if (dis < 3*units::cm && (angle < 15. || dir1.Mag() < 1*units::cm && angle<60 || dir1.Mag() < 3*units::cm && angle < 30))
+		    flag_save = false;
+		}
+	      }
 	      // from j to k 
-	      index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);
+	      if (flag_save)
+		index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);
 	    }
 	  }
 	  
@@ -860,26 +926,26 @@ void PR3DCluster::Create_graph(){
       	    }
       	  }
 	  
-      	  // if (std::get<0>(index_index_dis_dir1[j][k])>=0){
-      	  //   auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
-      	  //   if (edge.second){
-      	  //     if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
-      	  // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.075;
-      	  //     }else{
-      	  // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
-      	  //     }
-      	  //   }
-      	  // }
-      	  // if (std::get<0>(index_index_dis_dir2[j][k])>=0){
-      	  //   auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
-      	  //   if (edge.second){
-      	  //     if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
-      	  // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.075;
-      	  //     }else{
-      	  // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
-      	  //     }
-      	  //   }
-      	  // }
+      	  if (std::get<0>(index_index_dis_dir1[j][k])>=0){
+      	    auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
+      	    if (edge.second){
+      	      if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
+      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.075;
+      	      }else{
+      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
+      	      }
+      	    }
+      	  }
+      	  if (std::get<0>(index_index_dis_dir2[j][k])>=0){
+      	    auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
+      	    if (edge.second){
+      	      if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
+      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.075;
+      	      }else{
+      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
+      	      }
+      	    }
+      	  }
       	}
       }
 
