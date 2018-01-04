@@ -193,12 +193,18 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
     TVector3 dir2(new_wcp.x-orig_point.x,new_wcp.y-orig_point.y,new_wcp.z-orig_point.z);
     double dis1 = dir2.Mag();
     double angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
+
+
+    //  std::cout <<  " A " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << std::endl;
+
     
-    if ((angle < 25 || dis < 1.2*units::cm && angle < 60 ||
+    if ((angle < 30 || dis < 1.2*units::cm && angle < 60 ||
 	 fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180. && angle < 60)
-	&& (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm || ((angle < 30 ||angle1 <=5)&& fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180.)) && dis > 0.2*units::cm){
+	&& (angle < 20 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm || ((angle < 30 ||angle1 <=5)&& fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180.)) && dis > 0.2*units::cm){
       old_wcp = new_wcp;
 
+
+      
       //std::cout << "A: " << " " << new_wcp.x/units::cm << " " << new_wcp.y/units::cm << " " << new_wcp.z/units::cm << " " << angle << " " << dis * sin(angle/180.*3.1415926)/units::cm << angle1 << " " << dis1 * sin(angle1/180.*3.1415926)/units::cm << " " << dis/units::cm << std::endl;
       
       
