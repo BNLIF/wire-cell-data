@@ -100,6 +100,18 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
     test_p.z = high_u_wcp.z;
     temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 0);
     std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+
+    test_p.x = start_wcp.x;
+    test_p.y = start_wcp.y;
+    test_p.z = start_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 0);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+
+    test_p.x = end_wcp.x;
+    test_p.y = end_wcp.y;
+    test_p.z = end_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 0);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
   }
 
   if (flag_v){
@@ -112,6 +124,18 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
     test_p.x = high_v_wcp.x;
     test_p.y = high_v_wcp.y;
     test_p.z = high_v_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 1);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+
+    test_p.x = start_wcp.x;
+    test_p.y = start_wcp.y;
+    test_p.z = start_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 1);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+
+    test_p.x = end_wcp.x;
+    test_p.y = end_wcp.y;
+    test_p.z = end_wcp.z;
     temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 1);
     std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
   }
@@ -128,14 +152,32 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
     test_p.z = high_w_wcp.z;
     temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 2);
     std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+
+
+    test_p.x = start_wcp.x;
+    test_p.y = start_wcp.y;
+    test_p.z = start_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 2);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
+
+    test_p.x = end_wcp.x;
+    test_p.y = end_wcp.y;
+    test_p.z = end_wcp.z;
+    temp_indices = point_cloud->get_closest_2d_index(test_p, 0.5*units::cm, 2);
+    std::copy(temp_indices.begin(), temp_indices.end(), inserter(indices_set,indices_set.begin()));
   }
   
   std::copy(indices_set.begin(), indices_set.end(), std::back_inserter(indices));
 
   // std::cout << start_wcp.index_u << " " << start_wcp.index_v << " " << start_wcp.index_w << " " << end_wcp.index_u << " " << end_wcp.index_v << " " << end_wcp.index_w << std::endl;
   // std::cout << low_u_wcp.index_u << " " << low_v_wcp.index_v << " " << low_w_wcp.index_w << " " << high_u_wcp.index_u << " " << high_v_wcp.index_v << " " << high_w_wcp.index_w << std::endl;
+
+  //double old_dis = sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2));
   
-  // std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << std::endl;
+  //std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2))/units::cm << std::endl;
+
+  WCPointCloud<double>::WCPoint new_start_wcp;
+  WCPointCloud<double>::WCPoint new_end_wcp;
   
   //  std::cout << start_wcp.index << " " << end_wcp.index << std::endl;
   double sum_value = 0;
@@ -143,15 +185,30 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
     //  std::cout << indices.at(i) << std::endl;
     for (size_t j=i+1; j!=indices.size(); j++){
       double value = fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_u - point_cloud->get_cloud().pts.at(indices.at(j)).index_u) + fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_v - point_cloud->get_cloud().pts.at(indices.at(j)).index_v) + fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_w - point_cloud->get_cloud().pts.at(indices.at(j)).index_w);
-      if (value > sum_value){
-	sum_value = value;
-	start_wcp = point_cloud->get_cloud().pts.at(indices.at(i));
-	end_wcp = point_cloud->get_cloud().pts.at(indices.at(j));
+      //double dis = sqrt(pow(point_cloud->get_cloud().pts.at(indices.at(i)).x - point_cloud->get_cloud().pts.at(indices.at(j)).x,2)+pow(point_cloud->get_cloud().pts.at(indices.at(i)).y - point_cloud->get_cloud().pts.at(indices.at(j)).y,2)+pow(point_cloud->get_cloud().pts.at(indices.at(i)).z - point_cloud->get_cloud().pts.at(indices.at(j)).z,2));
+      if (value > sum_value ){
+	//old_dis = dis;
+	if (point_cloud->get_cloud().pts.at(indices.at(i)).y > point_cloud->get_cloud().pts.at(indices.at(j)).y){
+	  new_start_wcp = point_cloud->get_cloud().pts.at(indices.at(i));
+	  new_end_wcp = point_cloud->get_cloud().pts.at(indices.at(j));
+	}else{
+	  new_start_wcp = point_cloud->get_cloud().pts.at(indices.at(j));
+	  new_end_wcp = point_cloud->get_cloud().pts.at(indices.at(i));
+	}
+	
+	if (sqrt(pow(new_start_wcp.x - start_wcp.x,2)+pow(new_start_wcp.y - start_wcp.y,2)+pow(new_start_wcp.z - start_wcp.z,2)) < 30 * units::cm && sqrt(pow(new_end_wcp.x - end_wcp.x,2)+pow(new_end_wcp.y - end_wcp.y,2)+pow(new_end_wcp.z - end_wcp.z,2)) < 30 * units::cm){
+	  start_wcp = new_start_wcp;
+	  end_wcp = new_end_wcp;
+	  sum_value = value;
+	}
+	
       }
     }
   }
 
-  // std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << std::endl;
+  
+
+  // std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2))/units::cm << std::endl;
   
 } 
 
@@ -220,15 +277,29 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
       test_point.x = old_wcp.x;
       test_point.y = old_wcp.y;
       test_point.z = old_wcp.z;
-      TVector3 dir2 = VHoughTrans(test_point,30*units::cm);
-      if (dir2.Angle(dir) > 3.1415926/2.) dir2 *= -1;
       
-      if (dir2.Angle(dir) < 25/180.*3.1415926){
+      TVector3 dir2;
+      if (fabs(dir.Angle(drift_dir)-3.1415926/2.)>5*3.1415926/180.){
+	dir2 = VHoughTrans(test_point,30*units::cm);
+	if (dir2.Angle(dir) > 3.1415926/2.) dir2 *= -1;
+	if (dir2.Angle(dir) < 25/180.*3.1415926){
+	  dir2.SetMag(1);
+	  dir = dir * old_dis + dir2*15*units::cm;
+	  dir.SetMag(1);
+	  old_dis = 15*units::cm;
+	}
+	
+      }else{
+	dir2 = VHoughTrans(test_point,100*units::cm);
+	if (dir2.Angle(dir) > 3.1415926/2.) dir2 *= -1;
 	dir2.SetMag(1);
-        dir = dir * old_dis + dir2*15*units::cm;
-      	dir.SetMag(1);
+	dir = dir * old_dis + dir2*15*units::cm;
+	dir.SetMag(1);
 	old_dis = 15*units::cm;
       }
+
+      
+      
 
       // start jump gaps
       for (int i=0;i!=allowed_nstep*5;i++){
@@ -244,12 +315,14 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	dis1 = dir2.Mag();
 	angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
     
-	//	std::cout << i << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << std::endl;
+	//std::cout << i << " " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << std::endl;
+	double angle2 = fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180;
+	double angle3 = fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180;
 	
 	if (dis1 < 0.75 * step/5. && dis > 0.2*units::cm || ((angle < 20 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm)
 							     || (angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm)
-							     || ((angle < 30 ||angle1 <=5)&& fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180.)
-							     ) && dis > step*0.8 && (angle < 30  || fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180. && angle < 60)){
+							     || ((angle < 35 ||angle1 <=5)&& angle2 < 5 && angle3 < 5)
+							     ) && dis > step*0.8 && (angle < 30  || (angle2 < 7.5 && angle3 < 7.5 || (angle2 < 2 || angle3 < 2) && (angle2+angle3)< 10 ) && angle < 60  )){
 	  old_wcp = new_wcp;
 
 	  if (dis > 3*units::cm ){
