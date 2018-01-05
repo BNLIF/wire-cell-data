@@ -174,7 +174,7 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
 
   //double old_dis = sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2));
   
-  //std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2))/units::cm << std::endl;
+  //  std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2))/units::cm << std::endl;
 
   WCPointCloud<double>::WCPoint new_start_wcp;
   WCPointCloud<double>::WCPoint new_end_wcp;
@@ -279,26 +279,22 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
       test_point.z = old_wcp.z;
       
       TVector3 dir2;
+      double eff_dis;
       if (fabs(dir.Angle(drift_dir)-3.1415926/2.)>5*3.1415926/180.){
 	dir2 = VHoughTrans(test_point,30*units::cm);
-	if (dir2.Angle(dir) > 3.1415926/2.) dir2 *= -1;
-	if (dir2.Angle(dir) < 25/180.*3.1415926){
-	  dir2.SetMag(1);
-	  dir = dir * old_dis + dir2*15*units::cm;
-	  dir.SetMag(1);
-	  old_dis = 15*units::cm;
-	}
-	
+	eff_dis = 15*units::cm;
       }else{
 	dir2 = VHoughTrans(test_point,100*units::cm);
-	if (dir2.Angle(dir) > 3.1415926/2.) dir2 *= -1;
-	dir2.SetMag(1);
-	dir = dir * old_dis + dir2*15*units::cm;
-	dir.SetMag(1);
-	old_dis = 15*units::cm;
+	eff_dis = 5*units::cm;
       }
 
-      
+      if (dir2.Angle(dir) > 3.1415926/2.) dir2 *= -1;
+      if (dir2.Angle(dir) < 25/180.*3.1415926){
+	dir2.SetMag(1);
+	dir = dir * old_dis  + dir2*eff_dis;
+	dir.SetMag(1);
+	old_dis = eff_dis;
+      }
       
 
       // start jump gaps
@@ -315,7 +311,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	dis1 = dir2.Mag();
 	angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
     
-	//std::cout << i << " " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << std::endl;
+	//	std::cout << i << " " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << std::endl;
 	double angle2 = fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180;
 	double angle3 = fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180;
 	
