@@ -2077,8 +2077,7 @@ std::pair<double,double> PR3DCluster::HoughTrans(Point&p , double dis){
 }
 
 void PR3DCluster::Calc_PCA(PointVector& points){
-  if (flag_PCA) return;
-  flag_PCA = true;
+  
   center.x=0; center.y=0; center.z=0;
   int nsum = 0;
   for (auto it = mcells.begin(); it!=mcells.end();it++){
@@ -2151,8 +2150,50 @@ void PR3DCluster::Calc_PCA(PointVector& points){
 }
 
 
-void PR3DCluster::Calc_PCA(){
+bool PR3DCluster::Construct_skeleton(){
+  if (path_wcps.size()>0)
+    return false;
+  Calc_PCA();
   
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
+  WCPointCloud<double>::WCPoint lowest_wcp = cloud.pts[0];
+
+  TVector3 main_dir(PCA_axis[0].x,PCA_axis[0].y,PCA_axis[0].z);
+  main_dir.SetMag(1);
+  TVector3 temp_pt(highest_wcp.x-center.x, highest_wcp.y-center.y, highest_wcp.z-center.z);
+  double highest_value = temp_pt.Dot(main_dir);
+  double lowest_value = highest_value;
+  
+  for (size_t i=1;i<cloud.pts.size();i++){
+    temp_pt.SetXYZ(cloud.pts[i].x-center.x, cloud.pts[i].y - center.y, cloud.pts[i].z - center.z);
+    double value = temp_pt.Dot(main_dir);
+    if (value > highest_value){
+      highest_value = value;
+      highest_wcp = cloud.pts[i];
+    }else if (value < lowest_value){
+      lowest_value = value;
+      lowest_wcp = cloud.pts[i];
+    }
+  }
+  dijkstra_shortest_paths(highest_wcp);
+  cal_shortest_path(lowest_wcp);
+
+
+  // std::cout << main_dir.X() << " " << main_dir.Y() << " " << main_dir.Z() << " " 
+  //   	    << lowest_wcp.x/units::cm << " " << lowest_wcp.y/units::cm << " " << lowest_wcp.z/units::cm << " "
+  // 	    << highest_wcp.x/units::cm << " " << highest_wcp.y/units::cm << " " << highest_wcp.z/units::cm << " "
+  // 	    << std::endl;
+	   
+  
+  return true;
+
+  
+}
+
+void PR3DCluster::Calc_PCA(){
+  if (flag_PCA) return;
+  flag_PCA = true;
   
   center.x=0; center.y=0; center.z=0;
   int nsum = 0;

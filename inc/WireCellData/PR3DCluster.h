@@ -64,6 +64,7 @@ namespace WireCell{
     WCPointCloud<double>::WCPoint get_furthest_wcpoint(WCPointCloud<double>::WCPoint wcp, TVector3 dir, double step = 5*units::cm, int allowed_nstep = 12);
     void adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_wcp, WCPointCloud<double>::WCPoint& end_wcp);
 
+    bool Construct_skeleton();
     
     void Calc_PCA();
     bool flag_PCA;
