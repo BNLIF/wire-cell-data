@@ -29,6 +29,9 @@ namespace WireCell{
     ~DynamicToyPointCloud();
 
     void AddPoints(PR3DCluster* cluster, int flag=0); // flag 1 points, flag 2 scheleton
+
+    std::tuple<double, PR3DCluster*, size_t> get_closest_point_info(WireCell::Point& p);
+    std::tuple<double, PR3DCluster*, size_t> get_closest_2d_point_info(WireCell::Point& p, int plane);
     
     PR3DCluster* get_cluster(int index);
     

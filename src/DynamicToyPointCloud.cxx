@@ -207,3 +207,27 @@ void WireCell::DynamicToyPointCloud::AddPoints(PR3DCluster* cluster, int flag){
     index_w->addPoints(current_size, current_size+path_wcps.size()-1);
   }
 }
+
+std::tuple<double, PR3DCluster*, size_t>  WireCell::DynamicToyPointCloud::get_closest_point_info(WireCell::Point& p){
+  std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
+  return std::make_tuple(results.front().second, vec_index_cluster.at(results.front().first), results.front().first);
+}
+
+std::tuple<double, PR3DCluster*, size_t> WireCell::DynamicToyPointCloud::get_closest_2d_point_info(WireCell::Point& p, int plane){
+  std::vector<std::pair<size_t,double>> results;
+  double x,y;
+  if (plane==0){
+    x = p.x;
+    y = cos(angle_u) * p.z - sin(angle_u) * p.y;
+    results = get_closest_2d_index(x,y,1,0);
+  }else if (plane==1){
+    x = p.x;
+    y = cos(angle_v) * p.z - sin(angle_v) * p.y;
+    results = get_closest_2d_index(x,y,1,1);
+  }else if (plane==2){
+    x = p.x;
+    y = cos(angle_w) * p.z - sin(angle_w) * p.y;
+    results = get_closest_2d_index(x,y,1,2);
+  }
+  return std::make_tuple(results.front().second, vec_index_cluster.at(results.front().first), results.front().first);
+}
