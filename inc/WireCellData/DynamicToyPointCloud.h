@@ -28,7 +28,20 @@ namespace WireCell{
     DynamicToyPointCloud(double angle_u = 1.0472, double angle_v = -1.0472, double angle_w = 0);
     ~DynamicToyPointCloud();
 
+    void AddPoints(PR3DCluster* cluster, int flag=0); // flag 1 points, flag 2 scheleton
+    
+    PR3DCluster* get_cluster(int index);
+    
+    
   protected:
+    std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, int N); 
+    std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, double radius); 
+
+    
+    std::vector<std::pair<size_t,double>> get_closest_2d_index(double x, double y, int N, int plane); 
+    std::vector<std::pair<size_t,double>> get_closest_2d_index(double x, double y, double radius, int plane);
+
+    
     double angle_u, angle_v, angle_w;
     WireCell::WCPointCloud<double> cloud;
     my_dynamic_kd_tree_t *index;

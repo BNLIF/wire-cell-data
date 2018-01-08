@@ -25,3 +25,185 @@ WireCell::DynamicToyPointCloud::~DynamicToyPointCloud(){
   cloud_v.pts.clear();
   cloud_w.pts.clear();
 }
+
+
+
+std::vector<std::pair<size_t,double>> WireCell::DynamicToyPointCloud::get_closest_index(WireCell::Point& p, int N){
+  const size_t num_results = N;
+  nanoflann::KNNResultSet<double> resultSet(num_results);
+  std::vector<size_t> ret_index(N);
+  std::vector<double> out_dist_sqr(N);
+  resultSet.init(&ret_index[0],&out_dist_sqr[0]);
+  
+  double query_pt[3];
+  query_pt[0] = p.x;
+  query_pt[1] = p.y;
+  query_pt[2] = p.z;  
+  index->findNeighbors(resultSet,query_pt, nanoflann::SearchParams(10));
+  
+  std::vector<std::pair<size_t,double>> results(N);
+  for(size_t i=0; i!=N; i++){
+    results.at(i) = std::make_pair(ret_index.at(i),out_dist_sqr.at(i));
+  }
+  
+  return results;
+}
+
+
+
+std::vector<std::pair<size_t,double>> WireCell::DynamicToyPointCloud::get_closest_2d_index(double x, double y, int N, int plane){
+  const size_t num_results = N;
+  nanoflann::KNNResultSet<double> resultSet(num_results);
+  std::vector<size_t> ret_index(N);
+  std::vector<double> out_dist_sqr(N);
+  resultSet.init(&ret_index[0],&out_dist_sqr[0]);
+  
+  double query_pt[2];
+  query_pt[0] = x;
+  query_pt[1] = y;
+  if (plane==0){
+    index_u->findNeighbors(resultSet,query_pt, nanoflann::SearchParams(10));
+  }else if (plane==1){
+    index_v->findNeighbors(resultSet,query_pt, nanoflann::SearchParams(10));
+  }else{
+    index_w->findNeighbors(resultSet,query_pt, nanoflann::SearchParams(10));
+  }
+ 
+  
+  std::vector<std::pair<size_t,double>> results(N);
+  for(size_t i=0; i!=N; i++){
+    results.at(i) = std::make_pair(ret_index.at(i),out_dist_sqr.at(i));
+  }
+  
+  return results;
+}
+
+
+std::vector<std::pair<size_t,double>> WireCell::DynamicToyPointCloud::get_closest_index(WireCell::Point& p, double search_radius){
+  double query_pt[3];
+  query_pt[0] = p.x;
+  query_pt[1] = p.y;
+  query_pt[2] = p.z;
+  std::vector<std::pair<size_t, double> > indices_dists;
+  nanoflann::RadiusResultSet<double, size_t> resultSet(search_radius * search_radius, indices_dists);
+  index->findNeighbors(resultSet, query_pt, nanoflann::SearchParams());
+  
+  
+  return indices_dists;
+}
+
+
+std::vector<std::pair<size_t,double>> WireCell::DynamicToyPointCloud::get_closest_2d_index(double x, double y, double search_radius, int plane){
+  double query_pt[2];
+  query_pt[0] = x;
+  query_pt[1] = y;
+  std::vector<std::pair<size_t, double> > indices_dists;
+  nanoflann::RadiusResultSet<double, size_t> resultSet(search_radius * search_radius, indices_dists);
+  
+  if (plane ==0){
+    index_u->findNeighbors(resultSet, query_pt, nanoflann::SearchParams());
+  }else if (plane==1){
+    index_v->findNeighbors(resultSet, query_pt, nanoflann::SearchParams());
+  }else{
+    index_w->findNeighbors(resultSet, query_pt, nanoflann::SearchParams());
+  }
+  return indices_dists;
+}
+
+
+PR3DCluster* WireCell::DynamicToyPointCloud::get_cluster(int index){
+  if (index <0 || index >= vec_index_cluster.size()){
+    return 0;
+  }else{
+    return vec_index_cluster.at(index);
+  }
+}
+
+
+void WireCell::DynamicToyPointCloud::AddPoints(PR3DCluster* cluster, int flag){
+  size_t current_size = cloud.pts.size();
+  
+  if (flag==0){
+    // add actual points in
+    WireCell::WCPointCloud<double>& pcloud = cluster->get_point_cloud()->get_cloud();
+    WireCell::WC2DPointCloud<double>& pcloud_u = cluster->get_point_cloud()->get_cloud_u();
+    WireCell::WC2DPointCloud<double>& pcloud_v = cluster->get_point_cloud()->get_cloud_v();
+    WireCell::WC2DPointCloud<double>& pcloud_w = cluster->get_point_cloud()->get_cloud_w();
+
+    cloud.pts.resize(current_size + pcloud.pts.size());
+    cloud_u.pts.resize(current_size + pcloud.pts.size());
+    cloud_v.pts.resize(current_size + pcloud.pts.size());
+    cloud_w.pts.resize(current_size + pcloud.pts.size());
+    vec_index_cluster.resize(current_size + pcloud.pts.size());
+    
+    for (size_t i=0;i!=pcloud.pts.size();i++){
+      vec_index_cluster.at(current_size+i) = cluster;
+
+      cloud.pts[current_size+i].x = pcloud.pts.at(i).x;
+      cloud.pts[current_size+i].y = pcloud.pts.at(i).y;
+      cloud.pts[current_size+i].z = pcloud.pts.at(i).z;
+      cloud.pts[current_size+i].index_u = pcloud.pts.at(i).index_u;
+      cloud.pts[current_size+i].index_v = pcloud.pts.at(i).index_v;
+      cloud.pts[current_size+i].index_w = pcloud.pts.at(i).index_w;
+      cloud.pts[current_size+i].mcell = pcloud.pts.at(i).mcell;
+      cloud.pts[current_size+i].index = current_size+i;
+
+      cloud_u.pts[current_size+i].x = pcloud_u.pts.at(i).x;
+      cloud_u.pts[current_size+i].y = pcloud_u.pts.at(i).y;
+      cloud_u.pts[current_size+i].index = current_size+i;
+      
+      cloud_v.pts[current_size+i].x = pcloud_v.pts.at(i).x;
+      cloud_v.pts[current_size+i].y = pcloud_v.pts.at(i).y;
+      cloud_v.pts[current_size+i].index = current_size+i;
+      
+      cloud_w.pts[current_size+i].x = pcloud_w.pts.at(i).x;
+      cloud_w.pts[current_size+i].y = pcloud_w.pts.at(i).y;
+      cloud_w.pts[current_size+i].index = current_size+i;
+    }
+    
+    index->addPoints(current_size, current_size+pcloud.pts.size()-1);
+    index_u->addPoints(current_size, current_size+pcloud.pts.size()-1);
+    index_v->addPoints(current_size, current_size+pcloud.pts.size()-1);
+    index_w->addPoints(current_size, current_size+pcloud.pts.size()-1);
+  }else{
+    // add skeleton points in
+    std::list<WCPointCloud<double>::WCPoint>& path_wcps = cluster->get_path_wcps();
+    cloud.pts.resize(current_size + path_wcps.size());
+    cloud_u.pts.resize(current_size + path_wcps.size());
+    cloud_v.pts.resize(current_size + path_wcps.size());
+    cloud_w.pts.resize(current_size + path_wcps.size());
+    vec_index_cluster.resize(current_size + path_wcps.size());
+    int i = 0;
+    for (auto it = path_wcps.begin(); it!=path_wcps.end();it++){
+      vec_index_cluster.at(current_size+i) = cluster;
+
+      cloud.pts[current_size+i].x = (*it).x;
+      cloud.pts[current_size+i].y = (*it).y;
+      cloud.pts[current_size+i].z = (*it).z;
+      cloud.pts[current_size+i].index_u = 0;
+      cloud.pts[current_size+i].index_v = 0;
+      cloud.pts[current_size+i].index_w = 0;
+      cloud.pts[current_size+i].mcell = 0;
+      cloud.pts[current_size+i].index = current_size+i;
+
+      cloud_u.pts[current_size+i].x = (*it).x;
+      cloud_u.pts[current_size+i].y = cos(angle_u) * (*it).z - sin(angle_u) * (*it).y;
+      cloud_u.pts[current_size+i].index = current_size+i;
+      
+      cloud_v.pts[current_size+i].x = (*it).x;
+      cloud_v.pts[current_size+i].y = cos(angle_v) * (*it).z - sin(angle_v) * (*it).y;
+      cloud_v.pts[current_size+i].index = current_size+i;
+      
+      cloud_w.pts[current_size+i].x = (*it).x;
+      cloud_w.pts[current_size+i].y = cos(angle_w) * (*it).z - sin(angle_w) * (*it).y;
+      cloud_w.pts[current_size+i].index = current_size+i;
+      
+      i ++;
+    }
+
+    index->addPoints(current_size, current_size+path_wcps.size()-1);
+    index_u->addPoints(current_size, current_size+path_wcps.size()-1);
+    index_v->addPoints(current_size, current_size+path_wcps.size()-1);
+    index_w->addPoints(current_size, current_size+path_wcps.size()-1);
+  }
+}
