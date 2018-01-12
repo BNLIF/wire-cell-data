@@ -160,11 +160,12 @@ void WireCell::DynamicToyPointCloud::AddPoints(PR3DCluster* cluster, int flag, d
       cloud_w.pts[current_size+i].y = pcloud_w.pts.at(i).y;
       cloud_w.pts[current_size+i].index = current_size+i;
     }
-    
-    index->addPoints(current_size, current_size+pcloud.pts.size()-1);
-    index_u->addPoints(current_size, current_size+pcloud.pts.size()-1);
-    index_v->addPoints(current_size, current_size+pcloud.pts.size()-1);
-    index_w->addPoints(current_size, current_size+pcloud.pts.size()-1);
+    if (pcloud.pts.size()>0){
+      index->addPoints(current_size, current_size+pcloud.pts.size()-1);
+      index_u->addPoints(current_size, current_size+pcloud.pts.size()-1);
+      index_v->addPoints(current_size, current_size+pcloud.pts.size()-1);
+      index_w->addPoints(current_size, current_size+pcloud.pts.size()-1);
+    }
   }else{
     // add skeleton points in
     std::list<WCPointCloud<double>::WCPoint>& path_wcps = cluster->get_path_wcps();
@@ -227,11 +228,12 @@ void WireCell::DynamicToyPointCloud::AddPoints(PR3DCluster* cluster, int flag, d
       
       i ++;
     }
-
-    index->addPoints(current_size, current_size+pts.size()-1);
-    index_u->addPoints(current_size, current_size+pts.size()-1);
-    index_v->addPoints(current_size, current_size+pts.size()-1);
-    index_w->addPoints(current_size, current_size+pts.size()-1);
+    if (pts.size()>0){
+      index->addPoints(current_size, current_size+pts.size()-1);
+      index_u->addPoints(current_size, current_size+pts.size()-1);
+      index_v->addPoints(current_size, current_size+pts.size()-1);
+      index_w->addPoints(current_size, current_size+pts.size()-1);
+    }
   }
 }
 

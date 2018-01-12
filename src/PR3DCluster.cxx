@@ -2176,6 +2176,8 @@ bool PR3DCluster::Construct_skeleton(){
       lowest_wcp = cloud.pts[i];
     }
   }
+  
+  
   dijkstra_shortest_paths(highest_wcp);
   cal_shortest_path(lowest_wcp);
 
