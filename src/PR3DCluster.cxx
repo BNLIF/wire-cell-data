@@ -174,7 +174,7 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
 
   //double old_dis = sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2));
   
-  //  std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2))/units::cm << std::endl;
+  //std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2))/units::cm << std::endl;
 
   WCPointCloud<double>::WCPoint new_start_wcp;
   WCPointCloud<double>::WCPoint new_end_wcp;
@@ -184,7 +184,7 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
   for (size_t i=0; i!= indices.size(); i++){
     //  std::cout << indices.at(i) << std::endl;
     for (size_t j=i+1; j!=indices.size(); j++){
-      double value = fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_u - point_cloud->get_cloud().pts.at(indices.at(j)).index_u) + fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_v - point_cloud->get_cloud().pts.at(indices.at(j)).index_v) + fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_w - point_cloud->get_cloud().pts.at(indices.at(j)).index_w);
+      double value = pow(point_cloud->get_cloud().pts.at(indices.at(i)).index_u - point_cloud->get_cloud().pts.at(indices.at(j)).index_u,2) + pow(point_cloud->get_cloud().pts.at(indices.at(i)).index_v - point_cloud->get_cloud().pts.at(indices.at(j)).index_v,2) + pow(point_cloud->get_cloud().pts.at(indices.at(i)).index_w - point_cloud->get_cloud().pts.at(indices.at(j)).index_w,2);
       //double dis = sqrt(pow(point_cloud->get_cloud().pts.at(indices.at(i)).x - point_cloud->get_cloud().pts.at(indices.at(j)).x,2)+pow(point_cloud->get_cloud().pts.at(indices.at(i)).y - point_cloud->get_cloud().pts.at(indices.at(j)).y,2)+pow(point_cloud->get_cloud().pts.at(indices.at(i)).z - point_cloud->get_cloud().pts.at(indices.at(j)).z,2));
       if (value > sum_value ){
 	//old_dis = dis;
@@ -208,7 +208,7 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
 
   
 
-  // std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2))/units::cm << std::endl;
+  //  std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2))/units::cm << std::endl;
   
 } 
 
