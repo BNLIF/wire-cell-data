@@ -984,7 +984,7 @@ void PR3DCluster::Create_graph(){
 		  num_cut_points ++;
 	      }
 
-	      // std::cout << dis/units::cm << " " << num_cut_points << " " <<num_points << " " << test_p2.x/units::cm << " " << test_p2.y/units::cm << " " << test_p2.z/units::cm << " " << test_p1.x/units::cm << " " << test_p1.y/units::cm << " " << test_p1.z/units::cm << std::endl;
+	      //std::cout << dis/units::cm << " " << num_cut_points << " " <<num_points << " " << test_p2.x/units::cm << " " << test_p2.y/units::cm << " " << test_p2.z/units::cm << " " << test_p1.x/units::cm << " " << test_p1.y/units::cm << " " << test_p1.z/units::cm << std::endl;
 
 	      if (num_cut_points <=8 && num_cut_points < 0.25 * num_points + 2 && dis > 5*units::cm)
 		index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);
@@ -1052,6 +1052,8 @@ void PR3DCluster::Create_graph(){
       	    if (edge.second){
       	      if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
       	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.2;
+	      // }else if (std::get<2>(index_index_dis_dir1[j][k])>2*units::cm){
+	      // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.1;
       	      }else{
       	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
       	      }
@@ -1062,11 +1064,15 @@ void PR3DCluster::Create_graph(){
       	    if (edge.second){
       	      if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
       	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.2;
+	      // }else if(std::get<2>(index_index_dis_dir2[j][k])>2*units::cm){
+	      // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.1;
       	      }else{
       	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
       	      }
       	    }
       	  }
+	  
+	  
       	}
       }
 
