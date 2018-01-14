@@ -185,7 +185,9 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
     //  std::cout << indices.at(i) << std::endl;
     for (size_t j=i+1; j!=indices.size(); j++){
       double value = pow(point_cloud->get_cloud().pts.at(indices.at(i)).index_u - point_cloud->get_cloud().pts.at(indices.at(j)).index_u,2) + pow(point_cloud->get_cloud().pts.at(indices.at(i)).index_v - point_cloud->get_cloud().pts.at(indices.at(j)).index_v,2) + pow(point_cloud->get_cloud().pts.at(indices.at(i)).index_w - point_cloud->get_cloud().pts.at(indices.at(j)).index_w,2);
-      //double dis = sqrt(pow(point_cloud->get_cloud().pts.at(indices.at(i)).x - point_cloud->get_cloud().pts.at(indices.at(j)).x,2)+pow(point_cloud->get_cloud().pts.at(indices.at(i)).y - point_cloud->get_cloud().pts.at(indices.at(j)).y,2)+pow(point_cloud->get_cloud().pts.at(indices.at(i)).z - point_cloud->get_cloud().pts.at(indices.at(j)).z,2));
+
+      // double value = fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_u - point_cloud->get_cloud().pts.at(indices.at(j)).index_u) + fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_v - point_cloud->get_cloud().pts.at(indices.at(j)).index_v) + fabs(point_cloud->get_cloud().pts.at(indices.at(i)).index_w - point_cloud->get_cloud().pts.at(indices.at(j)).index_w);
+      
       if (value > sum_value ){
 	//old_dis = dis;
 	if (point_cloud->get_cloud().pts.at(indices.at(i)).y > point_cloud->get_cloud().pts.at(indices.at(j)).y){
@@ -214,11 +216,13 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
 
 
 WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<double>::WCPoint old_wcp, TVector3 dir, double step, int allowed_nstep){
+  
   dir.SetMag(1);
   Point test_point;
   bool flag_continue = true;
   Point orig_point(old_wcp.x,old_wcp.y,old_wcp.z);
   TVector3 orig_dir = dir;
+  orig_dir.SetMag(1);
   int counter = 0;
   TVector3 drift_dir(1,0,0);
 
@@ -226,18 +230,8 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 
   
   while(flag_continue && counter < 400){
-    // if (counter%5==0&&counter>0 && fabs(dir.Angle(drift_dir)-3.1415926/2.)>7.5*180./3.1415926){// about 30 cm ... 
-    //   test_point.x = old_wcp.x ;
-    //   test_point.y = old_wcp.y ;
-    //   test_point.z = old_wcp.z ;
-    //   TVector3 dir2 = VHoughTrans(test_point,25*units::cm);
-    //    if (dir2.Dot(dir) > 0 ){
-    // 	 dir = dir2;
-    //    }else{
-    // 	 dir = dir2 * (-1);
-    //    }
-    // }
     counter++;
+
     // first step
     test_point.x = old_wcp.x + dir.X() * step;
     test_point.y = old_wcp.y + dir.Y() * step;
@@ -245,57 +239,86 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
     WCPointCloud<double>::WCPoint new_wcp = point_cloud->get_closest_wcpoint(test_point);
     
     TVector3 dir1(new_wcp.x - old_wcp.x,new_wcp.y - old_wcp.y,new_wcp.z - old_wcp.z);
-    double dis = dir1.Mag();
-    double angle = dir1.Angle(dir)/3.1415926*180.;
-    TVector3 dir2(new_wcp.x-orig_point.x,new_wcp.y-orig_point.y,new_wcp.z-orig_point.z);
+    double dis = dir1.Mag(); // distance change
+    double angle = dir1.Angle(dir)/3.1415926*180.; // local angle change
+   
+    TVector3 dir2(new_wcp.x-orig_point.x,new_wcp.y-orig_point.y,new_wcp.z-orig_point.z); // start from the original point
     double dis1 = dir2.Mag();
     double angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
-
-
-    //  std::cout <<  " A " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << std::endl;
-
     
-    if ((angle < 25 || dis < 1.2*units::cm && angle < 60 ||
-	 fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180. && angle < 60)
-	&& (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm || ((angle < 30 ||angle1 <=5)&& fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5.*3.1415926/180.)) && dis > 0.2*units::cm){
+    TVector3 dir3(old_wcp.x-orig_point.x,old_wcp.y-orig_point.y,old_wcp.z-orig_point.z); // start from the original point
+    
+    bool flag_para = false;
+    if (fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. ||
+	fabs(dir2.Angle(drift_dir)-3.1415926/2.)<2.5*3.1415926/180. && fabs(dir3.Angle(drift_dir)-3.1415926/2.)<2.5*3.1415926/180.)
+      flag_para = true;
+
+    bool flag_forward = false;
+    if (flag_para){
+      // parallel case
+      if (angle < 60 &&
+	  dis > 0.2*units::cm &&
+	  (angle < 30 || angle1 <=5))
+	flag_forward = true;
+    }else{
+      // non-parallel case
+      if ((angle < 25 || dis < 1.2*units::cm && angle < 60) &&                    //loose cut
+	  (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm ||       // tight cut
+	   angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) &&
+	  dis > 0.2*units::cm)     // in case of good direction
+	flag_forward = true;
+    }
+       
+    //  std::cout <<  " A " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << std::endl;
+    
+    if (flag_forward){
       old_wcp = new_wcp;
 
-
-      
       //std::cout << "A: " << " " << new_wcp.x/units::cm << " " << new_wcp.y/units::cm << " " << new_wcp.z/units::cm << " " << angle << " " << dis * sin(angle/180.*3.1415926)/units::cm << angle1 << " " << dis1 * sin(angle1/180.*3.1415926)/units::cm << " " << dis/units::cm << std::endl;
       
-      
       if (dis > 3*units::cm ){
-	dir  = dir * old_dis + dir1 ;
+	if (flag_para){
+	  dir = dir * old_dis + dir1 + orig_dir * 15*units::cm; // if parallel, taking into account original direction ... 
+	}else{
+	  dir = dir * old_dis + dir1;
+	}
       	dir.SetMag(1);
-	old_dis = dis;
+	old_dis = (old_dis*old_dis+dis*dis)/(old_dis + dis);
       }
     }else{
+      //  failure & update direction
       flag_continue = false;
-      //  failure
-      // update direction
+      
       test_point.x = old_wcp.x;
       test_point.y = old_wcp.y;
       test_point.z = old_wcp.z;
       
-      TVector3 dir2;
+      TVector3 dir4;
       double eff_dis;
-      if (fabs(dir.Angle(drift_dir)-3.1415926/2.)>5*3.1415926/180.){
-	dir2 = VHoughTrans(test_point,30*units::cm);
-	eff_dis = 15*units::cm;
-      }else{
-	dir2 = VHoughTrans(test_point,100*units::cm);
+      if (flag_para){
+	dir4 = VHoughTrans(test_point,100*units::cm);
 	eff_dis = 5*units::cm;
+      }else{
+	dir4 = VHoughTrans(test_point,30*units::cm);
+	eff_dis = 15*units::cm;
       }
-
-      if (dir2.Angle(dir) > 3.1415926/2.) dir2 *= -1;
-      if (dir2.Angle(dir) < 25/180.*3.1415926){
-	dir2.SetMag(1);
-	dir = dir * old_dis  + dir2*eff_dis;
+      dir4.SetMag(1);
+      if (dir4.Angle(dir) > 3.1415926/2.) dir4 *= -1;
+      
+      
+      if (flag_para){
+	dir = dir * old_dis + dir4 * eff_dis + orig_dir * 15*units::cm;
 	dir.SetMag(1);
 	old_dis = eff_dis;
+      }else{
+	//non-parallel case
+	if (dir4.Angle(dir) < 25/180.*3.1415926){
+	  dir = dir * old_dis  + dir4*eff_dis;
+	  dir.SetMag(1);
+	  old_dis = eff_dis;
+	}
       }
-      
+            
 
       // start jump gaps
       for (int i=0;i!=allowed_nstep*5;i++){
@@ -303,29 +326,55 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	test_point.y = old_wcp.y + dir.Y() * step * (1+1./5.* i);
 	test_point.z = old_wcp.z + dir.Z() * step * (1+1./5.* i);
 	new_wcp = point_cloud->get_closest_wcpoint(test_point);
-	double dis1 = sqrt(pow(new_wcp.x-test_point.x,2)+pow(new_wcp.y-test_point.y,2)+pow(new_wcp.z-test_point.z,2));
+	double dis2 = sqrt(pow(new_wcp.x-test_point.x,2)+pow(new_wcp.y-test_point.y,2)+pow(new_wcp.z-test_point.z,2));
 	dir1.SetXYZ(new_wcp.x - old_wcp.x,new_wcp.y - old_wcp.y,new_wcp.z - old_wcp.z);
 	dis = dir1.Mag();
 	angle = dir1.Angle(dir)/3.1415926*180.;
+	
 	dir2.SetXYZ(new_wcp.x-orig_point.x,new_wcp.y-orig_point.y,new_wcp.z-orig_point.z);
 	dis1 = dir2.Mag();
 	angle1 = dir2.Angle(orig_dir)/3.1415926*180.;
-    
-	//	std::cout << i << " " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << std::endl;
-	double angle2 = fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180;
-	double angle3 = fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180;
+
+	dir3.SetXYZ(old_wcp.x-orig_point.x,old_wcp.y-orig_point.y,old_wcp.z-orig_point.z);
+
+	flag_para = false;
+	if (fabs(dir1.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. && fabs(dir.Angle(drift_dir)-3.1415926/2.)<5*3.1415926/180. ||
+	    fabs(dir2.Angle(drift_dir)-3.1415926/2.)<2.5*3.1415926/180. && fabs(dir3.Angle(drift_dir)-3.1415926/2.)<2.5*3.1415926/180.)
+	  flag_para = true;
+
+	flag_forward = false;
+	if (dis2 < 0.75 * step/5. && dis > 0.2*units::cm)
+	  flag_forward = true;
 	
-	if (dis1 < 0.75 * step/5. && dis > 0.2*units::cm || ((angle < 20 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm)
-							     || (angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm)
-							     || ((angle < 35 ||angle1 <=5)&& angle2 < 5 && angle3 < 5)
-							     ) && dis > step*0.8 && (angle < 30  || (angle2 < 7.5 && angle3 < 7.5 || (angle2 < 2 || angle3 < 2) && (angle2+angle3)< 10 ) && angle < 60  )){
+	if (flag_para){
+	  if (dis > step*0.8 &&
+	      (angle <35 || angle1 <=5) &&
+	      (angle<60))
+	    flag_forward = true;
+	}else{
+	  if (((angle < 20 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm) ||
+	       (angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm)) &&
+	      dis > step*0.8 &&
+	      (angle < 30))
+	    flag_forward = true;
+	}
+	
+	//	std::cout << i << " " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << std::endl;
+
+	
+	if (flag_forward){
 	  old_wcp = new_wcp;
 
 	  if (dis > 3*units::cm ){
 	    // std::cout << "B: " << dir.X() << " " << dir.Y() << " " << dir.Z() << " " << dir1.X() << " " << dir1.Y() << dir1.Z() << " " << new_wcp.x/units::cm << " " << new_wcp.y/units::cm << " " << new_wcp.z/units::cm << " " << dir1.Angle(dir)/3.1415926*180. << std::endl;
-	    dir = dir * old_dis + dir1 ;
+	    if (flag_para){
+	      dir = dir * old_dis + dir1 + orig_dir * 15*units::cm;
+	    }else{
+	      dir = dir * old_dis + dir1 ;
+	    }
 	    dir.SetMag(1);
-	    old_dis = dis;
+	    old_dis = (old_dis*old_dis+dis*dis)/(old_dis + dis);
+	    if (old_dis > 15*units::cm) old_dis = 15*units::cm;
 	  }
 
 	  
