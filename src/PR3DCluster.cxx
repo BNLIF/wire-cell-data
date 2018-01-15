@@ -913,6 +913,13 @@ void PR3DCluster::Create_graph(){
       for (int j=0;j!=num;j++){
       	for (int k=j+1;k!=num;k++){
 	  index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
+	  // {
+	  //   std::tuple<int,int,double> temp_results = pt_clouds.at(k)->get_closest_points(pt_clouds.at(j));
+	  //   if (std::get<2>(temp_results) < std::get<2>(index_index_dis[j][k])){
+	  //     index_index_dis[j][k] = std::make_tuple(std::get<1>(temp_results),std::get<0>(temp_results),std::get<2>(temp_results));
+	  //   }
+	  // }
+	  
       	  int index1 = j;
       	  int index2 = k;
       	  auto edge = add_edge(index1,index2, std::get<2>(index_index_dis[j][k]), temp_graph);
@@ -946,13 +953,18 @@ void PR3DCluster::Create_graph(){
 	  if (std::get<2>(index_index_dis[j][k])<3*units::cm){
 	    index_index_dis_mst[j][k] = index_index_dis[j][k];
 	  }
-	  
+
+	  //std::cout << j << " " << k << " " << pt_clouds.at(j)->get_num_points() << " " << pt_clouds.at(k)->get_num_points() << std::endl;
 	  if (pt_clouds.at(j)->get_num_points()>100 && pt_clouds.at(k)->get_num_points()>100 &&
 	      (pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 400){
+	  // if (pt_clouds.at(j)->get_num_points()>10 && pt_clouds.at(k)->get_num_points()>10 &&
+	  //     (pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 2000){
 	    WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
 	    WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
 	    Point p1(wp1.x,wp1.y,wp1.z);
 	    Point p2(wp2.x,wp2.y,wp2.z);
+
+	    //  std::cout << j << " "<< k << " " << p1.x/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm << " " << p2.x/units::cm << " " << p2.y/units::cm << " " << p2.z/units::cm << " " << std::get<2>(index_index_dis[j][k])/units::cm << " " << pt_clouds.at(j)->get_num_points() << " " << pt_clouds.at(k)->get_num_points() << std::endl;
 	    
 	    TVector3 dir1 = VHoughTrans(p1, 30*units::cm);
 	    TVector3 dir2 = VHoughTrans(p2, 30*units::cm);
@@ -1006,7 +1018,7 @@ void PR3DCluster::Create_graph(){
 		  num_cut_points ++;
 	      }
 
-	      // std::cout << dis/units::cm << " " << num_cut_points << " " <<num_points << " " << test_p2.x/units::cm << " " << test_p2.y/units::cm << " " << test_p2.z/units::cm << " " << test_p1.x/units::cm << " " << test_p1.y/units::cm << " " << test_p1.z/units::cm << std::endl;
+	      //  std::cout << j << " A " << k << " " << dis/units::cm << " " << num_cut_points << " " <<num_points << " " << test_p2.x/units::cm << " " << test_p2.y/units::cm << " " << test_p2.z/units::cm << " " << test_p1.x/units::cm << " " << test_p1.y/units::cm << " " << test_p1.z/units::cm << std::endl;
 
 	      if (num_cut_points <=8 && num_cut_points< 0.25 * num_points + 2 && dis > 5*units::cm)
 		index_index_dis_dir1[j][k] = std::make_tuple(std::get<0>(index_index_dis[j][k]), result1.first, result1.second);
@@ -1061,7 +1073,7 @@ void PR3DCluster::Create_graph(){
 		  num_cut_points ++;
 	      }
 
-	      //std::cout << dis/units::cm << " " << num_cut_points << " " <<num_points << " " << test_p2.x/units::cm << " " << test_p2.y/units::cm << " " << test_p2.z/units::cm << " " << test_p1.x/units::cm << " " << test_p1.y/units::cm << " " << test_p1.z/units::cm << std::endl;
+	      //  std::cout <<  k<< " B " << j << " " << dis/units::cm << " " << num_cut_points << " " <<num_points << " " << test_p2.x/units::cm << " " << test_p2.y/units::cm << " " << test_p2.z/units::cm << " " << test_p1.x/units::cm << " " << test_p1.y/units::cm << " " << test_p1.z/units::cm << std::endl;
 
 	      if (num_cut_points <=8 && num_cut_points < 0.25 * num_points + 2 && dis > 5*units::cm)
 		index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);

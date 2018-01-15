@@ -57,7 +57,7 @@ std::pair<int,double> WireCell::ToyPointCloud::get_closest_point_along_vec(Point
 
 std::tuple<int,int,double> WireCell::ToyPointCloud::get_closest_points(ToyPointCloud *point_cloud){
   WireCell::WCPointCloud<double>::WCPoint p1 = cloud.pts.front();
-  WireCell::WCPointCloud<double>::WCPoint p2 = cloud.pts.front();
+  WireCell::WCPointCloud<double>::WCPoint p2 = point_cloud->get_cloud().pts.front();
   WireCell::WCPointCloud<double>::WCPoint p1_save;
   WireCell::WCPointCloud<double>::WCPoint p2_save;
   double min_dis = 1e9;
@@ -80,7 +80,7 @@ std::tuple<int,int,double> WireCell::ToyPointCloud::get_closest_points(ToyPointC
   prev_index1 = -1;
   prev_index2 = -1;
   p1 = cloud.pts.back();
-  p2 = cloud.pts.front();
+  p2 = point_cloud->get_cloud().pts.front();
   while(p1.index!=prev_index1 || p2.index!=prev_index2){
     prev_index1 = p1.index;
     prev_index2 = p2.index;
@@ -97,7 +97,7 @@ std::tuple<int,int,double> WireCell::ToyPointCloud::get_closest_points(ToyPointC
   prev_index1 = -1;
   prev_index2 = -1;
   p1 = cloud.pts.back();
-  p2 = cloud.pts.front();
+  p2 = point_cloud->get_cloud().pts.front();
   while(p1.index!=prev_index1 || p2.index!=prev_index2){
     prev_index1 = p1.index;
     prev_index2 = p2.index;
@@ -114,7 +114,7 @@ std::tuple<int,int,double> WireCell::ToyPointCloud::get_closest_points(ToyPointC
   prev_index1 = -1;
   prev_index2 = -1;
   p1 = cloud.pts.back();
-  p2 = cloud.pts.back();
+  p2 = point_cloud->get_cloud().pts.back();
   while(p1.index!=prev_index1 || p2.index!=prev_index2){
     prev_index1 = p1.index;
     prev_index2 = p2.index;
