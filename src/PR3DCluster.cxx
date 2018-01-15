@@ -316,19 +316,19 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
       dir4.SetMag(1);
       if (dir4.Angle(dir) > 3.1415926/2.) dir4 *= -1;
       
-      // std::cout << dir.X() << " " << dir.Y() << " " << dir.Z() << " " << orig_dir.X() << " " << orig_dir.Y() << " " << orig_dir.Z() << " " << old_dis/units::cm << std::endl;
+      // std::cout << dir.X() << " " << dir.Y() << " " << dir.Z() << " " << dir4.X() << " " << dir4.Y() << " " << dir4.Z() << " " << old_dis/units::cm << " " << dir4.Angle(dir)/3.1415926*180. << std::endl;
       
       if (flag_para){
 	dir = dir * old_dis + dir4 * eff_dis + orig_dir * 15*units::cm;
 	dir.SetMag(1);
 	old_dis = eff_dis;
       }else{
-	//non-parallel case
-	if (dir4.Angle(dir) < 25/180.*3.1415926){
-	  dir = dir * old_dis  + dir4*eff_dis;
-	  dir.SetMag(1);
-	  old_dis = eff_dis;
-	}
+      	//	non-parallel case
+      	if (dir4.Angle(dir) < 25/180.*3.1415926){
+      	  dir = dir * old_dis  + dir4*eff_dis;
+      	  dir.SetMag(1);
+      	  old_dis = eff_dis;
+      	}
       }
       
       //  std::cout << dir.X() << " " << dir.Y() << " " << dir.Z() << " " << dir4.X() << " " << dir4.Y() << " " << dir4.Z() << std::endl;
@@ -372,7 +372,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	    flag_forward = true;
 	}else{
 	  if (((angle < 20 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm) ||
-	       (angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm)) &&
+	       (angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis1 < 100*units::cm) &&
 	      dis > step*0.8 &&
 	      (angle < 30)){
 	    flag_forward = true;
@@ -384,7 +384,9 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	}
 	
 	//	std::cout << i << " " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << flag_para << std::endl;
+	
 
+	
 	
 	if (flag_forward){
 	  old_wcp = new_wcp;
