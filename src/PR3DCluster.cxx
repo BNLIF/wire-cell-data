@@ -270,6 +270,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
       // non-parallel case
       if ((angle < 25 || dis < 1.2*units::cm && angle < 60) &&                    //loose cut
 	  (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm ||       // tight cut
+	   (angle < 20 && angle1 <=2) ||
 	   (angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm )&& dis1 < 50*units::cm) &&
 	  dis > 0.2*units::cm){     // in case of good direction
 	flag_forward = true;
@@ -294,7 +295,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	  dir = dir * old_dis + dir1;
 	}
       	dir.SetMag(1);
-	old_dis = (old_dis*old_dis+dis*dis)/(old_dis + dis);
+	old_dis = dis;//(old_dis*old_dis+dis*dis)/(old_dis + dis);
       }
     }else{
       //  failure & update direction
@@ -371,7 +372,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	      (angle<60))
 	    flag_forward = true;
 	}else{
-	  if (((angle < 20 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm) ||
+	  if (((angle < 20 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || (angle < 25 && angle1 <=3)) ||
 	       (angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis1 < 100*units::cm) &&
 	      dis > step*0.8 &&
 	      (angle < 30)){
