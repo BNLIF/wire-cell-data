@@ -270,8 +270,8 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
       // non-parallel case
       if ((angle < 25 || dis < 1.2*units::cm && angle < 60) &&                    //loose cut
 	  (angle < 15 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm ||       // tight cut
-	   (angle < 20 && angle1 <=2) ||
-	   (angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm )&& dis1 < 50*units::cm) &&
+	   (angle < 21 && angle1 <=2) ||
+	   (angle1 <= 3 || dis1 * sin(angle1/180.*3.1415926) < 3.6*units::cm )&& dis1 < 50*units::cm) &&
 	  dis > 0.2*units::cm){     // in case of good direction
 	flag_forward = true;
       }else if ((angle_1 < 5 || angle_2 < 5) && (angle_1+angle_2)<15 && dis > 0.2*units::cm &&
@@ -372,8 +372,8 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	      (angle<60))
 	    flag_forward = true;
 	}else{
-	  if (((angle < 20 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || (angle < 25 && angle1 <=3)) ||
-	       (angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6*units::cm) && dis1 < 100*units::cm) &&
+	  if (((angle < 20 || dis * sin(angle/180.*3.1415926) < 1.2*units::cm || (angle <= 28 && angle1 <=2)) ||
+	       (angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6.0*units::cm) && dis1 < 100*units::cm) &&
 	      dis > step*0.8 &&
 	      (angle < 30)){
 	    flag_forward = true;
@@ -384,7 +384,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	  }
 	}
 	
-	//std::cout << i << " " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << flag_para << std::endl;
+	//	std::cout << i << " " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << flag_para << std::endl;
 	
 
 	
