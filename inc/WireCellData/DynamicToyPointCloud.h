@@ -34,6 +34,12 @@ namespace WireCell{
     std::tuple<double, PR3DCluster*, size_t> get_closest_2d_point_info(WireCell::Point& p, int plane);
     
     PR3DCluster* get_cluster(int index);
+
+    std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> get_closest_points(WireCell::Point& p, double radius);
+    
+    
+    std::pair<double,double> HoughTrans(Point& p, double dis);
+    TVector3 VHoughTrans(Point& p, double dis);
     
     
   protected:

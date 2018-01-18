@@ -1918,12 +1918,13 @@ TVector3 PR3DCluster::get_ft_dir_end(float mean_dis, float dis_cut){
 }
 
 std::pair<Point,Point> PR3DCluster::get_two_extreme_points(){
+  Create_point_cloud();
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   WCPointCloud<double>::WCPoint extreme_wcp[6];
   for (int i=0;i!=6;i++){
     extreme_wcp[i] = cloud.pts[0];
   }
-  for (size_t i=0;i< cloud.pts.size();i++){
+  for (size_t i=1;i< cloud.pts.size();i++){
     if (cloud.pts[i].y > extreme_wcp[0].y)
       extreme_wcp[0] = cloud.pts[i];
     if (cloud.pts[i].y < extreme_wcp[1].y)

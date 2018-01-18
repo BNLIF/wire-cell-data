@@ -1,4 +1,5 @@
 #include "WireCellData/DynamicToyPointCloud.h"
+#include "TH2F.h"
 
 using namespace WireCell;
 
@@ -260,3 +261,69 @@ std::tuple<double, PR3DCluster*, size_t> WireCell::DynamicToyPointCloud::get_clo
   }
   return std::make_tuple(sqrt(results.front().second), vec_index_cluster.at(results.front().first), results.front().first);
 }
+
+std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> WireCell::DynamicToyPointCloud::get_closest_points(WireCell::Point& p, double search_radius){
+  std::vector<std::pair<size_t,double>> results = get_closest_index(p,search_radius);
+  std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> points;
+  for (auto it = results.begin(); it!= results.end(); it++){
+    size_t index = (*it).first;
+    Point p;
+    p.x = cloud.pts[index].x;
+    p.y = cloud.pts[index].y;
+    p.z = cloud.pts[index].z;
+    SlimMergeGeomCell *mcell = cloud.pts[index].mcell;
+    points.push_back(std::make_pair(mcell,p));
+  }
+
+  return points;
+}
+
+
+
+
+std::pair<double,double> WireCell::DynamicToyPointCloud::HoughTrans(Point&p , double dis){
+  double theta, phi;
+  TH2F *hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
+  double x0 = p.x;
+  double y0 = p.y;
+  double z0 = p.z;
+  
+  std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> pts = get_closest_points(p,dis);
+
+  // std::cout << "Num " <<  pts.size() << std::endl;
+    
+  double x,y,z,q;
+  for (size_t i=0; i!=pts.size(); i++){
+    x = pts.at(i).second.x;
+    y = pts.at(i).second.y;
+    z = pts.at(i).second.z;
+    q = pts.at(i).first->get_q()/pts.at(i).first->get_sampling_points().size();
+    if (q<=0) continue;
+
+    //  for (int i1=0; i1!=5; i1++){
+    //  for (int j1=0; j1!=5; j1++){
+    //	for (int k1=0; k1!=5; k1++){
+    TVector3 vec(x-x0 ,y-y0 ,z-z0 );
+    hough->Fill(vec.Theta(),vec.Phi(), q );
+  }
+  int maxbin = hough->GetMaximumBin();
+  int a,b,c;
+  hough->GetBinXYZ(maxbin,a,b,c);
+  theta = hough->GetXaxis()->GetBinCenter(a);
+  phi = hough->GetYaxis()->GetBinCenter(b);
+
+  // std::cout << hough->GetSum() << " " << hough->GetBinContent(a,b)<< std::endl;
+  
+  delete hough;
+  return std::make_pair(theta,phi);
+}
+
+TVector3 WireCell::DynamicToyPointCloud::VHoughTrans(Point& p, double dis){
+  double theta, phi;
+  std::pair<double,double> angles_1 = HoughTrans(p,dis);
+  theta = angles_1.first;
+  phi = angles_1.second;
+  TVector3 temp(sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta));
+  return temp;
+}
+
