@@ -1917,6 +1917,49 @@ TVector3 PR3DCluster::get_ft_dir_end(float mean_dis, float dis_cut){
   return dir.Unit();
 }
 
+std::pair<Point,Point> PR3DCluster::get_two_extreme_points(){
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCPointCloud<double>::WCPoint extreme_wcp[6];
+  for (int i=0;i!=6;i++){
+    extreme_wcp[i] = cloud.pts[0];
+  }
+  for (size_t i=0;i< cloud.pts.size();i++){
+    if (cloud.pts[i].y > extreme_wcp[0].y)
+      extreme_wcp[0] = cloud.pts[i];
+    if (cloud.pts[i].y < extreme_wcp[1].y)
+      extreme_wcp[1] = cloud.pts[i];
+    
+    if (cloud.pts[i].x > extreme_wcp[2].x)
+      extreme_wcp[2] = cloud.pts[i];
+    if (cloud.pts[i].x < extreme_wcp[3].x)
+      extreme_wcp[3] = cloud.pts[i];
+    
+    if (cloud.pts[i].z > extreme_wcp[4].z)
+      extreme_wcp[4] = cloud.pts[i];
+    if (cloud.pts[i].z < extreme_wcp[5].z)
+      extreme_wcp[5] = cloud.pts[i];
+  }
+
+  double max_dis = -1;
+  WCPointCloud<double>::WCPoint wcp1, wcp2;
+  for (int i=0;i!=6;i++){
+    for (int j=i+1;j!=6;j++){
+      double dis = sqrt(pow(extreme_wcp[i].x - extreme_wcp[j].x,2)+pow(extreme_wcp[i].y - extreme_wcp[j].y,2)+pow(extreme_wcp[i].z - extreme_wcp[j].z,2));
+      if (dis > max_dis){
+	max_dis = dis;
+	wcp1 = extreme_wcp[i];
+	wcp2 = extreme_wcp[j];
+      }
+    }
+  }
+  Point p1(wcp1.x,wcp1.y,wcp1.z);
+  Point p2(wcp2.x,wcp2.y,wcp2.z);
+  p1 = calc_ave_pos(p1,5*units::cm);
+  p2 = calc_ave_pos(p2,5*units::cm);
+  
+  return std::make_pair(p1,p2);
+}
+
 
 std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_highest_lowest_wcps(){
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
