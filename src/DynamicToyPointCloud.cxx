@@ -121,6 +121,54 @@ PR3DCluster* WireCell::DynamicToyPointCloud::get_cluster(int index){
 }
 
 
+void WireCell::DynamicToyPointCloud::AddPoints(PR3DCluster* cluster, Point& p_test, TVector3& dir, double range, double step, double angle){
+  
+  size_t current_size = cloud.pts.size();
+  dir.SetMag(1);
+  
+  int num_points = int(range/(step))+1;
+  double dis_seg = range/num_points;
+
+  cloud.pts.resize(current_size + num_points);
+  cloud_u.pts.resize(current_size + num_points);
+  cloud_v.pts.resize(current_size + num_points);
+  cloud_w.pts.resize(current_size + num_points);
+  vec_index_cluster.resize(current_size + num_points);
+  
+  for (int k=0;k!=num_points;k++){
+    double dis_cut = std::max(1.5*units::cm,k*dis_seg*sin(angle/180.*3.1415926));
+    
+    vec_index_cluster.at(current_size+k) = cluster;
+    
+    cloud.pts[current_size+k].x = p_test.x + k * dir.X() * dis_seg;
+    cloud.pts[current_size+k].y = p_test.y + k * dir.Y() * dis_seg;
+    cloud.pts[current_size+k].z = p_test.z + k * dir.Z() * dis_seg;
+    cloud.pts[current_size+k].index_u = int(dis_cut); // hack ... 
+    cloud.pts[current_size+k].index_v = int(dis_cut);
+    cloud.pts[current_size+k].index_w = int(dis_cut); 
+    cloud.pts[current_size+k].mcell = 0;
+    cloud.pts[current_size+k].index = current_size+k;
+      
+    cloud_u.pts[current_size+k].x = cloud.pts[current_size+k].x;
+    cloud_u.pts[current_size+k].y = cos(angle_u) * (cloud.pts[current_size+k].z) - sin(angle_u) * (cloud.pts[current_size+k].y);
+    cloud_u.pts[current_size+k].index = current_size+k;
+    
+    cloud_v.pts[current_size+k].x = cloud.pts[current_size+k].x;
+    cloud_v.pts[current_size+k].y = cos(angle_v) * (cloud.pts[current_size+k].z) - sin(angle_v) * (cloud.pts[current_size+k].y);
+    cloud_v.pts[current_size+k].index = current_size+k;
+    
+    cloud_w.pts[current_size+k].x = cloud.pts[current_size+k].x;
+    cloud_w.pts[current_size+k].y = cos(angle_w) * (cloud.pts[current_size+k].z) - sin(angle_w) * (cloud.pts[current_size+k].y);
+    cloud_w.pts[current_size+k].index = current_size+k;
+  }
+
+  index->addPoints(current_size, current_size+num_points-1);
+  index_u->addPoints(current_size, current_size+num_points-1);
+  index_v->addPoints(current_size, current_size+num_points-1);
+  index_w->addPoints(current_size, current_size+num_points-1);
+  
+}
+
 void WireCell::DynamicToyPointCloud::AddPoints(PR3DCluster* cluster, int flag, double step){
   size_t current_size = cloud.pts.size();
   

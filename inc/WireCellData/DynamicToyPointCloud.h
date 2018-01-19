@@ -29,6 +29,7 @@ namespace WireCell{
     ~DynamicToyPointCloud();
 
     void AddPoints(PR3DCluster* cluster, int flag=0, double step = 0.6*units::cm); // flag 1 points, flag 2 scheleton
+    void AddPoints(PR3DCluster* cluster, Point& p_test, TVector3& dir, double range, double step, double angle);
 
     std::tuple<double, PR3DCluster*, size_t> get_closest_point_info(WireCell::Point& p);
     std::tuple<double, PR3DCluster*, size_t> get_closest_2d_point_info(WireCell::Point& p, int plane);
@@ -40,7 +41,8 @@ namespace WireCell{
     
     std::pair<double,double> HoughTrans(Point& p, double dis);
     TVector3 VHoughTrans(Point& p, double dis);
-    
+
+    WireCell::WCPointCloud<double>& get_cloud(){return cloud;};
     
   protected:
     std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, int N); 
