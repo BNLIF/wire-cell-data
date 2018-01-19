@@ -136,7 +136,7 @@ void WireCell::DynamicToyPointCloud::AddPoints(PR3DCluster* cluster, Point& p_te
   vec_index_cluster.resize(current_size + num_points);
   
   for (int k=0;k!=num_points;k++){
-    double dis_cut = std::max(1.5*units::cm,k*dis_seg*sin(angle/180.*3.1415926));
+    double dis_cut = std::max(2.4*units::cm,k*dis_seg*sin(angle/180.*3.1415926));
     
     vec_index_cluster.at(current_size+k) = cluster;
     
@@ -286,9 +286,37 @@ void WireCell::DynamicToyPointCloud::AddPoints(PR3DCluster* cluster, int flag, d
   }
 }
 
+
+
 std::tuple<double, PR3DCluster*, size_t>  WireCell::DynamicToyPointCloud::get_closest_point_info(WireCell::Point& p){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
   return std::make_tuple(sqrt(results.front().second), vec_index_cluster.at(results.front().first), results.front().first);
+}
+
+std::vector<std::tuple<double, PR3DCluster*, size_t>> WireCell::DynamicToyPointCloud::get_2d_points_info(WireCell::Point& p, double radius, int plane){
+  std::vector<std::pair<size_t,double>> results;
+  double x,y;
+  if (plane==0){
+    x = p.x;
+    y = cos(angle_u) * p.z - sin(angle_u) * p.y;
+    results = get_closest_2d_index(x,y,radius,0);
+  }else if (plane==1){
+    x = p.x;
+    y = cos(angle_v) * p.z - sin(angle_v) * p.y;
+    results = get_closest_2d_index(x,y,radius,1);
+  }else if (plane==2){
+    x = p.x;
+    y = cos(angle_w) * p.z - sin(angle_w) * p.y;
+    results = get_closest_2d_index(x,y,radius,2);
+  }
+  std::vector<std::tuple<double, PR3DCluster*, size_t>> return_results;
+
+  for (size_t i=0;i!=results.size();i++){
+    return_results.push_back(std::make_tuple(sqrt(results.at(i).second), vec_index_cluster.at(results.at(i).first), results.at(i).first));
+  }
+  
+  
+  return return_results;
 }
 
 std::tuple<double, PR3DCluster*, size_t> WireCell::DynamicToyPointCloud::get_closest_2d_point_info(WireCell::Point& p, int plane){
@@ -347,12 +375,17 @@ std::pair<double,double> WireCell::DynamicToyPointCloud::HoughTrans(Point&p , do
     z = pts.at(i).second.z;
     q = pts.at(i).first->get_q()/pts.at(i).first->get_sampling_points().size();
     if (q<=0) continue;
+    double r = sqrt(pow(x-p.x,2)+pow(y-p.y,2)+pow(z-p.z,2));
 
     //  for (int i1=0; i1!=5; i1++){
     //  for (int j1=0; j1!=5; j1++){
     //	for (int k1=0; k1!=5; k1++){
     TVector3 vec(x-x0 ,y-y0 ,z-z0 );
-    hough->Fill(vec.Theta(),vec.Phi(), q );
+    if ( r < 10*units::cm){
+      hough->Fill(vec.Theta(),vec.Phi(), q );
+    }else{
+      hough->Fill(vec.Theta(),vec.Phi(), q *pow(10*units::cm/r,2) );
+    }
   }
   int maxbin = hough->GetMaximumBin();
   int a,b,c;
