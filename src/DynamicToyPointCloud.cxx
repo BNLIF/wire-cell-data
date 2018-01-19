@@ -257,9 +257,9 @@ void WireCell::DynamicToyPointCloud::AddPoints(PR3DCluster* cluster, int flag, d
       cloud.pts[current_size+i].x = (*it).x;
       cloud.pts[current_size+i].y = (*it).y;
       cloud.pts[current_size+i].z = (*it).z;
-      cloud.pts[current_size+i].index_u = 0;
-      cloud.pts[current_size+i].index_v = 0;
-      cloud.pts[current_size+i].index_w = 0;
+      cloud.pts[current_size+i].index_u = 2.4*units::cm;
+      cloud.pts[current_size+i].index_v = 2.4*units::cm;
+      cloud.pts[current_size+i].index_w = 2.4*units::cm;
       cloud.pts[current_size+i].mcell = 0;
       cloud.pts[current_size+i].index = current_size+i;
 
