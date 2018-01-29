@@ -473,6 +473,27 @@ std::pair<int,int> PR3DCluster::get_num_points(Point& p, TVector3& dir){
   return std::make_pair(num_p1,num_p2);
 }
 
+std::pair<int,int> PR3DCluster::get_num_points(Point& p, TVector3& dir, double dis){
+  int num_p1 = 0;
+  int num_p2 = 0;
+
+  // loop through all the points
+  const int N = point_cloud->get_num_points();
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  for (int i=0;i!=N;i++){
+    TVector3 dir1(cloud.pts[i].x - p.x, cloud.pts[i].y - p.y, cloud.pts[i].z - p.z);
+    if (dir1.Mag() < dis){
+      if (dir1.Dot(dir)>=0){
+	num_p1++;
+      }else{
+	num_p2++;
+      }
+    }
+  }
+  
+  return std::make_pair(num_p1,num_p2);
+}
+
 
 void PR3DCluster::Update_mcell_cluster_map(std::map<WireCell::SlimMergeGeomCell*,WireCell::PR3DCluster*>& mcell_cluster_map){
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
@@ -1959,6 +1980,74 @@ std::pair<Point,Point> PR3DCluster::get_two_extreme_points(){
   p2 = calc_ave_pos(p2,5*units::cm);
   
   return std::make_pair(p1,p2);
+}
+
+bool PR3DCluster::judge_vertex(Point& p_test){
+
+  TVector3 dir = VHoughTrans(p_test,15*units::cm);
+  
+  // judge if this is end points
+  std::pair<int,int> num_pts = get_num_points(p_test, dir, 25*units::cm);
+
+  if ((num_pts.first + num_pts.second)==0) return false;
+  
+  double asy = fabs( num_pts.first - num_pts.second)/ ( num_pts.first + num_pts.second);
+
+  if (asy >1./3.) {
+    return true;
+  }else{
+    TPCParams& mp = Singleton<TPCParams>::Instance();
+    double angle_u = mp.get_angle_u();
+    double angle_v = mp.get_angle_v();
+    double angle_w = mp.get_angle_w();
+    // create a temp cloud ...
+    ToyPointCloud temp_point_cloud(angle_u,angle_v,angle_w);
+    dir.SetMag(1);
+    PointVector pts;
+    for (size_t i=0;i!=40;i++){
+      Point pt(p_test.x + i*0.5*units::cm * dir.X(),
+	       p_test.y + i*0.5*units::cm * dir.Y(),
+	       p_test.z + i*0.5*units::cm * dir.Z());
+      pts.push_back(pt);
+      if (i!=0){
+	Point pt1(p_test.x - i*0.5*units::cm * dir.X(),
+		  p_test.y - i*0.5*units::cm * dir.Y(),
+		  p_test.z - i*0.5*units::cm * dir.Z());
+	pts.push_back(pt1);
+      }
+    }
+    temp_point_cloud.AddPoints(pts);
+    temp_point_cloud.build_kdtree_index();
+
+    int temp_num_total_points = 0;
+    int temp_num_occupied_points = 0;
+
+    const int N = point_cloud->get_num_points();
+    WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+    for (int i=0;i!=N;i++){
+      TVector3 dir1(cloud.pts[i].x - p_test.x, cloud.pts[i].y - p_test.y, cloud.pts[i].z - p_test.z);
+      
+      if (dir1.Mag() < 15*units::cm){
+	Point test_p1(cloud.pts[i].x,cloud.pts[i].y,cloud.pts[i].z);
+	temp_num_total_points ++;
+	if (temp_point_cloud.get_closest_2d_dis(test_p1,0).second <= 1.8*units::cm &&
+	    temp_point_cloud.get_closest_2d_dis(test_p1,1).second <= 1.8*units::cm &&
+	    temp_point_cloud.get_closest_2d_dis(test_p1,2).second <= 1.8*units::cm)
+	  temp_num_occupied_points ++;
+      }
+    }
+
+    std::cout << asy << " " << temp_num_occupied_points << " " << temp_num_total_points << " " << temp_num_occupied_points * 1.0 / temp_num_total_points << " " << p_test.x/units::cm << " " << p_test.y/units::cm << " " << p_test.z/units::cm << std::endl;
+
+    if (temp_num_occupied_points < temp_num_total_points * 0.85)
+      return true;
+    
+  }
+  //  std::cout << num_pts.first << " " << num_pts.second << " " << asy << std::endl;
+    
+  // judge if there 
+  
+  return false;
 }
 
 

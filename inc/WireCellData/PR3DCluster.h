@@ -41,7 +41,9 @@ namespace WireCell{
     int get_num_mcells(){return mcells.size();};
     int get_num_points(){return point_cloud->get_num_points(); };
     int get_num_time_slices(){return time_cells_set_map.size();};
-       
+
+    bool judge_vertex(Point& p_test);
+    
     void Remove_duplicated_mcells();
     SMGCSelection Is_Connected(PR3DCluster* cluster1, int offset);
     std::map<int,SMGCSet>& get_time_cells_set_map(){return time_cells_set_map;};
@@ -75,6 +77,7 @@ namespace WireCell{
     double get_PCA_value(int axis){return PCA_values[axis];};
 
     std::pair<int,int> get_num_points(Point& p, TVector3& dir);
+    std::pair<int,int> get_num_points(Point& p, TVector3& dir, double dis);
     
     std::pair<double,double> HoughTrans(Point& p, double dis);
     TVector3 VHoughTrans(Point& p, double dis);
