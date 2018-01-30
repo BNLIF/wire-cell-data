@@ -63,7 +63,9 @@ namespace WireCell{
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_front_back_wcps();
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_earliest_latest_wcps();
     std::pair<Point,Point> get_two_extreme_points();
-
+    
+    
+    
     WCPointCloud<double>::WCPoint get_furthest_wcpoint(WCPointCloud<double>::WCPoint wcp, TVector3 dir, double step = 5*units::cm, int allowed_nstep = 12);
     void adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_wcp, WCPointCloud<double>::WCPoint& end_wcp);
 
@@ -102,6 +104,7 @@ namespace WireCell{
     PointVector& get_fine_tracking_path(){return fine_tracking_path;};
     TVector3 get_ft_dir_end(float mean_dis, float dis_cut);
 
+    std::vector<PR3DCluster*> examine_x_boundary(double low_limit = -1*units::cm, double high_limit = 257*units::cm);
     
     std::vector<int> get_uvwt_range();
     

@@ -212,7 +212,76 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
 
   //  std::cout << fabs(start_wcp.index_u - end_wcp.index_u) << " " <<  fabs(start_wcp.index_v - end_wcp.index_v) << " " << fabs(start_wcp.index_w - end_wcp.index_w) << " " << sqrt(pow(start_wcp.x-end_wcp.x,2)+pow(start_wcp.y-end_wcp.y,2)+pow(start_wcp.z-end_wcp.z,2))/units::cm << std::endl;
   
-} 
+}
+
+std::vector<PR3DCluster*> PR3DCluster::examine_x_boundary(double low_limit, double high_limit){
+  double num_points[3]={0,0,0};
+  double x_max = -1e9;
+  double x_min = 1e9;
+  for (auto it = mcells.begin(); it!=mcells.end(); it++){
+    SlimMergeGeomCell *mcell = (*it);
+    PointVector& pts = mcell->get_sampling_points();
+    for (size_t i=0;i!=pts.size(); i++){
+      if (pts.at(i).x < low_limit){
+	num_points[0]++;
+	if (pts.at(i).x > x_max)
+	  x_max = pts.at(i).x;
+      }else if (pts.at(i).x > high_limit){
+	num_points[2]++;
+	if (pts.at(i).x < x_min)
+	  x_min = pts.at(i).x;
+      }else{
+	num_points[1]++;
+      }
+    }
+  }
+
+  //std::cout << num_points[0] << " " << num_points[1] << " " << num_points[2] << std::endl;
+
+  std::vector<PR3DCluster*> clusters;
+
+  if (num_points[0] + num_points[2] < num_points[1] *0.075){
+    PR3DCluster *cluster_1 = 0;
+    PR3DCluster *cluster_2 = 0;
+    PR3DCluster *cluster_3 = 0;
+    if (x_max<low_limit - 1.0*units::cm && x_max > -1e8){
+      // fill the small one ...
+      cluster_1 = new PR3DCluster(1);
+    }
+    if (x_min>high_limit + 1.0*units::cm && x_min < 1e8){
+      // fill the large one ... 
+      cluster_3 = new PR3DCluster(3);
+    }
+    if (cluster_1 !=0 || cluster_3 !=0){
+      cluster_2 = new PR3DCluster(2);
+      for (auto it = mcells.begin(); it!=mcells.end(); it++){
+	SlimMergeGeomCell *mcell = (*it);
+	if (mcell->get_sampling_points().front().x<low_limit){
+	  if (cluster_1!=0){
+	    cluster_1->AddCell(mcell,mcell->GetTimeSlice());
+	  }else{
+	    cluster_2->AddCell(mcell,mcell->GetTimeSlice());
+	  }
+	}else if (mcell->get_sampling_points().front().x > high_limit){
+	  if (cluster_3!=0){
+	    cluster_3->AddCell(mcell,mcell->GetTimeSlice());
+	  }else{
+	    cluster_2->AddCell(mcell,mcell->GetTimeSlice());
+	  }
+	}else{
+	  cluster_2->AddCell(mcell,mcell->GetTimeSlice());
+	}
+      }
+      if (cluster_1!=0) clusters.push_back(cluster_1);
+      clusters.push_back(cluster_2);
+      if (cluster_3!=0) clusters.push_back(cluster_3);
+    }
+  }
+  
+  
+  return clusters;
+}
+
 
 
 WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<double>::WCPoint old_wcp, TVector3 dir, double step, int allowed_nstep){
