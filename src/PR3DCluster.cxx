@@ -2077,11 +2077,24 @@ bool PR3DCluster::judge_vertex(Point& p_test){
       Point pt(p_test.x + i*0.5*units::cm * dir.X(),
 	       p_test.y + i*0.5*units::cm * dir.Y(),
 	       p_test.z + i*0.5*units::cm * dir.Z());
+      WireCell::WCPointCloud<double>::WCPoint& wcp = point_cloud->get_closest_wcpoint(pt);
+
+      if (sqrt(pow(wcp.x-pt.x,2) + pow(wcp.y-pt.y,2)+pow(wcp.z-pt.z,2)) < std::max(1.8*units::cm,i*0.5*units::cm*sin(18./180.*3.1415926))){
+	pt.x = wcp.x;
+	pt.y = wcp.y;
+	pt.z = wcp.z;
+      }
       pts.push_back(pt);
       if (i!=0){
 	Point pt1(p_test.x - i*0.5*units::cm * dir.X(),
 		  p_test.y - i*0.5*units::cm * dir.Y(),
 		  p_test.z - i*0.5*units::cm * dir.Z());
+	WireCell::WCPointCloud<double>::WCPoint& wcp1 = point_cloud->get_closest_wcpoint(pt1);
+	if (sqrt(pow(wcp1.x-pt1.x,2) + pow(wcp1.y-pt1.y,2)+pow(wcp1.z-pt1.z,2)) < std::max(1.8*units::cm,i*0.5*units::cm*sin(18./180.*3.1415926))){
+	  pt1.x = wcp1.x;
+	  pt1.y = wcp1.y;
+	  pt1.z = wcp1.z;
+	}
 	pts.push_back(pt1);
       }
     }
@@ -2099,14 +2112,23 @@ bool PR3DCluster::judge_vertex(Point& p_test){
       if (dir1.Mag() < 15*units::cm){
 	Point test_p1(cloud.pts[i].x,cloud.pts[i].y,cloud.pts[i].z);
 	temp_num_total_points ++;
-	if (temp_point_cloud.get_closest_2d_dis(test_p1,0).second <= 1.8*units::cm &&
-	    temp_point_cloud.get_closest_2d_dis(test_p1,1).second <= 1.8*units::cm &&
-	    temp_point_cloud.get_closest_2d_dis(test_p1,2).second <= 1.8*units::cm)
+	double dis[3];
+	dis[0] = temp_point_cloud.get_closest_2d_dis(test_p1,0).second;
+	dis[1] = temp_point_cloud.get_closest_2d_dis(test_p1,1).second;
+	dis[2] = temp_point_cloud.get_closest_2d_dis(test_p1,2).second;
+	if ( dis[0] <= 1.5*units::cm && dis[1] <= 1.5*units::cm && dis[2] <=2.4*units::cm ||
+	     dis[0] <= 1.5*units::cm && dis[2] <= 1.5*units::cm && dis[1] <=2.4*units::cm ||
+	     dis[2] <= 1.5*units::cm && dis[1] <= 1.5*units::cm && dis[0] <=2.4*units::cm )
 	  temp_num_occupied_points ++;
+	
+	// std::cout << temp_point_cloud.get_closest_2d_dis(test_p1,0).second /units::cm << " "
+	// 	  << temp_point_cloud.get_closest_2d_dis(test_p1,1).second /units::cm << " "
+	// 	  << temp_point_cloud.get_closest_2d_dis(test_p1,2).second /units::cm << " " << std::endl;
+	  
       }
     }
 
-    //  std::cout << asy << " " << temp_num_occupied_points << " " << temp_num_total_points << " " << temp_num_occupied_points * 1.0 / temp_num_total_points << " " << p_test.x/units::cm << " " << p_test.y/units::cm << " " << p_test.z/units::cm << std::endl;
+    // std::cout << asy << " " << temp_num_occupied_points << " " << temp_num_total_points << " " << temp_num_occupied_points * 1.0 / temp_num_total_points << " " << p_test.x/units::cm << " " << p_test.y/units::cm << " " << p_test.z/units::cm << std::endl;
 
     if (temp_num_occupied_points < temp_num_total_points * 0.85)
       return true;
