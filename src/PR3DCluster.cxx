@@ -2051,8 +2051,10 @@ std::pair<Point,Point> PR3DCluster::get_two_extreme_points(){
   return std::make_pair(p1,p2);
 }
 
-bool PR3DCluster::judge_vertex(Point& p_test){
+bool PR3DCluster::judge_vertex(Point& p_test, double asy_cut, double occupied_cut){
 
+  p_test = calc_ave_pos(p_test,3*units::cm);
+  
   TVector3 dir = VHoughTrans(p_test,15*units::cm);
   
   // judge if this is end points
@@ -2062,7 +2064,9 @@ bool PR3DCluster::judge_vertex(Point& p_test){
   
   double asy = fabs( num_pts.first - num_pts.second)/ ( num_pts.first + num_pts.second);
 
-  if (asy >1./3.) {
+  //  std::cout << asy << " " << std::endl;
+  
+  if (asy > asy_cut) {
     return true;
   }else{
     TPCParams& mp = Singleton<TPCParams>::Instance();
@@ -2130,7 +2134,7 @@ bool PR3DCluster::judge_vertex(Point& p_test){
 
     // std::cout << asy << " " << temp_num_occupied_points << " " << temp_num_total_points << " " << temp_num_occupied_points * 1.0 / temp_num_total_points << " " << p_test.x/units::cm << " " << p_test.y/units::cm << " " << p_test.z/units::cm << std::endl;
 
-    if (temp_num_occupied_points < temp_num_total_points * 0.85)
+    if (temp_num_occupied_points < temp_num_total_points * occupied_cut)
       return true;
     
   }

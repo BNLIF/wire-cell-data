@@ -42,7 +42,7 @@ namespace WireCell{
     int get_num_points(){return point_cloud->get_num_points(); };
     int get_num_time_slices(){return time_cells_set_map.size();};
 
-    bool judge_vertex(Point& p_test);
+    bool judge_vertex(Point& p_test, double asy_cut = 1./3., double occupied_cut = 0.85);
     
     void Remove_duplicated_mcells();
     SMGCSelection Is_Connected(PR3DCluster* cluster1, int offset);
