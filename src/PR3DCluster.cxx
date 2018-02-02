@@ -453,7 +453,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 	  }
 	}
 	
-	//	std::cout << i << " " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << flag_para << std::endl;
+	//	std::cout << i << " " << old_wcp.x/units::cm << " " << old_wcp.y/units::cm << " " << old_wcp.z/units::cm << " " << test_point.x/units::cm << " " << test_point.y/units::cm << " " << test_point.z/units::cm << " " << dis1/units::cm << " " << angle << " " << dis/units::cm << " " << angle1 << " " << fabs(dir1.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << fabs(dir.Angle(drift_dir)-3.1415926/2.)/3.1415926*180. << " " << flag_para  << angle_1 << " " << angle_2 << std::endl;
 	
 
 	
