@@ -2064,7 +2064,7 @@ bool PR3DCluster::judge_vertex(Point& p_test, double asy_cut, double occupied_cu
   
   double asy = fabs( num_pts.first - num_pts.second)/ ( num_pts.first + num_pts.second);
 
-  //  std::cout << asy << " " << std::endl;
+  //std::cout << asy << " " << std::endl;
   
   if (asy > asy_cut) {
     return true;
