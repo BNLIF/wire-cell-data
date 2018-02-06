@@ -136,7 +136,8 @@ void WireCell::DynamicToyPointCloud::AddPoints(PR3DCluster* cluster, Point& p_te
   vec_index_cluster.resize(current_size + num_points);
   
   for (int k=0;k!=num_points;k++){
-    double dis_cut = std::max(2.4*units::cm,k*dis_seg*sin(angle/180.*3.1415926));
+    // 13 cm  = 75 * sin(10/180.*3.1415926)
+    double dis_cut = std::min(std::max(2.4*units::cm,k*dis_seg*sin(angle/180.*3.1415926)),13*units::cm);
     
     vec_index_cluster.at(current_size+k) = cluster;
     
@@ -178,7 +179,7 @@ void WireCell::DynamicToyPointCloud::AddPoints(PR3DCluster* cluster, int flag, d
     WireCell::WC2DPointCloud<double>& pcloud_u = cluster->get_point_cloud()->get_cloud_u();
     WireCell::WC2DPointCloud<double>& pcloud_v = cluster->get_point_cloud()->get_cloud_v();
     WireCell::WC2DPointCloud<double>& pcloud_w = cluster->get_point_cloud()->get_cloud_w();
-
+    
     cloud.pts.resize(current_size + pcloud.pts.size());
     cloud_u.pts.resize(current_size + pcloud.pts.size());
     cloud_v.pts.resize(current_size + pcloud.pts.size());
