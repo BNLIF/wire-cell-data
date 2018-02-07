@@ -445,6 +445,7 @@ WCPointCloud<double>::WCPoint PR3DCluster::get_furthest_wcpoint(WCPointCloud<dou
 		 dis * sin(angle/180.*3.1415926) < 1.2*units::cm ||
 		 angle < 15 && dis < 45*units::cm ||
 		 angle < 10 ||
+		 (angle <=28 && angle_1 < 2 && dis < 10*units::cm) ||
 		 (angle <= 28 && angle1 <=2)) ||
 	       (angle1 <=3 || dis1 * sin(angle1/180.*3.1415926) < 6.0*units::cm) && dis1 < 100*units::cm) &&
 	      dis > step*0.8 && (angle < 30)){
