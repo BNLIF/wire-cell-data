@@ -6,6 +6,7 @@ using namespace WireCell;
 
 WireCell::Opflash::Opflash(COphitSelection &ophits)
   : type(1)
+  , flash_id (-1)
 {
   for (int i=0;i!=32;i++){
     PE[i] = 0;

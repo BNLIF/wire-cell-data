@@ -13,6 +13,9 @@ namespace WireCell{
     ~Opflash();
 
     void Add_l1info(TH1F* hist1, TH1F *hist2, double start_time , int start_bin, int end_bin, float bin_width=6*15.625/1000.);
+
+    void set_flash_id(int value){flash_id = value;};
+    int get_flash_id(){return flash_id;};
     
     double get_time(){return time;};
     double get_total_PE(){return total_PE;};
@@ -31,6 +34,7 @@ namespace WireCell{
   protected:
     
     int type;
+    int flash_id;
     double low_time;
     double high_time;
     
