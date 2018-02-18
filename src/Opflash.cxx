@@ -10,7 +10,7 @@ WireCell::Opflash::Opflash(COphitSelection &ophits)
 {
   for (int i=0;i!=32;i++){
     PE[i] = 0;
-    PE_err[i] = 4.6;
+    PE_err[i] = 6.4; // 11 PE / sqrt(3.)
   }
   time = 0;
   total_PE = 0;
@@ -30,6 +30,7 @@ WireCell::Opflash::Opflash(COphitSelection &ophits)
 
 WireCell::Opflash::Opflash(TH1F **hist, double start_time, int start_bin, int end_bin, float bin_width)
   : type(2)
+  , flash_id (-1)
 {
   low_time = start_time + (start_bin+0.5)*bin_width;
   high_time = start_time + (end_bin-0.5)*bin_width;
@@ -67,7 +68,7 @@ WireCell::Opflash::Opflash(TH1F **hist, double start_time, int start_bin, int en
 
   total_PE = 0;
   for (int i=0;i!=32;i++){
-    PE[i] -= 1.875; // 7.5 us *
+    PE[i] -= 1.875; // 7.5 us * random noise ... 
     if (PE[i]<0) PE[i] = 0;
     total_PE += PE[i];
 
@@ -75,13 +76,18 @@ WireCell::Opflash::Opflash(TH1F **hist, double start_time, int start_bin, int en
       fired_channels.push_back(i);
     }
 
-    if (PE[i] < 1000){
-      PE_err[i] = sqrt(pow(PE_err[i],2) + pow(PE[i]*0.02,2)); // standard error below threshold would be 4.6 PE ... 8/sqrt(3)
-    }else if (PE[i] < 2000){
-      PE_err[i] = sqrt(pow(PE_err[i],2) + pow(PE[i]*0.06,2)); // standard error below threshold would be 4.6 PE ... 8/sqrt(3)
-    }else{
-      PE_err[i] = sqrt(pow(PE_err[i],2) + pow(PE[i]*0.18,2)); // standard error below threshold would be 4.6 PE ... 8/sqrt(3)
-    }
+    PE_err[i] = sqrt(pow(PE_err[i],2) // standard error
+		     + (PE[i] + 1.875*2) //statistical term
+		     + pow(PE[i]*0.02,2) // 2% base systematic uncertainties
+		     );
+    
+    // if (PE[i] < 1000){
+    //   PE_err[i] = sqrt(pow(PE_err[i],2) + pow(PE[i]*0.02,2)); // standard error below threshold would be 4.6 PE ... 8/sqrt(3)
+    // }else if (PE[i] < 2000){
+    //   PE_err[i] = sqrt(pow(PE_err[i],2) + pow(PE[i]*0.06,2)); // standard error below threshold would be 4.6 PE ... 8/sqrt(3)
+    // }else{
+    //   PE_err[i] = sqrt(pow(PE_err[i],2) + pow(PE[i]*0.18,2)); // standard error below threshold would be 4.6 PE ... 8/sqrt(3)
+    // }
     
     
   }
