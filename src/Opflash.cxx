@@ -10,7 +10,7 @@ WireCell::Opflash::Opflash(COphitSelection &ophits)
 {
   for (int i=0;i!=32;i++){
     PE[i] = 0;
-    PE_err[i] = 6.4; // 11 PE / sqrt(3.)
+    PE_err[i] = 6.4; // 11/sqrt(3.) fudge now ... 
   }
   time = 0;
   total_PE = 0;
