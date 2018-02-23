@@ -17,3 +17,18 @@ FlashTPCBundle::~FlashTPCBundle(){
   
 }
 
+void FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
+  std::cout << flash->get_type() << " " << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << std::endl;
+  for (int i=0;i!=32;i++){
+    std::cout << flash->get_PE(i) << " ";
+  }
+  std::cout << std::endl;
+  for (int i=0;i!=32;i++){
+    std::cout << flash->get_PE_err(i) << " ";
+  }
+  std::cout << std::endl;
+  for (int i=0;i!=32;i++){
+    std::cout << pred_pmt_light.at(i) << " ";
+  }
+  std::cout << std::endl;
+}

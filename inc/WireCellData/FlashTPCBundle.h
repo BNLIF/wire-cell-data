@@ -21,6 +21,8 @@ namespace WireCell{
     PR3DCluster* get_main_cluster(){return main_cluster;};
     PR3DClusterSelection& get_other_clusters(){return other_clusters;};
     PR3DClusterSelection& get_more_clusters(){return more_clusters;};
+
+    void examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid);
     
   private:
     Opflash *flash;
