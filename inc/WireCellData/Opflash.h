@@ -31,6 +31,8 @@ namespace WireCell{
     std::vector<double>& get_l1_fired_time(){return l1_fired_time;};
     std::vector<double>& get_l1_fired_pe(){return l1_fired_pe;};
     
+    void swap_channels();
+    
   protected:
     
     int type;
