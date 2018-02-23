@@ -101,24 +101,30 @@ WireCell::Opflash::~Opflash(){
 void WireCell::Opflash::swap_channels(){
   //harded coded for now ... 
   for (auto it = fired_channels.begin(); it!=fired_channels.end(); it++){
-    if (*it == 27) *it = 28;
-    if (*it == 28) *it = 31;
-    if (*it == 31) *it = 26;
     if (*it == 26) *it = 27;
+    if (*it == 27) *it = 28;
+    if (*it == 28) *it = 29;
+    if (*it == 29) *it = 30;
+    if (*it == 30) *it = 31;
+    if (*it == 31) *it = 26;
   }
   
   double temp;
-  temp = PE[28];
+  temp = PE[31];
+  PE[31] = PE[30];
+  PE[30] = PE[29];
+  PE[29] = PE[28];
   PE[28] = PE[27];
   PE[27] = PE[26];
-  PE[26] = PE[31];
-  PE[31] = temp;
+  PE[26] = temp;
 
-  temp = PE_err[28];
+  temp = PE_err[31];
+  PE_err[31] = PE_err[30];
+  PE_err[30] = PE_err[29];
+  PE_err[29] = PE_err[28];
   PE_err[28] = PE_err[27];
   PE_err[27] = PE_err[26];
-  PE_err[26] = PE_err[31];
-  PE_err[31] = temp;
+  PE_err[26] = temp;
 }
 
 void WireCell::Opflash::Add_l1info(TH1F *hist_tot_pe, TH1F *hist_mult, double start_time, int start_bin, int end_bin, float bin_width){
