@@ -32,6 +32,8 @@ WireCell::COphit::COphit(int ch_no, TH1S *hist, double time, double gain, double
   
   if (good_baseline){
     PE = integral / gain * 2; // taking into account factor of 2 for 0.6 us window ...
+    // take care of PE ... 
+    if (PE < 0) PE = 0;
 
     PE_err = sqrt(pow(PE * gain_err/gain ,2) // gain uncertainties
 		  + 2 * PE // statistical term ...
@@ -54,6 +56,7 @@ WireCell::COphit::COphit(int ch_no, TH1S *hist, double time, double gain, double
     
   }else{
     PE = integral/gain * 2;
+    if (PE < 0) PE = 0;
     PE_err = 2 * PE; // give 200% uncertainties ...  
   }
   
