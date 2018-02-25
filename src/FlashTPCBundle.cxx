@@ -86,8 +86,8 @@ bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low
   delete h1;
   delete h2;
 
-  if (fabs(bundle->get_main_cluster()->get_cluster_id()-19)<=1)
-    std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << bundle->get_main_cluster()->get_cluster_id() << " " << ks_dis << " " << temp_ks_dis << " " << chi2 << " " << temp_chi2 << " " << ndf << std::endl;
+  // if (fabs(bundle->get_main_cluster()->get_cluster_id()-9)<=1)
+  //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << bundle->get_main_cluster()->get_cluster_id() << " " << ks_dis << " " << temp_ks_dis << " " << chi2 << " " << temp_chi2 << " " << ndf << std::endl;
   
   if ((temp_ks_dis < ks_dis + 0.06 &&
       temp_ks_dis < ks_dis * 1.2 && 
@@ -163,8 +163,11 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
     chi2 -= max_chi2-1;
   
 
-  if (ks_dis < 0.12 && ndf >=2)
+  if (ks_dis < 0.12 && ndf >=2){
     flag_high_consistent = true;
+  }else if (flag_at_x_boundary && ndf >=1 && chi2 < 9 * ndf && ks_dis < 0.12){
+    flag_high_consistent = true;
+  }
   
   // if (ks_dis<0.35)
   //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << flash->get_type() << " " << ks_dis << " " << chi2 << " " << ndf << std::endl;
@@ -198,9 +201,10 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
 	  nfired ++;
       }
     }
-    // if (fabs(main_cluster->get_cluster_id()-19)<=1){
-    //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << nfired << " " << ntot << std::endl;
-    // }
+    
+    // if (fabs(main_cluster->get_cluster_id()-9)<=1 || main_cluster->get_cluster_id()==98){
+    //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << nfired << " " << ntot << " " << ks_dis << " " << chi2 << " " << ndf << " " << flag_at_x_boundary << " " << flag_close_to_PMT << std::endl;
+    //  }
     
     if (nfired==0 ) return false;
     if (nfired < 0.5 * ntot && ntot - nfired > 2) return false;
