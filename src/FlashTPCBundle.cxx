@@ -86,7 +86,7 @@ bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low
   delete h1;
   delete h2;
 
-  // if (fabs(bundle->get_main_cluster()->get_cluster_id()-9)<=1)
+  // if (main_cluster->get_cluster_id()==2)
   //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << bundle->get_main_cluster()->get_cluster_id() << " " << ks_dis << " " << temp_ks_dis << " " << chi2 << " " << temp_chi2 << " " << ndf << std::endl;
   
   if ((temp_ks_dis < ks_dis + 0.06 &&
@@ -193,21 +193,31 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
     return true;
   }else{
     double ntot   = 0;
+    double ntot1 = 0;
     double nfired = 0;
+    double nfired1 = 0;
     for (int j=0;j!=32;j++){
       if (pred_pe[j] >0){
 	ntot ++;
 	if (pe[j] > 0.33*pred_pe[j])
 	  nfired ++;
       }
+      if (pred_pmt_light.at(j) > 1.0){
+	ntot1 ++;
+	if (pe[j] > 0.33*pred_pmt_light.at(j))
+	  nfired1 ++;
+      }
     }
     
-    // if (fabs(main_cluster->get_cluster_id()-9)<=1 || main_cluster->get_cluster_id()==98){
-    //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << nfired << " " << ntot << " " << ks_dis << " " << chi2 << " " << ndf << " " << flag_at_x_boundary << " " << flag_close_to_PMT << std::endl;
-    //  }
+    // if (fabs(main_cluster->get_cluster_id()-19)<=0 || main_cluster->get_cluster_id()==18){
+    //  std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << nfired << " " << ntot << " " << nfired1 << " " << ntot1 << " " << ks_dis << " " << chi2 << " " << ndf << " " << flag_at_x_boundary << " " << flag_close_to_PMT << std::endl;
+    // }
+
+    // exception for small clusters ... 
+    if (nfired <=1 && (nfired1!=0 && nfired1 > 0.75*ntot1)) return true;
     
-    if (nfired==0 ) return false;
-    if (nfired < 0.5 * ntot && ntot - nfired > 2) return false;
+    if ( nfired==0 ) return false;
+    if ( nfired < 0.5 * ntot && ntot - nfired > 2) return false;
   }
   return true;
 }
