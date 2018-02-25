@@ -22,7 +22,14 @@ namespace WireCell{
     PR3DClusterSelection& get_other_clusters(){return other_clusters;};
     PR3DClusterSelection& get_more_clusters(){return more_clusters;};
 
-    void examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid);
+    bool examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid);
+    bool examine_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
+    
+    double get_chi2(){return chi2;};
+    int get_ndf(){return ndf;};
+    double get_ks_dis(){return ks_dis;};
+    void set_consistent_flag(bool value){flag_high_consistent = value;};
+    bool get_consistent_flag(){return flag_high_consistent;};
     
   private:
     Opflash *flash;
@@ -36,6 +43,11 @@ namespace WireCell{
     
     std::vector<double> pred_pmt_light; // prediction
 
+    double ks_dis;
+    double chi2;
+    int ndf;
+    bool flag_high_consistent;
+    
     PR3DClusterSelection other_clusters; // save every other one 
     PR3DClusterSelection more_clusters;  // save ones satisfying the cut    
     
@@ -43,6 +55,7 @@ namespace WireCell{
   };
 
   typedef std::vector<FlashTPCBundle*> FlashTPCBundleSelection;
+  typedef std::set<FlashTPCBundle*> FlashTPCBundleSet;
   typedef std::map<Opflash*, FlashTPCBundleSelection> Flash_bundles_map;
   typedef std::map<PR3DCluster*, FlashTPCBundleSelection> Cluster_bundles_map;
   
