@@ -86,10 +86,17 @@ bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low
   delete h1;
   delete h2;
 
-  if (temp_ks_dis < ks_dis + 0.06 &&
+  if (fabs(bundle->get_main_cluster()->get_cluster_id()-19)<=1)
+    std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << bundle->get_main_cluster()->get_cluster_id() << " " << ks_dis << " " << temp_ks_dis << " " << chi2 << " " << temp_chi2 << " " << ndf << std::endl;
+  
+  if ((temp_ks_dis < ks_dis + 0.06 &&
       temp_ks_dis < ks_dis * 1.2 && 
-      temp_chi2 < chi2 + ndf * 4 &&
-      temp_chi2 < chi2 * 1.2){
+      temp_chi2 < chi2 + ndf * 5 &&
+       temp_chi2 < chi2 * 1.21) ||
+      (temp_ks_dis < ks_dis &&
+       temp_chi2 < chi2 + ndf * 10 &&
+       temp_chi2 < chi2 * 1.45)
+      ){
     return true;
   }else{
     return false;
@@ -191,7 +198,11 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
 	  nfired ++;
       }
     }
-    if (nfired==0 && ntot!=0) return false;
+    // if (fabs(main_cluster->get_cluster_id()-19)<=1){
+    //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << nfired << " " << ntot << std::endl;
+    // }
+    
+    if (nfired==0 ) return false;
     if (nfired < 0.5 * ntot && ntot - nfired > 2) return false;
   }
   return true;
