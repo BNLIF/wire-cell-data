@@ -169,6 +169,8 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
     flag_high_consistent = true;
   }else if (chi2 < 4 * ndf && ndf >=3 && ks_dis < 0.15){
     flag_high_consistent = true;
+  }else if (ks_dis < 0.12 && ndf >=5 && chi2 < ndf * 55 && flag_close_to_PMT){
+    flag_high_consistent = true;
   }
   
   // if (ks_dis<0.35)
@@ -212,7 +214,7 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
     }
     
     // if (fabs(main_cluster->get_cluster_id()-19)<=0 || main_cluster->get_cluster_id()==18){
-    //  std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << nfired << " " << ntot << " " << nfired1 << " " << ntot1 << " " << ks_dis << " " << chi2 << " " << ndf << " " << flag_at_x_boundary << " " << flag_close_to_PMT << std::endl;
+    //std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << nfired << " " << ntot << " " << nfired1 << " " << ntot1 << " " << ks_dis << " " << chi2 << " " << ndf << " " << flag_at_x_boundary << " " << flag_close_to_PMT << std::endl;
     // }
 
     // exception for small clusters ... 
@@ -220,6 +222,7 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
     
     if ( nfired==0 ) return false;
     if ( nfired < 0.5 * ntot && ntot - nfired >= 2) return false;
+    if ( nfired==1 && ntot <=2 && nfired1< 0.2*ntot1) return false;
   }
   return true;
 }
