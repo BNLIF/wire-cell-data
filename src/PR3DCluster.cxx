@@ -981,12 +981,19 @@ void PR3DCluster::Create_graph(){
 	pt_clouds.at(j)->build_kdtree_index();
       }
 
-      
+      //std::cout << "Xin: " << num << std::endl;
       // connect these graphs according to closest distance some how ...
-      std::tuple<int,int,double> index_index_dis[num][num];
-      std::tuple<int,int,double> index_index_dis_mst[num][num];
-      std::tuple<int,int,double> index_index_dis_dir1[num][num];
-      std::tuple<int,int,double> index_index_dis_dir2[num][num];
+
+      // std::tuple<int,int,double> index_index_dis[num][num];
+      // std::tuple<int,int,double> index_index_dis_mst[num][num];
+      // std::tuple<int,int,double> index_index_dis_dir1[num][num];
+      // std::tuple<int,int,double> index_index_dis_dir2[num][num];
+
+      std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis(num, std::vector< std::tuple<int,int,double> >(num));
+      std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_mst(num, std::vector< std::tuple<int,int,double> >(num));
+      std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_dir1(num, std::vector< std::tuple<int,int,double> >(num));
+      std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_dir2(num, std::vector< std::tuple<int,int,double> >(num));
+      
       for (int j=0;j!=num;j++){
 	for (int k=0;k!=num;k++){
 	  index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
