@@ -602,8 +602,12 @@ void PR3DCluster::Create_point_cloud(WireCell::ToyPointCloud *global_point_cloud
 
 
 void PR3DCluster::Create_graph(){
+  if (graph!=(MCUGraph*)0)
+    return;
+  
   if (point_cloud==(ToyPointCloud*)0)
     Create_point_cloud();
+  
   
   // create Graph ...
   const int N = point_cloud->get_num_points();
@@ -666,6 +670,8 @@ void PR3DCluster::Create_graph(){
     map_mcell_vindex_wcps[mcell] = map_vindex_wcps;
     map_mcell_windex_wcps[mcell] = map_windex_wcps;
   }
+
+  int num_edges = 0;
   
   // create graph for points inside the same mcell
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
@@ -725,29 +731,48 @@ void PR3DCluster::Create_graph(){
    	  min_wcps_set.push_back(&(it2->second));
    	}
       }
-      // std::cout << max_wcps_set.size() << " " << min_wcps_set.size() << std::endl;
+
+      std::set<int> wcps_set1;
+      std::set<int> wcps_set2;
+
       for (auto it2 = max_wcps_set.begin(); it2!=max_wcps_set.end(); it2++){
-   	for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
-   	  std::set<int> common_set;
-   	  set_intersection((*it2)->begin(), (*it2)->end(), (*it3)->begin(), (*it3)->end(),std::inserter(common_set,common_set.begin()));
-  	  for (auto it4 = common_set.begin(); it4!=common_set.end(); it4++){
-   	    WCPointCloud<double>::WCPoint& wcp2 = cloud.pts[*it4];
-   	    if (wcp2.index != wcp1.index){
-   	      int index2 = wcp2.index;
-   	      //  std::cout << index1 << " " << index2 << std::endl;
-   	      // add edge ...
-   	      auto edge = add_edge(index1,index2,*graph);
-   	      if (edge.second){
-   		(*graph)[edge.first].dist = sqrt(pow(wcp1.x-wcp2.x,2)+pow(wcp1.y-wcp2.y,2)+pow(wcp1.z-wcp2.z,2));
-		//	std::cout << wcp1.x << " " << wcp1.y << " " << wcp1.z << " " << wcp1.index_u << " " << wcp1.index_v << " " << wcp1.index_w << " " << wcp2.index_u << " " << wcp2.index_v << " " << wcp2.index_w << std::endl;
-   	      }
-   	    }
-   	  }
-   	}
+	wcps_set1.insert((*it2)->begin(), (*it2)->end());
+      }
+      for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
+	wcps_set2.insert((*it3)->begin(), (*it3)->end());
+      }
+      
+      
+      // std::cout << max_wcps_set.size() << " " << min_wcps_set.size() << std::endl;
+      // for (auto it2 = max_wcps_set.begin(); it2!=max_wcps_set.end(); it2++){
+      //	for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
+      {
+	std::set<int> common_set;
+	set_intersection(wcps_set1.begin(), wcps_set1.end(), wcps_set2.begin(), wcps_set2.end(),std::inserter(common_set,common_set.begin()));
+
+	//	std::cout << "S0: " << common_set.size() << std::endl;
+
+	for (auto it4 = common_set.begin(); it4!=common_set.end(); it4++){
+	  WCPointCloud<double>::WCPoint& wcp2 = cloud.pts[*it4];
+	  if (wcp2.index != wcp1.index){
+	    int index2 = wcp2.index;
+	    //  std::cout << index1 << " " << index2 << std::endl;
+	    // add edge ...
+	    auto edge = add_edge(index1,index2,*graph);
+	    if (edge.second){
+	      (*graph)[edge.first].dist = sqrt(pow(wcp1.x-wcp2.x,2)+pow(wcp1.y-wcp2.y,2)+pow(wcp1.z-wcp2.z,2));
+	      num_edges ++;
+	      // std::cout << wcp1.x << " " << wcp1.y << " " << wcp1.z << " " << wcp1.index_u << " " << wcp1.index_v << " " << wcp1.index_w << " " << wcp2.index_u << " " << wcp2.index_v << " " << wcp2.index_w << std::endl;
+	    }
+	  }
+	}
+	//}
       }
     }
   }
 
+
+  //  std::cout << "Xin: " << num_edges << " " << N << std::endl;
   
   
   
@@ -771,7 +796,8 @@ void PR3DCluster::Create_graph(){
   	  for (auto it3 = it2p; it3!=mcells_set.end(); it3++){
   	    SlimMergeGeomCell *mcell2 = *(it3);
   	    //std::cout << mcell1 << " " << mcell2 << " " << mcell1->Overlap_fast(mcell2,2) << std::endl;
-  	    connected_mcells.push_back(std::make_pair(mcell1,mcell2));
+	    if (mcell1->Overlap_fast(mcell2,2))
+	      connected_mcells.push_back(std::make_pair(mcell1,mcell2));
   	  }
   	}
       }
@@ -788,16 +814,16 @@ void PR3DCluster::Create_graph(){
 	vec_mcells_set.push_back(time_cells_set_map[time_slices.at(i+1)]);
       }
     }
-    bool flag = false;
+    //    bool flag = false;
     for (size_t j=0; j!=vec_mcells_set.size(); j++){
-      if (flag) break;
+      //      if (flag) break;
       SMGCSet& next_mcells_set = vec_mcells_set.at(j);
       for (auto it1 = mcells_set.begin(); it1!= mcells_set.end(); it1++){
 	SlimMergeGeomCell *mcell1 = (*it1);
 	for (auto it2 = next_mcells_set.begin(); it2!=next_mcells_set.end(); it2++){
 	  SlimMergeGeomCell *mcell2 = (*it2);
 	  if (mcell1->Overlap_fast(mcell2,2)){
-	    flag = true;
+	    //	    flag = true; // correct???
 	    connected_mcells.push_back(std::make_pair(mcell1,mcell2));
 	  }
 	}
@@ -806,6 +832,8 @@ void PR3DCluster::Create_graph(){
   }
   
   // establish edge ... 
+  std::map<std::pair<int,int>,std::pair<int,double> > closest_index;
+
   // std::cout << connected_mcells.size() << std::endl;
   for (auto it = connected_mcells.begin(); it!= connected_mcells.end(); it++){
     SlimMergeGeomCell *mcell1 = (*it).first;
@@ -869,22 +897,55 @@ void PR3DCluster::Create_graph(){
    	}
       }
 
+      std::set<int> wcps_set1;
+      std::set<int> wcps_set2;
+
       for (auto it2 = max_wcps_set.begin(); it2!=max_wcps_set.end(); it2++){
-   	for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
-   	  std::set<int> common_set;
-   	  set_intersection((*it2)->begin(), (*it2)->end(), (*it3)->begin(), (*it3)->end(),std::inserter(common_set,common_set.begin()));
-  	  for (auto it4 = common_set.begin(); it4!=common_set.end(); it4++){
-   	    WCPointCloud<double>::WCPoint& wcp2 = cloud.pts[*it4];
-   	    if (wcp2.index != wcp1.index){
-   	      int index2 = wcp2.index;
-	      auto edge = add_edge(index1,index2,*graph);
-   	      if (edge.second){
-   		(*graph)[edge.first].dist = sqrt(pow(wcp1.x-wcp2.x,2)+pow(wcp1.y-wcp2.y,2)+pow(wcp1.z-wcp2.z,2));
-	      }
-   	    }
-   	  }
-   	}
+	wcps_set1.insert((*it2)->begin(), (*it2)->end());
       }
+      for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
+	wcps_set2.insert((*it3)->begin(), (*it3)->end());
+      }
+
+      
+      //   for (auto it2 = max_wcps_set.begin(); it2!=max_wcps_set.end(); it2++){
+      //	for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
+      {
+	std::set<int> common_set;
+	set_intersection(wcps_set1.begin(), wcps_set1.end(), wcps_set2.begin(), wcps_set2.end(),std::inserter(common_set,common_set.begin()));
+
+	//	std::cout << "S1: " << common_set.size() << std::endl;
+	//	  std::cout << common_set.size() << std::endl;
+
+	//	std::map<int,std::pair<int,double> > closest_index;
+	
+	for (auto it4 = common_set.begin(); it4!=common_set.end(); it4++){
+	  WCPointCloud<double>::WCPoint& wcp2 = cloud.pts[*it4];
+	  if (wcp2.index != wcp1.index){
+	    int index2 = wcp2.index;
+	    double dis = sqrt(pow(wcp1.x-wcp2.x,2)+pow(wcp1.y-wcp2.y,2)+pow(wcp1.z-wcp2.z,2));
+	    
+	    if (closest_index.find(std::make_pair(index1,wcp2.mcell->GetTimeSlice()))==closest_index.end()){
+	      closest_index[std::make_pair(index1,wcp2.mcell->GetTimeSlice())] = std::make_pair(index2,dis);
+	    }else{
+	      if (dis < closest_index[std::make_pair(index1,wcp2.mcell->GetTimeSlice())].second)
+		closest_index[std::make_pair(index1,wcp2.mcell->GetTimeSlice())] = std::make_pair(index2,dis);
+	    }
+	  }
+	}
+
+	//	std::cout << closest_index.size() << std::endl;
+	// for (auto it4 = closest_index.begin(); it4!=closest_index.end(); it4++){
+	//   int index2 = it4->second.first;
+	//   double dis = it4->second.second;
+	//   auto edge = add_edge(index1,index2,*graph);
+	//   if (edge.second){
+	//     (*graph)[edge.first].dist = dis;
+	//     num_edges ++;
+	//   }
+	// }
+      }
+      //}
       
     }
 
@@ -940,24 +1001,83 @@ void PR3DCluster::Create_graph(){
    	}
       }
 
+      std::set<int> wcps_set1;
+      std::set<int> wcps_set2;
+
       for (auto it2 = max_wcps_set.begin(); it2!=max_wcps_set.end(); it2++){
-   	for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
-   	  std::set<int> common_set;
-   	  set_intersection((*it2)->begin(), (*it2)->end(), (*it3)->begin(), (*it3)->end(),std::inserter(common_set,common_set.begin()));
-  	  for (auto it4 = common_set.begin(); it4!=common_set.end(); it4++){
-   	    WCPointCloud<double>::WCPoint& wcp2 = cloud.pts[*it4];
-   	    if (wcp2.index != wcp1.index){
-   	      int index2 = wcp2.index;
-	      auto edge = add_edge(index1,index2,*graph);
-   	      if (edge.second){
-   		(*graph)[edge.first].dist = sqrt(pow(wcp1.x-wcp2.x,2)+pow(wcp1.y-wcp2.y,2)+pow(wcp1.z-wcp2.z,2));
-	      }
-   	    }
-   	  }
-   	}
+	wcps_set1.insert((*it2)->begin(), (*it2)->end());
       }
+      for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
+	wcps_set2.insert((*it3)->begin(), (*it3)->end());
+      }
+
+      
+      // for (auto it2 = max_wcps_set.begin(); it2!=max_wcps_set.end(); it2++){
+      // 	for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
+      {
+	std::set<int> common_set;
+	set_intersection(wcps_set1.begin(), wcps_set1.end(), wcps_set2.begin(), wcps_set2.end(),std::inserter(common_set,common_set.begin()));
+
+	//	std::cout << "S2: " << common_set.size() << std::endl;
+
+	//	std::map<int,std::pair<int,double> > closest_index;
+	
+	for (auto it4 = common_set.begin(); it4!=common_set.end(); it4++){
+	  WCPointCloud<double>::WCPoint& wcp2 = cloud.pts[*it4];
+	  if (wcp2.index != wcp1.index){
+	    int index2 = wcp2.index;
+	    double dis = sqrt(pow(wcp1.x-wcp2.x,2)+pow(wcp1.y-wcp2.y,2)+pow(wcp1.z-wcp2.z,2));
+	    
+	    if (closest_index.find(std::make_pair(index1,wcp2.mcell->GetTimeSlice()))==closest_index.end()){
+	      closest_index[std::make_pair(index1,wcp2.mcell->GetTimeSlice())] = std::make_pair(index2,dis);
+	    }else{
+	      if (dis < closest_index[std::make_pair(index1,wcp2.mcell->GetTimeSlice())].second)
+		closest_index[std::make_pair(index1,wcp2.mcell->GetTimeSlice())] = std::make_pair(index2,dis);
+	    }
+	  }
+	}
+
+	//std::cout << closest_index.size() << std::endl;
+	// for (auto it4 = closest_index.begin(); it4!=closest_index.end(); it4++){
+	//   int index2 = it4->second.first;
+	//   double dis = it4->second.second;
+	//   auto edge = add_edge(index1,index2,*graph);
+	//   if (edge.second){
+	//     (*graph)[edge.first].dist = dis;
+	//     num_edges ++;
+	//   }
+	// }
+
+	
+	// for (auto it4 = common_set.begin(); it4!=common_set.end(); it4++){
+	//   WCPointCloud<double>::WCPoint& wcp2 = cloud.pts[*it4];
+	//   if (wcp2.index != wcp1.index){
+	//     int index2 = wcp2.index;
+	//     auto edge = add_edge(index1,index2,*graph);
+	//     if (edge.second){
+	//       (*graph)[edge.first].dist = sqrt(pow(wcp1.x-wcp2.x,2)+pow(wcp1.y-wcp2.y,2)+pow(wcp1.z-wcp2.z,2));
+	//       num_edges ++;
+	//     }
+	//   }
+	// }
+      }
+      //      }
     }
   }
+
+  for (auto it4 = closest_index.begin(); it4!=closest_index.end(); it4++){
+    int index1 = it4->first.first;
+    int index2 = it4->second.first;
+    double dis = it4->second.second;
+    auto edge = add_edge(index1,index2,*graph);
+    if (edge.second){
+      (*graph)[edge.first].dist = dis;
+      num_edges ++;
+    }
+  }
+  
+  //  std::cout << "Xin: " << num_edges << std::endl;
+  
   
   // get the connected components from the graph
   {
