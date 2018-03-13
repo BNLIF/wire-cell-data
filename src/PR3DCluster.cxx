@@ -32,6 +32,13 @@ PR3DCluster::~PR3DCluster(){
     delete graph;
 }
 
+void PR3DCluster::Del_graph(){
+  if (graph!=(MCUGraph*)0){
+    delete graph;
+    graph = 0;
+  }
+}
+
 void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_wcp, WCPointCloud<double>::WCPoint& end_wcp){
   //TVector3 dir(end_wcp.x - start_wcp.x, end_wcp.y - start_wcp.y, end_wcp.z - start_wcp.z);
   // How to write this fast ???

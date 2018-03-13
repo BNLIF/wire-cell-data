@@ -55,6 +55,7 @@ namespace WireCell{
     void Update_mcell_cluster_map(std::map<WireCell::SlimMergeGeomCell*,WireCell::PR3DCluster*>& mcell_cluster_map);
     
     void Create_graph();
+    void Del_graph();
     void dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp_source);
     void cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target);
     void fine_tracking(int num_pts_cut = 10);
