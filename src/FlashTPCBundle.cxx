@@ -171,7 +171,7 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
     flag_high_consistent = true;
   }else if (chi2 < 4 * ndf && ndf >=3 && ks_dis < 0.15){
     flag_high_consistent = true;
-  }else if (chi2 < 1.5 * ndf && ks_dis < 0.2){
+  }else if (chi2 < 1.5 * ndf && ks_dis < 0.2 && ndf >= 3){
     flag_high_consistent = true;
   }else if (ks_dis < 0.12 && ndf >=5 && chi2 < ndf * 55 && flag_close_to_PMT){
     flag_high_consistent = true;
