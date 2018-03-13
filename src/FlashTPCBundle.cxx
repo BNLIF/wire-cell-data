@@ -163,8 +163,9 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
   if (pe[max_bin] == 0 && pred_pe[max_bin]>0) // allow one PMT to be inefficient in measurement ... 
     chi2 -= max_chi2-1;
   
-
-  if (ks_dis < 0.12 && ndf >=2 && chi2 < ndf * 25){
+  if (ks_dis < 0.06 && ndf >=3 && chi2 < ndf * 36){
+    flag_high_consistent = true;
+  }else if (ks_dis < 0.12 && ndf >=2 && chi2 < ndf * 25){
     flag_high_consistent = true;
   }else if (flag_at_x_boundary && ndf >=1 && chi2 < 9 * ndf && ks_dis < 0.12){
     flag_high_consistent = true;
