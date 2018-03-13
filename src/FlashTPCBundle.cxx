@@ -13,6 +13,7 @@ FlashTPCBundle::FlashTPCBundle(Opflash* flash, PR3DCluster *main_cluster, int fl
   , chi2(0)
   , ndf(0)
   , flag_high_consistent(false)
+  , flag_spec_end(false)
 {
   pred_pmt_light.resize(32,0);
 }
@@ -86,7 +87,7 @@ bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low
   delete h1;
   delete h2;
 
-  // if (main_cluster->get_cluster_id()==2)
+  // if (main_cluster->get_cluster_id()==1||main_cluster->get_cluster_id()==14)
   //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << bundle->get_main_cluster()->get_cluster_id() << " " << ks_dis << " " << temp_ks_dis << " " << chi2 << " " << temp_chi2 << " " << ndf << std::endl;
   
   if ((temp_ks_dis < ks_dis + 0.06 &&

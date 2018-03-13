@@ -30,6 +30,9 @@ namespace WireCell{
     double get_ks_dis(){return ks_dis;};
     void set_consistent_flag(bool value){flag_high_consistent = value;};
     bool get_consistent_flag(){return flag_high_consistent;};
+
+    void set_spec_end_flag(bool value){flag_spec_end = value;};
+    bool get_spec_end_flag(){return flag_spec_end;};
     
   private:
     Opflash *flash;
@@ -40,6 +43,7 @@ namespace WireCell{
 
     bool flag_close_to_PMT;
     bool flag_at_x_boundary;
+    bool flag_spec_end;
     
     std::vector<double> pred_pmt_light; // prediction
 
