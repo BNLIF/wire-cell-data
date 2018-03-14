@@ -218,9 +218,9 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
       }
     }
     
-    if (fabs(main_cluster->get_cluster_id()-17)<=0 && flash->get_flash_id()==14){
-      std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << nfired << " " << ntot << " " << nfired1 << " " << ntot1 << " " << ks_dis << " " << chi2 << " " << ndf << " " << flag_at_x_boundary << " " << flag_close_to_PMT << std::endl;
-    }
+    // if (fabs(main_cluster->get_cluster_id()-21)<=0 && flash->get_flash_id()==13){
+    //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << nfired << " " << ntot << " " << nfired1 << " " << ntot1 << " " << ks_dis << " " << chi2 << " " << ndf << " " << flag_at_x_boundary << " " << flag_close_to_PMT << std::endl;
+    // }
 
     // exception for small clusters ... 
     if (nfired <=1 && (nfired1!=0 && nfired1 > 0.75*ntot1)) return true;
