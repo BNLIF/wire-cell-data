@@ -165,6 +165,8 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
   
   if (ks_dis < 0.06 && ndf >=3 && chi2 < ndf * 36){
     flag_high_consistent = true;
+  }else if (ks_dis<0.05 && ndf >=6 && chi2 < ndf * 45){
+    flag_high_consistent = true;
   }else if (ks_dis < 0.12 && ndf >=2 && chi2 < ndf * 25){
     flag_high_consistent = true;
   }else if (flag_at_x_boundary && ndf >=1 && chi2 < 9 * ndf && ks_dis < 0.12){
@@ -176,6 +178,8 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
   }else if (ks_dis < 0.12 && ndf >=5 && chi2 < ndf * 55 && flag_close_to_PMT){
     flag_high_consistent = true;
   }
+
+ 
   
   // if (ks_dis<0.35)
   // if (flash->get_flash_id()==14)
