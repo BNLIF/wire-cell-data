@@ -14,6 +14,7 @@ FlashTPCBundle::FlashTPCBundle(Opflash* flash, PR3DCluster *main_cluster, int fl
   , ndf(0)
   , flag_high_consistent(false)
   , flag_spec_end(false)
+  , flag_potential_bad_match(false)
 {
   pred_pmt_light.resize(32,0);
 }
@@ -226,17 +227,39 @@ bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
       }
     }
     
-    // if (fabs(main_cluster->get_cluster_id()-1)<=0){
+    // if (fabs(main_cluster->get_cluster_id()-15)<=0){
     //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << nfired << " " << ntot << " " << nfired1 << " " << ntot1 << " " << ks_dis << " " << chi2 << " " << ndf << " " << flag_at_x_boundary << " " << flag_close_to_PMT << std::endl;
     // }
 
     // exception for small clusters ... 
     if (nfired <=1 && (nfired1!=0 && nfired1 > 0.75*ntot1)) return true;
+
     
-    if ( nfired==0 ) return false;
-    if ( nfired==1 && ntot <=2 && nfired1< 0.2*ntot1) return false;
-    if ( nfired < 0.5 * ntot && ntot - nfired >= 2) return false;
-    
+
+    if (flag_at_x_boundary && (!flag_close_to_PMT) ){
+      if ( nfired==0 ) {
+	flag_potential_bad_match = true;
+      }
+      if ( nfired==1 && ntot <=2 && nfired1< 0.2*ntot1) {
+	flag_potential_bad_match = true;
+      }
+      if ( nfired < 0.5 * ntot && ntot - nfired >= 2) {
+	flag_potential_bad_match = true;
+      }
+    }else{
+      if ( nfired==0 ) {
+	flag_potential_bad_match = true;
+	return false;
+      }
+      if ( nfired==1 && ntot <=2 && nfired1< 0.2*ntot1) {
+	flag_potential_bad_match = true;
+	return false;
+      }
+      if ( nfired < 0.5 * ntot && ntot - nfired >= 2) {
+	flag_potential_bad_match = true;
+	return false;
+      }
+    }
   }
   return true;
 }

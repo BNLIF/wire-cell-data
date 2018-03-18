@@ -33,6 +33,7 @@ namespace WireCell{
 
     void set_spec_end_flag(bool value){flag_spec_end = value;};
     bool get_spec_end_flag(){return flag_spec_end;};
+    bool get_potential_bad_match_flag(){return flag_potential_bad_match;};
     
   private:
     Opflash *flash;
@@ -44,6 +45,8 @@ namespace WireCell{
     bool flag_close_to_PMT;
     bool flag_at_x_boundary;
     bool flag_spec_end;
+
+    bool flag_potential_bad_match;
     
     std::vector<double> pred_pmt_light; // prediction
 
