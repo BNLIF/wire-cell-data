@@ -34,11 +34,16 @@ namespace WireCell{
     void set_spec_end_flag(bool value){flag_spec_end = value;};
     bool get_spec_end_flag(){return flag_spec_end;};
     bool get_potential_bad_match_flag(){return flag_potential_bad_match;};
+
+    double get_strength(){return strength;};
+    void set_strength(double value){ strength = value;};
     
   private:
     Opflash *flash;
     PR3DCluster *main_cluster;
 
+    double strength;
+    
     int cluster_index_id;
     int flash_index_id;
 

@@ -15,6 +15,7 @@ FlashTPCBundle::FlashTPCBundle(Opflash* flash, PR3DCluster *main_cluster, int fl
   , flag_high_consistent(false)
   , flag_spec_end(false)
   , flag_potential_bad_match(false)
+  , strength(0)
 {
   pred_pmt_light.resize(32,0);
 }
