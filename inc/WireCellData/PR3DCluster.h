@@ -108,6 +108,8 @@ namespace WireCell{
     std::vector<PR3DCluster*> examine_x_boundary(double low_limit = -1*units::cm, double high_limit = 257*units::cm);
     
     std::vector<int> get_uvwt_range();
+
+    void get_projection(std::vector<int>& proj_channel, std::vector<int>& proj_timeslice, std::vector<int>& proj_charge);
     
   protected:
 

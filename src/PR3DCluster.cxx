@@ -39,6 +39,79 @@ void PR3DCluster::Del_graph(){
   }
 }
 
+void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int>& proj_timeslice, std::vector<int>& proj_charge){
+  for (auto it = mcells.begin(); it!=mcells.end(); it++){
+    SlimMergeGeomCell *mcell = *it;
+    int time_slice = mcell->GetTimeSlice();
+
+    GeomWireSelection& uwires = mcell->get_uwires();
+    GeomWireSelection& vwires = mcell->get_vwires();
+    GeomWireSelection& wwires = mcell->get_wwires();
+    
+    std::vector<WirePlaneType_t> bad_planes = mcell->get_bad_planes();
+    if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(0))==bad_planes.end()){
+      for (int i=0;i!=uwires.size();i++){
+	const GeomWire *wire = uwires.at(i);
+	int ch = wire->channel();
+	int charge = mcell->Get_Wire_Charge(wire);
+	proj_channel.push_back(ch);
+	proj_timeslice.push_back(time_slice);
+	proj_charge.push_back(charge);
+      }
+    }else{
+      for (int i=0;i!=uwires.size();i++){
+	const GeomWire *wire = uwires.at(i);
+	int ch = wire->channel();
+	int charge = mcell->get_q()*1.0/uwires.size();
+	proj_channel.push_back(ch);
+	proj_timeslice.push_back(time_slice);
+	proj_charge.push_back(charge);
+      }
+    }
+
+    if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(1))==bad_planes.end()){
+      for (int i=0;i!=vwires.size();i++){
+	const GeomWire *wire = vwires.at(i);
+	int ch = wire->channel();
+	int charge = mcell->Get_Wire_Charge(wire);
+	proj_channel.push_back(ch);
+	proj_timeslice.push_back(time_slice);
+	proj_charge.push_back(charge);
+      }
+    }else{
+      for (int i=0;i!=vwires.size();i++){
+	const GeomWire *wire = vwires.at(i);
+	int ch = wire->channel();
+	int charge = mcell->get_q()*1.0/vwires.size();
+	proj_channel.push_back(ch);
+	proj_timeslice.push_back(time_slice);
+	proj_charge.push_back(charge);
+      }
+    }
+
+    if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(2))==bad_planes.end()){
+      for (int i=0;i!=wwires.size();i++){
+	const GeomWire *wire = wwires.at(i);
+	int ch = wire->channel();
+	int charge = mcell->Get_Wire_Charge(wire);
+	proj_channel.push_back(ch);
+	proj_timeslice.push_back(time_slice);
+	proj_charge.push_back(charge);
+      }
+    }else{
+      for (int i=0;i!=wwires.size();i++){
+	const GeomWire *wire = wwires.at(i);
+	int ch = wire->channel();
+	int charge = mcell->get_q()*1.0/wwires.size();
+	proj_channel.push_back(ch);
+	proj_timeslice.push_back(time_slice);
+	proj_charge.push_back(charge);
+      }
+    }
+  }
+}
+    
+
 void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_wcp, WCPointCloud<double>::WCPoint& end_wcp){
   //TVector3 dir(end_wcp.x - start_wcp.x, end_wcp.y - start_wcp.y, end_wcp.z - start_wcp.z);
   // How to write this fast ???
