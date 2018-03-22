@@ -39,17 +39,34 @@ void PR3DCluster::Del_graph(){
   }
 }
 
-void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int>& proj_timeslice, std::vector<int>& proj_charge){
+void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int>& proj_timeslice, std::vector<int>& proj_charge, std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map){
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = *it;
     int time_slice = mcell->GetTimeSlice();
 
+    std::map<const GeomWire*, SMGCSelection >& timeslice_wc_map = global_wc_map[time_slice];
+
     GeomWireSelection& uwires = mcell->get_uwires();
     GeomWireSelection& vwires = mcell->get_vwires();
     GeomWireSelection& wwires = mcell->get_wwires();
+
+    bool flag_reg_save = true;
     
     std::vector<WirePlaneType_t> bad_planes = mcell->get_bad_planes();
     if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(0))==bad_planes.end()){
+      int num_shared_wires = 0;
+      for (int i=0;i!=uwires.size();i++){
+	const GeomWire *wire = uwires.at(i);
+	if (timeslice_wc_map[wire].size()>1)
+	  num_shared_wires ++;
+      }
+      if (num_shared_wires >0.15*uwires.size()&&num_shared_wires>1)
+	flag_reg_save = false;
+    }else{
+      flag_reg_save = false;
+    }
+
+    if (flag_reg_save){
       for (int i=0;i!=uwires.size();i++){
 	const GeomWire *wire = uwires.at(i);
 	int ch = wire->channel();
@@ -68,8 +85,22 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	proj_charge.push_back(charge);
       }
     }
-
+    
+    flag_reg_save = true;
     if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(1))==bad_planes.end()){
+      int num_shared_wires = 0;
+      for (int i=0;i!=vwires.size();i++){
+	const GeomWire *wire = vwires.at(i);
+	if (timeslice_wc_map[wire].size()>1)
+	  num_shared_wires ++;
+      }
+      if (num_shared_wires >0.15*vwires.size()&&num_shared_wires>1)
+	flag_reg_save = false;
+    }else{
+      flag_reg_save = false;
+    }
+
+    if (flag_reg_save){
       for (int i=0;i!=vwires.size();i++){
 	const GeomWire *wire = vwires.at(i);
 	int ch = wire->channel();
@@ -88,8 +119,23 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	proj_charge.push_back(charge);
       }
     }
-
+    
+    flag_reg_save = true;
     if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(2))==bad_planes.end()){
+      int num_shared_wires = 0;
+      for (int i=0;i!=wwires.size();i++){
+	const GeomWire *wire = wwires.at(i);
+	if (timeslice_wc_map[wire].size()>1)
+	  num_shared_wires ++;
+      }
+      if (num_shared_wires >0.15*wwires.size()&&num_shared_wires>1)
+	flag_reg_save = false;
+    }else{
+      flag_reg_save = false;
+    }
+
+
+    if(flag_reg_save){
       for (int i=0;i!=wwires.size();i++){
 	const GeomWire *wire = wwires.at(i);
 	int ch = wire->channel();

@@ -109,7 +109,7 @@ namespace WireCell{
     
     std::vector<int> get_uvwt_range();
 
-    void get_projection(std::vector<int>& proj_channel, std::vector<int>& proj_timeslice, std::vector<int>& proj_charge);
+    void get_projection(std::vector<int>& proj_channel, std::vector<int>& proj_timeslice, std::vector<int>& proj_charge, std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map);
     
   protected:
 
