@@ -80,6 +80,10 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	const GeomWire *wire = uwires.at(i);
 	int ch = wire->channel();
 	int charge = mcell->get_q()*1.0/uwires.size();
+
+	//	if(cluster_id==18)
+	//std::cout << ch << " " << time_slice << " " << charge << std::endl;
+	
 	proj_channel.push_back(ch);
 	proj_timeslice.push_back(time_slice);
 	proj_charge.push_back(charge);
@@ -154,7 +158,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	proj_charge.push_back(charge);
       }
     }
-  }
+  } // loop over mcells
 }
     
 
