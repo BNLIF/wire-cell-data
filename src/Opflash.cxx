@@ -21,7 +21,13 @@ WireCell::Opflash::Opflash(COphitSelection &ophits)
     time += ophits.at(i)->get_PE() * ophits.at(i)->get_time();
     total_PE += ophits.at(i)->get_PE() ;
   }
-  time /= total_PE;
+
+  // std::cout << total_PE << std::endl;
+  if (total_PE !=0){
+    time /= total_PE;
+  }else{
+    time = ophits.at(0)->get_time();
+  }
 
   low_time = time - 3 * 15.625/1000.;
   high_time = time + 37 * 15.625/1000.;
