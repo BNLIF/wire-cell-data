@@ -20,7 +20,12 @@ namespace WireCell{
 
     void AddPoint(int ch, int time_sice, int charge, int charge_err);
     void AddPoints(std::vector<int> *timesliceId, std::vector<std::vector<int>> *timesliceChannel, std::vector<std::vector<int>> *raw_charge , std::vector<std::vector<int>> *raw_charge_err);
+    void build_kdtree_index();
 
+    int get_num_points(int plane);
+    WireCell::CTPointCloud<double>& get_cloud(int plane);
+
+    WireCell::CTPointCloud<double> get_closest_points(WireCell::Point& p, double radius, int plane);
     
   protected:
     double angle_u, angle_v, angle_w; // wire angles 

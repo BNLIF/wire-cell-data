@@ -80,3 +80,47 @@ void ToyCTPointCloud::AddPoints(std::vector<int> *timesliceId, std::vector<std::
   }
   
 }
+
+void ToyCTPointCloud::build_kdtree_index(){
+  if (index_u!=0)    delete index_u;
+  if (index_v!=0)    delete index_v;
+  if (index_w!=0)    delete index_w;
+
+  index_u = new my_kd_tree_ct_t(2, cloud_u, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
+  index_u->buildIndex();
+
+  index_v = new my_kd_tree_ct_t(2, cloud_v, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
+  index_v->buildIndex();
+
+  index_w = new my_kd_tree_ct_t(2, cloud_w, nanoflann::KDTreeSingleIndexAdaptorParams(10 /* max leaf */) );
+  index_w->buildIndex();
+}
+
+
+int ToyCTPointCloud::get_num_points(int plane){
+  if (plane==0){
+    return cloud_u.pts.size();
+  }else if (plane==1){
+    return cloud_v.pts.size();
+  }else if (plane==2){
+    return cloud_w.pts.size();
+  }
+}
+
+CTPointCloud<double>& ToyCTPointCloud::get_cloud(int plane){
+  if (plane==0){
+    return cloud_u;
+  }else if (plane==1){
+    return cloud_v;
+  }else{
+    return cloud_w;
+  }
+}
+
+WireCell::CTPointCloud<double> ToyCTPointCloud::get_closest_points(WireCell::Point& p, double radius, int plane){
+  WireCell::CTPointCloud<double> nearby_points;
+
+  
+  
+  return nearby_points;
+}
