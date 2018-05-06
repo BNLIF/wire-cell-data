@@ -28,6 +28,10 @@ namespace WireCell{
     WireCell::CTPointCloud<double> get_closest_points(WireCell::Point& p, double radius, int plane);
     
   protected:
+
+    std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, double radius, int plane);
+
+    
     double angle_u, angle_v, angle_w; // wire angles 
     int u_min_ch, u_max_ch; // channel range for U
     int v_min_ch, v_max_ch; // channel range for V

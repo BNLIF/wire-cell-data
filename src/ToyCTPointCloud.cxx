@@ -117,9 +117,48 @@ CTPointCloud<double>& ToyCTPointCloud::get_cloud(int plane){
   }
 }
 
+
+std::vector<std::pair<size_t,double>> ToyCTPointCloud::get_closest_index(WireCell::Point& p, double search_radius, int plane){
+  double x, y;
+  if (plane==0){
+    x = p.x;
+    y = cos(angle_u) * p.z - sin(angle_u) *p.y;
+  }else if (plane==1){
+    x = p.x;
+    y = cos(angle_v) * p.z - sin(angle_v) *p.y;
+  }else{
+    x = p.x;
+    y = cos(angle_w) * p.z - sin(angle_w) *p.y;
+  }
+  double query_pt[2];
+  query_pt[0] = x;
+  query_pt[1] = y;
+
+  std::vector<std::pair<size_t,double> >   ret_matches;
+  nanoflann::SearchParams params;
+  if (plane ==0){
+    const size_t nMatches = index_u->radiusSearch(&query_pt[0], search_radius*search_radius, ret_matches, params);
+  }else if (plane==1){
+    const size_t nMatches = index_v->radiusSearch(&query_pt[0], search_radius*search_radius, ret_matches, params);
+  }else{
+    const size_t nMatches = index_w->radiusSearch(&query_pt[0], search_radius*search_radius, ret_matches, params);
+  }
+  return ret_matches;
+}
+
 WireCell::CTPointCloud<double> ToyCTPointCloud::get_closest_points(WireCell::Point& p, double radius, int plane){
   WireCell::CTPointCloud<double> nearby_points;
 
+  std::vector<std::pair<size_t,double>> indices = get_closest_index(p, radius, plane);
+  for (size_t i=0;i!=indices.size();i++){
+    if (plane==0){
+      nearby_points.pts.push_back(cloud_u.pts.at(indices.at(i).first));
+    }else if (plane==1){
+      nearby_points.pts.push_back(cloud_v.pts.at(indices.at(i).first));
+    }else if (plane==2){
+      nearby_points.pts.push_back(cloud_w.pts.at(indices.at(i).first));
+    }
+  }
   
   
   return nearby_points;
