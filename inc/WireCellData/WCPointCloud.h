@@ -81,8 +81,8 @@ namespace WireCell{
 	T  x,y;
 	int channel;
 	int time_slice;
-	float charge;
-	float charge_err;
+	int charge;
+	int charge_err;
 	int index;
       };
       
