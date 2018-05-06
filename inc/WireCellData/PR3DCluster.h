@@ -3,6 +3,7 @@
 
 #include "WireCellData/SlimMergeGeomCell.h"
 #include "WireCellData/ToyPointCloud.h"
+#include "WireCellData/ToyCTPointCloud.h"
 #include "TVector3.h"
 
 #include <boost/graph/adjacency_list.hpp>
