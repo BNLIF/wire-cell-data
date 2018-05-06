@@ -26,6 +26,8 @@ namespace WireCell{
     WireCell::CTPointCloud<double>& get_cloud(int plane);
 
     WireCell::CTPointCloud<double> get_closest_points(WireCell::Point& p, double radius, int plane);
+
+    void Print(WireCell::Point &p);
     
   protected:
 

@@ -36,6 +36,17 @@ ToyCTPointCloud::~ToyCTPointCloud(){
   cloud_w.pts.clear();
 }
 
+void ToyCTPointCloud::Print(WireCell::Point &p){
+  std::cout << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
+  std::cout << p.x*slope_t+offset_t << std::endl;
+  std::cout << (cos(angle_u) * p.z - sin(angle_u) *p.y)*slope_u+offset_u << std::endl;
+  std::cout << (cos(angle_v) * p.z - sin(angle_v) *p.y)*slope_v+offset_v << std::endl;
+  std::cout << (cos(angle_w) * p.z - sin(angle_w) *p.y)*slope_w+offset_w << std::endl;
+  
+}
+
+
+
 void ToyCTPointCloud::AddPoint(int ch, int time_slice, int charge, int charge_err){
   int plane = 0;
   if (ch >= v_min_ch && ch <= v_max_ch){
@@ -53,15 +64,15 @@ void ToyCTPointCloud::AddPoint(int ch, int time_slice, int charge, int charge_er
 
   point.x = (time_slice-offset_t)/slope_t;
   if (plane==0){
-    point.y = (ch-offset_u)/slope_u;
+    point.y = (ch-offset_u-u_min_ch)/slope_u;
     point.index = cloud_u.pts.size();
     cloud_u.pts.push_back(point);
   }else if (plane==1){
-    point.y = (ch-offset_v)/slope_v;
+    point.y = (ch-offset_v-v_min_ch)/slope_v;
     point.index = cloud_v.pts.size();
     cloud_v.pts.push_back(point);
   }else if (plane==2){
-    point.y = (ch-offset_w)/slope_w;
+    point.y = (ch-offset_w-w_min_ch)/slope_w;
     point.index = cloud_w.pts.size();
     cloud_w.pts.push_back(point);
   }
@@ -75,7 +86,10 @@ void ToyCTPointCloud::AddPoints(std::vector<int> *timesliceId, std::vector<std::
       int ch = timesliceChannel->at(i).at(j);
       int charge = raw_charge->at(i).at(j);
       int charge_err = raw_charge_err->at(i).at(j);
-      AddPoint(time_slice,ch,charge,charge_err);
+
+      // std::cout << time_slice << " " << ch << " " << charge << " " << charge_err << std::endl;
+      
+      AddPoint(ch,time_slice,charge,charge_err);
     }
   }
   
@@ -163,3 +177,5 @@ WireCell::CTPointCloud<double> ToyCTPointCloud::get_closest_points(WireCell::Poi
   
   return nearby_points;
 }
+
+
