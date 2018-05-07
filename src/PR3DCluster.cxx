@@ -2191,6 +2191,19 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
    
 }
 
+void PR3DCluster::collect_charge_trajectory(double dis){
+  collected_charge_map.clear();
+  
+  // form a map cotaining everything inside the cluster
+
+  // form a trajectory according to dis and fine tracking?
+
+  // collect the nearby points, and compare with existing maps
+
+  
+}
+
+
 TVector3 PR3DCluster::get_ft_dir_end(float mean_dis, float dis_cut){
   TVector3 dir(0,0,0);
   for (size_t i=1; i<fine_tracking_path.size();i++){
