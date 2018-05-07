@@ -212,6 +212,16 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
       }
     }
   } // loop over mcells
+
+  for (auto it = collected_charge_map.begin(); it!=collected_charge_map.end(); it++){
+    int time_slice = it->first.first;
+    int ch = it->first.second;
+    int charge = it->second;
+    proj_channel.push_back(ch);
+    proj_timeslice.push_back(time_slice);
+    proj_charge.push_back(charge);
+  }
+  
 }
     
 
@@ -2191,16 +2201,81 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
    
 }
 
-void PR3DCluster::collect_charge_trajectory(double dis){
+void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, double dis_cut, double range_cut){
+  //clear up ...
   collected_charge_map.clear();
-  
-  // form a map cotaining everything inside the cluster
 
+  std::set<std::pair<int,int>> existing_tcs;
+  // form a set cotaining everything inside the cluster
+  for (auto it = mcells.begin(); it!=mcells.end(); it++){
+    SlimMergeGeomCell *mcell = (*it);
+    int time_slice = mcell->GetTimeSlice();
+    GeomWireSelection& uwires = mcell->get_uwires();
+    GeomWireSelection& vwires = mcell->get_vwires();
+    GeomWireSelection& wwires = mcell->get_wwires();
+    for (auto it1 = uwires.begin(); it1!=uwires.end(); it1++){
+      const GeomWire *wire = (*it1);
+      existing_tcs.insert(std::make_pair(time_slice,wire->channel()));
+    }
+    for (auto it1 = vwires.begin(); it1!=vwires.end(); it1++){
+      const GeomWire *wire = (*it1);
+      existing_tcs.insert(std::make_pair(time_slice,wire->channel()));
+    }
+    for (auto it1 = wwires.begin(); it1!=wwires.end(); it1++){
+      const GeomWire *wire = (*it1);
+      existing_tcs.insert(std::make_pair(time_slice,wire->channel()));
+    }
+  }
+  
   // form a trajectory according to dis and fine tracking?
-
-  // collect the nearby points, and compare with existing maps
-
+  PointVector traj_pts;
+  PointVector& pts = get_fine_tracking_path();
+  for (size_t i=0; i!=pts.size(); i++){
+    if (i==0){
+      traj_pts.push_back(pts.at(i));
+    }else{
+      double dis = sqrt(pow(pts.at(i).x-pts.at(i-1).x,2) +
+			pow(pts.at(i).y-pts.at(i-1).y,2) +
+			pow(pts.at(i).z-pts.at(i-1).z,2));
+      if (dis <= dis_cut){
+	traj_pts.push_back(pts.at(i));
+      }else{
+	int nseg = dis / dis_cut + 1;
+	for (size_t j=0; j!=nseg;j++){
+	  Point temp_pt;
+	  temp_pt.x = pts.at(i-1).x + (pts.at(i).x-pts.at(i-1).x) *(j+1.)/nseg;
+	  temp_pt.y = pts.at(i-1).y + (pts.at(i).y-pts.at(i-1).y) *(j+1.)/nseg;
+	  temp_pt.z = pts.at(i-1).z + (pts.at(i).z-pts.at(i-1).z) *(j+1.)/nseg;
+	  traj_pts.push_back(temp_pt);
+	}
+      }
+    }
+  }
   
+  // collect the nearby points, and compare with existing maps
+  for (size_t i=0;i!=traj_pts.size();i++){
+    
+    WireCell::CTPointCloud<double> nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,0);
+    for (size_t j=0;j!=nearby_points.pts.size();j++){
+      if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
+	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = nearby_points.pts.at(j).charge;
+      }
+    }
+    nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,1);
+    for (size_t j=0;j!=nearby_points.pts.size();j++){
+      if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
+	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = nearby_points.pts.at(j).charge;
+      }
+    }
+    nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,2);
+    for (size_t j=0;j!=nearby_points.pts.size();j++){
+      if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
+	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = nearby_points.pts.at(j).charge;
+      }
+    }
+  }
+
+  // std::cout << collected_charge_map.size() << std::endl;
 }
 
 

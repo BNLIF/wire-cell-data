@@ -112,7 +112,7 @@ namespace WireCell{
 
     void get_projection(std::vector<int>& proj_channel, std::vector<int>& proj_timeslice, std::vector<int>& proj_charge, std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map);
 
-    void collect_charge_trajectory(double dis = 1.0*units::cm);
+    void collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, double dis_cut = 0.4*units::cm, double range_cut = 0.6*units::cm);
     
   protected:
 
@@ -145,7 +145,7 @@ namespace WireCell{
     bool flag_fine_tracking;
     PointVector fine_tracking_path;
 
-    std::map<std:pair<int,int>,int> collected_charge_map;
+    std::map<std::pair<int,int>,int> collected_charge_map;
     
   };
   typedef std::vector<PR3DCluster*> PR3DClusterSelection;
