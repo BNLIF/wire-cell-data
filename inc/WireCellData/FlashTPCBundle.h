@@ -18,6 +18,7 @@ namespace WireCell{
 
     std::vector<double>& get_pred_pmt_light(){return pred_pmt_light;};
     Opflash* get_flash(){return flash;};
+    
     PR3DCluster* get_main_cluster(){return main_cluster;};
     PR3DClusterSelection& get_other_clusters(){return other_clusters;};
     PR3DClusterSelection& get_more_clusters(){return more_clusters;};
@@ -62,8 +63,6 @@ namespace WireCell{
     
     PR3DClusterSelection other_clusters; // save every other one 
     PR3DClusterSelection more_clusters;  // save ones satisfying the cut    
-    
-    
   };
 
   typedef std::vector<FlashTPCBundle*> FlashTPCBundleSelection;
