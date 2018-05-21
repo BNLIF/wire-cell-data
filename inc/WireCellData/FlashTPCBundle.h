@@ -18,6 +18,7 @@ namespace WireCell{
 
     std::vector<double>& get_pred_pmt_light(){return pred_pmt_light;};
     Opflash* get_flash(){return flash;};
+    void set_flash(Opflash* flash1){flash=flash1;};
     
     PR3DCluster* get_main_cluster(){return main_cluster;};
     PR3DClusterSelection& get_other_clusters(){return other_clusters;};
@@ -25,6 +26,7 @@ namespace WireCell{
 
     bool examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid);
     bool examine_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
+    void add_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
     
     double get_chi2(){return chi2;};
     int get_ndf(){return ndf;};
