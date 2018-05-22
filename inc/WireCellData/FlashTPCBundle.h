@@ -41,7 +41,7 @@ namespace WireCell{
     double get_strength(){return strength;};
     void set_strength(double value){ strength = value;};
 
-    void examine_merge_clusters(double dis_cut = 1.2*units::cm);
+    void examine_merge_clusters(double dis_cut = 3.6*units::cm);
     
   private:
     Opflash *flash;

@@ -89,11 +89,11 @@ bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low
   delete h1;
   delete h2;
 
-  // if (main_cluster->get_cluster_id()==1||main_cluster->get_cluster_id()==14)
+  // if (main_cluster->get_cluster_id()==17)
   //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << bundle->get_main_cluster()->get_cluster_id() << " " << ks_dis << " " << temp_ks_dis << " " << chi2 << " " << temp_chi2 << " " << ndf << std::endl;
   
   if ((temp_ks_dis < ks_dis + 0.06 &&
-      temp_ks_dis < ks_dis * 1.2 && 
+       (temp_ks_dis < ks_dis * 1.2 || temp_ks_dis < 0.05 || temp_ks_dis < ks_dis + 0.03) && 
       temp_chi2 < chi2 + ndf * 5 &&
        temp_chi2 < chi2 * 1.21) ||
       (temp_ks_dis < ks_dis &&
@@ -177,7 +177,7 @@ void FlashTPCBundle::examine_merge_clusters(double dis_cut){
     if (dis_save < dis_cut){
       merge_clusters.push_back(temp_cluster);
     }
-    //    std::cout << main_cluster_id << " " << dis_save/units::cm << std::endl;
+    //  std::cout << main_cluster_id << " " << temp_cluster->get_cluster_id() << " " << dis_save/units::cm << " " << merge_clusters.size() << std::endl;
   }
 
   if (merge_clusters.size()>0){
