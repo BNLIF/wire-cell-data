@@ -2433,6 +2433,37 @@ bool PR3DCluster::judge_vertex(Point& p_test, double asy_cut, double occupied_cu
   return false;
 }
 
+std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_extreme_wcps(){
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  Calc_PCA();
+  WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
+  WCPointCloud<double>::WCPoint lowest_wcp = cloud.pts[0];
+  Vector main_axis = get_PCA_axis(0);
+  if (main_axis.y <0){
+    main_axis.x = -main_axis.x;
+    main_axis.y = -main_axis.y;
+    main_axis.z = -main_axis.z;
+  }
+  
+  double high_value = highest_wcp.x*main_axis.x + highest_wcp.y*main_axis.y + highest_wcp.z*main_axis.z;
+  double low_value = lowest_wcp.x * main_axis.x + lowest_wcp.y * main_axis.y + lowest_wcp.z * main_axis.z ;
+  
+  for (size_t i=1;i<cloud.pts.size();i++){
+    double value = cloud.pts[i].x*main_axis.x + cloud.pts[i].y*main_axis.y + cloud.pts[i].z*main_axis.z;
+    if (value > high_value){
+      highest_wcp = cloud.pts[i];
+      high_value = value;
+    }
+    
+    if (value < low_value){
+      lowest_wcp = cloud.pts[i];
+      low_value = value;
+    }
+  }
+  return std::make_pair(highest_wcp,lowest_wcp);
+  
+}
+
 
 std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_highest_lowest_wcps(){
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
