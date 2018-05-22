@@ -107,6 +107,115 @@ bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low
   
 }
 
+void FlashTPCBundle::examine_merge_clusters(double dis_cut){
+  int main_cluster_id = main_cluster->get_cluster_id();
+
+  PR3DClusterSelection merge_clusters;
+  for (size_t i=0;i!=other_clusters.size();i++){
+    PR3DCluster *temp_cluster = other_clusters.at(i);
+
+    double dis_save = 1e9;
+    
+    {
+      PR3DCluster *cluster1 = temp_cluster;
+      PR3DCluster *cluster2 = main_cluster;
+      SlimMergeGeomCell *prev_mcell1 = 0;
+      SlimMergeGeomCell *prev_mcell2 = 0;
+      SlimMergeGeomCell *mcell1 = 0; 
+      Point p1;//
+      SlimMergeGeomCell *mcell2=0;
+      Point p2;
+      
+      mcell1 = *(cluster1->get_time_cells_set_map().begin()->second.begin());
+      p1 = mcell1->center();
+      
+      while(mcell1!=prev_mcell1 || mcell2!=prev_mcell2){
+	prev_mcell1 = mcell1;
+	prev_mcell2 = mcell2;
+	
+	// find the closest point and merged cell in cluster2
+	std::pair<SlimMergeGeomCell*,Point> temp_results = cluster2->get_closest_point_mcell(p1);
+	p2 = temp_results.second;
+	mcell2 = temp_results.first;
+	// find the closest point and merged cell in cluster1
+	temp_results = cluster1->get_closest_point_mcell(p2);
+	p1 = temp_results.second;
+	mcell1 = temp_results.first;
+      }
+      double dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+
+      if (dis < dis_save){
+	dis_save = dis;
+      }
+
+      prev_mcell1 = 0;
+      prev_mcell2 = 0;
+      
+      mcell1 = *(cluster1->get_time_cells_set_map().rbegin()->second.begin());
+      p1 = mcell1->center();
+
+      while(mcell1!=prev_mcell1 || mcell2!=prev_mcell2){
+	prev_mcell1 = mcell1;
+	prev_mcell2 = mcell2;
+	
+	// find the closest point and merged cell in cluster2
+	std::pair<SlimMergeGeomCell*,Point> temp_results = cluster2->get_closest_point_mcell(p1);
+	p2 = temp_results.second;
+	mcell2 = temp_results.first;
+	// find the closest point and merged cell in cluster1
+	temp_results = cluster1->get_closest_point_mcell(p2);
+	p1 = temp_results.second;
+	mcell1 = temp_results.first;
+      }
+      dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+
+      if (dis < dis_save){
+	dis_save = dis;
+      }
+    }
+
+    if (dis_save < dis_cut){
+      merge_clusters.push_back(temp_cluster);
+    }
+    //    std::cout << main_cluster_id << " " << dis_save/units::cm << std::endl;
+  }
+
+  if (merge_clusters.size()>0){
+    merge_clusters.push_back(main_cluster);
+    PR3DCluster *ncluster = new PR3DCluster(main_cluster_id);
+    for (auto it1 = merge_clusters.begin(); it1!=merge_clusters.end(); it1++){
+      PR3DCluster *ocluster = *(it1);
+      SMGCSelection& mcells = ocluster->get_mcells();
+      for (auto it2 = mcells.begin(); it2!=mcells.end(); it2++){
+	SlimMergeGeomCell *mcell = (*it2);
+	//std::cout << ocluster->get_cluster_id() << " " << mcell << std::endl;
+	int time_slice = mcell->GetTimeSlice();
+	ncluster->AddCell(mcell,time_slice);
+      }
+    }
+    // delete old clusters
+    for (auto it1 = merge_clusters.begin(); it1!=merge_clusters.end(); it1++){
+      PR3DCluster *ocluster = *(it1);
+      if (ocluster == main_cluster){
+	delete ocluster;
+      }else{
+	auto it2 = find(other_clusters.begin(),other_clusters.end(),ocluster);
+	if (it2!=other_clusters.end()){
+	  other_clusters.erase(it2);
+	}
+	auto it3 = find(more_clusters.begin(), more_clusters.end(), ocluster);
+	if (it3!=other_clusters.end()){
+	  more_clusters.erase(it3);
+	}
+	delete ocluster;
+      }
+    }
+    main_cluster = ncluster;
+  }
+  
+  
+}
+
 void  FlashTPCBundle::add_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid){
   flag_close_to_PMT = flag_close_to_PMT || bundle->get_flag_close_to_PMT();
   flag_at_x_boundary = flag_at_x_boundary || bundle->get_flag_at_x_boundary();
