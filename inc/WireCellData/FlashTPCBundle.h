@@ -26,6 +26,7 @@ namespace WireCell{
 
     bool examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid);
     bool examine_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
+    bool examine_bundle1(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
     void add_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
     
     double get_chi2(){return chi2;};

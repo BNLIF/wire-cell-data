@@ -90,10 +90,10 @@ bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low
   delete h2;
 
   // if (main_cluster->get_cluster_id()==17)
-  //   std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << bundle->get_main_cluster()->get_cluster_id() << " " << ks_dis << " " << temp_ks_dis << " " << chi2 << " " << temp_chi2 << " " << ndf << std::endl;
+  // std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << bundle->get_main_cluster()->get_cluster_id() << " " << ks_dis << " " << temp_ks_dis << " " << chi2 << " " << temp_chi2 << " " << ndf << std::endl;
   
   if ((temp_ks_dis < ks_dis + 0.06 &&
-       (temp_ks_dis < ks_dis * 1.2 || temp_ks_dis < 0.05 || temp_ks_dis < ks_dis + 0.03) && 
+       (temp_ks_dis < ks_dis * 1.2) && 
       temp_chi2 < chi2 + ndf * 5 &&
        temp_chi2 < chi2 * 1.21) ||
       (temp_ks_dis < ks_dis &&
@@ -106,6 +106,91 @@ bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low
   }
   
 }
+
+bool FlashTPCBundle::examine_bundle1(FlashTPCBundle *bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid){
+  TH1F *h1 = new TH1F("h1","h1",32,0,32);
+  TH1F *h2 = new TH1F("h2","h2",32,0,32);
+
+  double pe[32],pe_err[32];
+  double pred_pe[32];
+  
+  
+  for (int i=0;i!=32;i++){
+    pe[i] = flash->get_PE(i);
+    pe_err[i] = flash->get_PE_err(i);
+    pred_pe[i] = pred_pmt_light.at(i) + bundle->get_pred_pmt_light().at(i);
+  }
+  
+  for (int j=0;j!=32;j++){
+    h1->SetBinContent(j+1,pe[j]);
+    if ((pred_pe[j] < cos_pe_low[j] ||
+	 (pred_pe[j] < cos_pe_mid[j]*1.1 && pe[j] ==0 )) && flash->get_type()==1){
+      pred_pe[j] = 0;
+    }
+    h2->SetBinContent(j+1,pred_pe[j]);
+  }
+
+
+  double temp_chi2 = 0;
+  double temp_ndf = 0;
+  double temp_ks_dis = 1;
+  
+  double max_chi2 = 0;
+  int max_bin = -1;
+  
+  if (h2->GetSum()!=0){
+    temp_ks_dis = h1->KolmogorovTest(h2,"M");
+  }
+  
+  for (int j=0;j!=32;j++){
+    double cur_chi2 = 0;
+    if (flag_close_to_PMT){
+      if (pe[j]-pred_pe[j]>350&&pe[j]>pred_pe[j]*1.3){ // if the measurement is much larger than the prediction
+	cur_chi2 = pow(pred_pe[j]-pe[j],2)/(pow(pe_err[j],2)+pow(pe[j]*0.5,2));
+      }else{
+	cur_chi2 = pow(pred_pe[j]-pe[j],2)/pow(pe_err[j],2); 
+      }
+    }else{
+      cur_chi2 = pow(pred_pe[j]-pe[j],2)/pow(pe_err[j],2); 
+    }
+    temp_chi2 += cur_chi2;
+
+    if (cur_chi2 > max_chi2){
+      max_chi2 = cur_chi2;
+      max_bin = j;
+    }      
+    
+     if (pe[j]==0&&pred_pe[j]==0){
+     }else{
+       temp_ndf++;
+     }
+  }
+  if (pe[max_bin] == 0 && pred_pe[max_bin]>0) // allow one PMT to be inefficient in measurement ... 
+    temp_chi2 -= max_chi2-1;
+  
+  
+  delete h1;
+  delete h2;
+
+  // if (main_cluster->get_cluster_id()==17)
+  //  std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << bundle->get_main_cluster()->get_cluster_id() << " " << ks_dis << " " << temp_ks_dis << " " << chi2 << " " << temp_chi2 << " " << ndf << std::endl;
+  
+  if ((temp_ks_dis < ks_dis + 0.06 &&
+       (temp_ks_dis < ks_dis * 1.2 || temp_ks_dis < 0.05 || temp_ks_dis < ks_dis + 0.03) && 
+       temp_chi2 < chi2 + ndf * 5 &&
+       temp_chi2 < chi2 * 1.21) ||
+      (temp_ks_dis < ks_dis &&
+       temp_chi2 < chi2 + ndf * 10 &&
+       temp_chi2 < chi2 * 1.45) ||
+      (temp_ks_dis * temp_chi2 < ks_dis * chi2)
+      ){
+    return true;
+  }else{
+    return false;
+  }
+  
+}
+
 
 void FlashTPCBundle::examine_merge_clusters(double dis_cut){
   int main_cluster_id = main_cluster->get_cluster_id();
