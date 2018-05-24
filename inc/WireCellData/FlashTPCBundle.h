@@ -26,7 +26,7 @@ namespace WireCell{
 
     bool examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid);
     bool examine_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
-    bool examine_bundle1(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
+    bool examine_bundle_rank(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
     void add_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
     
     double get_chi2(){return chi2;};
@@ -71,9 +71,62 @@ namespace WireCell{
   };
 
   typedef std::vector<FlashTPCBundle*> FlashTPCBundleSelection;
-  typedef std::set<FlashTPCBundle*> FlashTPCBundleSet;
-  typedef std::map<Opflash*, FlashTPCBundleSelection> Flash_bundles_map;
-  typedef std::map<PR3DCluster*, FlashTPCBundleSelection> Cluster_bundles_map;
+
+  struct FlashTPCBundleComparePtr {
+	bool operator() (FlashTPCBundle* a, FlashTPCBundle* b) {
+	    if (a && b) {
+	      if (a->get_flash() && b->get_flash()){
+		if (a->get_flash()->get_flash_id() < b->get_flash()->get_flash_id()){
+		  return true;
+		}else if (a->get_flash()->get_flash_id() == b->get_flash()->get_flash_id()){
+		  if (a->get_main_cluster()->get_cluster_id() < b->get_main_cluster()->get_cluster_id()){
+		    return true;
+		  }else{
+		    return false;
+		  }
+		}else{
+		  return false;
+		}
+	      }else{
+		return false;
+	      }
+	    }
+	    return false;
+	}
+    };
+
+  struct OpflashComparePtr {
+    bool operator() (Opflash* a, Opflash* b) {
+      if (a && b) {
+	if (a->get_flash_id() < b->get_flash_id()){
+	  return true;
+	}else{
+	  return false;
+	}
+      }
+      return false;
+    }
+  };
+
+   struct PR3DClusterComparePtr {
+    bool operator() (PR3DCluster* a, PR3DCluster* b) {
+      if (a && b) {
+	if (a->get_cluster_id() < b->get_cluster_id()){
+	  return true;
+	}else{
+	  return false;
+	}
+      }
+      return false;
+    }
+  };
+
+  
+  
+  
+  typedef std::set<FlashTPCBundle*, FlashTPCBundleComparePtr> FlashTPCBundleSet;
+  typedef std::map<Opflash*, FlashTPCBundleSelection, OpflashComparePtr > Flash_bundles_map;
+  typedef std::map<PR3DCluster*, FlashTPCBundleSelection, PR3DClusterComparePtr > Cluster_bundles_map;
   
 }
 

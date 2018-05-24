@@ -107,7 +107,7 @@ bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low
   
 }
 
-bool FlashTPCBundle::examine_bundle1(FlashTPCBundle *bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid){
+bool FlashTPCBundle::examine_bundle_rank(FlashTPCBundle *bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid){
   TH1F *h1 = new TH1F("h1","h1",32,0,32);
   TH1F *h2 = new TH1F("h2","h2",32,0,32);
 
