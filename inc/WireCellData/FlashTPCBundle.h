@@ -28,6 +28,9 @@ namespace WireCell{
     bool examine_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
     bool examine_bundle_rank(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
     void add_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
+
+    //  bool check_tgm( WireCell2dToy::ToyFiducial *fid, double offset_x );
+    
     
     double get_chi2(){return chi2;};
     int get_ndf(){return ndf;};

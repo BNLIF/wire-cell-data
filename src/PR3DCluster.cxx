@@ -2529,7 +2529,7 @@ std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DClust
       value = l1-l2;
       min_wcps = saved_wcps.at(i);
     }
-    //  std::cout << i << " " << saved_wcps.at(i).x/units::cm << " " << saved_wcps.at(i).y/units::cm << " " << saved_wcps.at(i).z/units::cm << " " << l1/units::cm << " " << l2/units::cm << std::endl;
+    std::cout << i << " " << saved_wcps.at(i).x/units::cm << " " << saved_wcps.at(i).y/units::cm << " " << saved_wcps.at(i).z/units::cm << " " << l1/units::cm << " " << l2/units::cm << std::endl;
     
   }
   

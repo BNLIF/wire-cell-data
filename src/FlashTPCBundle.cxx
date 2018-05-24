@@ -107,6 +107,38 @@ bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low
   
 }
 
+// bool FlashTPCBundle::check_tgm( WireCell2dToy::ToyFiducial *fid, double offset_x){
+//   if (flash!=0){
+//     // check the fiducial volume ...
+//     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> wcps = main_cluster->get_main_axis_wcps();
+    
+//     Point p1(wcps.first.x,wcps.first.y,wcps.first.z);
+//     Point p2(wcps.second.x,wcps.second.y,wcps.second.z);
+    
+//     //double offset_x = (flash->get_time() - time_offset)*2./nrebin*time_slice_width;
+//     bool flag_inside_p1 = fid->inside_fiducial_volume(p1,offset_x);
+//     bool flag_inside_p2 = fid->inside_fiducial_volume(p2,offset_x);
+//     //std::cout << main_cluster->get_cluster_id() << " " << (p1.x-offset_x)/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm << " " << (p2.x-offset_x)/units::cm << " " << p2.y/units::cm << " " << p2.z/units::cm << " " << fid->inside_fiducial_volume(p1,offset_x) << " " << fid->inside_fiducial_volume(p2,offset_x) << std::endl;
+    
+//     // check the dead region ...
+//     if (flag_inside_p1){
+//       // define a local direction ...
+//       TVector3 dir = main_cluster->VHoughTrans(p1,30*units::cm);
+//       dir *= (-1);
+//       flag_inside_p1=fid->check_dead_volume(p1,dir,1*units::cm,offset_x);
+//     }
+//     if (flag_inside_p2){
+//       // define a  local direction ...
+//       TVector3 dir = main_cluster->VHoughTrans(p2,30*units::cm);
+//       dir *= (-1);
+//       flag_inside_p2=fid->check_dead_volume(p2,dir,1*units::cm,offset_x);
+//     }
+    
+//   }
+  
+//   return false;
+// }
+
 bool FlashTPCBundle::examine_bundle_rank(FlashTPCBundle *bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid){
   TH1F *h1 = new TH1F("h1","h1",32,0,32);
   TH1F *h2 = new TH1F("h2","h2",32,0,32);
