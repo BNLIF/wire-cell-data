@@ -2481,6 +2481,9 @@ std::vector<std::vector<WCPointCloud<double>::WCPoint>> PR3DCluster::get_extreme
   }
 
   
+  
+
+  
   std::vector<std::vector<WCPointCloud<double>::WCPoint>> out_vec_wcps;
 
   {
