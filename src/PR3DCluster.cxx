@@ -2433,7 +2433,9 @@ bool PR3DCluster::judge_vertex(Point& p_test, double asy_cut, double occupied_cu
   return false;
 }
 
-std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_extreme_wcps(){
+
+std::vector<std::vector<WCPointCloud<double>::WCPoint>> PR3DCluster::get_extreme_wcps(){
+  
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   Calc_PCA();
   WCPointCloud<double>::WCPoint wcps[8];
@@ -2478,62 +2480,75 @@ std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DClust
       wcps[7] = cloud.pts[i];
   }
 
-  // organize points
-  std::vector<WCPointCloud<double>::WCPoint> saved_wcps;
-  std::vector<int> counters;
-  saved_wcps.push_back(wcps[0]);
-  counters.push_back(1);
-  saved_wcps.push_back(wcps[1]);
-  counters.push_back(1);
+  
+  std::vector<std::vector<WCPointCloud<double>::WCPoint>> out_vec_wcps;
+
+  {
+    // first extreme along the main axis
+    std::vector<WCPointCloud<double>::WCPoint> saved_wcps;
+    saved_wcps.push_back(wcps[0]);
+    out_vec_wcps.push_back(saved_wcps);
+  }
+
+  {
+    // second extreme along the main axis
+    std::vector<WCPointCloud<double>::WCPoint> saved_wcps;
+    saved_wcps.push_back(wcps[1]);
+    out_vec_wcps.push_back(saved_wcps);
+  }
+  
 
   for (int i=2;i!=8;i++){
     bool flag_save = true;
-    for (size_t j=0;j!=saved_wcps.size(); j++){
-      double dis = sqrt(pow(saved_wcps[j].x-wcps[i].x,2) + pow(saved_wcps[j].y - wcps[i].y,2) + pow(saved_wcps[j].z - wcps[i].z,2));
+    for (size_t j=0;j!=out_vec_wcps.size(); j++){
+      double dis = sqrt(pow(out_vec_wcps[j].at(0).x-wcps[i].x,2) + pow(out_vec_wcps[j].at(0).y - wcps[i].y,2) + pow(out_vec_wcps[j].at(0).z - wcps[i].z,2));
       if (dis < 5*units::cm){
 	flag_save = false;
-	counters.at(j)++;
 	break;
       }
     }
+    
     if (flag_save){
+      std::vector<WCPointCloud<double>::WCPoint> saved_wcps;
       saved_wcps.push_back(wcps[i]);
-      counters.push_back(1);
-    }
-  }
-  
-  WCPointCloud<double>::WCPoint max_wcps = saved_wcps.at(0);
-  int max_count = counters.at(0);
-  WCPointCloud<double>::WCPoint min_wcps;
-  double value = -1e9;
-  
-  for (size_t i=1;i!=saved_wcps.size();i++){
-    if (counters.at(i)>max_count){
-      max_wcps = saved_wcps.at(i);
-      max_count = counters.at(i);
+      out_vec_wcps.push_back(saved_wcps);
     }
   }
 
-  //  TVector3 m_pca(main_axis.x, main_axis.y, main_axis.z);
-  Point p1(max_wcps.x,max_wcps.y,max_wcps.z);
-  TVector3 m_dir = VHoughTrans(p1,30*units::cm);
-    
-  for (size_t i=0;i!=saved_wcps.size();i++){
-    TVector3 dir(saved_wcps.at(i).x-max_wcps.x,
-		 saved_wcps.at(i).y-max_wcps.y,
-		 saved_wcps.at(i).z-max_wcps.z);
-    double l1 = fabs(dir.Dot(m_dir)/m_dir.Mag());
-    TVector3 dir1 = dir.Cross(m_dir);
-    double l2 = dir1.Mag()/m_dir.Mag();
-    if (l1-l2 > value){
-      value = l1-l2;
-      min_wcps = saved_wcps.at(i);
-    }
-    std::cout << i << " " << saved_wcps.at(i).x/units::cm << " " << saved_wcps.at(i).y/units::cm << " " << saved_wcps.at(i).z/units::cm << " " << l1/units::cm << " " << l2/units::cm << std::endl;
-    
-  }
+  return out_vec_wcps;
   
-  return std::make_pair(max_wcps,min_wcps);
+  // WCPointCloud<double>::WCPoint max_wcps = saved_wcps.at(0);
+  // int max_count = counters.at(0);
+  // WCPointCloud<double>::WCPoint min_wcps;
+  // double value = -1e9;
+  
+  // for (size_t i=1;i!=saved_wcps.size();i++){
+  //   if (counters.at(i)>max_count){
+  //     max_wcps = saved_wcps.at(i);
+  //     max_count = counters.at(i);
+  //   }
+  // }
+
+  // //  TVector3 m_pca(main_axis.x, main_axis.y, main_axis.z);
+  // Point p1(max_wcps.x,max_wcps.y,max_wcps.z);
+  // TVector3 m_dir = VHoughTrans(p1,30*units::cm);
+    
+  // for (size_t i=0;i!=saved_wcps.size();i++){
+  //   TVector3 dir(saved_wcps.at(i).x-max_wcps.x,
+  // 		 saved_wcps.at(i).y-max_wcps.y,
+  // 		 saved_wcps.at(i).z-max_wcps.z);
+  //   double l1 = fabs(dir.Dot(m_dir)/m_dir.Mag());
+  //   TVector3 dir1 = dir.Cross(m_dir);
+  //   double l2 = dir1.Mag()/m_dir.Mag();
+  //   if (l1-l2 > value){
+  //     value = l1-l2;
+  //     min_wcps = saved_wcps.at(i);
+  //   }
+  //   //  std::cout << i << " " << saved_wcps.at(i).x/units::cm << " " << saved_wcps.at(i).y/units::cm << " " << saved_wcps.at(i).z/units::cm << " " << l1/units::cm << " " << l2/units::cm << std::endl;
+    
+  // }
+  
+  //return std::make_pair(max_wcps,min_wcps);
   
   //  std::cout << max_wcps.x/units::cm << " " << max_wcps.y/units::cm << " " << max_wcps.z/units::cm << " " << max_count << std::endl;
 

@@ -65,7 +65,11 @@ namespace WireCell{
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_front_back_wcps();
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_earliest_latest_wcps();
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_main_axis_wcps();
-    std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_extreme_wcps();
+
+    
+    std::vector<std::vector<WCPointCloud<double>::WCPoint>> get_extreme_wcps();
+    
+    
     std::pair<Point,Point> get_two_extreme_points();
     
     
