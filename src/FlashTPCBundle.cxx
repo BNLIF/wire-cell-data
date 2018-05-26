@@ -225,6 +225,8 @@ bool FlashTPCBundle::examine_bundle_rank(FlashTPCBundle *bundle, Double_t *cos_p
 
 
 void FlashTPCBundle::examine_merge_clusters(double dis_cut){
+  // if (flash->get_type()==1) return; // only do for beam flash
+  
   int main_cluster_id = main_cluster->get_cluster_id();
 
   PR3DClusterSelection merge_clusters;
