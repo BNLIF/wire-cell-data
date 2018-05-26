@@ -294,7 +294,8 @@ void FlashTPCBundle::examine_merge_clusters(double dis_cut){
     if (dis_save < dis_cut){
       merge_clusters.push_back(temp_cluster);
     }
-    //  std::cout << main_cluster_id << " " << temp_cluster->get_cluster_id() << " " << dis_save/units::cm << " " << merge_clusters.size() << std::endl;
+    // if (main_cluster_id==13)
+    //   std::cout << main_cluster_id << " " << temp_cluster->get_cluster_id() << " " << dis_save/units::cm << " " << merge_clusters.size() << std::endl;
   }
 
   if (merge_clusters.size()>0){

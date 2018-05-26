@@ -71,7 +71,9 @@ namespace WireCell{
     
     
     std::pair<Point,Point> get_two_extreme_points();
-    
+
+
+    bool check_neutrino_candidate(WCPointCloud<double>::WCPoint& wcp1 ,WCPointCloud<double>::WCPoint& wcp2);
     
     
     WCPointCloud<double>::WCPoint get_furthest_wcpoint(WCPointCloud<double>::WCPoint wcp, TVector3 dir, double step = 5*units::cm, int allowed_nstep = 12);

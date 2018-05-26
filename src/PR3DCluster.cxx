@@ -223,7 +223,48 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
   }
   
 }
-    
+
+bool PR3DCluster::check_neutrino_candidate(WCPointCloud<double>::WCPoint& wcp1 ,WCPointCloud<double>::WCPoint& wcp2){
+  Create_graph();
+  dijkstra_shortest_paths(wcp1);
+  cal_shortest_path(wcp2);
+
+  //path_wcps.clear();
+
+  double low_dis_limit = 0.5*units::cm;
+  std::vector<WCPointCloud<double>::WCPoint> path_wcps_vec;
+  for (auto it = path_wcps.begin(); it!=path_wcps.end(); it++){
+    if (path_wcps_vec.size()==0){
+      path_wcps_vec.push_back(*it);
+    }else{
+      double dis = sqrt(pow((*it).x - path_wcps_vec.back().x,2)
+			+pow((*it).y - path_wcps_vec.back().y,2)
+			+pow((*it).z - path_wcps_vec.back().z,2));
+      if (dis > low_dis_limit){
+	path_wcps_vec.push_back(*it);
+      }
+    }
+  }
+
+ 
+  
+  // if (cluster_id == 13){
+  //   std::cout << wcp1.x/units::cm << " " << wcp1.y/units::cm << " " << wcp1.z/units::cm << " " << wcp2.x/units::cm << " " << wcp2.y/units::cm << " " << wcp2.z/units::cm << std::endl;
+
+  //   for (size_t i=5;i<path_wcps_vec.size()-5;i++){
+  //     TVector3 dir1(path_wcps_vec.at(i).x - path_wcps_vec.at(i-5).x,
+  // 		    path_wcps_vec.at(i).y - path_wcps_vec.at(i-5).y,
+  // 		    path_wcps_vec.at(i).z - path_wcps_vec.at(i-5).z);
+  //     TVector3 dir2(path_wcps_vec.at(i).x - path_wcps_vec.at(i+5).x,
+  // 		    path_wcps_vec.at(i).y - path_wcps_vec.at(i+5).y,
+  // 		    path_wcps_vec.at(i).z - path_wcps_vec.at(i+5).z);
+  //     std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926-dir1.Angle(dir2))/3.1415926*180.<<std::endl;
+  //   }
+  // }
+  
+  return false;
+}
+
 
 void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_wcp, WCPointCloud<double>::WCPoint& end_wcp){
   //TVector3 dir(end_wcp.x - start_wcp.x, end_wcp.y - start_wcp.y, end_wcp.z - start_wcp.z);
@@ -2500,12 +2541,15 @@ std::vector<std::vector<WCPointCloud<double>::WCPoint>> PR3DCluster::get_extreme
     out_vec_wcps.push_back(saved_wcps);
   }
   
-
+  // std::cout << std::endl;
   for (int i=2;i!=8;i++){
+    //    std::cout << i << " " << wcps[i].x/units::cm << " " << wcps[i].y/units::cm << " " << wcps[i].z/units::cm << std::endl;
+    
     bool flag_save = true;
     for (size_t j=0;j!=out_vec_wcps.size(); j++){
       double dis = sqrt(pow(out_vec_wcps[j].at(0).x-wcps[i].x,2) + pow(out_vec_wcps[j].at(0).y - wcps[i].y,2) + pow(out_vec_wcps[j].at(0).z - wcps[i].z,2));
       if (dis < 5*units::cm){
+	out_vec_wcps.at(j).push_back(wcps[i]);
 	flag_save = false;
 	break;
       }
