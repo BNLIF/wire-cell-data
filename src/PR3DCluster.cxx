@@ -224,150 +224,159 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
   
 }
 
-bool PR3DCluster::check_neutrino_candidate(WCPointCloud<double>::WCPoint& wcp1 ,WCPointCloud<double>::WCPoint& wcp2){
-  Create_graph();
-  dijkstra_shortest_paths(wcp1);
-  cal_shortest_path(wcp2);
+// bool PR3DCluster::check_neutrino_candidate(WCPointCloud<double>::WCPoint& wcp1 ,WCPointCloud<double>::WCPoint& wcp2, Point& p_vertex, double& angle_change){
+//   Create_graph();
+//   dijkstra_shortest_paths(wcp1);
+//   cal_shortest_path(wcp2);
   
-  // fine_tracking();
+//   // fine_tracking();
 
-  PointVector path_wcps_vec;  
-  // if (fine_tracking_path.size()==0){
-  double low_dis_limit = 0.5*units::cm;
-  for (auto it = path_wcps.begin(); it!=path_wcps.end(); it++){
-    if (path_wcps_vec.size()==0){
-      Point p((*it).x,(*it).y,(*it).z);
-      path_wcps_vec.push_back(p);
-    }else{
-      double dis = sqrt(pow((*it).x - path_wcps_vec.back().x,2)
-			+pow((*it).y - path_wcps_vec.back().y,2)
-			+pow((*it).z - path_wcps_vec.back().z,2));
-      if (dis > low_dis_limit){
-	Point p((*it).x,(*it).y,(*it).z);
-	path_wcps_vec.push_back(p);
-      }
-    }
-  }    
-  // }else{
-  //   path_wcps_vec = fine_tracking_path;
-  // }
+//   PointVector path_wcps_vec;  
+//   // if (fine_tracking_path.size()==0){
+//   double low_dis_limit = 0.5*units::cm;
+//   for (auto it = path_wcps.begin(); it!=path_wcps.end(); it++){
+//     if (path_wcps_vec.size()==0){
+//       Point p((*it).x,(*it).y,(*it).z);
+//       path_wcps_vec.push_back(p);
+//     }else{
+//       double dis = sqrt(pow((*it).x - path_wcps_vec.back().x,2)
+// 			+pow((*it).y - path_wcps_vec.back().y,2)
+// 			+pow((*it).z - path_wcps_vec.back().z,2));
+//       if (dis > low_dis_limit){
+// 	Point p((*it).x,(*it).y,(*it).z);
+// 	path_wcps_vec.push_back(p);
+//       }
+//     }
+//   }    
+//   // }else{
+//   //   path_wcps_vec = fine_tracking_path;
+//   // }
  
   
-  // if (cluster_id == 13){
-  //   std::cout << wcp1.x/units::cm << " " << wcp1.y/units::cm << " " << wcp1.z/units::cm << " " << wcp2.x/units::cm << " " << wcp2.y/units::cm << " " << wcp2.z/units::cm << std::endl;
-  int count = 0;
-  TVector3 drift_dir(1,0,0);
-  for (size_t i=5;i+5<path_wcps_vec.size();i++){
-    TVector3 dir1(path_wcps_vec.at(i).x - path_wcps_vec.at(i-5).x,
-		  path_wcps_vec.at(i).y - path_wcps_vec.at(i-5).y,
-		  path_wcps_vec.at(i).z - path_wcps_vec.at(i-5).z);
-    TVector3 dir2(path_wcps_vec.at(i).x - path_wcps_vec.at(i+5).x,
-		  path_wcps_vec.at(i).y - path_wcps_vec.at(i+5).y,
-		  path_wcps_vec.at(i).z - path_wcps_vec.at(i+5).z);
+//   // if (cluster_id == 13){
+//   //   std::cout << wcp1.x/units::cm << " " << wcp1.y/units::cm << " " << wcp1.z/units::cm << " " << wcp2.x/units::cm << " " << wcp2.y/units::cm << " " << wcp2.z/units::cm << std::endl;
+//   int count = 0;
+//   TVector3 drift_dir(1,0,0);
+//   for (size_t i=5;i+5<path_wcps_vec.size();i++){
+//     TVector3 dir1(path_wcps_vec.at(i).x - path_wcps_vec.at(i-5).x,
+// 		  path_wcps_vec.at(i).y - path_wcps_vec.at(i-5).y,
+// 		  path_wcps_vec.at(i).z - path_wcps_vec.at(i-5).z);
+//     TVector3 dir2(path_wcps_vec.at(i).x - path_wcps_vec.at(i+5).x,
+// 		  path_wcps_vec.at(i).y - path_wcps_vec.at(i+5).y,
+// 		  path_wcps_vec.at(i).z - path_wcps_vec.at(i+5).z);
     
-    TVector3 dir3, dir4, dir5, dir6;
-    {
-      PointVector pts;
-      double temp_x = 0;
-      double temp_y = 0;
-      double temp_z = 0;
-      double temp_count = 0;
-      for (size_t j=1;j!=15;j++){
-       	if (i>=j){
-	  Point pt(path_wcps_vec.at(i-j).x,path_wcps_vec.at(i-j).y,path_wcps_vec.at(i-j).z);
+//     TVector3 dir3, dir4, dir5, dir6;
+//     {
+//       PointVector pts;
+//       double temp_x = 0;
+//       double temp_y = 0;
+//       double temp_z = 0;
+//       double temp_count = 0;
+//       for (size_t j=1;j!=15;j++){
+//        	if (i>=j){
+// 	  Point pt(path_wcps_vec.at(i-j).x,path_wcps_vec.at(i-j).y,path_wcps_vec.at(i-j).z);
 
-	  if (j<=12&&j>2){
-	    temp_x += pt.x;
-	    temp_y += pt.y;
-	    temp_z += pt.z;
-	    temp_count ++;
-	  }
-	  pts.push_back(pt);
-	}
-	Point pt(path_wcps_vec.at(i).x,path_wcps_vec.at(i).y,path_wcps_vec.at(i).z);
-	dir3 = calc_PCA_dir(pt,pts);
-	dir5.SetXYZ(temp_x/temp_count - path_wcps_vec.at(i).x,
-		    temp_y/temp_count - path_wcps_vec.at(i).y,
-		    temp_z/temp_count - path_wcps_vec.at(i).z);
-	if (dir3.Angle(dir1)>3.1415926/2.)
-	  dir3 *= -1;
-      }
-    }
-    {
-      PointVector pts;
-      double temp_x = 0;
-      double temp_y = 0;
-      double temp_z = 0;
-      double temp_count = 0;
-      for (size_t j=1;j!=15;j++){
-	if (i+j<path_wcps_vec.size()){
-	  Point pt(path_wcps_vec.at(i+j).x,path_wcps_vec.at(i+j).y,path_wcps_vec.at(i+j).z);
-	  if (j<=12&&j>2){
-	    temp_x += pt.x;
-	    temp_y += pt.y;
-	    temp_z += pt.z;
-	    temp_count ++;
-	  }
-	  pts.push_back(pt);
-	}
-      }
-      Point pt(path_wcps_vec.at(i).x,path_wcps_vec.at(i).y,path_wcps_vec.at(i).z);
-      dir4 = calc_PCA_dir(pt,pts);
-      dir6.SetXYZ(temp_x/temp_count - path_wcps_vec.at(i).x,
-      		  temp_y/temp_count - path_wcps_vec.at(i).y,
-      		  temp_z/temp_count - path_wcps_vec.at(i).z);
-      if (dir4.Angle(dir2)>3.1415926/2.)
-	dir4 *= -1;
-    }
+// 	  if (j<=12&&j>2){
+// 	    temp_x += pt.x;
+// 	    temp_y += pt.y;
+// 	    temp_z += pt.z;
+// 	    temp_count ++;
+// 	  }
+// 	  pts.push_back(pt);
+// 	}
+// 	Point pt(path_wcps_vec.at(i).x,path_wcps_vec.at(i).y,path_wcps_vec.at(i).z);
+// 	dir3 = calc_PCA_dir(pt,pts);
+// 	dir5.SetXYZ(temp_x/temp_count - path_wcps_vec.at(i).x,
+// 		    temp_y/temp_count - path_wcps_vec.at(i).y,
+// 		    temp_z/temp_count - path_wcps_vec.at(i).z);
+// 	if (dir3.Angle(dir1)>3.1415926/2.)
+// 	  dir3 *= -1;
+//       }
+//     }
+//     {
+//       PointVector pts;
+//       double temp_x = 0;
+//       double temp_y = 0;
+//       double temp_z = 0;
+//       double temp_count = 0;
+//       for (size_t j=1;j!=15;j++){
+// 	if (i+j<path_wcps_vec.size()){
+// 	  Point pt(path_wcps_vec.at(i+j).x,path_wcps_vec.at(i+j).y,path_wcps_vec.at(i+j).z);
+// 	  if (j<=12&&j>2){
+// 	    temp_x += pt.x;
+// 	    temp_y += pt.y;
+// 	    temp_z += pt.z;
+// 	    temp_count ++;
+// 	  }
+// 	  pts.push_back(pt);
+// 	}
+//       }
+//       Point pt(path_wcps_vec.at(i).x,path_wcps_vec.at(i).y,path_wcps_vec.at(i).z);
+//       dir4 = calc_PCA_dir(pt,pts);
+//       dir6.SetXYZ(temp_x/temp_count - path_wcps_vec.at(i).x,
+//       		  temp_y/temp_count - path_wcps_vec.at(i).y,
+//       		  temp_z/temp_count - path_wcps_vec.at(i).z);
+//       if (dir4.Angle(dir2)>3.1415926/2.)
+// 	dir4 *= -1;
+//     }
 
-    int cut1 = 0;
-    if ((3.1415926 - dir1.Angle(dir2))/3.1415926*180.>30) cut1++;
-    if ((3.1415926 - dir3.Angle(dir4))/3.1415926*180.>30) cut1++;
-    if ((3.1415926 - dir5.Angle(dir6))/3.1415926*180.>30) cut1++;
-    int cut2 = 0;
-    if (fabs(3.1415926/2.-drift_dir.Angle(dir1-dir2))/3.1415926*180. > 5) cut2++;
-    if (fabs(3.1415926/2.-drift_dir.Angle(dir3-dir4))/3.1415926*180. > 5) cut2++;
-    if (fabs(3.1415926/2.-drift_dir.Angle(dir5-dir6))/3.1415926*180. > 5) cut2++;
+//     int cut1 = 0;
+//     if ((3.1415926 - dir1.Angle(dir2))/3.1415926*180.>30) cut1++;
+//     if ((3.1415926 - dir3.Angle(dir4))/3.1415926*180.>30) cut1++;
+//     if ((3.1415926 - dir5.Angle(dir6))/3.1415926*180.>30) cut1++;
+//     int cut2 = 0;
+//     if (fabs(3.1415926/2.-drift_dir.Angle(dir1-dir2))/3.1415926*180. > 5) cut2++;
+//     if (fabs(3.1415926/2.-drift_dir.Angle(dir3-dir4))/3.1415926*180. > 5) cut2++;
+//     if (fabs(3.1415926/2.-drift_dir.Angle(dir5-dir6))/3.1415926*180. > 5) cut2++;
     
-    //std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926 - dir1.Angle(dir2))/3.1415926*180. << " " << (3.1415926 - dir3.Angle(dir4))/3.1415926*180. << " " << (3.1415926 - dir5.Angle(dir6))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir1-dir2))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir3-dir4))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir5-dir6))/3.1415926*180. << " " << cut1 << " " << cut2 << std::endl;
+//     std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926 - dir1.Angle(dir2))/3.1415926*180. << " " << (3.1415926 - dir3.Angle(dir4))/3.1415926*180. << " " << (3.1415926 - dir5.Angle(dir6))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir1-dir2))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir3-dir4))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir5-dir6))/3.1415926*180. << " " << cut1 << " " << cut2 << std::endl;
 
-    // {
-    //   TVector3 dir_diff = dir3-dir4; // difference vector
-    //   TVector3 dir_cros = drift_dir.Cross(dir_diff); // find the crossing term
-    //   TVector3 dir_cros1 = dir_diff.Cross(dir_cros); // find the third dimension
-    //   TVector3 dir3_p = dir3 - dir3.Dot(dir_cros1)/dir_cros1.Mag2()*dir_cros1; // find projection ...
-    //   double angle1 = dir3_p.Angle(dir_diff)/3.1415926*180.;
+//     // {
+//     //   TVector3 dir_diff = dir3-dir4; // difference vector
+//     //   TVector3 dir_cros = drift_dir.Cross(dir_diff); // find the crossing term
+//     //   TVector3 dir_cros1 = dir_diff.Cross(dir_cros); // find the third dimension
+//     //   TVector3 dir3_p = dir3 - dir3.Dot(dir_cros1)/dir_cros1.Mag2()*dir_cros1; // find projection ...
+//     //   double angle1 = dir3_p.Angle(dir_diff)/3.1415926*180.;
       
-    //   //      double angle1 = dir3.Angle(dir_cros)/3.1415926*180.;
-    //   // double angle2 = dir4.Angle(dir_cros)/3.1415926*180.;
+//     //   //      double angle1 = dir3.Angle(dir_cros)/3.1415926*180.;
+//     //   // double angle2 = dir4.Angle(dir_cros)/3.1415926*180.;
 
-    //   std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926-dir1.Angle(dir2))/3.1415926*180.<< " " << dir1.Angle(dir3)/3.1415926*180. << " " << dir2.Angle(dir4)/3.1415926*180 << " " << (3.1415926 - dir3.Angle(dir4))/3.1415926*180. <<" " << drift_dir.Angle(dir3-dir4)/3.1415926*180.<< " " << angle1 <<  std::endl;
-    // }
+//     //   std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926-dir1.Angle(dir2))/3.1415926*180.<< " " << dir1.Angle(dir3)/3.1415926*180. << " " << dir2.Angle(dir4)/3.1415926*180 << " " << (3.1415926 - dir3.Angle(dir4))/3.1415926*180. <<" " << drift_dir.Angle(dir3-dir4)/3.1415926*180.<< " " << angle1 <<  std::endl;
+//     // }
     
     
-    if (cut1>=3 && cut2>=2){
-      count ++;
-      if (count >=3){
-	TVector3 temp1(path_wcps_vec.at(i).x-wcp1.x,
-		       path_wcps_vec.at(i).y-wcp1.y,
-		       path_wcps_vec.at(i).z-wcp1.z);
-	TVector3 temp2(path_wcps_vec.at(i).x-wcp2.x,
-		       path_wcps_vec.at(i).y-wcp2.y,
-		       path_wcps_vec.at(i).z-wcp2.z);
-	if ((3.1415926-temp1.Angle(temp2))/3.1415926*180. >25)
-	  return true;
-	//	std::cout << (3.1415926-temp1.Angle(temp2))/3.1415926*180. << std::endl;
-	//  	return true;
-      }
-    }else{
-      count = 0 ;
-    }
-      // 
-  }
-    //}
+//     if (cut1>=3 && cut2>=2){
+//       count ++;
+//       if (count >=3){
+// 	TVector3 temp1(path_wcps_vec.at(i).x-wcp1.x,
+// 		       path_wcps_vec.at(i).y-wcp1.y,
+// 		       path_wcps_vec.at(i).z-wcp1.z);
+// 	TVector3 temp2(path_wcps_vec.at(i).x-wcp2.x,
+// 		       path_wcps_vec.at(i).y-wcp2.y,
+// 		       path_wcps_vec.at(i).z-wcp2.z);
+// 	std::cout << "A: " << (3.1415926-temp1.Angle(temp2))/3.1415926*180. << " " << temp1.Mag()/units::cm << " " << temp2.Mag()/units::cm << std::endl;
+
+
+// 	if ((3.1415926-temp1.Angle(temp2))/3.1415926*180. >30 ||
+// 	    (3.1415926-temp1.Angle(temp2))/3.1415926*180. >25 && temp1.Mag()>15*units::cm && temp2.Mag()>15*units::cm){
+// 	  p_vertex.x = path_wcps_vec.at(i).x;
+// 	  p_vertex.y = path_wcps_vec.at(i).y;
+// 	  p_vertex.z = path_wcps_vec.at(i).z;
+// 	  angle_change = (3.1415926-temp1.Angle(temp2))/3.1415926*180.;
+// 	  return true;
+// 	}
+// 	//
+// 	//  	return true;
+//       }
+//     }else{
+//       count = 0 ;
+//     }
+//       // 
+//   }
+//     //}
   
-  return false;
-}
+//   return false;
+// }
 
 
 void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_wcp, WCPointCloud<double>::WCPoint& end_wcp){
