@@ -329,7 +329,7 @@ bool PR3DCluster::check_neutrino_candidate(WCPointCloud<double>::WCPoint& wcp1 ,
     if (fabs(3.1415926/2.-drift_dir.Angle(dir3-dir4))/3.1415926*180. > 5) cut2++;
     if (fabs(3.1415926/2.-drift_dir.Angle(dir5-dir6))/3.1415926*180. > 5) cut2++;
     
-    std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926 - dir1.Angle(dir2))/3.1415926*180. << " " << (3.1415926 - dir3.Angle(dir4))/3.1415926*180. << " " << (3.1415926 - dir5.Angle(dir6))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir1-dir2))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir3-dir4))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir5-dir6))/3.1415926*180. << " " << cut1 << " " << cut2 << std::endl;
+    //std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926 - dir1.Angle(dir2))/3.1415926*180. << " " << (3.1415926 - dir3.Angle(dir4))/3.1415926*180. << " " << (3.1415926 - dir5.Angle(dir6))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir1-dir2))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir3-dir4))/3.1415926*180. << " " << fabs(3.1415926/2.-drift_dir.Angle(dir5-dir6))/3.1415926*180. << " " << cut1 << " " << cut2 << std::endl;
 
     // {
     //   TVector3 dir_diff = dir3-dir4; // difference vector
@@ -347,8 +347,18 @@ bool PR3DCluster::check_neutrino_candidate(WCPointCloud<double>::WCPoint& wcp1 ,
     
     if (cut1>=3 && cut2>=2){
       count ++;
-      // if (count >=3)
-      //  	return true;
+      if (count >=3){
+	TVector3 temp1(path_wcps_vec.at(i).x-wcp1.x,
+		       path_wcps_vec.at(i).y-wcp1.y,
+		       path_wcps_vec.at(i).z-wcp1.z);
+	TVector3 temp2(path_wcps_vec.at(i).x-wcp2.x,
+		       path_wcps_vec.at(i).y-wcp2.y,
+		       path_wcps_vec.at(i).z-wcp2.z);
+	if ((3.1415926-temp1.Angle(temp2))/3.1415926*180. >25)
+	  return true;
+	//	std::cout << (3.1415926-temp1.Angle(temp2))/3.1415926*180. << std::endl;
+	//  	return true;
+      }
     }else{
       count = 0 ;
     }
