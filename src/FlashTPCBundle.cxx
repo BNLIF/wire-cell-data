@@ -324,7 +324,7 @@ void FlashTPCBundle::examine_merge_clusters(double dis_cut){
 	  other_clusters.erase(it2);
 	}
 	auto it3 = find(more_clusters.begin(), more_clusters.end(), ocluster);
-	if (it3!=other_clusters.end()){
+	if (it3!=more_clusters.end()){
 	  more_clusters.erase(it3);
 	}
 	delete ocluster;
