@@ -251,6 +251,7 @@ bool PR3DCluster::check_neutrino_candidate(WCPointCloud<double>::WCPoint& wcp1 ,
   // if (cluster_id == 13){
   //   std::cout << wcp1.x/units::cm << " " << wcp1.y/units::cm << " " << wcp1.z/units::cm << " " << wcp2.x/units::cm << " " << wcp2.y/units::cm << " " << wcp2.z/units::cm << std::endl;
   int count = 0;
+  TVector3 drift_dir(1,0,0);
   for (size_t i=5;i+5<path_wcps_vec.size();i++){
     TVector3 dir1(path_wcps_vec.at(i).x - path_wcps_vec.at(i-5).x,
 		  path_wcps_vec.at(i).y - path_wcps_vec.at(i-5).y,
@@ -286,15 +287,17 @@ bool PR3DCluster::check_neutrino_candidate(WCPointCloud<double>::WCPoint& wcp1 ,
       if (dir4.Angle(dir2)>3.1415926/2.)
 	dir4 *= -1;
     }
+
+    //std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926-dir1.Angle(dir2))/3.1415926*180.<< " " << dir1.Angle(dir3)/3.1415926*180. << " " << dir2.Angle(dir4)/3.1415926*180 << " " << (3.1415926 - dir3.Angle(dir4))/3.1415926*180. <<" " << drift_dir.Angle(dir3-dir4)/3.1415926*180.<< std::endl;
     
-    if ((3.1415926 - dir3.Angle(dir4))/3.1415926*180.>30)
+    if ((3.1415926 - dir3.Angle(dir4))/3.1415926*180.>30 && fabs(3.1415926/2.-drift_dir.Angle(dir3-dir4))/3.1415926*180. > 3)
       count ++;
 
     if (count >=3)
       return true;
       
-      // std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926-dir1.Angle(dir2))/3.1415926*180.<< " " << dir1.Angle(dir3)/3.1415926*180. << " " << dir2.Angle(dir4)/3.1415926*180 << " " << (3.1415926 - dir3.Angle(dir4))/3.1415926*180. << std::endl;
-    }
+      // 
+  }
     //}
   
   return false;
