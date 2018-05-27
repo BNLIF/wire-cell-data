@@ -248,19 +248,51 @@ bool PR3DCluster::check_neutrino_candidate(WCPointCloud<double>::WCPoint& wcp1 ,
 
  
   
-  if (cluster_id == 13){
-    std::cout << wcp1.x/units::cm << " " << wcp1.y/units::cm << " " << wcp1.z/units::cm << " " << wcp2.x/units::cm << " " << wcp2.y/units::cm << " " << wcp2.z/units::cm << std::endl;
+  // if (cluster_id == 13){
+  //   std::cout << wcp1.x/units::cm << " " << wcp1.y/units::cm << " " << wcp1.z/units::cm << " " << wcp2.x/units::cm << " " << wcp2.y/units::cm << " " << wcp2.z/units::cm << std::endl;
 
-    for (size_t i=5;i<path_wcps_vec.size()-5;i++){
+    for (size_t i=5;i+5<path_wcps_vec.size();i++){
       TVector3 dir1(path_wcps_vec.at(i).x - path_wcps_vec.at(i-5).x,
   		    path_wcps_vec.at(i).y - path_wcps_vec.at(i-5).y,
   		    path_wcps_vec.at(i).z - path_wcps_vec.at(i-5).z);
       TVector3 dir2(path_wcps_vec.at(i).x - path_wcps_vec.at(i+5).x,
   		    path_wcps_vec.at(i).y - path_wcps_vec.at(i+5).y,
   		    path_wcps_vec.at(i).z - path_wcps_vec.at(i+5).z);
-      std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926-dir1.Angle(dir2))/3.1415926*180.<<std::endl;
+
+      TVector3 dir3, dir4;
+      {
+      	PointVector pts;
+      	for (size_t j=1;j!=11;j++){
+      	  if (i>=j){
+      	    Point pt(path_wcps_vec.at(i-j).x,path_wcps_vec.at(i-j).y,path_wcps_vec.at(i-j).z);
+      	    pts.push_back(pt);
+      	  }
+      	  Point pt(path_wcps_vec.at(i).x,path_wcps_vec.at(i).y,path_wcps_vec.at(i).z);
+	  dir3 = calc_PCA_dir(pt,pts);
+	  if (dir3.Angle(dir1)>3.1415926/2.)
+	    dir3 *= -1;
+      	}
+      }
+      {
+      	PointVector pts;
+      	for (size_t j=1;j!=11;j++){
+      	  if (i+j<path_wcps_vec.size()){
+      	    Point pt(path_wcps_vec.at(i+j).x,path_wcps_vec.at(i+j).y,path_wcps_vec.at(i+j).z);
+      	    pts.push_back(pt);
+      	  }
+      	}
+      	Point pt(path_wcps_vec.at(i).x,path_wcps_vec.at(i).y,path_wcps_vec.at(i).z);
+	dir4 = calc_PCA_dir(pt,pts);
+	if (dir4.Angle(dir2)>3.1415926/2.)
+	  dir4 *= -1;
+      }
+
+      if ((3.1415926 - dir3.Angle(dir4))/3.1415926*180.>30)
+	return true;
+      
+      //std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926-dir1.Angle(dir2))/3.1415926*180.<< " " << dir1.Angle(dir3)/3.1415926*180. << " " << dir2.Angle(dir4)/3.1415926*180 << " " << (3.1415926 - dir3.Angle(dir4))/3.1415926*180. << std::endl;
     }
-  }
+    //}
   
   return false;
 }
@@ -2767,6 +2799,45 @@ int PR3DCluster::get_num_points(Point& p_test, double dis){
 }
 
 
+TVector3 PR3DCluster::calc_PCA_dir(Point&p, PointVector& ps){
+  Point center1 = p;
+  
+  TMatrixD cov_matrix(3,3);
+  for (int i=0;i!=3;i++){
+    for (int j=i;j!=3;j++){
+      cov_matrix(i,j)=0;
+      
+      for (int k=0;k!=ps.size();k++){
+	if (i==0 && j==0){
+	  cov_matrix(i,j) += (ps.at(k).x - center1.x) * (ps.at(k).x - center1.x);//*q*q/ps.size()/ps.size();
+	}else if (i==0 && j==1){
+	  cov_matrix(i,j) += (ps.at(k).x - center1.x) * (ps.at(k).y - center1.y);//*q*q/ps.size()/ps.size();
+	}else if (i==0 && j==2){
+	  cov_matrix(i,j) += (ps.at(k).x - center1.x) * (ps.at(k).z - center1.z);//*q*q/ps.size()/ps.size();
+	}else if (i==1 && j==1){
+	  cov_matrix(i,j) += (ps.at(k).y - center1.y) * (ps.at(k).y - center1.y);//*q*q/ps.size()/ps.size();
+	}else if (i==1 && j==2){
+	  cov_matrix(i,j) += (ps.at(k).y - center1.y) * (ps.at(k).z - center1.z);//*q*q/ps.size()/ps.size();
+	}else if (i==2 && j==2){
+	  cov_matrix(i,j) += (ps.at(k).z - center1.z) * (ps.at(k).z - center1.z);//*q*q/ps.size()/ps.size();
+	}
+      }
+    }
+  }
+
+  cov_matrix(1,0) = cov_matrix(0,1);
+  cov_matrix(2,0) = cov_matrix(0,2);
+  cov_matrix(2,1) = cov_matrix(1,2);
+  
+  TMatrixDEigen eigen(cov_matrix);
+  TMatrixD eigen_values = eigen.GetEigenValues();
+  TMatrixD eigen_vectors = eigen.GetEigenVectors();
+  TVector3 dir(eigen_vectors(0,0)/sqrt(eigen_vectors(0,0)*eigen_vectors(0,0) + eigen_vectors(1,0)*eigen_vectors(1,0) + eigen_vectors(2,0)*eigen_vectors(2,0)),
+	       eigen_vectors(1,0)/sqrt(eigen_vectors(0,0)*eigen_vectors(0,0) + eigen_vectors(1,0)*eigen_vectors(1,0) + eigen_vectors(2,0)*eigen_vectors(2,0)),
+	       eigen_vectors(2,0)/sqrt(eigen_vectors(0,0)*eigen_vectors(0,0) + eigen_vectors(1,0)*eigen_vectors(1,0) + eigen_vectors(2,0)*eigen_vectors(2,0)));
+  return dir;
+}
+
 TVector3 PR3DCluster::calc_PCA_dir(Point& p, double dis){
   std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
   Point center1(0,0,0);
@@ -2797,17 +2868,17 @@ TVector3 PR3DCluster::calc_PCA_dir(Point& p, double dis){
 	PointVector ps = mcell->get_sampling_points();
 	for (int k=0;k!=ps.size();k++){
 	  if (i==0 && j==0){
-	    cov_matrix(i,j) += (ps.at(k).x - center.x) * (ps.at(k).x - center.x);//*q*q/ps.size()/ps.size();
+	    cov_matrix(i,j) += (ps.at(k).x - center1.x) * (ps.at(k).x - center1.x);//*q*q/ps.size()/ps.size();
 	  }else if (i==0 && j==1){
-	    cov_matrix(i,j) += (ps.at(k).x - center.x) * (ps.at(k).y - center.y);//*q*q/ps.size()/ps.size();
+	    cov_matrix(i,j) += (ps.at(k).x - center1.x) * (ps.at(k).y - center1.y);//*q*q/ps.size()/ps.size();
 	  }else if (i==0 && j==2){
-	    cov_matrix(i,j) += (ps.at(k).x - center.x) * (ps.at(k).z - center.z);//*q*q/ps.size()/ps.size();
+	    cov_matrix(i,j) += (ps.at(k).x - center1.x) * (ps.at(k).z - center1.z);//*q*q/ps.size()/ps.size();
 	  }else if (i==1 && j==1){
-	    cov_matrix(i,j) += (ps.at(k).y - center.y) * (ps.at(k).y - center.y);//*q*q/ps.size()/ps.size();
+	    cov_matrix(i,j) += (ps.at(k).y - center1.y) * (ps.at(k).y - center1.y);//*q*q/ps.size()/ps.size();
 	  }else if (i==1 && j==2){
-	    cov_matrix(i,j) += (ps.at(k).y - center.y) * (ps.at(k).z - center.z);//*q*q/ps.size()/ps.size();
+	    cov_matrix(i,j) += (ps.at(k).y - center1.y) * (ps.at(k).z - center1.z);//*q*q/ps.size()/ps.size();
 	  }else if (i==2 && j==2){
-	    cov_matrix(i,j) += (ps.at(k).z - center.z) * (ps.at(k).z - center.z);//*q*q/ps.size()/ps.size();
+	    cov_matrix(i,j) += (ps.at(k).z - center1.z) * (ps.at(k).z - center1.z);//*q*q/ps.size()/ps.size();
 	  }
 	}
       }
