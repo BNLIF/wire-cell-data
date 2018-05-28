@@ -1706,8 +1706,9 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     }
     //    if (path_wcps_vec.size()==2) break;
   }
+  
   // for (size_t i=0;i!=distances.size();i++){
-  //   std::cout << i << " " << distances.at(i)/2./units::cm << std::endl;
+  //   std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << distances.at(i)/units::cm << std::endl;
   // }
 
   //form a map, (U,T) --> charge and error
@@ -2056,6 +2057,14 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     RU.insert(2*index,3*index_3D+1) = scaling * slope_yu; // Y--> U
     RU.insert(2*index,3*index_3D+2) = scaling * slope_zu; // Z--> U
     RU.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
+
+    // if (std::isnan(scaling * (vec_2DU_index.at(index).first.first - offset_u)) ||
+    // 	std::isnan(scaling * (vec_2DU_index.at(index).first.second - offset_t)) ||
+    // 	std::isnan(scaling * slope_yu) ||
+    // 	std::isnan(scaling * slope_zu) ||
+    // 	std::isnan(scaling * slope_x))
+    //   std::cout << "Wrong U" << " " << charge << " " << charge_err << " " << n_divide<< std::endl;
+
     //std::cout << index << " " << index_3D << std::endl;
   }
   for (size_t index = 0; index!=vec_2DV_index.size(); index++){
@@ -2071,6 +2080,13 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     RV.insert(2*index,3*index_3D+2) = scaling * slope_zv; // Z--> V
     RV.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
     //std::cout << index << " " << index_3D << std::endl;
+
+    // if (std::isnan(scaling * (vec_2DV_index.at(index).first.first - offset_v)) ||
+    // 	std::isnan(scaling * (vec_2DV_index.at(index).first.second - offset_t)) ||
+    // 	std::isnan(scaling * slope_yv) ||
+    // 	std::isnan(scaling * slope_zv) ||
+    // 	std::isnan(scaling * slope_x))
+    //   std::cout << "Wrong V" << " " << charge << " " << charge_err << " " << n_divide << std::endl;
   }
   for (size_t index = 0; index!=vec_2DW_index.size(); index++){
     double charge = map_2D_wt_charge[vec_2DW_index.at(index).first];
@@ -2083,6 +2099,12 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     int index_3D = vec_2DW_index.at(index).second; // 3*index_3D -->x  3*index_3D+1 --> y 3*index_3D+2 --> z
     RW.insert(2*index,3*index_3D+2) = scaling * slope_zw; // Z--> W
     RW.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
+
+     // if (std::isnan(scaling * (vec_2DW_index.at(index).first.first - offset_w)) ||
+     // 	std::isnan(scaling * (vec_2DW_index.at(index).first.second - offset_t)) ||
+     // 	 std::isnan(scaling * slope_zw) ||
+     // 	std::isnan(scaling * slope_x))
+     //  std::cout << "Wrong W" << " " << charge << " " << charge_err << " " << n_divide << std::endl;
   }
  
 
@@ -2220,25 +2242,63 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   // Eigen::SparseMatrix<double> PMatrixT = Eigen::SparseMatrix<double>(PMatrix.transpose());
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
   Eigen::VectorXd b = RUT * data_u_2D + RVT * data_v_2D + RWT * data_w_2D;// + PMatrixT * pos_3D_init * pow(lambda/dis_range,2);
+
+  // for (int i=0;i!=n_3D_pos;i++){
+  //   std::cout << i << " " << b(i) << std::endl;
+  // }
+  
+  
   Eigen::SparseMatrix<double> A =   RUT * RU + RVT * RV + RWT * RW + FMatrixT * FMatrix;// + PMatrixT * PMatrix * pow(lambda/dis_range,2);
+
+  // for (int k=0;k<A.outerSize(); ++k)
+  //   for (Eigen::SparseMatrix<double>::InnerIterator it(A,k); it; ++it){
+  //     if (it.value()!=0)
+  // 	std::cout << "Xin: " << it.value() << " "<< it.row() << " " << it.col() << " " << it.index() << std::endl;
+  //   }
+  
   solver.compute(A);
   
   pos_3D = solver.solveWithGuess(b,pos_3D_init);
   
-  //std::cout << "#iterations: " << solver.iterations() << std::endl;
+  //  std::cout << "#iterations: " << solver.iterations() << std::endl;
   //std::cout << "#estimated error: " << solver.error() << std::endl;
+
+  if (std::isnan(solver.error())){
+    pos_3D = solver.solve(b);
+    //std::cout << "#iterations: " << solver.iterations() << std::endl;
+    //std::cout << "#estimated error: " << solver.error() << std::endl;
+  }
+  
   //std::cout << path_wcps_vec.size() << " " << map_2DU_index.size() << " " << map_2DV_index.size() << " " << map_2DW_index.size() << std::endl;
 
-  flag_fine_tracking = true;
-  fine_tracking_path.clear();
-  for (size_t i=0;i!=path_wcps_vec.size();i++){
-    Point p;
-    p.x = pos_3D(3*i);
-    p.y = pos_3D(3*i+1);
-    p.z = pos_3D(3*i+2);
-    fine_tracking_path.push_back(p);
+  if (std::isnan(solver.error())){
+    fine_tracking_path.clear();
+    if (fine_tracking_path.size()==0){
+      for (size_t i=0;i!=path_wcps_vec.size();i++){
+	Point p;
+	p.x = path_wcps_vec.at(i).x;
+	p.y = path_wcps_vec.at(i).y;
+	p.z = path_wcps_vec.at(i).z;
+	fine_tracking_path.push_back(p);
+      }
+    }
+  }else{
+    flag_fine_tracking = true;
+    fine_tracking_path.clear();
+    for (size_t i=0;i!=path_wcps_vec.size();i++){
+      Point p;
+      p.x = pos_3D(3*i);
+      p.y = pos_3D(3*i+1);
+      p.z = pos_3D(3*i+2);
+      if (std::isnan(p.x) || std::isnan(p.y) || std::isnan(p.z)){
+      }else{
+	fine_tracking_path.push_back(p);
+      }
+    }
     // std::cout << p.x << " " << p.y << " " << p.z << " " << path_wcps_vec.at(i).x << " " << path_wcps_vec.at(i).y << " " << path_wcps_vec.at(i).z << std::endl;
   }
+
+ 
 
 
 
@@ -2360,6 +2420,9 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
   collected_charge_map.clear();
 
   std::set<std::pair<int,int>> existing_tcs;
+
+  //  std::cout << "mcells: " << mcells.size() << std::endl;
+  
   // form a set cotaining everything inside the cluster
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = (*it);
@@ -2384,7 +2447,14 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
   // form a trajectory according to dis and fine tracking?
   PointVector traj_pts;
   PointVector& pts = get_fine_tracking_path();
-  for (size_t i=0; i!=pts.size(); i++){
+
+  //  std::cout << "trajectory points " << pts.size() << std::endl;
+
+  //  for (int i=0; i!=pts.size(); i++){
+  //  std::cout << i << " " << pts.at(i).x/units::cm << " " << pts.at(i).y/units::cm << " "<< pts.at(i).z/units::cm << std::endl;
+  // }
+  
+  for (int i=0; i!=pts.size(); i++){
     if (i==0){
       traj_pts.push_back(pts.at(i));
     }else{
@@ -2395,7 +2465,8 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
 	traj_pts.push_back(pts.at(i));
       }else{
 	int nseg = dis / dis_cut + 1;
-	for (size_t j=0; j!=nseg;j++){
+	//	std::cout << i << " " << pts.at(i).x/units::cm << " " << pts.at(i).y/units::cm << " "<< pts.at(i).z/units::cm << " " << dis << " " << dis_cut << " " << nseg << std::endl;
+	for (int j=0; j!=nseg;j++){
 	  Point temp_pt;
 	  temp_pt.x = pts.at(i-1).x + (pts.at(i).x-pts.at(i-1).x) *(j+1.)/nseg;
 	  temp_pt.y = pts.at(i-1).y + (pts.at(i).y-pts.at(i-1).y) *(j+1.)/nseg;
@@ -2408,20 +2479,28 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
   
   // collect the nearby points, and compare with existing maps
   for (size_t i=0;i!=traj_pts.size();i++){
-    
+    //std::cout << i << " " << traj_pts.at(i).x/units::cm << " " << traj_pts.at(i).y/units::cm << " " << traj_pts.at(i).z/units::cm << " " << range_cut << std::endl;
     WireCell::CTPointCloud<double> nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,0);
+
+    //    std::cout << "0 " << nearby_points.pts.size() << std::endl;
+    
     for (size_t j=0;j!=nearby_points.pts.size();j++){
       if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
 	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = nearby_points.pts.at(j).charge;
       }
     }
     nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,1);
+    //std::cout << "1 " << nearby_points.pts.size() << std::endl;
+    
     for (size_t j=0;j!=nearby_points.pts.size();j++){
       if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
 	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = nearby_points.pts.at(j).charge;
       }
     }
     nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,2);
+
+    //    std::cout << "2 " << nearby_points.pts.size() << std::endl;
+    
     for (size_t j=0;j!=nearby_points.pts.size();j++){
       if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
 	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = nearby_points.pts.at(j).charge;
