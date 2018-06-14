@@ -68,6 +68,10 @@ namespace WireCell{
     double chi2;
     int ndf;
     bool flag_high_consistent;
+
+    // add some varialbes for LM events ...
+
+    // place holder for Brooke ...
     
     PR3DClusterSelection other_clusters; // save every other one 
     PR3DClusterSelection more_clusters;  // save ones satisfying the cut    
