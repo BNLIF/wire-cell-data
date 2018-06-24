@@ -28,6 +28,8 @@ namespace WireCell{
     WireCell::CTPointCloud<double> get_closest_points(WireCell::Point& p, double radius, int plane);
 
     void Print(WireCell::Point &p);
+
+    std::vector<int> convert_3Dpoint_time_ch(WireCell::Point& p);
     
   protected:
 

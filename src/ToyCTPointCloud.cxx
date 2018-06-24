@@ -78,6 +78,47 @@ void ToyCTPointCloud::AddPoint(int ch, int time_slice, int charge, int charge_er
   }
 }
 
+std::vector<int> ToyCTPointCloud::convert_3Dpoint_time_ch(WireCell::Point& p){
+  std::vector<int> results(4,0);
+
+  int time_slice = p.x * slope_t + offset_t;
+  
+  // U plane ... 
+  double y = cos(angle_u) * p.z - sin(angle_u) *p.y;
+  int ch_u = y * slope_u + offset_u + u_min_ch;
+  
+  y = cos(angle_v) * p.z - sin(angle_v) *p.y;
+  int ch_v = y * slope_v + offset_v + v_min_ch;
+  
+  y = cos(angle_w) * p.z - sin(angle_w) *p.y;
+  int ch_w = y*slope_w + offset_w + w_min_ch;
+
+  if (ch_u < u_min_ch){
+    ch_u = u_min_ch;
+  }else if (ch_u > u_max_ch){
+    ch_u = u_max_ch;
+  }
+  
+  if (ch_v < v_min_ch){
+    ch_v = v_min_ch;
+  }else   if (ch_v > v_max_ch){
+    ch_v = v_max_ch;
+  }
+  
+  if (ch_w < w_min_ch) {
+    ch_w = w_min_ch;
+  }else if (ch_w > w_max_ch) {
+    ch_w = w_max_ch;
+  }
+    
+  results.at(0) = time_slice;
+  results.at(1) = ch_u;
+  results.at(2) = ch_v;
+  results.at(3) = ch_w;
+  
+  return results;
+}
+
 
 void ToyCTPointCloud::AddPoints(std::vector<int> *timesliceId, std::vector<std::vector<int>> *timesliceChannel, std::vector<std::vector<int>> *raw_charge , std::vector<std::vector<int>> *raw_charge_err){
   for (size_t i=0;i!=timesliceId->size(); i++){
