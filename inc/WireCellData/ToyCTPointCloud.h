@@ -30,6 +30,10 @@ namespace WireCell{
     void Print(WireCell::Point &p);
 
     std::vector<int> convert_3Dpoint_time_ch(WireCell::Point& p);
+
+    std::pair<int,int> get_uch_limits(){return std::make_pair(u_min_ch, u_max_ch);};
+    std::pair<int,int> get_vch_limits(){return std::make_pair(v_min_ch, v_max_ch);};
+    std::pair<int,int> get_wch_limits(){return std::make_pair(w_min_ch, w_max_ch);};
     
   protected:
 
