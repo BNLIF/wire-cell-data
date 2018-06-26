@@ -81,17 +81,17 @@ void ToyCTPointCloud::AddPoint(int ch, int time_slice, int charge, int charge_er
 std::vector<int> ToyCTPointCloud::convert_3Dpoint_time_ch(WireCell::Point& p){
   std::vector<int> results(4,0);
 
-  int time_slice = p.x * slope_t + offset_t;
+  int time_slice = std::round(p.x * slope_t + offset_t);
   
   // U plane ... 
   double y = cos(angle_u) * p.z - sin(angle_u) *p.y;
-  int ch_u = y * slope_u + offset_u + u_min_ch;
+  int ch_u = std::round(y * slope_u + offset_u + u_min_ch);
   
   y = cos(angle_v) * p.z - sin(angle_v) *p.y;
-  int ch_v = y * slope_v + offset_v + v_min_ch;
+  int ch_v = std::round(y * slope_v + offset_v + v_min_ch);
   
   y = cos(angle_w) * p.z - sin(angle_w) *p.y;
-  int ch_w = y*slope_w + offset_w + w_min_ch;
+  int ch_w = std::round(y*slope_w + offset_w + w_min_ch);
 
   if (ch_u < u_min_ch){
     ch_u = u_min_ch;
