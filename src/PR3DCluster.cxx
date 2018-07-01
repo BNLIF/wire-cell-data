@@ -2735,7 +2735,7 @@ std::vector<std::vector<WCPointCloud<double>::WCPoint>> PR3DCluster::get_extreme
   
   // std::cout << std::endl;
   for (int i=2;i!=8;i++){
-    //    if (cluster_id==12)
+    //if (cluster_id==16)
     //std::cout << i << " C " << wcps[i].x/units::cm << " " << wcps[i].y/units::cm << " " << wcps[i].z/units::cm << std::endl;
     
     bool flag_save = true;
