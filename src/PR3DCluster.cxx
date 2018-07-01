@@ -2421,7 +2421,7 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
 
   std::set<std::pair<int,int>> existing_tcs;
 
-  //  std::cout << "mcells: " << mcells.size() << std::endl;
+  //std::cout << "mcells: " << mcells.size() << std::endl;
   
   // form a set cotaining everything inside the cluster
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
@@ -2448,14 +2448,17 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
   PointVector traj_pts;
   PointVector& pts = get_fine_tracking_path();
 
-  //  std::cout << "trajectory points " << pts.size() << std::endl;
+  //std::cout << "trajectory points " << pts.size() << std::endl;
 
   //  for (int i=0; i!=pts.size(); i++){
   //  std::cout << i << " " << pts.at(i).x/units::cm << " " << pts.at(i).y/units::cm << " "<< pts.at(i).z/units::cm << std::endl;
   // }
   
   for (int i=0; i!=pts.size(); i++){
-    if (i==0){
+    if (pts.at(i).y <-120*units::cm || pts.at(i).y > 120*units::cm ||
+	pts.at(i).z < -5*units::cm || pts.at(i).z > 1070*units::cm) continue;
+    
+    if (traj_pts.size()==0){
       traj_pts.push_back(pts.at(i));
     }else{
       double dis = sqrt(pow(pts.at(i).x-pts.at(i-1).x,2) +
