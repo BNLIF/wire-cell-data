@@ -210,6 +210,43 @@ std::vector<std::pair<size_t,double>> ToyCTPointCloud::get_closest_index(WireCel
   return ret_matches;
 }
 
+bool ToyCTPointCloud::is_good_point(WireCell::Point& p, double radius, int ch_range, int allowed_bad){
+
+  int num_planes = 0;
+  {
+    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 0);
+    if (pts.pts.size()>0){
+      num_planes ++;
+    }else{
+      if (get_closest_dead_chs(p, 0, ch_range))
+	num_planes ++;
+    }
+  }
+  {
+    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 1);
+    if (pts.pts.size()>0){
+      num_planes ++;
+    }else{
+      if (get_closest_dead_chs(p, 1, ch_range))
+	num_planes ++;
+    }
+  }
+  {
+    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 2);
+    if (pts.pts.size()>0){
+      num_planes ++;
+    }else{
+      if (get_closest_dead_chs(p, 2, ch_range))
+	num_planes ++;
+    }
+  }
+  if (num_planes >= 3 - allowed_bad)
+    return true;
+
+  return false;
+  
+}
+
 
 bool ToyCTPointCloud::get_closest_dead_chs(WireCell::Point& p, int plane, int ch_range){
 
