@@ -136,6 +136,15 @@ void ToyCTPointCloud::AddPoints(std::vector<int> *timesliceId, std::vector<std::
   
 }
 
+
+void ToyCTPointCloud::AddDeadChs(std::map<int,std::pair<double,double> >& dead_u_index, std::map<int,std::pair<double,double> >& dead_v_index, std::map<int,std::pair<double,double> >& dead_w_index){
+  dead_uchs = dead_u_index;
+  dead_vchs = dead_v_index;
+  dead_wchs = dead_w_index;
+  
+}
+
+
 void ToyCTPointCloud::build_kdtree_index(){
   if (index_u!=0)    delete index_u;
   if (index_v!=0)    delete index_v;
@@ -199,6 +208,35 @@ std::vector<std::pair<size_t,double>> ToyCTPointCloud::get_closest_index(WireCel
     const size_t nMatches = index_w->radiusSearch(&query_pt[0], search_radius*search_radius, ret_matches, params);
   }
   return ret_matches;
+}
+
+
+bool ToyCTPointCloud::get_closest_dead_chs(WireCell::Point& p, int plane, int ch_range){
+
+  std::vector<int> results = convert_3Dpoint_time_ch(p);
+  
+  if (plane == 0){
+    for (int ch = results.at(1) - ch_range; ch <= results.at(1) + ch_range; ch ++){
+      if (dead_uchs.find(ch)==dead_uchs.end()) continue;
+      if (p.x >= dead_uchs[ch].first && p.x <= dead_uchs[ch].second)
+	return true;
+    }
+  }else if (plane == 1){
+    for (int ch = results.at(2) - ch_range; ch <= results.at(2) + ch_range; ch ++){
+      if (dead_vchs.find(ch)==dead_vchs.end()) continue;
+      if (p.x >= dead_vchs[ch].first && p.x <= dead_vchs[ch].second)
+	return true;
+    }
+  }else if (plane == 2){
+    for (int ch = results.at(3) - ch_range; ch <= results.at(3) + ch_range; ch ++){
+      if (dead_wchs.find(ch)==dead_wchs.end()) continue;
+      if (p.x >= dead_wchs[ch].first && p.x <= dead_wchs[ch].second)
+	return true;
+    }
+  }
+
+  
+  return false;
 }
 
 WireCell::CTPointCloud<double> ToyCTPointCloud::get_closest_points(WireCell::Point& p, double radius, int plane){

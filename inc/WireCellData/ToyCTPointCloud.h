@@ -20,12 +20,14 @@ namespace WireCell{
 
     void AddPoint(int ch, int time_sice, int charge, int charge_err);
     void AddPoints(std::vector<int> *timesliceId, std::vector<std::vector<int>> *timesliceChannel, std::vector<std::vector<int>> *raw_charge , std::vector<std::vector<int>> *raw_charge_err);
+    void AddDeadChs(std::map<int,std::pair<double,double> >& dead_u_index, std::map<int,std::pair<double,double> >& dead_v_index, std::map<int,std::pair<double,double> >& dead_w_index);
     void build_kdtree_index();
 
     int get_num_points(int plane);
     WireCell::CTPointCloud<double>& get_cloud(int plane);
 
     WireCell::CTPointCloud<double> get_closest_points(WireCell::Point& p, double radius, int plane);
+    bool get_closest_dead_chs(WireCell::Point& p, int plane, int ch_range=1);
 
     void Print(WireCell::Point &p);
 
@@ -39,6 +41,9 @@ namespace WireCell{
 
     std::vector<std::pair<size_t,double>> get_closest_index(WireCell::Point& p, double radius, int plane);
 
+    std::map<int, std::pair<double, double> > dead_uchs;
+    std::map<int, std::pair<double, double> > dead_vchs;
+    std::map<int, std::pair<double, double> > dead_wchs;
     
     double angle_u, angle_v, angle_w; // wire angles 
     int u_min_ch, u_max_ch; // channel range for U
