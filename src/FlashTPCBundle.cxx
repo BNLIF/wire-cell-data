@@ -339,8 +339,11 @@ void FlashTPCBundle::examine_merge_clusters(double dis_cut){
 }
 
 void  FlashTPCBundle::add_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid){
-  flag_close_to_PMT = flag_close_to_PMT || bundle->get_flag_close_to_PMT();
-  flag_at_x_boundary = flag_at_x_boundary || bundle->get_flag_at_x_boundary();
+
+  
+  // flag_close_to_PMT = flag_close_to_PMT || bundle->get_flag_close_to_PMT();
+  // flag_at_x_boundary = flag_at_x_boundary || bundle->get_flag_at_x_boundary();
+  
 
   other_clusters.push_back(bundle->get_main_cluster());
   more_clusters.push_back(bundle->get_main_cluster());
@@ -408,7 +411,7 @@ bool FlashTPCBundle::examine_beam_bundle(){
   h2->SetBinContent(max_bin+1,0);
   double temp_ks_dis1 = h1->KolmogorovTest(h2,"M");
 
-  std::cout << temp_ks_dis << " " << temp_ks_dis1 << " " << temp_chi2 << " " << temp_ndf << " " << max_chi2 << " " << max_bin << std::endl;
+  //  std::cout << temp_ks_dis << " " << temp_ks_dis1 << " " << temp_chi2 << " " << temp_ndf << " " << max_chi2 << " " << max_bin << std::endl;
 
   if ( (temp_ks_dis < 0.1 ||temp_ks_dis1 < 0.05) &&
        (temp_chi2 < temp_ndf * 12 || temp_chi2 - max_chi2 < (temp_ndf-1)*6))
