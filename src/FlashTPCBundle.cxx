@@ -24,6 +24,8 @@ FlashTPCBundle::~FlashTPCBundle(){
   
 }
 
+
+
 bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid){
   TH1F *h1 = new TH1F("h1","h1",32,0,32);
   TH1F *h2 = new TH1F("h2","h2",32,0,32);
@@ -352,6 +354,70 @@ void  FlashTPCBundle::add_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, D
   }
   examine_bundle(cos_pe_low,cos_pe_mid);
 }
+
+
+bool FlashTPCBundle::examine_beam_bundle(){
+  TH1F *h1 = new TH1F("h1","h1",32,0,32);
+  TH1F *h2 = new TH1F("h2","h2",32,0,32);
+
+  double pe[32],pe_err[32];
+  double pred_pe[32];
+  
+  for (int i=0;i!=32;i++){
+    pe[i] = flash->get_PE(i);
+    pe_err[i] = flash->get_PE_err(i);
+    pred_pe[i] = pred_pmt_light.at(i);
+  }
+
+  for (int j=0;j!=32;j++){
+    h1->SetBinContent(j+1,pe[j]);
+    h2->SetBinContent(j+1,pred_pe[j]);
+  }
+  
+
+  double temp_ks_dis = h1->KolmogorovTest(h2,"M");
+  double temp_chi2 = 0;
+  double temp_ndf = 0;
+  double max_chi2 = 0;
+  int max_bin = -1;
+  
+  for (int j=0;j!=32;j++){
+    double cur_chi2 = 0;
+    if (flag_close_to_PMT){
+      if (pe[j]-pred_pe[j]>350&&pe[j]>pred_pe[j]*1.3){ // if the measurement is much larger than the prediction
+	cur_chi2 = pow(pred_pe[j]-pe[j],2)/(pow(pe_err[j],2)+pow(pe[j]*0.5,2));
+      }else{
+	cur_chi2 = pow(pred_pe[j]-pe[j],2)/pow(pe_err[j],2); 
+      }
+    }else{
+      cur_chi2 = pow(pred_pe[j]-pe[j],2)/pow(pe_err[j],2); 
+    }
+    temp_chi2 += cur_chi2;
+    
+    if (cur_chi2 > max_chi2){
+      max_chi2 = cur_chi2;
+      max_bin = j;
+    }      
+    
+     if (pe[j]==0&&pred_pe[j]==0){
+     }else{
+       temp_ndf++;
+     }
+  }
+  h1->SetBinContent(max_bin+1,0);
+  h2->SetBinContent(max_bin+1,0);
+  double temp_ks_dis1 = h1->KolmogorovTest(h2,"M");
+
+  std::cout << temp_ks_dis << " " << temp_ks_dis1 << " " << temp_chi2 << " " << temp_ndf << " " << max_chi2 << " " << max_bin << std::endl;
+
+  if ( (temp_ks_dis < 0.1 ||temp_ks_dis1 < 0.05) &&
+       (temp_chi2 < temp_ndf * 12 || temp_chi2 - max_chi2 < (temp_ndf-1)*6))
+    return true;
+  
+  return false;
+  
+}
+
 
 bool FlashTPCBundle::examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid){
   TH1F *h1 = new TH1F("h1","h1",32,0,32);
