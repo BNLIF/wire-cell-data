@@ -212,6 +212,8 @@ std::vector<std::pair<size_t,double>> ToyCTPointCloud::get_closest_index(WireCel
 
 bool ToyCTPointCloud::is_good_point(WireCell::Point& p, double radius, int ch_range, int allowed_bad){
 
+ 
+  
   int num_planes = 0;
   {
     WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 0);
@@ -251,6 +253,27 @@ bool ToyCTPointCloud::is_good_point(WireCell::Point& p, double radius, int ch_ra
 bool ToyCTPointCloud::get_closest_dead_chs(WireCell::Point& p, int plane, int ch_range){
 
   std::vector<int> results = convert_3Dpoint_time_ch(p);
+
+  results.at(2) -= u_max_ch - u_min_ch + 1;
+  results.at(3) -= v_max_ch - v_min_ch + 1 + u_max_ch - u_min_ch + 1;
+  
+  // if (p.x > 275*units::cm && p.x < 290*units::cm && p.y > 25*units::cm &&
+  //     p.y < 35*units::cm && p.z > 210*units::cm && p.z < 230*units::cm){
+  //   bool flag_u = dead_uchs.find(results.at(1))==dead_uchs.end();
+  //   bool flag_v = dead_vchs.find(results.at(2))==dead_vchs.end();
+  //   bool flag_w = dead_wchs.find(results.at(3))==dead_wchs.end();
+  //   std::cout << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << " " << results.at(0) << " " << results.at(1) << " " << results.at(2) << " " << " " << results.at(3) << " " << flag_u << " " << flag_v  << " " << flag_w << " " << std::endl;
+  //   if (!flag_u)
+  //     std::cout << "U " << dead_uchs[results.at(1)].first/units::cm << " " << dead_uchs[results.at(1)].second/units::cm << std::endl;
+  //   if (!flag_v)
+  //     std::cout << "V " << dead_vchs[results.at(2)].first/units::cm << " " << dead_vchs[results.at(2)].second/units::cm << std::endl;
+    
+  //   // for (auto it = dead_vchs.begin(); it!=dead_vchs.end(); it++){
+  //   //   std::cout << it->first << " " << it->second.first/units::cm << " " << it->second.second/units::cm << std::endl;
+  //   // }
+  // }
+
+  
   
   if (plane == 0){
     for (int ch = results.at(1) - ch_range; ch <= results.at(1) + ch_range; ch ++){
