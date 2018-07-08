@@ -58,6 +58,13 @@ namespace WireCell{
     
     
     void Create_graph();
+    void Create_graph(WireCell::ToyCTPointCloud& ct_point_cloud);
+    
+    void Establish_close_connected_graph();
+    void Connect_graph();
+    void Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud);
+
+    
     void Del_graph();
     void dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp_source);
     void cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target);
@@ -95,6 +102,10 @@ namespace WireCell{
     
     std::pair<double,double> HoughTrans(Point& p, double dis);
     TVector3 VHoughTrans(Point& p, double dis);
+
+    std::pair<double,double> HoughTrans(Point& p, double dis, ToyPointCloud *point_cloud1);
+    TVector3 VHoughTrans(Point& p, double dis, ToyPointCloud *point_cloud1);
+    
     TVector3 calc_dir(Point& p_test, Point& p, double dis);
     TVector3 calc_PCA_dir(Point& p, double dis);
     TVector3 calc_PCA_dir(Point& p, PointVector& pts);

@@ -948,33 +948,15 @@ void PR3DCluster::Create_point_cloud(WireCell::ToyPointCloud *global_point_cloud
 }
 
 
-void PR3DCluster::Create_graph(){
-  if (graph!=(MCUGraph*)0)
-    return;
-  
-  if (point_cloud==(ToyPointCloud*)0)
-    Create_point_cloud();
-  
-  
-  // create Graph ...
-  const int N = point_cloud->get_num_points();
-  graph = new MCUGraph(N);
 
+void PR3DCluster::Establish_close_connected_graph(){
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
-  WireCell::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
-  WireCell::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
-  WireCell::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
-  
-
   
   std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_uindex_wcps;
   std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_vindex_wcps;
   std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_windex_wcps;
-  
-  //point_cloud->Print();
-  
-  //create all vertices
-  for (auto it = mcells.begin(); it!=mcells.end(); it++){
+
+   for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = (*it);
     std::map<int, std::set<int>> map_uindex_wcps;
     std::map<int, std::set<int>> map_vindex_wcps;
@@ -1018,7 +1000,7 @@ void PR3DCluster::Create_graph(){
     map_mcell_windex_wcps[mcell] = map_windex_wcps;
   }
 
-  int num_edges = 0;
+    int num_edges = 0;
   
   // create graph for points inside the same mcell
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
@@ -1422,214 +1404,501 @@ void PR3DCluster::Create_graph(){
       num_edges ++;
     }
   }
-  
-  //  std::cout << "Xin: " << num_edges << std::endl;
-  
-  
-  // get the connected components from the graph
-  {
-    std::vector<int> component(num_vertices(*graph));
-    const int num = connected_components(*graph,&component[0]);
+  // end of copying ... 
+}
 
-    if (num >1){
-      //for separated kd tree to find the closest points between disconnected components,
-      std::vector<ToyPointCloud*> pt_clouds;
-      for (int j=0;j!=num;j++){
-	ToyPointCloud *pt_cloud = new ToyPointCloud();
-	pt_clouds.push_back(pt_cloud);
-      }
-      
-      std::vector<int>::size_type i;
-      for (i=0;i!=component.size(); ++i){
-	pt_clouds.at(component[i])->AddPoint(cloud.pts[i],cloud_u.pts[i],cloud_v.pts[i],cloud_w.pts[i]);
-	//   std::cout << "Vertex " << i << " " << cloud.pts[i].x << " " << cloud.pts[i].y << " " << cloud.pts[i].z << " " << cloud.pts[i].index_u << " " << cloud.pts[i].index_v << " " << cloud.pts[i].index_w << " " << cloud.pts[i].mcell << " " << cloud.pts[i].mcell->GetTimeSlice()  << " is in component " << component[i] << std::endl;
-      }
-      for (int j=0;j!=num;j++){
-	pt_clouds.at(j)->build_kdtree_index();
-      }
+void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WireCell::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
+  WireCell::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
+  WireCell::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
 
-      //std::cout << "Xin: " << num << std::endl;
-      // connect these graphs according to closest distance some how ...
-
-      // std::tuple<int,int,double> index_index_dis[num][num];
-      // std::tuple<int,int,double> index_index_dis_mst[num][num];
-      // std::tuple<int,int,double> index_index_dis_dir1[num][num];
-      // std::tuple<int,int,double> index_index_dis_dir2[num][num];
-
-      std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis(num, std::vector< std::tuple<int,int,double> >(num));
-      std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_mst(num, std::vector< std::tuple<int,int,double> >(num));
-      std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_dir1(num, std::vector< std::tuple<int,int,double> >(num));
-      std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_dir2(num, std::vector< std::tuple<int,int,double> >(num));
-      
-      for (int j=0;j!=num;j++){
-	for (int k=0;k!=num;k++){
-	  index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-	  index_index_dis_mst[j][k] = std::make_tuple(-1,-1,1e9);
-	  index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
-	  index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
-	}
-      }
-
-
-      //MST ...
-      const int N = num;
-      boost::adjacency_list<boost::setS, boost::vecS, boost::undirectedS,
-			    boost::no_property, boost::property<boost::edge_weight_t, double>>
-			    temp_graph(N);
-      
-     
-
-      for (int j=0;j!=num;j++){
-      	for (int k=j+1;k!=num;k++){
-	  index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
-      	  int index1 = j;
-      	  int index2 = k;
-      	  auto edge = add_edge(index1,index2, std::get<2>(index_index_dis[j][k]), temp_graph);
-	}
-      }
-
-      std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
-      
-      prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(1));
-
-      for (size_t j=0;j!=predecessors.size();++j){
-	if (predecessors[j]!=j){
-	  if (j < predecessors[j]){
-	    index_index_dis_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
-	  }else{
-	    index_index_dis_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
-	  }
-	  //std::cout << j << " " << predecessors[j] << " " << std::endl;
-	}else{
-	  //std::cout << j << " " << std::endl;
-	}
-      }
-      //end of mst ...
-
-
-      // short distance part
-      for (int j=0;j!=num;j++){
-	for (int k=j+1;k!=num;k++){
-	  // closest distance one ... 
-	  if (std::get<2>(index_index_dis[j][k])<3*units::cm){
-	    index_index_dis_mst[j][k] = index_index_dis[j][k];
-	  }
-
-	  if (num < 100)
-	    if (pt_clouds.at(j)->get_num_points()>100 && pt_clouds.at(k)->get_num_points()>100 &&
-		(pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 400){
-	      WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
-	      WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
-	      Point p1(wp1.x,wp1.y,wp1.z);
-	      Point p2(wp2.x,wp2.y,wp2.z);
-	      
-	      TVector3 dir1 = VHoughTrans(p1, 30*units::cm);
-	      TVector3 dir2 = VHoughTrans(p2, 30*units::cm);
-	      dir1 *= -1;
-	      dir2 *= -1;
-	      
-	      std::pair<int,double> result1 = pt_clouds.at(k)->get_closest_point_along_vec(p1, dir1, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
-	      
-	      if (result1.first >=0){
-		Point test_p1(cloud.pts.at(std::get<0>(index_index_dis[j][k])).x,cloud.pts.at(std::get<0>(index_index_dis[j][k])).y,cloud.pts.at(std::get<0>(index_index_dis[j][k])).z);
-		Point test_p2(cloud.pts.at(result1.first).x,cloud.pts.at(result1.first).y,cloud.pts.at(result1.first).z);
-		double dis = sqrt(pow(test_p2.x-test_p1.x,2)+pow(test_p2.y-test_p1.y,2)+pow(test_p2.z-test_p1.z,2));
-		int num_points = dis/(1.5*units::cm)+1;
-		int num_cut_points = 0;
-		for (size_t k1=0; k1!=num_points-1; k1++){
-		  Point test_p3(test_p1.x + (test_p2.x-test_p1.x) * (k1+1)/num_points ,
-				test_p1.y + (test_p2.y-test_p1.y) * (k1+1)/num_points ,
-				test_p1.z + (test_p2.z-test_p1.z) * (k1+1)/num_points );
-		  double dis1 = point_cloud->get_closest_dis(test_p3);
-		  if (dis1 < 1*units::cm)
-		    num_cut_points ++;
-		}
-		if (num_cut_points <=8 && num_cut_points< 0.25 * num_points + 2 && dis > 5*units::cm)
-		  index_index_dis_dir1[j][k] = std::make_tuple(std::get<0>(index_index_dis[j][k]), result1.first, result1.second);
-	      }
-	      
-	      std::pair<int,double> result2 = pt_clouds.at(j)->get_closest_point_along_vec(p2, dir2, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
-	      
-	      if (result2.first >=0){
-		
-		Point test_p1(cloud.pts.at(std::get<1>(index_index_dis[j][k])).x,cloud.pts.at(std::get<1>(index_index_dis[j][k])).y,cloud.pts.at(std::get<1>(index_index_dis[j][k])).z);
-		Point test_p2(cloud.pts.at(result2.first).x,cloud.pts.at(result2.first).y,cloud.pts.at(result2.first).z);
-		double dis = sqrt(pow(test_p2.x-test_p1.x,2)+pow(test_p2.y-test_p1.y,2)+pow(test_p2.z-test_p1.z,2));
-		int num_points = dis/(1.5*units::cm)+1;
-		int num_cut_points = 0;
-		for (size_t k1=0; k1!=num_points-1; k1++){
-		  Point test_p3(test_p1.x + (test_p2.x-test_p1.x) * (k1+1)/num_points ,
-				test_p1.y + (test_p2.y-test_p1.y) * (k1+1)/num_points ,
-				test_p1.z + (test_p2.z-test_p1.z) * (k1+1)/num_points );
-		  double dis1 = point_cloud->get_closest_dis(test_p3);
-		  if ( dis1 < 1*units::cm)
-		    num_cut_points ++;
-		}
-		
-		if (num_cut_points <=8 && num_cut_points < 0.25 * num_points + 2 && dis > 5*units::cm)
-		  index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);
-	      }
-	    }
-	  
-	  
-      	}
-      }
-            
-
-      // now complete graph according to the direction
-      // according to direction ...
-      for (int j=0;j!=num;j++){
-      	for (int k=j+1;k!=num;k++){
-	  if (std::get<0>(index_index_dis_mst[j][k])>=0){
-      	    auto edge = add_edge(std::get<0>(index_index_dis_mst[j][k]),std::get<1>(index_index_dis_mst[j][k]),*graph);
-      	    if (edge.second){
-      	      if (std::get<2>(index_index_dis_mst[j][k])>5*units::cm){
-      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
-      	      }else{
-      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
-      	      }
-      	    }
-      	  }
-	  
-      	  if (std::get<0>(index_index_dis_dir1[j][k])>=0){
-      	    auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
-      	    if (edge.second){
-      	      if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
-      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.2;
-	      // }else if (std::get<2>(index_index_dis_dir1[j][k])>2*units::cm){
-	      // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.1;
-      	      }else{
-      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
-      	      }
-      	    }
-      	  }
-      	  if (std::get<0>(index_index_dis_dir2[j][k])>=0){
-      	    auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
-      	    if (edge.second){
-      	      if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
-      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.2;
-	      // }else if(std::get<2>(index_index_dis_dir2[j][k])>2*units::cm){
-	      // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.1;
-      	      }else{
-      	  	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
-      	      }
-      	    }
-      	  }
-	  
-	  
-      	}
-      }
-
-     
-
-
-
-      
-      for (int i=0;i!=num;i++){
-	delete pt_clouds.at(i);
+  // now form the connected components
+  std::vector<int> component(num_vertices(*graph));
+  const int num = connected_components(*graph,&component[0]);
+  if (num > 1){
+    std::vector<ToyPointCloud*> pt_clouds;
+    for (int j=0;j!=num;j++){
+      ToyPointCloud *pt_cloud = new ToyPointCloud();
+      pt_clouds.push_back(pt_cloud);
+    }
+    
+    std::vector<int>::size_type i;
+    for (i=0;i!=component.size(); ++i){
+      pt_clouds.at(component[i])->AddPoint(cloud.pts[i],cloud_u.pts[i],cloud_v.pts[i],cloud_w.pts[i]);
+      //   std::cout << "Vertex " << i << " " << cloud.pts[i].x << " " << cloud.pts[i].y << " " << cloud.pts[i].z << " " << cloud.pts[i].index_u << " " << cloud.pts[i].index_v << " " << cloud.pts[i].index_w << " " << cloud.pts[i].mcell << " " << cloud.pts[i].mcell->GetTimeSlice()  << " is in component " << component[i] << std::endl;
+    }
+    for (int j=0;j!=num;j++){
+      pt_clouds.at(j)->build_kdtree_index();
+    }
+    
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis(num, std::vector< std::tuple<int,int,double> >(num));
+    //std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_mst(num, std::vector< std::tuple<int,int,double> >(num));
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_dir1(num, std::vector< std::tuple<int,int,double> >(num));
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_dir2(num, std::vector< std::tuple<int,int,double> >(num));
+    
+    for (int j=0;j!=num;j++){
+      for (int k=0;k!=num;k++){
+  	index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+  	//index_index_dis_mst[j][k] = std::make_tuple(-1,-1,1e9);
+  	index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
+  	index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
       }
     }
+    
+    // check against the closest distance ...
+    // no need to have MST ... 
+    for (int j=0;j!=num;j++){
+      for (int k=j+1;k!=num;k++){
+  	index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
+
+  	// if (cluster_id==3)
+  	//   std::cout << j << " " << k << " " << num << " " << pt_clouds.at(j)->get_num_points() << " " << pt_clouds.at(k)->get_num_points() << std::endl;
+	
+  	if (num < 100 && pt_clouds.at(j)->get_num_points()>100 && pt_clouds.at(k)->get_num_points()>100 &&
+  	    (pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 400 ||
+  	    pt_clouds.at(j)->get_num_points()>500 && pt_clouds.at(k)->get_num_points()>500){
+  	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
+  	  WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
+  	  Point p1(wp1.x,wp1.y,wp1.z);
+  	  Point p2(wp2.x,wp2.y,wp2.z);
+	  
+  	  TVector3 dir1 = VHoughTrans(p1, 30*units::cm, pt_clouds.at(j));
+  	  TVector3 dir2 = VHoughTrans(p2, 30*units::cm, pt_clouds.at(k));
+  	  dir1 *= -1;
+  	  dir2 *= -1;
+	  
+  	  std::pair<int,double> result1 = pt_clouds.at(k)->get_closest_point_along_vec(p1, dir1, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
+	  
+  	  if (result1.first >=0){
+  	    Point test_p1(cloud.pts.at(std::get<0>(index_index_dis[j][k])).x,cloud.pts.at(std::get<0>(index_index_dis[j][k])).y,cloud.pts.at(std::get<0>(index_index_dis[j][k])).z);
+  	    Point test_p2(cloud.pts.at(result1.first).x,cloud.pts.at(result1.first).y,cloud.pts.at(result1.first).z);
+  	    double dis = sqrt(pow(test_p2.x-test_p1.x,2)+pow(test_p2.y-test_p1.y,2)+pow(test_p2.z-test_p1.z,2));
+  	    int num_points = dis/(1.5*units::cm)+1;
+  	    int num_cut_points = 0;
+  	    for (size_t k1=0; k1!=num_points-1; k1++){
+  	      Point test_p3(test_p1.x + (test_p2.x-test_p1.x) * (k1+1)/num_points ,
+  			    test_p1.y + (test_p2.y-test_p1.y) * (k1+1)/num_points ,
+  			    test_p1.z + (test_p2.z-test_p1.z) * (k1+1)/num_points );
+  	      double dis1 = point_cloud->get_closest_dis(test_p3);
+  	      if (dis1 < 1*units::cm)
+  		num_cut_points ++;
+  	    }
+  	    if (num_cut_points <=8 && num_cut_points< 0.25 * num_points + 2 && dis > 1*units::cm)
+  	      index_index_dis_dir1[j][k] = std::make_tuple(std::get<0>(index_index_dis[j][k]), result1.first, result1.second);
+  	  }
+	  
+  	  std::pair<int,double> result2 = pt_clouds.at(j)->get_closest_point_along_vec(p2, dir2, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
+
+  	  // if (cluster_id==3)
+  	  //   std::cout << p2.x/units::cm << " " << p2.y/units::cm << " " << p2.z/units::cm << " " << dir2.X() << " " << dir2.Y() << " " << dir2.Z() << std::endl;
+	  
+	  
+  	  if (result2.first >=0){
+	    
+  	    Point test_p1(cloud.pts.at(std::get<1>(index_index_dis[j][k])).x,cloud.pts.at(std::get<1>(index_index_dis[j][k])).y,cloud.pts.at(std::get<1>(index_index_dis[j][k])).z);
+  	    Point test_p2(cloud.pts.at(result2.first).x,cloud.pts.at(result2.first).y,cloud.pts.at(result2.first).z);
+  	    double dis = sqrt(pow(test_p2.x-test_p1.x,2)+pow(test_p2.y-test_p1.y,2)+pow(test_p2.z-test_p1.z,2));
+  	    int num_points = dis/(1.5*units::cm)+1;
+  	    int num_cut_points = 0;
+  	    for (size_t k1=0; k1!=num_points-1; k1++){
+  	      Point test_p3(test_p1.x + (test_p2.x-test_p1.x) * (k1+1)/num_points ,
+  			    test_p1.y + (test_p2.y-test_p1.y) * (k1+1)/num_points ,
+  			    test_p1.z + (test_p2.z-test_p1.z) * (k1+1)/num_points );
+  	      double dis1 = point_cloud->get_closest_dis(test_p3);
+  	      if ( dis1 < 1*units::cm)
+  		num_cut_points ++;
+  	    }
+
+  	    // if (cluster_id==3)
+  	    //   std::cout << num_cut_points << " " << num_points << " " << dis/units::cm << std::endl;
+	    
+  	    if (num_cut_points <=8 && num_cut_points < 0.25 * num_points + 2 && dis > 1*units::cm)
+  	      index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);
+  	  }
+  	}
+
+  		// Now check the path ... 
+  	{
+  	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
+  	  WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
+  	  Point p1(wp1.x,wp1.y,wp1.z);
+  	  Point p2(wp2.x,wp2.y,wp2.z);
+	  
+  	  double dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+  	  double step_dis = 1.0*units::cm;
+  	  int num_steps = dis/step_dis + 1;
+  	  int num_bad = 0;
+  	  for (int ii=0;ii!=num_steps;ii++){
+  	    Point test_p;
+  	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
+  	    test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
+  	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
+  	    if (!ct_point_cloud.is_good_point(test_p)){
+  	      num_bad ++;
+  	      /* if (cluster->get_cluster_id()==11) */
+  	      /* 	std::cout << test_p.x/units::cm << " " << test_p.y/units::cm << " " << test_p.z/units::cm << std::endl; */
+  	    }
+  	  }
+	  
+  	  //  std::cout << cluster->get_cluster_id() << " " << j << " " << k << " " << num_bad << " " << num_steps << std::endl;
+	   
+  	  if (num_bad > 7 ||
+  	      num_bad > 2 && num_bad >=0.75*num_steps){
+  	    index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+  	  }
+  	  // if (cluster_id==3)
+  	  //   std::cout << p1.x/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm << " " << p2.x/units::cm << " " << p2.y/units::cm << " " << p2.z/units::cm << " " << j << " " << k << " " << num_bad << " " << num_steps << std::endl;
+  	}
+	
+  	// Now check the path ... 
+  	if (std::get<0>(index_index_dis_dir1[j][k])>=0){
+  	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis_dir1[j][k]));
+  	  WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis_dir1[j][k]));
+  	  Point p1(wp1.x,wp1.y,wp1.z);
+  	  Point p2(wp2.x,wp2.y,wp2.z);
+	  
+  	  double dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+  	  double step_dis = 1.0*units::cm;
+  	  int num_steps = dis/step_dis + 1;
+  	  int num_bad = 0;
+  	  for (int ii=0;ii!=num_steps;ii++){
+  	    Point test_p;
+  	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
+  	    test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
+  	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
+  	    if (!ct_point_cloud.is_good_point(test_p))
+  	      num_bad ++;
+  	  }
+	  
+	  
+  	  if (num_bad > 7 ||
+  	      num_bad > 2 && num_bad >=0.75*num_steps){
+  	    index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
+  	  }
+  	  // if (cluster_id==3)
+  	  //   std::cout << "A: " << p1.x/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm << " " << p2.x/units::cm << " " << p2.y/units::cm << " " << p2.z/units::cm << " " << j << " " << k << " " << num_bad << " " << num_steps << std::endl;
+  	}
+	
+	
+  	// Now check the path ... 
+  	if (std::get<0>(index_index_dis_dir2[j][k])>=0){
+  	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis_dir2[j][k]));
+  	  WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis_dir2[j][k]));
+  	  Point p1(wp1.x,wp1.y,wp1.z);
+  	  Point p2(wp2.x,wp2.y,wp2.z);
+	  
+  	  double dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+  	  double step_dis = 1.0*units::cm;
+  	  int num_steps = dis/step_dis + 1;
+  	  int num_bad = 0;
+  	  for (int ii=0;ii!=num_steps;ii++){
+  	    Point test_p;
+  	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
+  	    test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
+  	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
+  	    if (!ct_point_cloud.is_good_point(test_p))
+  	      num_bad ++;
+  	  }
+	 
+	  
+  	  if (num_bad > 7 ||
+  	      num_bad > 2 && num_bad >=0.75*num_steps){
+  	    index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
+  	  }
+  	  // if (cluster_id==3)
+  	  //   std::cout << "B: " << p1.x/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm << " " << p2.x/units::cm << " " << p2.y/units::cm << " " << p2.z/units::cm << " " << j << " " << k << " " << num_bad << " " << num_steps << std::endl;
+  	}
+	
+	
+  	// establish the path ... 
+  	if (std::get<0>(index_index_dis[j][k])>=0){
+  	  auto edge = add_edge(std::get<0>(index_index_dis[j][k]),std::get<1>(index_index_dis[j][k]),*graph);
+  	  if (edge.second){
+  	    if (std::get<2>(index_index_dis[j][k])>5*units::cm){
+  	      (*graph)[edge.first].dist = std::get<2>(index_index_dis[j][k]);
+  	    }else{
+  	      (*graph)[edge.first].dist = std::get<2>(index_index_dis[j][k]);
+  	    }
+  	  }
+  	}
+	
+  	if (std::get<0>(index_index_dis_dir1[j][k])>=0){
+  	  auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
+  	  if (edge.second){
+  	    if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
+  	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
+  	    }else{
+  	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
+  	    }
+  	  }
+  	}
+  	if (std::get<0>(index_index_dis_dir2[j][k])>=0){
+  	  auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
+  	  if (edge.second){
+  	    if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
+  	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
+  	    }else{
+  	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
+  	    }
+  	  }
+  	}
+      } // k
+    } // j
+
+    // delete newly created point cloud
+    for (int i=0;i!=num;i++){
+      delete pt_clouds.at(i);
+    }
+    pt_clouds.clear();
   }
+}
+
+
+void PR3DCluster::Create_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
+  if (graph!=(MCUGraph*)0)
+    return;
+
+  if (point_cloud==(ToyPointCloud*)0)
+    Create_point_cloud();
+
+
+  const int N = point_cloud->get_num_points();
+  graph = new MCUGraph(N);
+
+  Establish_close_connected_graph();
+  Connect_graph(ct_point_cloud);
+  Connect_graph();
+    
+}
+
+
+
+void PR3DCluster::Connect_graph(){
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WireCell::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
+  WireCell::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
+  WireCell::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
+
+  
+  std::vector<int> component(num_vertices(*graph));
+  const int num = connected_components(*graph,&component[0]);
+  
+  if (num >1){
+    //for separated kd tree to find the closest points between disconnected components,
+    std::vector<ToyPointCloud*> pt_clouds;
+    for (int j=0;j!=num;j++){
+      ToyPointCloud *pt_cloud = new ToyPointCloud();
+      pt_clouds.push_back(pt_cloud);
+    }
+    
+    std::vector<int>::size_type i;
+    for (i=0;i!=component.size(); ++i){
+      pt_clouds.at(component[i])->AddPoint(cloud.pts[i],cloud_u.pts[i],cloud_v.pts[i],cloud_w.pts[i]);
+      //   std::cout << "Vertex " << i << " " << cloud.pts[i].x << " " << cloud.pts[i].y << " " << cloud.pts[i].z << " " << cloud.pts[i].index_u << " " << cloud.pts[i].index_v << " " << cloud.pts[i].index_w << " " << cloud.pts[i].mcell << " " << cloud.pts[i].mcell->GetTimeSlice()  << " is in component " << component[i] << std::endl;
+    }
+    for (int j=0;j!=num;j++){
+      pt_clouds.at(j)->build_kdtree_index();
+    }
+    
+    //std::cout << "Xin: " << num << std::endl;
+    // connect these graphs according to closest distance some how ...
+    
+    // std::tuple<int,int,double> index_index_dis[num][num];
+    // std::tuple<int,int,double> index_index_dis_mst[num][num];
+    // std::tuple<int,int,double> index_index_dis_dir1[num][num];
+    // std::tuple<int,int,double> index_index_dis_dir2[num][num];
+    
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis(num, std::vector< std::tuple<int,int,double> >(num));
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_mst(num, std::vector< std::tuple<int,int,double> >(num));
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_dir1(num, std::vector< std::tuple<int,int,double> >(num));
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_dir2(num, std::vector< std::tuple<int,int,double> >(num));
+    
+    for (int j=0;j!=num;j++){
+      for (int k=0;k!=num;k++){
+	index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+	index_index_dis_mst[j][k] = std::make_tuple(-1,-1,1e9);
+	index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
+	index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
+      }
+    }
+    
+    
+    //MST ...
+    const int N = num;
+    boost::adjacency_list<boost::setS, boost::vecS, boost::undirectedS,
+			  boost::no_property, boost::property<boost::edge_weight_t, double>>
+      temp_graph(N);
+    
+    
+    
+    for (int j=0;j!=num;j++){
+      for (int k=j+1;k!=num;k++){
+	index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
+	int index1 = j;
+	int index2 = k;
+	auto edge = add_edge(index1,index2, std::get<2>(index_index_dis[j][k]), temp_graph);
+      }
+    }
+    
+    std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
+    
+    prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(1));
+    
+    for (size_t j=0;j!=predecessors.size();++j){
+      if (predecessors[j]!=j){
+	if (j < predecessors[j]){
+	  index_index_dis_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
+	}else{
+	  index_index_dis_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+	}
+	//std::cout << j << " " << predecessors[j] << " " << std::endl;
+      }else{
+	//std::cout << j << " " << std::endl;
+      }
+    }
+    //end of mst ...
+    
+    
+    // short distance part
+    for (int j=0;j!=num;j++){
+      for (int k=j+1;k!=num;k++){
+	// closest distance one ... 
+	if (std::get<2>(index_index_dis[j][k])<3*units::cm){
+	  index_index_dis_mst[j][k] = index_index_dis[j][k];
+	}
+	
+	if (num < 100)
+	  if (pt_clouds.at(j)->get_num_points()>100 && pt_clouds.at(k)->get_num_points()>100 &&
+	      (pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 400){
+	    WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
+	    WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
+	    Point p1(wp1.x,wp1.y,wp1.z);
+	    Point p2(wp2.x,wp2.y,wp2.z);
+	    
+	    TVector3 dir1 = VHoughTrans(p1, 30*units::cm,pt_clouds.at(j));
+	    TVector3 dir2 = VHoughTrans(p2, 30*units::cm,pt_clouds.at(k));
+	    dir1 *= -1;
+	    dir2 *= -1;
+	    
+	    std::pair<int,double> result1 = pt_clouds.at(k)->get_closest_point_along_vec(p1, dir1, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
+	    
+	    if (result1.first >=0){
+	      Point test_p1(cloud.pts.at(std::get<0>(index_index_dis[j][k])).x,cloud.pts.at(std::get<0>(index_index_dis[j][k])).y,cloud.pts.at(std::get<0>(index_index_dis[j][k])).z);
+	      Point test_p2(cloud.pts.at(result1.first).x,cloud.pts.at(result1.first).y,cloud.pts.at(result1.first).z);
+	      double dis = sqrt(pow(test_p2.x-test_p1.x,2)+pow(test_p2.y-test_p1.y,2)+pow(test_p2.z-test_p1.z,2));
+	      int num_points = dis/(1.5*units::cm)+1;
+	      int num_cut_points = 0;
+	      for (size_t k1=0; k1!=num_points-1; k1++){
+		Point test_p3(test_p1.x + (test_p2.x-test_p1.x) * (k1+1)/num_points ,
+			      test_p1.y + (test_p2.y-test_p1.y) * (k1+1)/num_points ,
+			      test_p1.z + (test_p2.z-test_p1.z) * (k1+1)/num_points );
+		double dis1 = point_cloud->get_closest_dis(test_p3);
+		if (dis1 < 1*units::cm)
+		  num_cut_points ++;
+	      }
+	      if (num_cut_points <=8 && num_cut_points< 0.25 * num_points + 2 && dis > 5*units::cm)
+		index_index_dis_dir1[j][k] = std::make_tuple(std::get<0>(index_index_dis[j][k]), result1.first, result1.second);
+	    }
+	    
+	    std::pair<int,double> result2 = pt_clouds.at(j)->get_closest_point_along_vec(p2, dir2, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
+	    
+	    if (result2.first >=0){
+	      
+	      Point test_p1(cloud.pts.at(std::get<1>(index_index_dis[j][k])).x,cloud.pts.at(std::get<1>(index_index_dis[j][k])).y,cloud.pts.at(std::get<1>(index_index_dis[j][k])).z);
+	      Point test_p2(cloud.pts.at(result2.first).x,cloud.pts.at(result2.first).y,cloud.pts.at(result2.first).z);
+	      double dis = sqrt(pow(test_p2.x-test_p1.x,2)+pow(test_p2.y-test_p1.y,2)+pow(test_p2.z-test_p1.z,2));
+	      int num_points = dis/(1.5*units::cm)+1;
+	      int num_cut_points = 0;
+	      for (size_t k1=0; k1!=num_points-1; k1++){
+		Point test_p3(test_p1.x + (test_p2.x-test_p1.x) * (k1+1)/num_points ,
+			      test_p1.y + (test_p2.y-test_p1.y) * (k1+1)/num_points ,
+			      test_p1.z + (test_p2.z-test_p1.z) * (k1+1)/num_points );
+		double dis1 = point_cloud->get_closest_dis(test_p3);
+		if ( dis1 < 1*units::cm)
+		  num_cut_points ++;
+	      }
+	      
+	      if (num_cut_points <=8 && num_cut_points < 0.25 * num_points + 2 && dis > 5*units::cm)
+		index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);
+	    }
+	  }
+      }
+    }
+    
+    
+    // now complete graph according to the direction
+    // according to direction ...
+    for (int j=0;j!=num;j++){
+      for (int k=j+1;k!=num;k++){
+	if (std::get<0>(index_index_dis_mst[j][k])>=0){
+	  auto edge = add_edge(std::get<0>(index_index_dis_mst[j][k]),std::get<1>(index_index_dis_mst[j][k]),*graph);
+	  if (edge.second){
+	    if (std::get<2>(index_index_dis_mst[j][k])>5*units::cm){
+	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
+	    }else{
+	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
+	    }
+	  }
+	}
+	
+	if (std::get<0>(index_index_dis_dir1[j][k])>=0){
+	  auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
+	  if (edge.second){
+	    if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
+	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.2;
+	      // }else if (std::get<2>(index_index_dis_dir1[j][k])>2*units::cm){
+	      // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.1;
+	    }else{
+	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
+	    }
+	  }
+	}
+	if (std::get<0>(index_index_dis_dir2[j][k])>=0){
+	  auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
+	  if (edge.second){
+	    if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
+	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.2;
+	      // }else if(std::get<2>(index_index_dis_dir2[j][k])>2*units::cm){
+	      // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.1;
+	    }else{
+	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
+	    }
+	  }
+	}
+	
+	
+      }
+    }
+    
+    
+    
+    
+    
+    
+    for (int i=0;i!=num;i++){
+      delete pt_clouds.at(i);
+    }
+  }
+  
+}
+
+void PR3DCluster::Create_graph(){
+  if (graph!=(MCUGraph*)0)
+    return;
+  
+  if (point_cloud==(ToyPointCloud*)0)
+    Create_point_cloud();
+  
+  // create Graph ...
+  const int N = point_cloud->get_num_points();
+  graph = new MCUGraph(N);
+
+  Establish_close_connected_graph();
+  Connect_graph();
+  
+  
+ 
 
   // {
   //   std::vector<int> component(num_vertices(*graph));
@@ -3076,6 +3345,52 @@ TVector3 PR3DCluster::calc_dir(Point& p_test, Point& p, double dis){
   if (dir.Mag()!=0)
     dir.SetMag(1);
   return dir;
+}
+
+TVector3 PR3DCluster::VHoughTrans(Point&p, double dis, ToyPointCloud *point_cloud1){
+  double theta, phi;
+  std::pair<double,double> angles_1 = HoughTrans(p,dis, point_cloud1);
+  theta = angles_1.first;
+  phi = angles_1.second;
+  TVector3 temp(sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta));
+  return temp;
+}
+
+std::pair<double,double> PR3DCluster::HoughTrans(Point&p , double dis, ToyPointCloud *point_cloud1){
+  double theta, phi;
+  TH2F *hough = new TH2F("","",180,0.,3.1415926,360,-3.1415926,3.1415926);
+  double x0 = p.x;
+  double y0 = p.y;
+  double z0 = p.z;
+  
+  std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>>pts = point_cloud1->get_closest_points(p,dis);
+
+  // std::cout << "Num " <<  pts.size() << std::endl;
+    
+  double x,y,z,q;
+  for (size_t i=0; i!=pts.size(); i++){
+    x = pts.at(i).second.x;
+    y = pts.at(i).second.y;
+    z = pts.at(i).second.z;
+    q = pts.at(i).first->get_q()/pts.at(i).first->get_sampling_points().size();
+    if (q<=0) continue;
+
+    //  for (int i1=0; i1!=5; i1++){
+    //  for (int j1=0; j1!=5; j1++){
+    //	for (int k1=0; k1!=5; k1++){
+    TVector3 vec(x-x0 ,y-y0 ,z-z0 );
+    hough->Fill(vec.Theta(),vec.Phi(), q );
+  }
+  int maxbin = hough->GetMaximumBin();
+  int a,b,c;
+  hough->GetBinXYZ(maxbin,a,b,c);
+  theta = hough->GetXaxis()->GetBinCenter(a);
+  phi = hough->GetYaxis()->GetBinCenter(b);
+
+  // std::cout << hough->GetSum() << " " << hough->GetBinContent(a,b)<< std::endl;
+  
+  delete hough;
+  return std::make_pair(theta,phi);
 }
 
 TVector3 PR3DCluster::VHoughTrans(Point&p, double dis){
