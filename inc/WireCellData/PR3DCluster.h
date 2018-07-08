@@ -67,6 +67,7 @@ namespace WireCell{
     
     void Del_graph();
     void dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp_source);
+    void dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp_source, WireCell::ToyCTPointCloud& ct_point_cloud);
     void cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target);
     void fine_tracking(int num_pts_cut = 10);
     
@@ -89,6 +90,7 @@ namespace WireCell{
     void adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_wcp, WCPointCloud<double>::WCPoint& end_wcp);
 
     bool Construct_skeleton();
+    bool Construct_skeleton(WireCell::ToyCTPointCloud& ct_point_cloud);
     
     void Calc_PCA();
     bool flag_PCA;

@@ -41,6 +41,13 @@ std::pair<int,double> WireCell::ToyPointCloud::get_closest_point_along_vec(Point
     WireCell::WCPointCloud<double>::WCPoint& closest_pt = get_closest_wcpoint(p_test);
     double dis = sqrt(pow(p_test.x - closest_pt.x,2)+pow(p_test.y - closest_pt.y,2)+pow(p_test.z - closest_pt.z,2));
     double dis1 = sqrt(pow(p_test1.x - closest_pt.x,2)+pow(p_test1.y - closest_pt.y,2)+pow(p_test1.z - closest_pt.z,2));
+
+    // if (fabs(p_test1.x-199.942*units::cm) < 1*units::cm &&
+    // 	fabs(p_test1.y+19.4682*units::cm) < 1*units::cm &&
+    // 	fabs(p_test1.z-127*units::cm) < 1*units::cm)
+    //   std::cout << i << " " << dis/units::cm << " " << std::min(dis1 * tan(angle_cut/180.*3.1415926),dis_cut)/units::cm << " " << p_test.x/units::cm << " " << p_test.y/units::cm << " " << p_test.z/units::cm << std::endl;
+	      
+    
     if (dis < std::min(dis1 * tan(angle_cut/180.*3.1415926),dis_cut)){
       if (dis < min_dis){
 	min_dis = dis;
