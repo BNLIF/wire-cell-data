@@ -1566,7 +1566,7 @@ void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
   	    index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
   	  }
 	  
-  	  // if (cluster_id==6)
+  	  // if (cluster_id==13)
 	  //   std::cout << cluster_id << " " << p1.x/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm << " " << p2.x/units::cm << " " << p2.y/units::cm << " " << p2.z/units::cm << " " << j << " " << k << " " << num_bad << " " << num_steps << std::endl;
   	}
 	
@@ -1595,8 +1595,8 @@ void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
   	      num_bad > 2 && num_bad >=0.75*num_steps){
   	    index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
   	  }
-  	  // if (cluster_id==6)
-  	  //   std::cout << "A: " << p1.x/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm << " " << p2.x/units::cm << " " << p2.y/units::cm << " " << p2.z/units::cm << " " << j << " " << k << " " << num_bad << " " << num_steps << std::endl;
+	  // if (cluster_id==13)
+	  //   std::cout << "A: " << p1.x/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm << " " << p2.x/units::cm << " " << p2.y/units::cm << " " << p2.z/units::cm << " " << j << " " << k << " " << num_bad << " " << num_steps << std::endl;
   	}
 	
 	
@@ -1625,7 +1625,7 @@ void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
   	      num_bad > 2 && num_bad >=0.75*num_steps){
   	    index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
   	  }
-  	  // if (cluster_id==6)
+  	  // if (cluster_id==13)
   	  //   std::cout << "B: " << p1.x/units::cm << " " << p1.y/units::cm << " " << p1.z/units::cm << " " << p2.x/units::cm << " " << p2.y/units::cm << " " << p2.z/units::cm << " " << j << " " << k << " " << num_bad << " " << num_steps << std::endl;
   	}
       }
@@ -2880,10 +2880,13 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
   PointVector traj_pts;
   PointVector& pts = get_fine_tracking_path();
 
+  //std::list<WCPointCloud<double>::WCPoint>& path_wcps = get_path_wcps();
   //std::cout << "trajectory points " << pts.size() << std::endl;
 
-  //  for (int i=0; i!=pts.size(); i++){
-  //  std::cout << i << " " << pts.at(i).x/units::cm << " " << pts.at(i).y/units::cm << " "<< pts.at(i).z/units::cm << std::endl;
+  // if (cluster_id==13){
+  //   for (int i=0; i!=pts.size(); i++){
+  //     std::cout << i << " " << pts.at(i).x/units::cm << " " << pts.at(i).y/units::cm << " "<< pts.at(i).z/units::cm << std::endl;
+  //   }
   // }
   
   for (int i=0; i!=pts.size(); i++){
