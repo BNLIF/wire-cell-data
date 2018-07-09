@@ -206,7 +206,7 @@ bool FlashTPCBundle::examine_bundle_rank(FlashTPCBundle *bundle, Double_t *cos_p
   delete h1;
   delete h2;
 
-  // if (main_cluster->get_cluster_id()==17)
+  // if (main_cluster->get_cluster_id()==20 || main_cluster->get_cluster_id()==19)
   //  std::cout << flash->get_flash_id() << " " << main_cluster->get_cluster_id() << " " << bundle->get_main_cluster()->get_cluster_id() << " " << ks_dis << " " << temp_ks_dis << " " << chi2 << " " << temp_chi2 << " " << ndf << std::endl;
   
   if ((temp_ks_dis < ks_dis + 0.06 &&
