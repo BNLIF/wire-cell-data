@@ -1732,7 +1732,7 @@ void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
 	    auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
 	    if (edge.second){
 	      if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
-		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.2;
+		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.1;
 	      }else{
 		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
 	      }
@@ -1742,7 +1742,7 @@ void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
 	    auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
 	    if (edge.second){
 	      if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
-		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.2;
+		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.1;
 	      }else{
 		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
 	      }
