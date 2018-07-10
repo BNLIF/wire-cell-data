@@ -352,7 +352,7 @@ void  FlashTPCBundle::add_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, D
   // flag_close_to_PMT = flag_close_to_PMT || bundle->get_flag_close_to_PMT();
   // flag_at_x_boundary = flag_at_x_boundary || bundle->get_flag_at_x_boundary();
   
-  if (get_total_pred_light() > bundle->get_total_pred_light()){
+  if (ks_dis * pow(chi2/ndf,0.8) < bundle->get_ks_dis() * pow (bundle->get_chi2()/bundle->get_ndf(),0.8)){
     other_clusters.push_back(bundle->get_main_cluster());
     more_clusters.push_back(bundle->get_main_cluster());
     
