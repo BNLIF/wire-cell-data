@@ -24,6 +24,14 @@ FlashTPCBundle::~FlashTPCBundle(){
   
 }
 
+double FlashTPCBundle::get_total_pred_light(){
+  double sum = 0;
+  for (size_t i=0;i!=pred_pmt_light.size();i++){
+    sum += pred_pmt_light.at(i);
+  }
+  return sum;
+}
+
 
 
 bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid){
@@ -344,13 +352,21 @@ void  FlashTPCBundle::add_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, D
   // flag_close_to_PMT = flag_close_to_PMT || bundle->get_flag_close_to_PMT();
   // flag_at_x_boundary = flag_at_x_boundary || bundle->get_flag_at_x_boundary();
   
+  if (get_total_pred_light() > bundle->get_total_pred_light()){
+    other_clusters.push_back(bundle->get_main_cluster());
+    more_clusters.push_back(bundle->get_main_cluster());
+    
+    std::copy(bundle->get_other_clusters().begin(), bundle->get_other_clusters().end(), std::back_inserter(other_clusters));
+    std::copy(bundle->get_more_clusters().begin(), bundle->get_more_clusters().end(), std::back_inserter(more_clusters));
+  }else{
+    other_clusters.push_back(main_cluster);
+    more_clusters.push_back(main_cluster);
 
-  other_clusters.push_back(bundle->get_main_cluster());
-  more_clusters.push_back(bundle->get_main_cluster());
+    main_cluster = bundle->get_main_cluster();
+    std::copy(bundle->get_other_clusters().begin(), bundle->get_other_clusters().end(), std::back_inserter(other_clusters));
+    std::copy(bundle->get_more_clusters().begin(), bundle->get_more_clusters().end(), std::back_inserter(more_clusters));
+  }
   
-  std::copy(bundle->get_other_clusters().begin(), bundle->get_other_clusters().end(), std::back_inserter(other_clusters));
-  std::copy(bundle->get_more_clusters().begin(), bundle->get_more_clusters().end(), std::back_inserter(more_clusters));
-
   std::vector<double>& pes = bundle->get_pred_pmt_light();
   for (size_t i=0;i!=pred_pmt_light.size();i++){
     pred_pmt_light.at(i) += pes.at(i);
