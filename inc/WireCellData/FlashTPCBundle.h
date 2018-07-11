@@ -19,6 +19,7 @@ namespace WireCell{
     std::vector<double>& get_pred_pmt_light(){return pred_pmt_light;};
     Opflash* get_flash(){return flash;};
     void set_flash(Opflash* flash1){flash=flash1;};
+    double get_total_pred_light();
     
     PR3DCluster* get_main_cluster(){return main_cluster;};
     PR3DClusterSelection& get_other_clusters(){return other_clusters;};
