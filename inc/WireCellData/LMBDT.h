@@ -9,25 +9,45 @@
 namespace WireCell{
   class LMBDT{
   public:
-    LMBDT(TH1D* signalEff, TH1D* backgroundEff, double bdtScore);
+    LMBDT(float pred_PE, float flash_PE, float max_PE, float ks_dis,
+	  float chi2, float ndf, float cluster_length, 
+	  int event_type, int flag_anode, int flag_boundary);
     ~LMBDT();
 
     void set_BDT_score(double value);
     
-    double get_BDT_score_eff_signal(double value);
-    double get_BDT_score_eff_background(double value);
-    double get_BDT_score_max_significance(); // S/sqrt(S+B)
-
-    void callReader(double *pred_PE, double *flash_PE, double *max_PE, double *ks_dis, double *chi2, double *ndf, double *cluster_length,
-		    int *runNo, int *subRunNo, int *eventNo, int *flash_id, int *tpc_cluster_id, int *flag_anode, int *flag_boundary,
-		    int *trigger_type, int *scan_type, int *event_type);
+    double get_BDT_score_eff_signal(double value, TH1D* signalEff);
+    double get_BDT_score_eff_background(double value, TH1D* backgroundEff);
+    double get_BDT_score_max_significance(TH1D* signalEff, TH1D* backgroundEff); // S/sqrt(S+B)
 
     bool isSignal();
+    bool isSignal(double value);
     
   private:
-    TH1D* signalEff;
-    TH1D* backgroundEff;
+    
+  protected:
     double bdtScore;
+    
+    TMVA::Reader *reader;
+    
+    float pred_PE;
+    float flash_PE;
+    float max_PE;
+    float ks_dis;
+    float chi2;
+    float ndf;
+    float cluster_length;
+
+    int event_type;
+    int flag_anode;
+    int flag_boundary;
+
+    float mag;
+    float shape;
+    float chi;
+    float max;
+    float cluster;
+    float pred;
   };
 }
 
