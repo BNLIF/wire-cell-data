@@ -63,6 +63,10 @@ std::pair<int,double> WireCell::ToyPointCloud::get_closest_point_along_vec(Point
 }
 
 std::tuple<int,int,double> WireCell::ToyPointCloud::get_closest_points(ToyPointCloud *point_cloud){
+
+  //std::cout << cloud.pts.size() << " " << point_cloud->get_cloud().pts.size() << std::endl;
+   
+  
   WireCell::WCPointCloud<double>::WCPoint p1 = cloud.pts.front();
   WireCell::WCPointCloud<double>::WCPoint p2 = point_cloud->get_cloud().pts.front();
   WireCell::WCPointCloud<double>::WCPoint p1_save;

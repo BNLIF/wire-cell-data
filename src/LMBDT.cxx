@@ -21,7 +21,7 @@ LMBDT::LMBDT(float pred_PE, float flash_PE, float max_PE, float ks_dis,
   reader->AddSpectator("flag_boundary", &flag_boundary);
 
   TString method = "BDT";
-  TString prefix = "lmBDT";
+  TString prefix = "input_data_files/lmBDT";
   TString methodName = method + TString(" method");
   TString weightFile = prefix + TString("_") + method + TString(".weights.xml");
   reader->BookMVA( methodName, weightFile );
