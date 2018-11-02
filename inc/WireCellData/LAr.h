@@ -1,3 +1,5 @@
+#include "WireCellData/Units.h"
+
 
 namespace WireCell{
 
@@ -26,7 +28,7 @@ namespace WireCell{
     double Viscosity(double T);
     
     //electron lifetime in ms, give a concentration in ppb
-    double ele_lifetime(double con_ppb, double T=89, double E=0.5, int flag=1);
+    double ele_lifetime(double con_ppb, double T=89*units::kelvin, double E=0.5*units::kilovolt/units::cm, int flag=1);
     double ks_f1(double x, double p0, double p1, double p2, double q1);
     double ks_f2(double x, double p0, double p1, double p2, double q1, double q2);
     double ks_f3(double x, double p0, double p1, double p2, double q1, double q2, double q3);
@@ -40,9 +42,9 @@ namespace WireCell{
     
     
     // Velocity of Ion drift  (theoretical)
-    double vDarIonV(double T, double E=0.5);
+    double vDarIonV(double T, double E=0.5*units::kilovolt/units::cm);
     // Velocity of Ion drift (best fit) m/s
-    double vDarIon(double T, double E=0.5);
+    double vDarIon(double T, double E=0.5*units::kilovolt/units::cm);
     //Dielectric constant
     double epsilon(double T);
     //Index of refraction in Gas
@@ -52,18 +54,18 @@ namespace WireCell{
     // Rayleigh Scattering length cm
     double RRLAr(double lambda, double T);
     // Drift velocity
-    double vD(double T, double E=0.5, int flag=1);
+    double vD(double T, double E=0.5*units::kilovolt/units::cm, int flag=1);
     // Drift velocity set I  unit: mm/us
-    double vDrift(double T, double E=0.5);
+    double vDrift(double T, double E=0.5*units::kilovolt/units::cm);
     //Diffusions flag==1 logintudinal ==2 transverse
     // the sigma_L = sqrt(2*results*Delta_z / E), unit is eV
-    double Diffusion(double T, double E=0.5, int flag=1);
+    double Diffusion(double T, double E=0.5*units::kilovolt/units::cm, int flag=1);
     double fPade(double T, double t0, double p1, double p2, double q1, double q2);
     double fPoly(double T, double t0, double p1, double p2, double p3);
     //Recombinations Birks
-    double recombine_Birks(double dEodx, double T, double E=0.5, int flag=1);
+    double recombine_Birks(double dEodx, double T, double E=0.5*units::kilovolt/units::cm, int flag=1);
     //Recombinations Box model
-    double recombine_Box(double dEodx, double T, double E=0.5, int flag=1);
+    double recombine_Box(double dEodx, double T, double E=0.5*units::kilovolt/units::cm, int flag=1);
     //Electron attachments
     
     
