@@ -580,6 +580,17 @@ double WireCell::ToyPointCloud::get_closest_dis(WireCell::Point& p){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
   return sqrt(results.front().second);
 }
+std::pair<double, WireCell::Point> WireCell::ToyPointCloud::get_closest_point(WireCell::Point& p){
+  std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
+  Point p1;
+  int index = results.front().first;
+  p1.x =  cloud.pts[index].x;
+  p1.y =  cloud.pts[index].y;
+  p1.z =  cloud.pts[index].z;
+  return std::make_pair(sqrt(results.front().second),p1);
+}
+
+
 
 std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> WireCell::ToyPointCloud::get_closest_points(WireCell::Point& p, int N){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,N);
