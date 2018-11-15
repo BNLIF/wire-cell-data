@@ -2114,6 +2114,28 @@ void PR3DCluster::cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target){
   
 }
 
+void PR3DCluster::dQ_dx_fit(double flash_time){
+  // Need to take into account the time, so one can properly calculate X value for diffusion ...
+
+  TPCParams& mp = Singleton<TPCParams>::Instance();
+  double time_slice_width = mp.get_ts_width();
+  int nrebin = mp.get_nrebin();
+  int time_tick_offset = mp.get_time_tick_offset();
+  double offset_x = (flash_time - time_tick_offset)*2./nrebin*time_slice_width;
+  
+  std::cout << time_slice_width/units::cm << " " << offset_x << std::endl;
+  
+
+
+  // input: fine tracking trajectory ... 
+  // See the collected 2D projection points ...
+  
+  // Need to take into account the software filters regarding the induction and collection ...
+
+  
+}
+
+
 void PR3DCluster::fine_tracking(int num_pts_cut){
   // cut ... 
   if (path_wcps.size() < num_pts_cut) return;
