@@ -2121,10 +2121,13 @@ void PR3DCluster::dQ_dx_fit(double flash_time){
   double time_slice_width = mp.get_ts_width();
   int time_tick_offset = mp.get_time_tick_offset();
   int nrebin = mp.get_nrebin();
+  double pitch_u = mp.get_pitch_u();
+  double pitch_v = mp.get_pitch_v();
+  double pitch_w = mp.get_pitch_w();
   // get the correct flash time matching TPC side
-  flash_time = flash_time - time_tick_offset*0.5; // us
+  flash_time = flash_time - time_tick_offset*0.5*units::microsecond; // us
   // given an x position value, we want to convert this to a drift time 
-  // pos_x/time_slice_width * nrebin * 0.5 // us
+  // pos_x/time_slice_width * nrebin * 0.5*units::us // us
   // difference between these two numbers are the time in us ... 
   
   // Now figure out the diffusion coefficients
@@ -2132,8 +2135,17 @@ void PR3DCluster::dQ_dx_fit(double flash_time){
   double DL = 7.2 * pow(units::cm,2)/units::second ;
   double DT = 12.0 * pow(units::cm,2)/units::second ;
 
+  // these are the transverse broading due to software filters in the wire dimension
+  // these should be quadrature added to the 
+  double col_sigma_w_T = 0.188060 * pitch_w; // units::mm
+  double ind_sigma_u_T = 0.402993 * pitch_u; // units::mm
+  double ind_sigma_v_T = 0.402993 * pitch_v; // units::mm
+  
+  // these is the longitudinal filters in the wire dimension ...
+  double sigma_L = 1.13656 * time_slice_width * units::cm / nrebin / 0.5; // units::mm 
   
   
+
   
   //  double first_t_dis = path_wcps.front().mcell->GetTimeSlice()*time_slice_width - path_wcps.front().x;
   //  std::cout << first_t_dis/units::cm << " " << time_slice_width/units::cm << std::endl; 
