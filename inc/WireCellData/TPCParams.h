@@ -29,7 +29,7 @@ namespace WireCell{
       , first_u_dis(0)
       , first_v_dis(0)
       , first_w_dis(0)
-      , nrebin(4)
+      , nrebin(4) 
       , time_tick_offset(4)
       {};
 
