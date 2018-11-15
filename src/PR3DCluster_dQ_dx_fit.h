@@ -1,10 +1,10 @@
 
-void PR3DCluster::dQ_dx_fit(double flash_time){
+void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map, double flash_time){
 
   // Need to take into account the time, so one can properly calculate X value for diffusion ...
   TPCParams& mp = Singleton<TPCParams>::Instance();
   double time_slice_width = mp.get_ts_width();
-  int time_tick_offset = mp.get_time_tick_offset();
+  int time_offset = mp.get_time_offset();
   int nrebin = mp.get_nrebin();
   double pitch_u = mp.get_pitch_u();
   double pitch_v = mp.get_pitch_v();
@@ -33,7 +33,7 @@ void PR3DCluster::dQ_dx_fit(double flash_time){
   double offset_t =  first_t_dis/time_slice_width + 0.5;
   
   // get the correct flash time matching TPC side
-  flash_time = flash_time - time_tick_offset*0.5*units::microsecond; // us
+  flash_time = flash_time - time_offset*units::microsecond; // us
   // given an x position value, we want to convert this to a drift time 
   // pos_x/time_slice_width * nrebin * 0.5*units::us // us
   // difference between these two numbers are the time in us ... 
@@ -49,8 +49,8 @@ void PR3DCluster::dQ_dx_fit(double flash_time){
   double ind_sigma_u_T = 0.402993 * pitch_u; // units::mm
   double ind_sigma_v_T = 0.402993 * pitch_v; // units::mm
   
-  // these is the longitudinal filters in the time dimension ...
-  double sigma_L = 1.13656 * time_slice_width * units::cm / nrebin / 0.5; // units::mm 
+  // this is the longitudinal filters in the time dimension ...
+  double add_sigma_L = 1.13656 * time_slice_width * units::cm / nrebin / 0.5; // units::mm 
 
 
   // Now start the fit ... 
@@ -62,11 +62,31 @@ void PR3DCluster::dQ_dx_fit(double flash_time){
   // let's convert these into time and wire numbers 
 
   // T U, V, W, wires ...
- double central_T = offset_t + slope_xt * reco_pos.x ;
- double central_U = offset_u + (slope_yu * reco_pos.y + slope_zu * reco_pos.z);
- double central_V = offset_v + (slope_yv * reco_pos.y + slope_zv * reco_pos.z);
- double central_W = offset_w + (slope_yw * reco_pos.y + slope_zw * reco_pos.z);
+  double central_T = offset_t + slope_xt * reco_pos.x ;
+  double central_U = offset_u + (slope_yu * reco_pos.y + slope_zu * reco_pos.z);
+  double central_V = offset_v + (slope_yv * reco_pos.y + slope_zv * reco_pos.z)+2400;
+  double central_W = offset_w + (slope_yw * reco_pos.y + slope_zw * reco_pos.z)+4800;
+  
+  // start to work out the diffusion coefficients ...
+  double drift_time = reco_pos.x/units::cm/time_slice_width * nrebin * 0.5*units::microsecond  - flash_time ;
+
+  //  std::cout << drift_time/units::microsecond << std::endl;
+  double diff_sigma_L = sqrt(2* DL * drift_time);
+  double diff_sigma_T = sqrt(2* DT * drift_time);
+  double sigma_L = sqrt(pow(diff_sigma_L,2) + pow(add_sigma_L,2));
+  double sigma_T_u = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_u_T,2));
+  double sigma_T_v = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_v_T,2));
+  double sigma_T_w = sqrt(pow(diff_sigma_T,2) + pow(col_sigma_w_T,2));
+  //std::cout << diff_sigma_T/units::cm << " " << sigma_T_u/units::cm << std::endl;
  
+  std::vector<int> proj_channel;
+  std::vector<int> proj_timeslice;
+  std::vector<int> proj_charge;
+  get_projection(proj_channel,proj_timeslice,proj_charge, global_wc_map);
+
+  /* for (size_t i=0;i!=proj_charge.size(); i++){ */
+  /*   std::cout << proj_channel.at(i) << " " << proj_timeslice.at(i) << " " << proj_charge.at(i) << std::endl; */
+  /* } */
  
   // these should be the expected values:
   // U, V, W, T,  1252.01, 3819.54, 6799.62, 1485.81
@@ -76,7 +96,7 @@ void PR3DCluster::dQ_dx_fit(double flash_time){
   
   //  
   //  std::cout << first_t_dis/units::cm << " " << time_slice_width/units::cm << std::endl; 
-  // double offset_x = (flash_time - time_tick_offset)*2./nrebin*time_slice_width;
+  // double offset_x = (flash_time - time_offset)*2./nrebin*time_slice_width;
 
   
   

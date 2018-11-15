@@ -15,7 +15,7 @@ namespace WireCell{
     double first_w_dis;
 
     int nrebin;
-    int time_tick_offset;
+    int time_offset;
     
   public:
     // set defaults
@@ -30,7 +30,7 @@ namespace WireCell{
       , first_v_dis(0)
       , first_w_dis(0)
       , nrebin(4) 
-      , time_tick_offset(4)
+      , time_offset(4)
       {};
 
     //set/get u first dis
@@ -74,8 +74,8 @@ namespace WireCell{
     double get_angle_w(){return m_angle_w;};
     
 
-    void set_time_tick_offset(int p){time_tick_offset = p;};
-    int get_time_tick_offset(){return time_tick_offset;};
+    void set_time_offset(int p){time_offset = p;};
+    int get_time_offset(){return time_offset;};
 
     void set_nrebin(int p){nrebin = p;};
     int get_nrebin(){return nrebin;};

@@ -70,7 +70,7 @@ namespace WireCell{
     void dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp_source, WireCell::ToyCTPointCloud& ct_point_cloud);
     void cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target);
     void fine_tracking(int num_pts_cut = 10);
-    void dQ_dx_fit(double flash_time = 4*units::microsecond);
+    void dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map, double flash_time = 4*units::microsecond);
 
     
     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> get_highest_lowest_wcps();
