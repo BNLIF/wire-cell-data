@@ -152,15 +152,15 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   // these are the transverse broading due to software filters in the wire dimension
   // these should be quadrature added to the 
   double col_sigma_w_T = 0.188060 * pitch_w*0.2; // units::mm
-  double ind_sigma_u_T = 0.402993 * pitch_u*0.2; // units::mm
-  double ind_sigma_v_T = 0.402993 * pitch_v*0.2; // units::mm
+  double ind_sigma_u_T = 0.402993 * pitch_u*0.3; // units::mm
+  double ind_sigma_v_T = 0.402993 * pitch_v*0.5; // units::mm
   
   // this is the longitudinal filters in the time dimension ...
   double add_sigma_L = 1.428249  * time_slice_width / nrebin / 0.5; // units::mm 
 
 
   // Now start the fit ... 
-  Point reco_pos(150*units::cm,30*units::cm,600*units::cm);
+  Point reco_pos(10*units::cm,30*units::cm,600*units::cm);
   reco_pos.x = (reco_pos.x + 0.6*units::cm)/1.098 * 1.101 - 1 * 0.1101*units::cm ;
   //  std::cout << reco_pos.x/units::cm << " " << reco_pos.y/units::cm << " " << reco_pos.z/units::cm << std::endl;
 
