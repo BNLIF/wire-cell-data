@@ -1,4 +1,16 @@
 
+double PR3DCluster::cal_gaus_integral_seg(int tbin, int wbin, std::vector<double>& t_centers, std::vector<double>& t_sigmas, std::vector<double>& w_centers, std::vector<double>& w_sigmas, int flag, double nsigma){
+  double result = 0;
+
+  for (size_t i=0;i!=t_centers.size();i++){
+    result += cal_gaus_integral(tbin,wbin,t_centers.at(i), t_sigmas.at(i), w_centers.at(i), w_sigmas.at(i),flag,nsigma);
+  }
+
+  result /= t_centers.size();
+  
+  return result;
+}
+
 double PR3DCluster::cal_gaus_integral(int tbin, int wbin, double t_center, double t_sigma, double w_center, double w_sigma, int flag, double nsigma){
   // flag  = 0 no boundary effect, pure Gaussian, time or collection plane
   // flag  = 1 taking into account boundary effect for induction plane
@@ -23,7 +35,6 @@ double PR3DCluster::cal_gaus_integral(int tbin, int wbin, double t_center, doubl
       	+ (x0-x2)/(-1);
       //w1 = 0.5;
       // std::cout << w1 << std::endl;
-      
       /* double w1 = (1./2./sqrt(2*3.1415926)/pow(x1-x2,2) * */
       /* 	    (2*exp(-pow(x0-x1,2)/2./pow(w_sigma,2)) * w_sigma *(x0+x1-2*x2) - 2 * exp(-pow(x0-x2,2)/2./pow(w_sigma,2))*w_sigma*(x0-x2)- */
       /* 	     sqrt(2*3.1415926)*(pow(w_sigma,2)+pow(x0-x2,2))*std::erf((x1-x0)/sqrt(2.)/w_sigma) + */
@@ -160,39 +171,80 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   double add_sigma_L = 1.428249  * time_slice_width / nrebin / 0.5; // units::mm 
 
 
-  // Now start the fit ... 
-  Point reco_pos(10*units::cm,30*units::cm,600*units::cm);
-  reco_pos.x = (reco_pos.x + 0.6*units::cm)/1.098 * 1.101 - 1 * 0.1101*units::cm ;
-  //  std::cout << reco_pos.x/units::cm << " " << reco_pos.y/units::cm << " " << reco_pos.z/units::cm << std::endl;
+  
+
+  /* // Now start the fit ...  */
+  /* Point reco_pos(150*units::cm-3*units::mm/2./sqrt(3.),30*units::cm-3*units::mm/2./sqrt(3.),600*units::cm-3*units::mm/2./sqrt(3.)); */
+  /* reco_pos.x = (reco_pos.x + 0.6*units::cm)/1.098 * 1.101 - 1 * 0.1101*units::cm ; */
+  /* //  std::cout << reco_pos.x/units::cm << " " << reco_pos.y/units::cm << " " << reco_pos.z/units::cm << std::endl; */
+  /* // let's convert these into time and wire numbers  */
+
+  /* // T U, V, W, wires ... */
+  /* double central_T = offset_t + slope_xt * reco_pos.x ; */
+  /* double central_U = offset_u + (slope_yu * reco_pos.y + slope_zu * reco_pos.z); */
+  /* double central_V = offset_v + (slope_yv * reco_pos.y + slope_zv * reco_pos.z)+2400; */
+  /* double central_W = offset_w + (slope_yw * reco_pos.y + slope_zw * reco_pos.z)+4800; */
+  
+  /* // start to work out the diffusion coefficients ... */
+  /* double drift_time = reco_pos.x/time_slice_width * nrebin * 0.5*units::microsecond  - flash_time ; */
+  /* //  std::cout << drift_time/units::microsecond << std::endl; */
+  /* double diff_sigma_L = sqrt(2* DL * drift_time); */
+  /* double diff_sigma_T = sqrt(2* DT * drift_time); */
+  
+  /* double sigma_L = sqrt(pow(diff_sigma_L,2) + pow(add_sigma_L,2))/time_slice_width; */
+  /* double sigma_T_u = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_u_T,2))/pitch_u; */
+  /* double sigma_T_v = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_v_T,2))/pitch_v; */
+  /* double sigma_T_w = sqrt(pow(diff_sigma_T,2) + pow(col_sigma_w_T,2))/pitch_w; */
+  /* //std::cout << diff_sigma_T/units::cm << " " << sigma_T_u/units::cm << std::endl; */
+  /* /\* std::cout << drift_time/units::microsecond << " " << diff_sigma_L/units::cm << " " << diff_sigma_L/time_slice_width << " " << add_sigma_L/time_slice_width << std::endl; *\/ */
+  /* /\* std::cout << diff_sigma_T/units::mm << " " << col_sigma_w_T/units::mm << std::endl; *\/ */
+  /* std::cout << central_T << " " << central_W << " " << central_U << " " << central_V << std::endl;  */
+
+
+  // Now, a segment ...
+  std::vector<double> centers_U ;
+  std::vector<double> centers_V ;
+  std::vector<double> centers_W ;
+  std::vector<double> centers_T ;
+  std::vector<double> sigmas_T;
+  std::vector<double> sigmas_U;
+  std::vector<double> sigmas_V;
+  std::vector<double> sigmas_W;
+  
+  for (int i=0;i!=10;i++){
+    Point reco_pos(150*units::cm-2.9*units::mm/sqrt(3.)/9.*i,30*units::cm-2.9*units::mm/sqrt(3.)/9.*i,600*units::cm-2.9*units::mm/sqrt(3.)/9.*i);
+    reco_pos.x = (reco_pos.x + 0.6*units::cm)/1.098 * 1.101 - 1 * 0.1101*units::cm ;
+    // T U, V, W, wires ...
+    double central_T = offset_t + slope_xt * reco_pos.x ;
+    double central_U = offset_u + (slope_yu * reco_pos.y + slope_zu * reco_pos.z);
+    double central_V = offset_v + (slope_yv * reco_pos.y + slope_zv * reco_pos.z)+2400;
+    double central_W = offset_w + (slope_yw * reco_pos.y + slope_zw * reco_pos.z)+4800;
+
+    // start to work out the diffusion coefficients ...
+    double drift_time = reco_pos.x/time_slice_width * nrebin * 0.5*units::microsecond  - flash_time ;
+    //  std::cout << drift_time/units::microsecond << std::endl;
+    double diff_sigma_L = sqrt(2* DL * drift_time);
+    double diff_sigma_T = sqrt(2* DT * drift_time);
+    
+    double sigma_L = sqrt(pow(diff_sigma_L,2) + pow(add_sigma_L,2))/time_slice_width;
+    double sigma_T_u = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_u_T,2))/pitch_u;
+    double sigma_T_v = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_v_T,2))/pitch_v;
+    double sigma_T_w = sqrt(pow(diff_sigma_T,2) + pow(col_sigma_w_T,2))/pitch_w;
+
+    centers_U.push_back(central_U);
+    centers_V.push_back(central_V);
+    centers_W.push_back(central_W);
+    centers_T.push_back(central_T);
+
+    sigmas_U.push_back(sigma_T_u);
+    sigmas_V.push_back(sigma_T_v);
+    sigmas_W.push_back(sigma_T_w);
+    sigmas_T.push_back(sigma_L);
+  }
+
 
   
-  // let's convert these into time and wire numbers 
-
-  // T U, V, W, wires ...
-  double central_T = offset_t + slope_xt * reco_pos.x ;
-  double central_U = offset_u + (slope_yu * reco_pos.y + slope_zu * reco_pos.z);
-  double central_V = offset_v + (slope_yv * reco_pos.y + slope_zv * reco_pos.z)+2400;
-  double central_W = offset_w + (slope_yw * reco_pos.y + slope_zw * reco_pos.z)+4800;
-  
-  // start to work out the diffusion coefficients ...
-  double drift_time = reco_pos.x/time_slice_width * nrebin * 0.5*units::microsecond  - flash_time ;
-
-  //  std::cout << drift_time/units::microsecond << std::endl;
-  double diff_sigma_L = sqrt(2* DL * drift_time);
-  double diff_sigma_T = sqrt(2* DT * drift_time);
-  
-  double sigma_L = sqrt(pow(diff_sigma_L,2) + pow(add_sigma_L,2))/time_slice_width;
-  double sigma_T_u = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_u_T,2))/pitch_u;
-  double sigma_T_v = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_v_T,2))/pitch_v;
-  double sigma_T_w = sqrt(pow(diff_sigma_T,2) + pow(col_sigma_w_T,2))/pitch_w;
-  //std::cout << diff_sigma_T/units::cm << " " << sigma_T_u/units::cm << std::endl;
-  /* std::cout << drift_time/units::microsecond << " " << diff_sigma_L/units::cm << " " << diff_sigma_L/time_slice_width << " " << add_sigma_L/time_slice_width << std::endl; */
-  /* std::cout << diff_sigma_T/units::mm << " " << col_sigma_w_T/units::mm << std::endl; */
-  //  std::cout << central_T << " " << central_W << " " << central_U << " " << central_V << std::endl; 
-  /* sigma_T_w = 0.5785; */
-  /* sigma_L = 0.9818; */
   // Now, need to add the calculations ... 
- 
   std::vector<int> proj_channel;
   std::vector<int> proj_timeslice;
   std::vector<int> proj_charge;
@@ -210,14 +262,25 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   }
   
   for (auto it = proj_data_map.begin(); it!=proj_data_map.end(); it++){
+    /* if (it->first.first>=4800){ */
+    /*   double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_W, sigma_T_w,0,4)*500000; */
+    /*   std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;  */
+    /* }else if (it->first.first>=2400){ */
+    /*   double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_V, sigma_T_v,0,4)*500000; */
+    /*   std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; */
+    /* }else{ */
+    /*   double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_U, sigma_T_u,0,4)*500000; */
+    /*   std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; */
+    /* } */
+
     if (it->first.first>=4800){
-      double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_W, sigma_T_w,0,4)*500000;
-      std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; 
+      double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_W, sigmas_W,0,4)*5000*30;
+      std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
     }else if (it->first.first>=2400){
-      double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_V, sigma_T_v,0,4)*500000;
+      double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_V, sigmas_V,0,4)*5000*30;
       std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
     }else{
-      double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_U, sigma_T_u,0,4)*500000;
+      double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_U, sigmas_U,0,4)*5000*30;
       std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
     }
   }
@@ -226,9 +289,6 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   // U, V, W, T,  1252.01, 3819.54, 6799.62, 1485.81
   // reco position 1252.02, 3819.63, 6799.67, 1485.79
   // good ...
-
-  
-  //  
   //  std::cout << first_t_dis/units::cm << " " << time_slice_width/units::cm << std::endl; 
   // double offset_x = (flash_time - time_offset)*2./nrebin*time_slice_width;
 
