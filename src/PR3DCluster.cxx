@@ -2438,7 +2438,7 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   // T = slope_x * ( x + offset_x);
   double slope_x = 1./time_slice_width;
   double first_t_dis = path_wcps_vec.at(0).mcell->GetTimeSlice()*time_slice_width - path_wcps_vec.at(0).x;
-  double offset_t = first_t_dis / time_slice_width + 0.5;
+  double offset_t = first_t_dis / time_slice_width;
   
   
   
@@ -2452,9 +2452,9 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   double slope_zv = 1./pitch_v * cos(angle_v);
   
   //convert Y,Z to U,V
-  double offset_w = -first_w_dis/pitch_w + 0.5;
-  double offset_u = -first_u_dis/pitch_u + 0.5;
-  double offset_v = -first_v_dis/pitch_v + 0.5;
+  double offset_w = -first_w_dis/pitch_w;
+  double offset_u = -first_u_dis/pitch_u;
+  double offset_v = -first_v_dis/pitch_v;
  
   //  for (size_t i=0;i!=path_wcps_vec.size();i++){
     //std::cout << i << " " << path_wcps_vec.at(i).mcell->GetTimeSlice() - offset_t << " " << slope_x * path_wcps_vec.at(i).x << " " << path_wcps_vec.at(i).mcell->GetTimeSlice() - offset_t - slope_x * path_wcps_vec.at(i).x << std::endl;
