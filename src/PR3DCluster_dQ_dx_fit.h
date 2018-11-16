@@ -150,7 +150,8 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   double DT = 9.8 * pow(units::cm,2)/units::second ;
 
   // these are the transverse broading due to software filters in the wire dimension
-  // these should be quadrature added to the 
+  // these should be quadrature added to the
+  // there is some cancellation of this effect with the effect of using average field response in the deconvolution ... 0-
   double col_sigma_w_T = 0.188060 * pitch_w*0.2; // units::mm
   double ind_sigma_u_T = 0.402993 * pitch_u*0.3; // units::mm
   double ind_sigma_v_T = 0.402993 * pitch_v*0.5; // units::mm
