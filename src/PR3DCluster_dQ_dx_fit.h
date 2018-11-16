@@ -1,4 +1,56 @@
 
+double PR3DCluster::cal_gaus_integral(int tbin, int wbin, double t_center, double t_sigma, double w_center, double w_sigma, int flag, double nsigma){
+  // flag  = 0 no boundary effect, pure Gaussian, time or collection plane
+  // flag  = 1 taking into account boundary effect for induction plane
+  double result = 0;
+  // time domain ...
+  if (fabs((tbin + 0.5)-t_center) <= nsigma * t_sigma &&
+      fabs((wbin + 0.5)-w_center) <= nsigma * w_sigma){
+    // time dimension ...
+    result = 0.5*(std::erf((tbin+1-t_center)/sqrt(2.)/t_sigma)-std::erf((tbin-t_center)/sqrt(2.)/t_sigma));
+
+    if (flag ==0){
+      result *= 0.5*(std::erf((wbin+1-w_center)/sqrt(2.)/w_sigma)-std::erf((wbin-w_center)/sqrt(2.)/w_sigma));
+    }else{
+
+      double x2 = wbin + 1.5;
+      double x1 = wbin + 0.5;
+      double x0 = w_center;
+      double content1 = 0.5*(std::erf((x2-x0)/sqrt(2.)/w_sigma)-std::erf((x1-x0)/sqrt(2.)/w_sigma));
+      double w1 = - pow(w_sigma,2)/(-1)/sqrt(2.*3.1415926)/w_sigma
+      	*(exp(-pow(x0-x2,2)/2./pow(w_sigma,2))-exp(-pow(x0-x1,2)/2./pow(w_sigma,2)))
+      	/(0.5*std::erf((x2-x0)/sqrt(2.)/w_sigma) - 0.5*std::erf((x1-x0)/sqrt(2.)/w_sigma))
+      	+ (x0-x2)/(-1);
+      //w1 = 0.5;
+      // std::cout << w1 << std::endl;
+      
+      /* double w1 = (1./2./sqrt(2*3.1415926)/pow(x1-x2,2) * */
+      /* 	    (2*exp(-pow(x0-x1,2)/2./pow(w_sigma,2)) * w_sigma *(x0+x1-2*x2) - 2 * exp(-pow(x0-x2,2)/2./pow(w_sigma,2))*w_sigma*(x0-x2)- */
+      /* 	     sqrt(2*3.1415926)*(pow(w_sigma,2)+pow(x0-x2,2))*std::erf((x1-x0)/sqrt(2.)/w_sigma) + */
+      /* 	     sqrt(2*3.1415926)*(pow(w_sigma,2)+pow(x0-x2,2))*std::erf((x2-x0)/sqrt(2.)/w_sigma)))/content1; */
+
+      x2 = wbin + 0.5;
+      x1 = wbin - 0.5;
+      double content2 = 0.5*(std::erf((x2-x0)/sqrt(2.)/w_sigma)-std::erf((x1-x0)/sqrt(2.)/w_sigma));
+      double w2 = - pow(w_sigma,2)/(-1)/sqrt(2.*3.1415926)/w_sigma
+      	*(exp(-pow(x0-x2,2)/2./pow(w_sigma,2))-exp(-pow(x0-x1,2)/2./pow(w_sigma,2)))
+      	/(0.5*std::erf((x2-x0)/sqrt(2.)/w_sigma) - 0.5*std::erf((x1-x0)/sqrt(2.)/w_sigma))
+      	+ (x0-x2)/(-1);
+      // std::cout << w2 << std::endl
+      /* double w2 = (1./2./sqrt(2*3.1415926)/pow(x1-x2,2) * */
+      /* 	    (2*exp(-pow(x0-x1,2)/2./pow(w_sigma,2)) * w_sigma *(x0+x1-2*x2) - 2 * exp(-pow(x0-x2,2)/2./pow(w_sigma,2))*w_sigma*(x0-x2)- */
+      /* 	     sqrt(2*3.1415926)*(pow(w_sigma,2)+pow(x0-x2,2))*std::erf((x1-x0)/sqrt(2.)/w_sigma) + */
+      /* 	     sqrt(2*3.1415926)*(pow(w_sigma,2)+pow(x0-x2,2))*std::erf((x2-x0)/sqrt(2.)/w_sigma)))/content2; */
+      
+      
+      result *= (content1*w1+content2*(1-w2));
+    }
+    
+  }
+  return result;
+}
+
+
 void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map, double flash_time){
 
   // Need to take into account the time, so one can properly calculate X value for diffusion ...
@@ -40,8 +92,8 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   
   // Now figure out the diffusion coefficients
   // these are current  numbers in WCT, not sure what would be the values for data ... 
-  double DL = 7.2 * pow(units::cm,2)/units::second ;
-  double DT = 12.0 * pow(units::cm,2)/units::second ;
+  double DL = 6.4 * pow(units::cm,2)/units::second ;
+  double DT = 9.8 * pow(units::cm,2)/units::second ;
 
   // these are the transverse broading due to software filters in the wire dimension
   // these should be quadrature added to the 
@@ -50,7 +102,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   double ind_sigma_v_T = 0.402993 * pitch_v; // units::mm
   
   // this is the longitudinal filters in the time dimension ...
-  double add_sigma_L = 1.13656 * time_slice_width * units::cm / nrebin / 0.5; // units::mm 
+  double add_sigma_L = 1.428249  * time_slice_width / nrebin / 0.5; // units::mm 
 
 
   // Now start the fit ... 
@@ -68,25 +120,53 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   double central_W = offset_w + (slope_yw * reco_pos.y + slope_zw * reco_pos.z)+4800;
   
   // start to work out the diffusion coefficients ...
-  double drift_time = reco_pos.x/units::cm/time_slice_width * nrebin * 0.5*units::microsecond  - flash_time ;
+  double drift_time = reco_pos.x/time_slice_width * nrebin * 0.5*units::microsecond  - flash_time ;
 
   //  std::cout << drift_time/units::microsecond << std::endl;
   double diff_sigma_L = sqrt(2* DL * drift_time);
   double diff_sigma_T = sqrt(2* DT * drift_time);
-  double sigma_L = sqrt(pow(diff_sigma_L,2) + pow(add_sigma_L,2));
-  double sigma_T_u = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_u_T,2));
-  double sigma_T_v = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_v_T,2));
-  double sigma_T_w = sqrt(pow(diff_sigma_T,2) + pow(col_sigma_w_T,2));
+  
+  double sigma_L = sqrt(pow(diff_sigma_L,2) + pow(add_sigma_L,2))/time_slice_width;
+  double sigma_T_u = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_u_T,2))/pitch_u;
+  double sigma_T_v = sqrt(pow(diff_sigma_T,2) + pow(ind_sigma_v_T,2))/pitch_v;
+  double sigma_T_w = sqrt(pow(diff_sigma_T,2) + pow(col_sigma_w_T,2))/pitch_w;
   //std::cout << diff_sigma_T/units::cm << " " << sigma_T_u/units::cm << std::endl;
+  /* std::cout << drift_time/units::microsecond << " " << diff_sigma_L/units::cm << " " << diff_sigma_L/time_slice_width << " " << add_sigma_L/time_slice_width << std::endl; */
+  /* std::cout << diff_sigma_T/units::mm << " " << col_sigma_w_T/units::mm << std::endl; */
+  std::cout << central_T << " " << central_W << " " << central_U << " " << central_V << std::endl; 
+  /* sigma_T_w = 0.5785; */
+  /* sigma_L = 0.9818; */
+  // Now, need to add the calculations ... 
  
   std::vector<int> proj_channel;
   std::vector<int> proj_timeslice;
   std::vector<int> proj_charge;
   get_projection(proj_channel,proj_timeslice,proj_charge, global_wc_map);
 
-  /* for (size_t i=0;i!=proj_charge.size(); i++){ */
-  /*   std::cout << proj_channel.at(i) << " " << proj_timeslice.at(i) << " " << proj_charge.at(i) << std::endl; */
-  /* } */
+  // condense the information ...
+  std::map<std::pair<int,int>, double> proj_data_map;
+  for (size_t i=0;i!=proj_charge.size(); i++){
+    auto it = proj_data_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
+    if (it == proj_data_map.end()){
+      proj_data_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = proj_charge.at(i);
+    }else{
+      it->second += proj_charge.at(i);
+    }
+  }
+  
+  for (auto it = proj_data_map.begin(); it!=proj_data_map.end(); it++){
+    if (it->first.first>=4800){
+      double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_W, sigma_T_w,0,4)*500000;
+      //      if (value > 0)
+      /* std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; */
+    }else if (it->first.first>=2400){
+      double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_V, sigma_T_v,0,4)*500000;
+      //std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
+    }else{
+      double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_U, sigma_T_u,0,4)*500000;
+      //std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
+    }
+  }
  
   // these should be the expected values:
   // U, V, W, T,  1252.01, 3819.54, 6799.62, 1485.81
