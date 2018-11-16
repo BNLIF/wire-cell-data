@@ -11,7 +11,7 @@ double PR3DCluster::cal_gaus_integral(int tbin, int wbin, double t_center, doubl
 
     if (flag ==0){
       result *= 0.5*(std::erf((wbin+1-w_center)/sqrt(2.)/w_sigma)-std::erf((wbin-w_center)/sqrt(2.)/w_sigma));
-    }else{
+    }else if (flag==1){
 
       double x2 = wbin + 1.5;
       double x1 = wbin + 0.5;
@@ -41,11 +41,65 @@ double PR3DCluster::cal_gaus_integral(int tbin, int wbin, double t_center, doubl
       /* 	    (2*exp(-pow(x0-x1,2)/2./pow(w_sigma,2)) * w_sigma *(x0+x1-2*x2) - 2 * exp(-pow(x0-x2,2)/2./pow(w_sigma,2))*w_sigma*(x0-x2)- */
       /* 	     sqrt(2*3.1415926)*(pow(w_sigma,2)+pow(x0-x2,2))*std::erf((x1-x0)/sqrt(2.)/w_sigma) + */
       /* 	     sqrt(2*3.1415926)*(pow(w_sigma,2)+pow(x0-x2,2))*std::erf((x2-x0)/sqrt(2.)/w_sigma)))/content2; */
+
+      /* if (w1 > 0.5) { */
+      /* 	w1 = sqrt(w1); */
+      /* }else if (w1<0.5){ */
+      /* 	w1 = 1-sqrt(1-w1); */
+      /* } */
+      /*  if (w2 > 0.5) { */
+      /* 	w2 = sqrt(w1); */
+      /*  }else if (w2 < 0.5){ */
+      /* 	w2 = 1-sqrt(1-w2); */
+      /* } */
       
+      result *= (content1 * w1+content2 * (1-w2));
+    }else if (flag==2){
+      double sum = 0;
       
-      result *= (content1*w1+content2*(1-w2));
+      double x2 = wbin + 1.0;
+      double x1 = wbin + 0.5;
+      double x0 = w_center;
+      double content1 = 0.5*(std::erf((x2-x0)/sqrt(2.)/w_sigma)-std::erf((x1-x0)/sqrt(2.)/w_sigma));
+      double w1 = - pow(w_sigma,2)/(-1)/sqrt(2.*3.1415926)/w_sigma
+      	*(exp(-pow(x0-x2,2)/2./pow(w_sigma,2))-exp(-pow(x0-x1,2)/2./pow(w_sigma,2)))
+      	/(0.5*std::erf((x2-x0)/sqrt(2.)/w_sigma) - 0.5*std::erf((x1-x0)/sqrt(2.)/w_sigma))
+      	+ (x0-x2)/(-1);
+
+      sum += content1 * (0.545 + 0.697*w1);
+
+      x2 = wbin + 1.5;
+      x1 = wbin + 1.0;
+      content1 = 0.5*(std::erf((x2-x0)/sqrt(2.)/w_sigma)-std::erf((x1-x0)/sqrt(2.)/w_sigma));
+      w1 = - pow(w_sigma,2)/(-1)/sqrt(2.*3.1415926)/w_sigma
+      	*(exp(-pow(x0-x2,2)/2./pow(w_sigma,2))-exp(-pow(x0-x1,2)/2./pow(w_sigma,2)))
+      	/(0.5*std::erf((x2-x0)/sqrt(2.)/w_sigma) - 0.5*std::erf((x1-x0)/sqrt(2.)/w_sigma))
+      	+ (x0-x2)/(-1);
+
+      sum+= content1 *(0.11364 + 0.1 * w1);
+
+      x2 = wbin + 0.5;
+      x1 = wbin;
+      content1 = 0.5*(std::erf((x2-x0)/sqrt(2.)/w_sigma)-std::erf((x1-x0)/sqrt(2.)/w_sigma));
+      w1 = - pow(w_sigma,2)/(-1)/sqrt(2.*3.1415926)/w_sigma
+      	*(exp(-pow(x0-x2,2)/2./pow(w_sigma,2))-exp(-pow(x0-x1,2)/2./pow(w_sigma,2)))
+      	/(0.5*std::erf((x2-x0)/sqrt(2.)/w_sigma) - 0.5*std::erf((x1-x0)/sqrt(2.)/w_sigma))
+      	+ (x0-x2)/(-1);
+
+      sum+= content1 *(0.545 + 0.697*(1-w1));
+
+      x2 = wbin;
+      x1 = wbin - 0.5;
+      content1 = 0.5*(std::erf((x2-x0)/sqrt(2.)/w_sigma)-std::erf((x1-x0)/sqrt(2.)/w_sigma));
+      w1 = - pow(w_sigma,2)/(-1)/sqrt(2.*3.1415926)/w_sigma
+      	*(exp(-pow(x0-x2,2)/2./pow(w_sigma,2))-exp(-pow(x0-x1,2)/2./pow(w_sigma,2)))
+      	/(0.5*std::erf((x2-x0)/sqrt(2.)/w_sigma) - 0.5*std::erf((x1-x0)/sqrt(2.)/w_sigma))
+      	+ (x0-x2)/(-1);
+
+      sum+= content1 *(0.11364 + 0.1 * (1-w1));
+      
+      result *= sum;
     }
-    
   }
   return result;
 }
@@ -97,9 +151,9 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 
   // these are the transverse broading due to software filters in the wire dimension
   // these should be quadrature added to the 
-  double col_sigma_w_T = 0.188060 * pitch_w; // units::mm
-  double ind_sigma_u_T = 0.402993 * pitch_u; // units::mm
-  double ind_sigma_v_T = 0.402993 * pitch_v; // units::mm
+  double col_sigma_w_T = 0.188060 * pitch_w*0.2; // units::mm
+  double ind_sigma_u_T = 0.402993 * pitch_u*0.2; // units::mm
+  double ind_sigma_v_T = 0.402993 * pitch_v*0.2; // units::mm
   
   // this is the longitudinal filters in the time dimension ...
   double add_sigma_L = 1.428249  * time_slice_width / nrebin / 0.5; // units::mm 
@@ -133,7 +187,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   //std::cout << diff_sigma_T/units::cm << " " << sigma_T_u/units::cm << std::endl;
   /* std::cout << drift_time/units::microsecond << " " << diff_sigma_L/units::cm << " " << diff_sigma_L/time_slice_width << " " << add_sigma_L/time_slice_width << std::endl; */
   /* std::cout << diff_sigma_T/units::mm << " " << col_sigma_w_T/units::mm << std::endl; */
-  std::cout << central_T << " " << central_W << " " << central_U << " " << central_V << std::endl; 
+  //  std::cout << central_T << " " << central_W << " " << central_U << " " << central_V << std::endl; 
   /* sigma_T_w = 0.5785; */
   /* sigma_L = 0.9818; */
   // Now, need to add the calculations ... 
@@ -157,14 +211,13 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   for (auto it = proj_data_map.begin(); it!=proj_data_map.end(); it++){
     if (it->first.first>=4800){
       double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_W, sigma_T_w,0,4)*500000;
-      //      if (value > 0)
-      /* std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; */
+      std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; 
     }else if (it->first.first>=2400){
       double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_V, sigma_T_v,0,4)*500000;
-      //std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
+      std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
     }else{
       double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_U, sigma_T_u,0,4)*500000;
-      //std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
+      std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
     }
   }
  
