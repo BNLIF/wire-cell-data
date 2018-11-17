@@ -334,6 +334,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
     pos_3D_init(i) = 50000;
   }
 
+  
   // loop through the 3D points ...
   for (int i=0;i!=n_3D_pos;i++){
     
@@ -358,9 +359,9 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
       double length = sqrt(pow(fine_tracking_path.at(i-1).x-fine_tracking_path.at(i).x,2)
 			   +pow(fine_tracking_path.at(i-1).y-fine_tracking_path.at(i).y,2)
 			   +pow(fine_tracking_path.at(i-1).z-fine_tracking_path.at(i).z,2) );
-      next_rec_pos.x = fine_tracking_path.at(i).x - (fine_tracking_path.at(i-1).x-fine_tracking_path.at(i).x)/length * 1.5*units::mm;
-      next_rec_pos.y = fine_tracking_path.at(i).y - (fine_tracking_path.at(i-1).y-fine_tracking_path.at(i).y)/length * 1.5*units::mm ;
-      next_rec_pos.z = fine_tracking_path.at(i).z - (fine_tracking_path.at(i-1).z-fine_tracking_path.at(i).z)/length * 1.5*units::mm;
+      next_rec_pos.x = fine_tracking_path.at(i).x - (fine_tracking_path.at(i-1).x-fine_tracking_path.at(i).x);///length * 1.5*units::mm;
+      next_rec_pos.y = fine_tracking_path.at(i).y - (fine_tracking_path.at(i-1).y-fine_tracking_path.at(i).y);///length * 1.5*units::mm ;
+      next_rec_pos.z = fine_tracking_path.at(i).z - (fine_tracking_path.at(i-1).z-fine_tracking_path.at(i).z);///length * 1.5*units::mm;
       
     }else{
       prev_rec_pos.x = (fine_tracking_path.at(i).x+fine_tracking_path.at(i-1).x)/2.;
@@ -377,7 +378,10 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
     /* prev_rec_pos.x = (prev_rec_pos.x + 0.6*units::cm)/1.098 * 1.101 - 1 * 0.1101*units::cm ; */
     /* next_rec_pos.x = (next_rec_pos.x + 0.6*units::cm)/1.098 * 1.101 - 1 * 0.1101*units::cm ; */
     
+    dx.push_back(sqrt(pow(curr_rec_pos.x-prev_rec_pos.x,2)+pow(curr_rec_pos.y-prev_rec_pos.y,2)+pow(curr_rec_pos.z-prev_rec_pos.z,2))
+		 +sqrt(pow(curr_rec_pos.x-next_rec_pos.x,2)+pow(curr_rec_pos.y-next_rec_pos.y,2)+pow(curr_rec_pos.z-next_rec_pos.z,2)));
 
+    
     std::vector<double> centers_U ;
     std::vector<double> centers_V ;
     std::vector<double> centers_W ;
@@ -388,6 +392,8 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
     std::vector<double> sigmas_W;
     std::vector<double> weights;
 
+
+    
     for (int j=0;j!=5;j++){
       Point reco_pos;
       reco_pos.x = prev_rec_pos.x + (curr_rec_pos.x-prev_rec_pos.x)/5.*(j+0.5);
@@ -555,7 +561,8 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 
   double sum = 0 ;
   for (int i=0;i!=n_3D_pos;i++){
-    std::cout << i << " "<< pos_3D(i) << std::endl;
+    std::cout << i << " "<< pos_3D(i) << " " << dx.at(i)/units::cm << " " << pos_3D(i)/dx.at(i)*units::cm << std::endl;
+    dQ.push_back(pos_3D(i));
     sum += pos_3D(i);
   }
   std::cout << "total: " << sum << std::endl;

@@ -133,6 +133,9 @@ namespace WireCell{
 
     bool get_fine_tracking_flag(){return flag_fine_tracking;};
     PointVector& get_fine_tracking_path(){return fine_tracking_path;};
+    std::vector<double>& get_dQ(){return dQ;};
+    std::vector<double>& get_dx(){return dx;};
+    
     TVector3 get_ft_dir_end(float mean_dis, float dis_cut);
 
     std::vector<PR3DCluster*> examine_x_boundary(double low_limit = -1*units::cm, double high_limit = 257*units::cm);
@@ -173,7 +176,9 @@ namespace WireCell{
     // fine tracking related ...
     bool flag_fine_tracking;
     PointVector fine_tracking_path;
-
+    std::vector<double> dQ;
+    std::vector<double> dx;
+    
     std::map<std::pair<int,int>,std::pair<int,int>> collected_charge_map;
     
   };
