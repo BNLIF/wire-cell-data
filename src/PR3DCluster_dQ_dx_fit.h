@@ -283,28 +283,33 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   std::vector<int> proj_charge_err;
   get_projection(proj_channel,proj_timeslice,proj_charge, proj_charge_err, global_wc_map);
   // condense the information ...
-  std::map<std::pair<int,int>, double> proj_data_u_map, proj_data_v_map, proj_data_w_map;
+  std::map<std::pair<int,int>, std::pair<double,double> > proj_data_u_map, proj_data_v_map, proj_data_w_map;
   for (size_t i=0;i!=proj_charge.size(); i++){
+    std::cout << proj_channel.at(i) << " " << proj_timeslice.at(i) << " " << proj_charge.at(i) << " " << proj_charge_err.at(i) << std::endl;
+    
     if (proj_channel.at(i) < 2400){
       auto it = proj_data_u_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
       if (it == proj_data_u_map.end()){
-	proj_data_u_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = proj_charge.at(i);
+	proj_data_u_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_pair(proj_charge.at(i),proj_charge_err.at(i));
       }else{
-	it->second += proj_charge.at(i);
+	it->second.first += proj_charge.at(i);
+	it->second.second = sqrt(pow(it->second.second,2) + pow(proj_charge_err.at(i),2));
       }
     }else if (proj_channel.at(i) < 4800){
       auto it = proj_data_v_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
       if (it == proj_data_v_map.end()){
-	proj_data_v_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = proj_charge.at(i);
+	proj_data_v_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_pair(proj_charge.at(i),proj_charge_err.at(i));
       }else{
-	it->second += proj_charge.at(i);
+	it->second.first += proj_charge.at(i);
+	it->second.second = sqrt(pow(it->second.second,2) + pow(proj_charge_err.at(i),2));
       }
     }else{
       auto it = proj_data_w_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
       if (it == proj_data_w_map.end()){
-	proj_data_w_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = proj_charge.at(i);
+	proj_data_w_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_pair(proj_charge.at(i),proj_charge_err.at(i));
       }else{
-	it->second += proj_charge.at(i);
+	it->second.first += proj_charge.at(i);
+	it->second.second = sqrt(pow(it->second.second,2) + pow(proj_charge_err.at(i),2));
       }
     }
   }

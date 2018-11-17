@@ -2941,7 +2941,7 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
     
     for (size_t j=0;j!=nearby_points.pts.size();j++){
       if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
-	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = std::make_pair(nearby_points.pts.at(j).charge,nearby_points.pts.at(i).charge_err);
+	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = std::make_pair(nearby_points.pts.at(j).charge,nearby_points.pts.at(j).charge_err);
       }
     }
     nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,1);
@@ -2949,7 +2949,7 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
     
     for (size_t j=0;j!=nearby_points.pts.size();j++){
       if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
-	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = std::make_pair(nearby_points.pts.at(j).charge,nearby_points.pts.at(i).charge_err);
+	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = std::make_pair(nearby_points.pts.at(j).charge,nearby_points.pts.at(j).charge_err);
       }
     }
     nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,2);
@@ -2958,7 +2958,7 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
     
     for (size_t j=0;j!=nearby_points.pts.size();j++){
       if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
-	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = std::make_pair(nearby_points.pts.at(j).charge,nearby_points.pts.at(i).charge_err);
+	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = std::make_pair(nearby_points.pts.at(j).charge,nearby_points.pts.at(j).charge_err);
       }
     }
   }
