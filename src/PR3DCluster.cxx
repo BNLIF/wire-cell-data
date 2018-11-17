@@ -43,8 +43,9 @@ void PR3DCluster::Del_graph(){
   }
 }
 
-void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int>& proj_timeslice, std::vector<int>& proj_charge, std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map){
-
+void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int>& proj_timeslice, std::vector<int>& proj_charge, std::vector<int>& proj_charge_err, std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map){
+  // std::vector<int> proj_charge_err;
+  
   std::set<SlimMergeGeomCell*> cluster_mcells_set;
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = *it;
@@ -90,12 +91,15 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
       for (int i=0;i!=uwires.size();i++){
 	const GeomWire *wire = uwires.at(i);
 	int ch = wire->channel();
+	// regular cases ... 
 	int charge = mcell->Get_Wire_Charge(wire);
-
+	int charge_err = mcell->Get_Wire_Charge_Err(wire);
+	
 	if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
 	  proj_channel.push_back(ch);
 	  proj_timeslice.push_back(time_slice);
 	  proj_charge.push_back(charge);
+	  proj_charge_err.push_back(charge_err);
 	  saved_time_channel.insert(std::make_pair(time_slice,ch));
 	}
       }
@@ -104,13 +108,15 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	const GeomWire *wire = uwires.at(i);
 	int ch = wire->channel();
 	int charge = mcell->get_q()*1.0/uwires.size();
-
+	int charge_err = sqrt(pow(charge/3.,2)+pow(1000,2)); // assume 30% error
+	  
 	//	if(cluster_id==18)
 	//std::cout << ch << " " << time_slice << " " << charge << std::endl;
 	//	if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
 	proj_channel.push_back(ch);
 	proj_timeslice.push_back(time_slice);
 	proj_charge.push_back(charge);
+	proj_charge_err.push_back(charge_err);
 	// saved_time_channel.insert(std::make_pair(time_slice,ch));
 	  //}
       }
@@ -143,11 +149,13 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	const GeomWire *wire = vwires.at(i);
 	int ch = wire->channel();
 	int charge = mcell->Get_Wire_Charge(wire);
-
+	int charge_err = mcell->Get_Wire_Charge_Err(wire);
+	
 	if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
 	  proj_channel.push_back(ch);
 	  proj_timeslice.push_back(time_slice);
 	  proj_charge.push_back(charge);
+	  proj_charge_err.push_back(charge_err);
 	  saved_time_channel.insert(std::make_pair(time_slice,ch));
 	}
       }
@@ -156,11 +164,13 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	const GeomWire *wire = vwires.at(i);
 	int ch = wire->channel();
 	int charge = mcell->get_q()*1.0/vwires.size();
-
+	int charge_err = sqrt(pow(charge/3.,2)+pow(1000,2));
+	
 	//if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
 	proj_channel.push_back(ch);
 	proj_timeslice.push_back(time_slice);
 	proj_charge.push_back(charge);
+	proj_charge_err.push_back(charge_err);
 	//saved_time_channel.insert(std::make_pair(time_slice,ch));
 	  //}
       }
@@ -193,11 +203,13 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	const GeomWire *wire = wwires.at(i);
 	int ch = wire->channel();
 	int charge = mcell->Get_Wire_Charge(wire);
-
+	int charge_err = mcell->Get_Wire_Charge_Err(wire);
+	
 	if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
 	  proj_channel.push_back(ch);
 	  proj_timeslice.push_back(time_slice);
 	  proj_charge.push_back(charge);
+	  proj_charge_err.push_back(charge_err);
 	  saved_time_channel.insert(std::make_pair(time_slice,ch));
 	}
       }
@@ -206,11 +218,12 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	const GeomWire *wire = wwires.at(i);
 	int ch = wire->channel();
 	int charge = mcell->get_q()*1.0/wwires.size();
-
+	int charge_err = sqrt(pow(charge/3.,2) + pow(1000,2));
 	//	if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
 	proj_channel.push_back(ch);
 	proj_timeslice.push_back(time_slice);
 	proj_charge.push_back(charge);
+	proj_charge_err.push_back(charge_err);
 	  //	  saved_time_channel.insert(std::make_pair(time_slice,ch));
 	  //	}
       }
@@ -220,10 +233,12 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
   for (auto it = collected_charge_map.begin(); it!=collected_charge_map.end(); it++){
     int time_slice = it->first.first;
     int ch = it->first.second;
-    int charge = it->second;
+    int charge = it->second.first;
+    int charge_err = it->second.second;
     proj_channel.push_back(ch);
     proj_timeslice.push_back(time_slice);
     proj_charge.push_back(charge);
+    proj_charge_err.push_back(charge_err);
   }
   
 }
@@ -2559,8 +2574,6 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   //   ave_distance += distances.at(i);
   // }
   // ave_distance /= distances.size();
-
-  
   // get initial chi2 ...
   // Eigen::VectorXd chi_u = data_u_2D - RU * pos_3D_init;
   // Eigen::VectorXd chi_v = data_v_2D - RV * pos_3D_init;
@@ -2928,7 +2941,7 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
     
     for (size_t j=0;j!=nearby_points.pts.size();j++){
       if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
-	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = nearby_points.pts.at(j).charge;
+	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = std::make_pair(nearby_points.pts.at(j).charge,nearby_points.pts.at(i).charge_err);
       }
     }
     nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,1);
@@ -2936,7 +2949,7 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
     
     for (size_t j=0;j!=nearby_points.pts.size();j++){
       if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
-	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = nearby_points.pts.at(j).charge;
+	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = std::make_pair(nearby_points.pts.at(j).charge,nearby_points.pts.at(i).charge_err);
       }
     }
     nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,2);
@@ -2945,7 +2958,7 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
     
     for (size_t j=0;j!=nearby_points.pts.size();j++){
       if (existing_tcs.find(std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)) == existing_tcs.end()){
-	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = nearby_points.pts.at(j).charge;
+	collected_charge_map[std::make_pair(nearby_points.pts.at(j).time_slice,nearby_points.pts.at(j).channel)] = std::make_pair(nearby_points.pts.at(j).charge,nearby_points.pts.at(i).charge_err);
       }
     }
   }

@@ -170,9 +170,11 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   // this is the longitudinal filters in the time dimension ...
   double add_sigma_L = 1.428249  * time_slice_width / nrebin / 0.5; // units::mm 
 
-
-  
-
+  // Point-like case ... 
+  // these should be the expected values:
+  // U, V, W, T,  1252.01, 3819.54, 6799.62, 1485.81
+  // reco position 1252.02, 3819.63, 6799.67, 1485.79
+  // good ...
   /* // Now start the fit ...  */
   /* Point reco_pos(150*units::cm-3*units::mm/2./sqrt(3.),30*units::cm-3*units::mm/2./sqrt(3.),600*units::cm-3*units::mm/2./sqrt(3.)); */
   /* reco_pos.x = (reco_pos.x + 0.6*units::cm)/1.098 * 1.101 - 1 * 0.1101*units::cm ; */
@@ -201,6 +203,8 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   /* std::cout << central_T << " " << central_W << " " << central_U << " " << central_V << std::endl;  */
 
 
+
+  // short track segmentation ... 
   // Now, a segment ...
   std::vector<double> centers_U ;
   std::vector<double> centers_V ;
@@ -244,62 +248,84 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 
 
   
-  // Now, need to add the calculations ... 
+  
+
+
+  
+  /* for (auto it = proj_data_map.begin(); it!=proj_data_map.end(); it++){ */
+  /*   /\* if (it->first.first>=4800){ *\/ */
+  /*   /\*   double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_W, sigma_T_w,0,4)*500000; *\/ */
+  /*   /\*   std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;  *\/ */
+  /*   /\* }else if (it->first.first>=2400){ *\/ */
+  /*   /\*   double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_V, sigma_T_v,0,4)*500000; *\/ */
+  /*   /\*   std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; *\/ */
+  /*   /\* }else{ *\/ */
+  /*   /\*   double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_U, sigma_T_u,0,4)*500000; *\/ */
+  /*   /\*   std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; *\/ */
+  /*   /\* } *\/ */
+
+  /*   if (it->first.first>=4800){ */
+  /*     double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_W, sigmas_W,0,4)*5000*30; */
+  /*     std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; */
+  /*   }else if (it->first.first>=2400){ */
+  /*     double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_V, sigmas_V,0,4)*5000*30; */
+  /*     std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; */
+  /*   }else{ */
+  /*     double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_U, sigmas_U,0,4)*5000*30; */
+  /*     std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; */
+  /*   } */
+  /* } */
+ 
+  // Now, need to add the calculations ...
   std::vector<int> proj_channel;
   std::vector<int> proj_timeslice;
   std::vector<int> proj_charge;
-  get_projection(proj_channel,proj_timeslice,proj_charge, global_wc_map);
-
+  std::vector<int> proj_charge_err;
+  get_projection(proj_channel,proj_timeslice,proj_charge, proj_charge_err, global_wc_map);
   // condense the information ...
-  std::map<std::pair<int,int>, double> proj_data_map;
+  std::map<std::pair<int,int>, double> proj_data_u_map, proj_data_v_map, proj_data_w_map;
   for (size_t i=0;i!=proj_charge.size(); i++){
-    auto it = proj_data_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
-    if (it == proj_data_map.end()){
-      proj_data_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = proj_charge.at(i);
+    if (proj_channel.at(i) < 2400){
+      auto it = proj_data_u_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
+      if (it == proj_data_u_map.end()){
+	proj_data_u_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = proj_charge.at(i);
+      }else{
+	it->second += proj_charge.at(i);
+      }
+    }else if (proj_channel.at(i) < 4800){
+      auto it = proj_data_v_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
+      if (it == proj_data_v_map.end()){
+	proj_data_v_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = proj_charge.at(i);
+      }else{
+	it->second += proj_charge.at(i);
+      }
     }else{
-      it->second += proj_charge.at(i);
+      auto it = proj_data_w_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
+      if (it == proj_data_w_map.end()){
+	proj_data_w_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = proj_charge.at(i);
+      }else{
+	it->second += proj_charge.at(i);
+      }
     }
   }
-  
-  for (auto it = proj_data_map.begin(); it!=proj_data_map.end(); it++){
-    /* if (it->first.first>=4800){ */
-    /*   double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_W, sigma_T_w,0,4)*500000; */
-    /*   std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;  */
-    /* }else if (it->first.first>=2400){ */
-    /*   double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_V, sigma_T_v,0,4)*500000; */
-    /*   std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; */
-    /* }else{ */
-    /*   double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_U, sigma_T_u,0,4)*500000; */
-    /*   std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; */
-    /* } */
-
-    if (it->first.first>=4800){
-      double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_W, sigmas_W,0,4)*5000*30;
-      std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
-    }else if (it->first.first>=2400){
-      double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_V, sigmas_V,0,4)*5000*30;
-      std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
-    }else{
-      double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_U, sigmas_U,0,4)*5000*30;
-      std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl;
-    }
-  }
- 
-  // these should be the expected values:
-  // U, V, W, T,  1252.01, 3819.54, 6799.62, 1485.81
-  // reco position 1252.02, 3819.63, 6799.67, 1485.79
-  // good ...
-  //  std::cout << first_t_dis/units::cm << " " << time_slice_width/units::cm << std::endl; 
-  // double offset_x = (flash_time - time_offset)*2./nrebin*time_slice_width;
-
-  
-  
-  //std::cout << time_slice_width/units::cm << " " << offset_x << std::endl;
-  
 
 
+  std::cout << fine_tracking_path.size() << " " << proj_data_u_map.size() << " " << proj_data_v_map.size() << " " << proj_data_w_map.size() << std::endl;
+  
   // input: fine tracking trajectory ... 
   // See the collected 2D projection points ...
+  // dimension of the 
+  // for (size_t i=0;i!=fine_tracking_path.size(); i++){
+    //std::cout << fine_tracking_path.at(i).x/units::cm << " " << fine_tracking_path.at(i).y/units::cm << " " << fine_tracking_path.at(i).z/units::cm << std::endl;
+  //}
+
+
+
+  // Loop the data
+  /* for (auto it = proj_data_u_map.begin(); it!= proj_data_u_map.end(); it++){ */
+  /*   std::cout << it->first.first << " " << it->first.second << " " << it->second << std::endl; */
+  /* } */
+  
   
   // Need to take into account the software filters regarding the induction and collection ...
 
