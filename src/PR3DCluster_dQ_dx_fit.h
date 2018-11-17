@@ -285,7 +285,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   // condense the information ...
   std::map<std::pair<int,int>, std::pair<double,double> > proj_data_u_map, proj_data_v_map, proj_data_w_map;
   for (size_t i=0;i!=proj_charge.size(); i++){
-    std::cout << proj_channel.at(i) << " " << proj_timeslice.at(i) << " " << proj_charge.at(i) << " " << proj_charge_err.at(i) << std::endl;
+    // std::cout << proj_channel.at(i) << " " << proj_timeslice.at(i) << " " << proj_charge.at(i) << " " << proj_charge_err.at(i) << std::endl;
     
     if (proj_channel.at(i) < 2400){
       auto it = proj_data_u_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
