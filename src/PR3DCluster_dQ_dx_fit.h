@@ -469,17 +469,17 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
     if (i==0){
       int n_u = 0;
       for (auto it = proj_data_u_map.begin(); it!= proj_data_u_map.end(); it++){
-	data_u_2D(n_u) = it->second.first/it->second.second;
+	data_u_2D(n_u) = it->second.first/sqrt(pow(it->second.second,2)+pow(it->second.first*0.1,2));
 	n_u ++;
       }
       int n_v = 0;
       for (auto it = proj_data_v_map.begin(); it!= proj_data_v_map.end(); it++){
-	data_v_2D(n_v) = it->second.first/it->second.second;
+	data_v_2D(n_v) = it->second.first/sqrt(pow(it->second.second,2)+pow(it->second.first*0.1,2));
 	n_v ++;
       }
       int n_w = 0;
       for (auto it = proj_data_w_map.begin(); it!= proj_data_w_map.end(); it++){
-	data_w_2D(n_w) = it->second.first/it->second.second;
+	data_w_2D(n_w) = it->second.first/sqrt(pow(it->second.second,2)+pow(it->second.first*0.035,2));
 	n_w ++;
       }
     }
@@ -490,7 +490,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
       	  fabs(it->first.second - centers_T.front()) <= 10 ){
 	double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_U, sigmas_U, weights , 0 , 4);
 	if (value > 0)
-	  RU.insert(n_u,i) = value/it->second.second;
+	  RU.insert(n_u,i) = value/sqrt(pow(it->second.second,2)+pow(it->second.first*0.1,2));
       }
       n_u ++;
     }
@@ -501,7 +501,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 	  fabs(it->first.second - centers_T.front()) <= 10 ){
 	double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_V, sigmas_V, weights , 0 , 4);
 	if (value > 0)
-	  RV.insert(n_v,i) = value/it->second.second;
+	  RV.insert(n_v,i) = value/sqrt(pow(it->second.second,2)+pow(it->second.first*0.1,2));
       }
       n_v ++;
     }
@@ -520,7 +520,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
       /* 	if (value!=0) */
       //      std::cout << value << " haha" << std::endl;  
 	if (value>0)
-	  RW.insert(n_w,i) = value/it->second.second;
+	  RW.insert(n_w,i) = value/sqrt(pow(it->second.second,2)+pow(it->second.first*0.035,2));
       }
       n_w ++;
     }
@@ -561,7 +561,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 
   double sum = 0 ;
   for (int i=0;i!=n_3D_pos;i++){
-    std::cout << i << " "<< pos_3D(i) << " " << dx.at(i)/units::cm << " " << pos_3D(i)/dx.at(i)*units::cm << std::endl;
+    /* std::cout << i << " "<< pos_3D(i) << " " << dx.at(i)/units::cm << " " << pos_3D(i)/dx.at(i)*units::cm << std::endl; */
     dQ.push_back(pos_3D(i));
     sum += pos_3D(i);
   }
