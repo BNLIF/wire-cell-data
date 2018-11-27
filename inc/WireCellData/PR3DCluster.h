@@ -139,6 +139,11 @@ namespace WireCell{
     std::vector<double>& get_pv(){return pv;};
     std::vector<double>& get_pw(){return pw;};
     std::vector<double>& get_pt(){return pt;};
+
+    std::map<std::pair<int,int>, std::tuple<double,double,double> > & get_proj_data_u_map(){return proj_data_u_map;};
+    std::map<std::pair<int,int>, std::tuple<double,double,double> > & get_proj_data_v_map(){return proj_data_v_map;};
+    std::map<std::pair<int,int>, std::tuple<double,double,double> > & get_proj_data_w_map(){return proj_data_w_map;};
+
     
     TVector3 get_ft_dir_end(float mean_dis, float dis_cut);
 
@@ -186,6 +191,15 @@ namespace WireCell{
     std::vector<double> pv;
     std::vector<double> pw;
     std::vector<double> pt;
+
+    std::map<std::pair<int,int>, std::tuple<double,double,double> > proj_data_u_map;
+    std::map<std::pair<int,int>, std::tuple<double,double,double> > proj_data_v_map;
+    std::map<std::pair<int,int>, std::tuple<double,double,double> > proj_data_w_map;
+
+    /* std::map<std::pair<int,int>, double> pred_u_map; */
+    /* std::map<std::pair<int,int>, double> pred_v_map; */
+    /* std::map<std::pair<int,int>, double> pred_w_map; */
+    
     
     std::map<std::pair<int,int>,std::pair<int,int>> collected_charge_map;
     

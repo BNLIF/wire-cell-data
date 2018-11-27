@@ -285,33 +285,37 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   std::vector<int> proj_charge_err;
   get_projection(proj_channel,proj_timeslice,proj_charge, proj_charge_err, global_wc_map);
   // condense the information ...
-  std::map<std::pair<int,int>, std::pair<double,double> > proj_data_u_map, proj_data_v_map, proj_data_w_map;
+  //  std::map<std::pair<int,int>, std::pair<double,double> > proj_data_u_map, proj_data_v_map, proj_data_w_map;
+  proj_data_u_map.clear();
+  proj_data_v_map.clear();
+  proj_data_w_map.clear();
+  
   for (size_t i=0;i!=proj_charge.size(); i++){
     // std::cout << proj_channel.at(i) << " " << proj_timeslice.at(i) << " " << proj_charge.at(i) << " " << proj_charge_err.at(i) << std::endl;
     
     if (proj_channel.at(i) < 2400){
       auto it = proj_data_u_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
       if (it == proj_data_u_map.end()){
-	proj_data_u_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_pair(proj_charge.at(i),proj_charge_err.at(i));
+	proj_data_u_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
       }else{
-	it->second.first += proj_charge.at(i);
-	it->second.second = sqrt(pow(it->second.second,2) + pow(proj_charge_err.at(i),2));
+	std::get<0>(it->second) += proj_charge.at(i);
+	std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
       }
     }else if (proj_channel.at(i) < 4800){
       auto it = proj_data_v_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
       if (it == proj_data_v_map.end()){
-	proj_data_v_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_pair(proj_charge.at(i),proj_charge_err.at(i));
+	proj_data_v_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
       }else{
-	it->second.first += proj_charge.at(i);
-	it->second.second = sqrt(pow(it->second.second,2) + pow(proj_charge_err.at(i),2));
+	std::get<0>(it->second) += proj_charge.at(i);
+	std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
       }
     }else{
       auto it = proj_data_w_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
       if (it == proj_data_w_map.end()){
-	proj_data_w_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_pair(proj_charge.at(i),proj_charge_err.at(i));
+	proj_data_w_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
       }else{
-	it->second.first += proj_charge.at(i);
-	it->second.second = sqrt(pow(it->second.second,2) + pow(proj_charge_err.at(i),2));
+	std::get<0>(it->second) += proj_charge.at(i);
+	std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
       }
     }
   }
@@ -323,7 +327,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   int n_2D_v = proj_data_v_map.size();
   int n_2D_w = proj_data_w_map.size();
 
-  Eigen::VectorXd pos_3D(n_3D_pos), data_u_2D(n_2D_u), data_v_2D(n_2D_v), data_w_2D(n_2D_w), pred_data_u_2D(n_2D_u);
+  Eigen::VectorXd pos_3D(n_3D_pos), data_u_2D(n_2D_u), data_v_2D(n_2D_v), data_w_2D(n_2D_w), pred_data_u_2D(n_2D_u), pred_data_v_2D(n_2D_v), pred_data_w_2D(n_2D_w);
   
   Eigen::SparseMatrix<double> RU(n_2D_u, n_3D_pos) ;
   Eigen::SparseMatrix<double> RV(n_2D_v, n_3D_pos) ;
@@ -477,17 +481,17 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
     if (i==0){
       int n_u = 0;
       for (auto it = proj_data_u_map.begin(); it!= proj_data_u_map.end(); it++){
-	data_u_2D(n_u) = it->second.first/sqrt(pow(it->second.second,2)+pow(it->second.first*0.1,2));
+	data_u_2D(n_u) = std::get<0>(it->second)/sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.1,2));
 	n_u ++;
       }
       int n_v = 0;
       for (auto it = proj_data_v_map.begin(); it!= proj_data_v_map.end(); it++){
-	data_v_2D(n_v) = it->second.first/sqrt(pow(it->second.second,2)+pow(it->second.first*0.1,2));
+	data_v_2D(n_v) = std::get<0>(it->second)/sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.1,2));
 	n_v ++;
       }
       int n_w = 0;
       for (auto it = proj_data_w_map.begin(); it!= proj_data_w_map.end(); it++){
-	data_w_2D(n_w) = it->second.first/sqrt(pow(it->second.second,2)+pow(it->second.first*0.035,2));
+	data_w_2D(n_w) = std::get<0>(it->second)/sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.035,2));
 	n_w ++;
       }
     }
@@ -500,7 +504,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 	double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_U, sigmas_U, weights , 0 , 4);
 	sum_u += value;
 	if (value > 0)
-	  RU.insert(n_u,i) = value/sqrt(pow(it->second.second,2)+pow(it->second.first*0.1,2));
+	  RU.insert(n_u,i) = value/sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.1,2));
       }
       n_u ++;
     }
@@ -513,7 +517,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 	double value = cal_gaus_integral_seg(it->first.second, it->first.first,centers_T, sigmas_T, centers_V, sigmas_V, weights , 0 , 4);
 	sum_v += value;
 	if (value > 0)
-	  RV.insert(n_v,i) = value/sqrt(pow(it->second.second,2)+pow(it->second.first*0.1,2));
+	  RV.insert(n_v,i) = value/sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.1,2));
       }
       n_v ++;
     }
@@ -532,7 +536,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
       /* 	if (value!=0) */
       //      std::cout << value << " haha" << std::endl;  
 	if (value>0)
-	  RW.insert(n_w,i) = value/sqrt(pow(it->second.second,2)+pow(it->second.first*0.035,2));
+	  RW.insert(n_w,i) = value/sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.035,2));
       }
       n_w ++;
     }
@@ -582,7 +586,25 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   }
   std::cout << "total: " << sum << std::endl;
 
-  /* pred_data_u_2D = RU * pos_3D; */
+  pred_data_u_2D = RU * pos_3D;
+  pred_data_v_2D = RV * pos_3D;
+  pred_data_w_2D = RW * pos_3D;
+  int n_u = 0;
+  for (auto it = proj_data_u_map.begin(); it!= proj_data_u_map.end(); it++){
+    std::get<2>(it->second) = pred_data_u_2D(n_u) * sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.1,2));
+    n_u ++;
+  }
+  int n_v = 0;
+  for (auto it = proj_data_v_map.begin(); it!= proj_data_v_map.end(); it++){
+    std::get<2>(it->second) = pred_data_v_2D(n_v) * sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.1,2));
+    n_v ++;
+  }
+  int n_w = 0;
+  for (auto it = proj_data_w_map.begin(); it!= proj_data_w_map.end(); it++){
+    std::get<2>(it->second) = pred_data_w_2D(n_w) * sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.1,2));
+    n_w ++;
+  }
+  
   /* for (int i=0;i!=n_2D_u;i++){ */
   /*   std::cout << pred_data_u_2D(i) << " " << data_u_2D(i) << std::endl; */
   /* } */
