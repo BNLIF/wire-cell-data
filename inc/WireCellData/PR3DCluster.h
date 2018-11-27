@@ -135,6 +135,10 @@ namespace WireCell{
     PointVector& get_fine_tracking_path(){return fine_tracking_path;};
     std::vector<double>& get_dQ(){return dQ;};
     std::vector<double>& get_dx(){return dx;};
+    std::vector<double>& get_pu(){return pu;};
+    std::vector<double>& get_pv(){return pv;};
+    std::vector<double>& get_pw(){return pw;};
+    std::vector<double>& get_pt(){return pt;};
     
     TVector3 get_ft_dir_end(float mean_dis, float dis_cut);
 
@@ -178,6 +182,10 @@ namespace WireCell{
     PointVector fine_tracking_path;
     std::vector<double> dQ;
     std::vector<double> dx;
+    std::vector<double> pu;
+    std::vector<double> pv;
+    std::vector<double> pw;
+    std::vector<double> pt;
     
     std::map<std::pair<int,int>,std::pair<int,int>> collected_charge_map;
     

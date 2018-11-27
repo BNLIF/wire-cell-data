@@ -381,6 +381,12 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
     dx.push_back(sqrt(pow(curr_rec_pos.x-prev_rec_pos.x,2)+pow(curr_rec_pos.y-prev_rec_pos.y,2)+pow(curr_rec_pos.z-prev_rec_pos.z,2))
 		 +sqrt(pow(curr_rec_pos.x-next_rec_pos.x,2)+pow(curr_rec_pos.y-next_rec_pos.y,2)+pow(curr_rec_pos.z-next_rec_pos.z,2)));
 
+    pu.push_back(offset_u + (slope_yu * curr_rec_pos.y + slope_zu * curr_rec_pos.z));
+    pv.push_back(offset_v + (slope_yv * curr_rec_pos.y + slope_zv * curr_rec_pos.z)+2400);
+    pw.push_back(offset_w + (slope_yw * curr_rec_pos.y + slope_zw * curr_rec_pos.z)+4800);
+    pt.push_back(offset_t + slope_xt * curr_rec_pos.x );
+    
+    
     
     std::vector<double> centers_U ;
     std::vector<double> centers_V ;
