@@ -601,7 +601,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   }
   int n_w = 0;
   for (auto it = proj_data_w_map.begin(); it!= proj_data_w_map.end(); it++){
-    std::get<2>(it->second) = pred_data_w_2D(n_w) * sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.1,2));
+    std::get<2>(it->second) = pred_data_w_2D(n_w) * sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.035,2));
     n_w ++;
   }
   
