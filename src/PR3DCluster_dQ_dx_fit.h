@@ -120,6 +120,8 @@ double PR3DCluster::cal_gaus_integral(int tbin, int wbin, double t_center, doubl
 
 void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map, double flash_time){
 
+  // std::cout <<  fine_tracking_path.size() << std::endl;
+  
   // Need to take into account the time, so one can properly calculate X value for diffusion ...
   TPCParams& mp = Singleton<TPCParams>::Instance();
   double time_slice_width = mp.get_ts_width();
@@ -320,6 +322,28 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
     }
   }
 
+  //  std::vector<std::pair<int,int> > to_be_removed;
+  for (auto it = proj_data_u_map.begin(); it!=proj_data_u_map.end(); ){
+    //  std::cout << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
+    if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
+      it = proj_data_u_map.erase(it);
+    else
+      ++it;
+  }
+  for (auto it = proj_data_v_map.begin(); it!=proj_data_v_map.end();){
+    if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
+      it = proj_data_v_map.erase(it);
+    else
+      ++it;
+  }
+  for (auto it = proj_data_w_map.begin(); it!=proj_data_w_map.end();){
+    if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
+      it = proj_data_w_map.erase(it);
+    else
+      ++it;
+  }
+  
+
   std::cout << "dQ/dx fit: " << fine_tracking_path.size() << " " << proj_data_u_map.size() << " " << proj_data_v_map.size() << " " << proj_data_w_map.size() << std::endl;
   
   int n_3D_pos = fine_tracking_path.size();
@@ -482,16 +506,22 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
       int n_u = 0;
       for (auto it = proj_data_u_map.begin(); it!= proj_data_u_map.end(); it++){
 	data_u_2D(n_u) = std::get<0>(it->second)/sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.1,2));
+	if (std::isnan(data_u_2D(n_u)))
+	  std::cout << "U: " << data_u_2D(n_u) << " " << std::get<1>(it->second) << " " << std::get<0>(it->second)*0.035 << " " << std::endl;
 	n_u ++;
       }
       int n_v = 0;
       for (auto it = proj_data_v_map.begin(); it!= proj_data_v_map.end(); it++){
 	data_v_2D(n_v) = std::get<0>(it->second)/sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.1,2));
+	if (std::isnan(data_v_2D(n_v)))
+	  std::cout << "V: " << data_v_2D(n_v) << " " << std::get<1>(it->second) << " " << std::get<0>(it->second)*0.035 << " " << std::endl;
 	n_v ++;
       }
       int n_w = 0;
       for (auto it = proj_data_w_map.begin(); it!= proj_data_w_map.end(); it++){
 	data_w_2D(n_w) = std::get<0>(it->second)/sqrt(pow(std::get<1>(it->second),2)+pow(std::get<0>(it->second)*0.035,2));
+	if (std::isnan(data_w_2D(n_w)))
+	  std::cout << "W: " << data_w_2D(n_w) << " " << std::get<1>(it->second) << " " << std::get<0>(it->second)*0.035 << " " << std::endl;
 	n_w ++;
       }
     }
