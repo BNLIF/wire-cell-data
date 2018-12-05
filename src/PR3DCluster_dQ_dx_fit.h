@@ -611,8 +611,19 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   double sum = 0 ;
   for (int i=0;i!=n_3D_pos;i++){
     /* std::cout << i << " "<< pos_3D(i) << " " << dx.at(i)/units::cm << " " << pos_3D(i)/dx.at(i)*units::cm << std::endl; */
-    dQ.push_back(pos_3D(i));
-    sum += pos_3D(i);
+    double central_U = offset_u + (slope_yu * fine_tracking_path.at(i).y + slope_zu * fine_tracking_path.at(i).z);
+    if (central_U >=296 && central_U <=327 ||
+	central_U >=336 && central_U <=337 ||
+	central_U >=343 && central_U <=351 ||
+	central_U >=376 && central_U <=400 ||
+	central_U >=410 && central_U <=484 ||
+	central_U >=501 && central_U <=524 ||
+	central_U >=536 && central_U <=671)
+      dQ.push_back(pos_3D(i)/0.7);
+    else
+      dQ.push_back(pos_3D(i));
+    
+    sum += dQ.back();
   }
   std::cout << "total: " << sum << std::endl;
 
