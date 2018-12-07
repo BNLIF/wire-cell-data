@@ -112,7 +112,7 @@ double WireCell::LAr::ks_f3(double x, double p0, double p1, double p2, double q1
 
 
 double WireCell::LAr::recombine_Box(double dEodx,double T, double E, int flag){
-  double density = Ldensity(T);
+  double density = Ldensity(T)/(units::g/pow(units::cm,3));
   double alpha = 0.93;
   double beta=0.212;
 
@@ -137,7 +137,7 @@ double WireCell::LAr::recombine_Birks(double dEodx, double T, double E, int flag
   double results;
   E/=units::kilovolt/units::cm;
   dEodx/=units::MeV/units::cm;
-  double density = Ldensity(T);
+  double density = Ldensity(T)/(units::g/pow(units::cm,3));
   
   results = A/(1. + k/E*dEodx/density);
   if (flag ==2){
