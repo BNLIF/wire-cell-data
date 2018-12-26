@@ -482,7 +482,7 @@ void PR3DCluster::trajectory_fit(std::vector<WCPointCloud<double>::WCPoint>& pat
 }
 
 
-void PR3DCluster::fine_tracking_improved(int num_pts_cut){
+void PR3DCluster::fine_tracking(int num_pts_cut){
 
   // first round tracking with graph-based solution
   if (path_wcps.size() < num_pts_cut) return;
@@ -513,6 +513,7 @@ void PR3DCluster::fine_tracking_improved(int num_pts_cut){
 		       map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
 		       map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set);
 
+  // trajectory fitting 
   trajectory_fit(path_wcps_vec, distances,
 		 map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
 		 map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,

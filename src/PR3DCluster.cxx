@@ -2133,7 +2133,7 @@ void PR3DCluster::cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target){
 }
 
 
-void PR3DCluster::fine_tracking(int num_pts_cut){
+void PR3DCluster::fine_tracking_old(int num_pts_cut){
   // cut ... 
   if (path_wcps.size() < num_pts_cut) return;
 
