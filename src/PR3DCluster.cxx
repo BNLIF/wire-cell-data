@@ -16,6 +16,7 @@
 using namespace WireCell;
 
 #include "PR3DCluster_dQ_dx_fit.h"
+#include "PR3DCluster_trajectory_fit.h"
 
 PR3DCluster::PR3DCluster(int cluster_id)
   : cluster_id(cluster_id)
@@ -2137,7 +2138,8 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   if (path_wcps.size() < num_pts_cut) return;
 
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
-  
+
+  // find the trajectory ... 
   //skip anypoint which is further away than 0.5 cm
   double low_dis_limit = 0.5*units::cm;
   std::vector<WCPointCloud<double>::WCPoint> path_wcps_vec;
@@ -2161,6 +2163,7 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   //   std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << distances.at(i)/units::cm << std::endl;
   // }
 
+  // figure out the charge ... 
   //form a map, (U,T) --> charge and error
   //form a map, (V,T) --> charge and error
   //form a map, (Z,T) --> charge and error
@@ -2227,7 +2230,9 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   
   float coef1 = 2 * pow(sin(angle_u),2);
   float coef2 = 2 * (pow(sin(angle_u),2) - pow(cos(angle_u),2));
-  
+
+
+  // graph based association ... 
   //std::cout << pitch_u/units::cm << " " << pitch_v/units::cm << " " << pitch_w/units::cm << " " << time_slice_width/units::cm << std::endl;
   // Loop any point and try to find its 3-level neibours ...
   typedef boost::property_map<MCUGraph, boost::vertex_index_t>::type IndexMap;
@@ -2447,7 +2452,7 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   // 	    << path_wcps_vec.size() << std::endl;
   
 
-  
+  // actual fit ... (charge division)
   // Now start to prepare the matrix and solve it ...
   // need to establish how to convert X position to T index
   // T = slope_x * ( x + offset_x);

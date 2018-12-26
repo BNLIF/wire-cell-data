@@ -70,6 +70,13 @@ namespace WireCell{
     void dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp_source, WireCell::ToyCTPointCloud& ct_point_cloud);
     void cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target);
     void fine_tracking(int num_pts_cut = 10);
+    
+    void fine_tracking_improved(int num_pts_cut = 10);
+    void organize_wcps_path(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::vector<double>& distances, double low_dis_limit);
+    void fill_2d_charge(std::map<std::pair<int,int>,double>& map_2D_ut_charge,std::map<std::pair<int,int>,double>& map_2D_ut_charge_err, std::map<std::pair<int,int>,double>& map_2D_vt_charge,std::map<std::pair<int,int>,double>& map_2D_vt_charge_err, std::map<std::pair<int,int>,double>& map_2D_wt_charge,std::map<std::pair<int,int>,double>& map_2D_wt_charge_err); 
+    void form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::vector<double>& distances,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set);
+    void trajectory_fit(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::vector<double>& distances,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>,double>& map_2D_ut_charge,std::map<std::pair<int,int>,double>& map_2D_ut_charge_err, std::map<std::pair<int,int>,double>& map_2D_vt_charge,std::map<std::pair<int,int>,double>& map_2D_vt_charge_err, std::map<std::pair<int,int>,double>& map_2D_wt_charge,std::map<std::pair<int,int>,double>& map_2D_wt_charge_err);
+    
     void dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map, double flash_time = 4*units::microsecond);
 
     double cal_gaus_integral(int tbin, int wbin, double t_center, double t_sigma, double w_center, double w_sigma, int flag=0, double nsigma = 3);
