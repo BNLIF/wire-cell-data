@@ -50,7 +50,7 @@ void PR3DCluster::fill_2d_charge(std::map<std::pair<int,int>,double>& map_2D_ut_
   }
 }
 
-void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::vector<double>& distances, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set){
+void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::vector<double>& distances, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set, double end_point_factor, double mid_point_factor, int nlevel, double time_cut){
 
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   
@@ -72,19 +72,18 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
   typedef boost::property_map<MCUGraph, boost::vertex_index_t>::type IndexMap;
   IndexMap index = get(boost::vertex_index,*graph);
   typedef boost::graph_traits<MCUGraph>::adjacency_iterator adjacency_iterator;
-  int nlevel = 3;
-  double dis_cut,time_cut;
+  double dis_cut;
   for (size_t i=0;i!=path_wcps_vec.size();i++){
     int current_index = path_wcps_vec.at(i).index;
     if (i==0){
-      dis_cut = std::min(distances.at(i) * 0.6,0.8*units::cm);
+      dis_cut = std::min(distances.at(i) * end_point_factor,4/3.*end_point_factor*units::cm);
     }else if (i==path_wcps_vec.size()-1){
-      dis_cut = std::min(distances.back() * 0.6,0.8*units::cm);
+      dis_cut = std::min(distances.back() * end_point_factor,4/3.*end_point_factor*units::cm);
     }else{
-      dis_cut = std::min(std::max(distances.at(i-1)*0.9,distances.at(i)*0.9),1.2*units::cm);
+      dis_cut = std::min(std::max(distances.at(i-1)*mid_point_factor,distances.at(i)*mid_point_factor),4/3.*mid_point_factor*units::cm);
     }
     
-    time_cut = 3; // allow +- 3 time slices and then distance cut ... 
+    //  time_cut = 3; // allow +- 3 time slices and then distance cut ... 
     std::set<std::pair<int,int>> T2DU_set;
     std::set<std::pair<int,int>> T2DV_set;
     std::set<std::pair<int,int>> T2DW_set;
@@ -537,6 +536,7 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
 		   map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err);
     
   }else if (path_wcps_vec.size()>0){
+    // for now, very short track, just copy .... 
     fine_tracking_path.clear();
     for (size_t i=0;i!=path_wcps_vec.size();i++){
       Point p;
