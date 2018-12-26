@@ -490,7 +490,7 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec, double first_t_dis, std::v
 void PR3DCluster::fine_tracking(int num_pts_cut){
 
   // first round tracking with graph-based solution
-  if (path_wcps.size() < num_pts_cut) return;
+  // if (path_wcps.size() < num_pts_cut) return;
 
   // organize trajectory point based on graph-based solution 
   double low_dis_limit = 0.5*units::cm;
@@ -498,41 +498,53 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   std::vector<double> distances;
   organize_wcps_path(path_wcps_vec,distances,low_dis_limit);
 
-  // fill initial charge ... 
-  std::map<std::pair<int,int>,double> map_2D_ut_charge, map_2D_ut_charge_err;
-  std::map<std::pair<int,int>,double> map_2D_vt_charge, map_2D_vt_charge_err;
-  std::map<std::pair<int,int>,double> map_2D_wt_charge, map_2D_wt_charge_err;
-  fill_2d_charge(map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge, map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err);
-  
-  
-  // map index ... 
-  // map 3D index to set of 2D points
-  std::map<int,std::set<std::pair<int,int>>> map_3D_2DU_set;
-  std::map<int,std::set<std::pair<int,int>>> map_3D_2DV_set;
-  std::map<int,std::set<std::pair<int,int>>> map_3D_2DW_set;
-  // map 2D points to 3D indices
-  std::map<std::pair<int,int>,std::set<int>> map_2DU_3D_set;
-  std::map<std::pair<int,int>,std::set<int>> map_2DV_3D_set;
-  std::map<std::pair<int,int>,std::set<int>> map_2DW_3D_set;
-  form_map_graph_based(path_wcps_vec, distances,
-		       map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
-		       map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set);
 
-  PointVector ps_vec;
-  for (size_t i=0;i!=path_wcps_vec.size();i++){
-    Point p(path_wcps_vec.at(i).x, path_wcps_vec.at(i).y, path_wcps_vec.at(i).z);
-    ps_vec.push_back(p);
+  if (path_wcps_vec.size()>=num_pts_cut){
+    // fill initial charge ... 
+    std::map<std::pair<int,int>,double> map_2D_ut_charge, map_2D_ut_charge_err;
+    std::map<std::pair<int,int>,double> map_2D_vt_charge, map_2D_vt_charge_err;
+    std::map<std::pair<int,int>,double> map_2D_wt_charge, map_2D_wt_charge_err;
+    fill_2d_charge(map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge, map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err);
+    
+    
+    // map index ... 
+    // map 3D index to set of 2D points
+    std::map<int,std::set<std::pair<int,int>>> map_3D_2DU_set;
+    std::map<int,std::set<std::pair<int,int>>> map_3D_2DV_set;
+    std::map<int,std::set<std::pair<int,int>>> map_3D_2DW_set;
+    // map 2D points to 3D indices
+    std::map<std::pair<int,int>,std::set<int>> map_2DU_3D_set;
+    std::map<std::pair<int,int>,std::set<int>> map_2DV_3D_set;
+    std::map<std::pair<int,int>,std::set<int>> map_2DW_3D_set;
+    form_map_graph_based(path_wcps_vec, distances,
+			 map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
+			 map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set);
+    
+    PointVector ps_vec;
+    for (size_t i=0;i!=path_wcps_vec.size();i++){
+      Point p(path_wcps_vec.at(i).x, path_wcps_vec.at(i).y, path_wcps_vec.at(i).z);
+      ps_vec.push_back(p);
+    }
+    TPCParams& mp = Singleton<TPCParams>::Instance();
+    double time_slice_width = mp.get_ts_width();
+    double first_t_dis = path_wcps_vec.at(0).mcell->GetTimeSlice()*time_slice_width - path_wcps_vec.at(0).x;
+    
+    // trajectory fitting 
+    trajectory_fit(ps_vec, first_t_dis, distances,
+		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
+		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
+		   map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge,
+		   map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err);
+    
+  }else if (path_wcps_vec.size()>0){
+    fine_tracking_path.clear();
+    for (size_t i=0;i!=path_wcps_vec.size();i++){
+      Point p;
+      p.x = path_wcps_vec.at(i).x;
+      p.y = path_wcps_vec.at(i).y;
+      p.z = path_wcps_vec.at(i).z;
+      fine_tracking_path.push_back(p);
+    }
   }
-  TPCParams& mp = Singleton<TPCParams>::Instance();
-  double time_slice_width = mp.get_ts_width();
-  double first_t_dis = path_wcps_vec.at(0).mcell->GetTimeSlice()*time_slice_width - path_wcps_vec.at(0).x;
-  
-  // trajectory fitting 
-  trajectory_fit(ps_vec, first_t_dis, distances,
-		 map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
-		 map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
-		 map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge,
-		 map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err);
-  
   
 }
