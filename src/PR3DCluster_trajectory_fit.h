@@ -279,7 +279,7 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
 }
 
 
-void PR3DCluster::trajectory_fit(PointVector& ps_vec, double first_t_dis, std::vector<double>& distances,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>,double>& map_2D_ut_charge,std::map<std::pair<int,int>,double>& map_2D_ut_charge_err, std::map<std::pair<int,int>,double>& map_2D_vt_charge,std::map<std::pair<int,int>,double>& map_2D_vt_charge_err, std::map<std::pair<int,int>,double>& map_2D_wt_charge,std::map<std::pair<int,int>,double>& map_2D_wt_charge_err, int flag_lambda, double init_lambda){
+void PR3DCluster::trajectory_fit(PointVector& ps_vec,  std::vector<double>& distances,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>,double>& map_2D_ut_charge,std::map<std::pair<int,int>,double>& map_2D_ut_charge_err, std::map<std::pair<int,int>,double>& map_2D_vt_charge,std::map<std::pair<int,int>,double>& map_2D_vt_charge_err, std::map<std::pair<int,int>,double>& map_2D_wt_charge,std::map<std::pair<int,int>,double>& map_2D_wt_charge_err, int flag_lambda, double init_lambda){
   
   // map 2D points to its index
   std::vector<std::pair<std::pair<int,int>,int>> vec_2DU_index;
@@ -316,7 +316,7 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec, double first_t_dis, std::v
 
 
   double slope_x = 1./time_slice_width;
-  
+  double first_t_dis = path_wcps.front().mcell->GetTimeSlice()*time_slice_width - path_wcps.front().x;
   double offset_t = first_t_dis / time_slice_width;
   
   
@@ -565,10 +565,10 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     }
     TPCParams& mp = Singleton<TPCParams>::Instance();
     double time_slice_width = mp.get_ts_width();
-    double first_t_dis = path_wcps_vec.at(0).mcell->GetTimeSlice()*time_slice_width - path_wcps_vec.at(0).x;
+    //double first_t_dis = path_wcps_vec.at(0).mcell->GetTimeSlice()*time_slice_width - path_wcps_vec.at(0).x;
     
     // trajectory fitting 
-    trajectory_fit(ps_vec, first_t_dis, distances,
+    trajectory_fit(ps_vec, distances,
 		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
 		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
 		   map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge,
