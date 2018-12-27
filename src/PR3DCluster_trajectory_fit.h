@@ -88,8 +88,141 @@ void PR3DCluster::fill_2d_charge(std::map<std::pair<int,int>,double>& map_2D_ut_
   }
 }
 
+void PR3DCluster::form_map_projection_based(PointVector& ps_vec, std::vector<double>& distances,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>,double>& map_2D_ut_charge, std::map<std::pair<int,int>,double>& map_2D_vt_charge, std::map<std::pair<int,int>,double>& map_2D_wt_charge, double end_point_factor, double mid_point_factor, int nlevel, double time_cut){
+  map_3D_2DU_set.clear();
+  map_3D_2DV_set.clear();
+  map_3D_2DW_set.clear();
+
+  map_2DU_3D_set.clear();
+  map_2DV_3D_set.clear();
+  map_2DW_3D_set.clear();
+
+  TPCParams& mp = Singleton<TPCParams>::Instance();
+  double pitch_u = mp.get_pitch_u();
+  double pitch_v = mp.get_pitch_v();
+  double pitch_w = mp.get_pitch_w();
+  double angle_u = mp.get_angle_u();
+  double angle_v = mp.get_angle_v();
+  double angle_w = mp.get_angle_w();
+  double time_slice_width = mp.get_ts_width();
+  double first_u_dis = mp.get_first_u_dis();
+  double first_v_dis = mp.get_first_v_dis();
+  double first_w_dis = mp.get_first_w_dis();
+
+  //  convert Z to W ... 
+  double slope_zw = 1./pitch_w * cos(angle_w);
+  double slope_yw = 1./pitch_w * sin(angle_w);
+  
+  double slope_yu = -1./pitch_u * sin(angle_u);
+  double slope_zu = 1./pitch_u * cos(angle_u);
+  double slope_yv = -1./pitch_v * sin(angle_v);
+  double slope_zv = 1./pitch_v * cos(angle_v);
+  //convert Y,Z to U,V
+  double offset_w = -first_w_dis/pitch_w + 0.5;
+  double offset_u = -first_u_dis/pitch_u + 0.5;
+  double offset_v = -first_v_dis/pitch_v + 0.5;
+
+  double first_t_dis = path_wcps.front().mcell->GetTimeSlice()*time_slice_width - path_wcps.front().x;
+  double slope_xt = 1./time_slice_width;
+  double offset_t =  first_t_dis/time_slice_width + 0.5;
+
+  
+  /* float coef1 = 2 * pow(sin(angle_u),2); */
+  /* float coef2 = 2 * (pow(sin(angle_u),2) - pow(cos(angle_u),2)); */
+
+  for (size_t i=0; i!=ps_vec.size(); i++){
+    double dis_cut;
+    
+    if (i==0){
+      dis_cut = std::min(distances.at(i) * end_point_factor,4/3.*end_point_factor*units::cm);
+    }else if (i+1==ps_vec.size()){
+      dis_cut = std::min(distances.back() * end_point_factor,4/3.*end_point_factor*units::cm);
+    }else{
+      dis_cut = std::min(std::max(distances.at(i-1)*mid_point_factor,distances.at(i)*mid_point_factor),4/3.*mid_point_factor*units::cm);
+    }
+
+    std::set<std::pair<int,int>> T2DU_set;
+    std::set<std::pair<int,int>> T2DV_set;
+    std::set<std::pair<int,int>> T2DW_set;
+    map_3D_2DU_set[i] = T2DU_set;
+    map_3D_2DV_set[i] = T2DV_set;
+    map_3D_2DW_set[i] = T2DW_set;
+    
+    double central_T = offset_t + slope_xt * ps_vec.at(i).x ; 
+    double central_U = offset_u + (slope_yu * ps_vec.at(i).y + slope_zu * ps_vec.at(i).z);
+    double central_V = offset_v + (slope_yv * ps_vec.at(i).y + slope_zv * ps_vec.at(i).z);
+    double central_W = offset_w + (slope_yw * ps_vec.at(i).y + slope_zw * ps_vec.at(i).z);
+    //    std::cout << central_T << " " << central_U << " " << central_V << " " << central_W << std::endl;
+
+    for (int j=central_T - time_cut-1; j<=central_T+time_cut+1;j++){
+
+      // U plane ...
+      for (int k=central_U - nlevel-1;k<=central_U+nlevel+1;k++){
+	if (sqrt(pow((j-central_T)*time_slice_width,2)+pow((k-central_U)*pitch_u,2)) <= dis_cut){
+	  if (map_2D_ut_charge.find(std::make_pair(k,j))!=map_2D_ut_charge.end()){
+	    map_3D_2DU_set[i].insert(std::make_pair(k,j));
+	    if (map_2DU_3D_set.find(std::make_pair(k,j))==map_2DU_3D_set.end()){
+	      std::set<int>  temp_set;
+	      temp_set.insert(i);
+	      map_2DU_3D_set[std::make_pair(k,j)] = temp_set;
+	    }else{
+	      map_2DU_3D_set[std::make_pair(k,j)].insert(i);
+	    }
+	  }
+	}
+      } //  U plane
+
+      // V plane ...
+      for (int k=central_V - nlevel-1;k<=central_V+nlevel+1;k++){
+	if (sqrt(pow((j-central_T)*time_slice_width,2)+pow((k-central_V)*pitch_v,2)) <= dis_cut){
+	  if (map_2D_vt_charge.find(std::make_pair(k,j))!=map_2D_vt_charge.end()){
+	    map_3D_2DV_set[i].insert(std::make_pair(k,j));
+	    if (map_2DV_3D_set.find(std::make_pair(k,j))==map_2DV_3D_set.end()){
+	      std::set<int>  temp_set;
+	      temp_set.insert(i);
+	      map_2DV_3D_set[std::make_pair(k,j)] = temp_set;
+	    }else{
+	      map_2DV_3D_set[std::make_pair(k,j)].insert(i);
+	    }
+	  }
+	}
+      } //  V plane
+
+      // W plane ...
+      for (int k=central_W - nlevel-1;k<=central_W+nlevel+1;k++){
+	if (sqrt(pow((j-central_T)*time_slice_width,2)+pow((k-central_W)*pitch_w,2)) <= dis_cut){
+	  if (map_2D_wt_charge.find(std::make_pair(k,j))!=map_2D_wt_charge.end()){
+	    map_3D_2DW_set[i].insert(std::make_pair(k,j));
+	    if (map_2DW_3D_set.find(std::make_pair(k,j))==map_2DW_3D_set.end()){
+	      std::set<int>  temp_set;
+	      temp_set.insert(i);
+	      map_2DW_3D_set[std::make_pair(k,j)] = temp_set;
+	    }else{
+	      map_2DW_3D_set[std::make_pair(k,j)].insert(i);
+	    }
+	  }
+	}
+      } //  W plane
+
+      
+      
+    }
+  }
+
+  
+}
+
 void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::vector<double>& distances, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set, double end_point_factor, double mid_point_factor, int nlevel, double time_cut){
 
+  map_3D_2DU_set.clear();
+  map_3D_2DV_set.clear();
+  map_3D_2DW_set.clear();
+
+  map_2DU_3D_set.clear();
+  map_2DV_3D_set.clear();
+  map_2DW_3D_set.clear();
+  
+  
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   
   TPCParams& mp = Singleton<TPCParams>::Instance();
@@ -115,7 +248,7 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
     int current_index = path_wcps_vec.at(i).index;
     if (i==0){
       dis_cut = std::min(distances.at(i) * end_point_factor,4/3.*end_point_factor*units::cm);
-    }else if (i==path_wcps_vec.size()-1){
+    }else if (i+1==path_wcps_vec.size()){
       dis_cut = std::min(distances.back() * end_point_factor,4/3.*end_point_factor*units::cm);
     }else{
       dis_cut = std::min(std::max(distances.at(i-1)*mid_point_factor,distances.at(i)*mid_point_factor),4/3.*mid_point_factor*units::cm);
@@ -437,7 +570,7 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,  std::vector<double>& dist
       FMatrix.insert(1,4) = 1./distances.at(0);
       FMatrix.insert(2,2) = -1./distances.at(0); // Z
       FMatrix.insert(2,5) = 1./distances.at(0);
-    }else if (i==ps_vec.size()-1){
+    }else if (i+1==ps_vec.size()){
       FMatrix.insert(3*i,3*i) = -1./distances.at(ps_vec.size()-2); // X
       FMatrix.insert(3*i,3*i-3) = 1./distances.at(ps_vec.size()-2);
       FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(ps_vec.size()-2);
@@ -556,6 +689,21 @@ void PR3DCluster::organize_ps_path(PointVector& ps_vec, std::vector<double>& dis
   
 }
 
+void PR3DCluster::merge_path(PointVector& fine_tracking_path_1st, PointVector& fine_tracking_path_2nd, std::vector<int>& record_vec){
+
+  fine_tracking_path.clear();
+  int counter_1st = 0;
+  int counter_2nd = 0;
+  for (auto it = record_vec.begin(); it!=record_vec.end(); it++){
+    if (*it==0){
+      fine_tracking_path.push_back(fine_tracking_path_1st.at(counter_1st));
+      counter_1st ++;
+    }else{
+      fine_tracking_path.push_back(fine_tracking_path_2nd.at(counter_2nd));
+      counter_2nd ++;
+    }
+  }
+}
 
 
 
@@ -612,6 +760,8 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     /* for (int i=0;i+1!=path_wcps_vec.size();i++){ */
     /*   std::cout << sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2)+pow(path_wcps_vec.at(i+1).y-path_wcps_vec.at(i).y,2)+pow(path_wcps_vec.at(i+1).z-path_wcps_vec.at(i).z,2))/units::cm << " " << sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2))/units::cm << std::endl; */
     /* } */
+    
+    
 
     
     // Add a new round of fit ...
@@ -619,13 +769,24 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     std::vector<int> record_vec;
     organize_ps_path(ps_vec, distances, low_dis_limit, record_vec);
 
-    
     fine_tracking_path = ps_vec;
+    // form association ...
+    form_map_projection_based(ps_vec, distances, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set,
+			      map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
+			      map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge,
+			      0.9, 0.9, 4, 4);
+    // fit again ... 
+    trajectory_fit(ps_vec, distances,
+    		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
+    		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
+    		   map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge,
+    		   map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err);
+    
 
     PointVector fine_tracking_path_2nd = fine_tracking_path;
     merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec);    
     
-    //  fine_tracking_path = fine_tracking_path_1st;
+    // fine_tracking_path = fine_tracking_path_1st;
     std::cout << fine_tracking_path_1st.size() << " " << fine_tracking_path_2nd.size() << " " << fine_tracking_path.size() << " " << record_vec.size() << std::endl;
     
   }else if (path_wcps_vec.size()>0){
@@ -641,7 +802,12 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   }
 
 
-  // examine ... 
+  // examine ...
+  examine_path(low_dis_limit);
+}
+
+
+void PR3DCluster::examine_path(double low_dis_limit){
   PointVector temp_fine_tracking_path = fine_tracking_path;
   fine_tracking_path.clear();
   for (size_t i=0;i!=temp_fine_tracking_path.size();i++){
@@ -649,34 +815,17 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
       fine_tracking_path.push_back(temp_fine_tracking_path.at(i));
     }else if (i+1==temp_fine_tracking_path.size()){
       double dis = sqrt(pow(temp_fine_tracking_path.at(i).x - fine_tracking_path.back().x,2)
-			+pow(temp_fine_tracking_path.at(i).y - fine_tracking_path.back().y,2)
-			+pow(temp_fine_tracking_path.at(i).z - fine_tracking_path.back().z,2));
+  			+pow(temp_fine_tracking_path.at(i).y - fine_tracking_path.back().y,2)
+  			+pow(temp_fine_tracking_path.at(i).z - fine_tracking_path.back().z,2));
       if (dis > low_dis_limit * 0.33)
-	fine_tracking_path.push_back(temp_fine_tracking_path.at(i));
+  	fine_tracking_path.push_back(temp_fine_tracking_path.at(i));
     }else {
       double dis = sqrt(pow(temp_fine_tracking_path.at(i).x - fine_tracking_path.back().x,2)
-			+pow(temp_fine_tracking_path.at(i).y - fine_tracking_path.back().y,2)
-			+pow(temp_fine_tracking_path.at(i).z - fine_tracking_path.back().z,2));
+  			+pow(temp_fine_tracking_path.at(i).y - fine_tracking_path.back().y,2)
+  			+pow(temp_fine_tracking_path.at(i).z - fine_tracking_path.back().z,2));
       if (dis > low_dis_limit * 0.5)
-	fine_tracking_path.push_back(temp_fine_tracking_path.at(i));
+  	fine_tracking_path.push_back(temp_fine_tracking_path.at(i));
     }
   }
   // std::cout << path_wcps_vec.size() << " " << fine_tracking_path.size() << std::endl;
-}
-
-
-void PR3DCluster::merge_path(PointVector& fine_tracking_path_1st, PointVector& fine_tracking_path_2nd, std::vector<int>& record_vec){
-
-  fine_tracking_path.clear();
-  int counter_1st = 0;
-  int counter_2nd = 0;
-  for (auto it = record_vec.begin(); it!=record_vec.end(); it++){
-    if (*it==0){
-      fine_tracking_path.push_back(fine_tracking_path_1st.at(counter_1st));
-      counter_1st ++;
-    }else{
-      fine_tracking_path.push_back(fine_tracking_path_2nd.at(counter_2nd));
-      counter_2nd ++;
-    }
-  }
 }
