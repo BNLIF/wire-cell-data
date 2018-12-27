@@ -1,4 +1,4 @@
-void PR3DCluster::organize_wcps_path(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::vector<double>& distances, double low_dis_limit){
+void PR3DCluster::organize_wcps_path(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, double low_dis_limit){
   
   // copy list into a vector
   std::vector<WCPointCloud<double>::WCPoint> temp_wcps_vec(std::begin(path_wcps), std::end(path_wcps));
@@ -12,7 +12,7 @@ void PR3DCluster::organize_wcps_path(std::vector<WCPointCloud<double>::WCPoint>&
 			+pow(temp_wcps_vec.at(i).z - path_wcps_vec.back().z,2));
       if (dis > low_dis_limit * 0.5){
 	path_wcps_vec.push_back(temp_wcps_vec.at(i));
-	distances.push_back(dis);
+	//	distances.push_back(dis);
       }
     }else{
       double dis = sqrt(pow(temp_wcps_vec.at(i).x - path_wcps_vec.back().x,2)
@@ -28,7 +28,7 @@ void PR3DCluster::organize_wcps_path(std::vector<WCPointCloud<double>::WCPoint>&
 	  (dis1 > low_dis_limit * 1.7
 	  && dis > low_dis_limit * 0.5)){
 	path_wcps_vec.push_back(temp_wcps_vec.at(i));
-	distances.push_back(dis);
+	//	distances.push_back(dis);
       }
     }
   }
@@ -88,7 +88,16 @@ void PR3DCluster::fill_2d_charge(std::map<std::pair<int,int>,double>& map_2D_ut_
   }
 }
 
-void PR3DCluster::form_map_projection_based(PointVector& ps_vec, std::vector<double>& distances,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>,double>& map_2D_ut_charge, std::map<std::pair<int,int>,double>& map_2D_vt_charge, std::map<std::pair<int,int>,double>& map_2D_wt_charge, double end_point_factor, double mid_point_factor, int nlevel, double time_cut){
+void PR3DCluster::form_map_projection_based(PointVector& ps_vec,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>,double>& map_2D_ut_charge, std::map<std::pair<int,int>,double>& map_2D_vt_charge, std::map<std::pair<int,int>,double>& map_2D_wt_charge, double end_point_factor, double mid_point_factor, int nlevel, double time_cut){
+
+  std::vector<double> distances;
+  for (size_t i=0;i+1!=ps_vec.size();i++){
+    distances.push_back(sqrt(pow(ps_vec.at(i+1).x-ps_vec.at(i).x,2) +
+			     pow(ps_vec.at(i+1).y-ps_vec.at(i).y,2) +
+			     pow(ps_vec.at(i+1).z-ps_vec.at(i).z,2)));
+  }
+
+  
   map_3D_2DU_set.clear();
   map_3D_2DV_set.clear();
   map_3D_2DW_set.clear();
@@ -212,8 +221,15 @@ void PR3DCluster::form_map_projection_based(PointVector& ps_vec, std::vector<dou
   
 }
 
-void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::vector<double>& distances, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set, double end_point_factor, double mid_point_factor, int nlevel, double time_cut){
+void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set, double end_point_factor, double mid_point_factor, int nlevel, double time_cut){
 
+  std::vector<double> distances;
+  for (size_t i=0;i+1!=path_wcps_vec.size();i++){
+    distances.push_back(sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2) +
+			     pow(path_wcps_vec.at(i+1).y-path_wcps_vec.at(i).y,2) +
+			     pow(path_wcps_vec.at(i+1).z-path_wcps_vec.at(i).z,2)));
+  }
+  
   map_3D_2DU_set.clear();
   map_3D_2DV_set.clear();
   map_3D_2DW_set.clear();
@@ -412,7 +428,14 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
 }
 
 
-void PR3DCluster::trajectory_fit(PointVector& ps_vec,  std::vector<double>& distances,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>,double>& map_2D_ut_charge,std::map<std::pair<int,int>,double>& map_2D_ut_charge_err, std::map<std::pair<int,int>,double>& map_2D_vt_charge,std::map<std::pair<int,int>,double>& map_2D_vt_charge_err, std::map<std::pair<int,int>,double>& map_2D_wt_charge,std::map<std::pair<int,int>,double>& map_2D_wt_charge_err, int flag_lambda, double init_lambda){
+void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>,double>& map_2D_ut_charge,std::map<std::pair<int,int>,double>& map_2D_ut_charge_err, std::map<std::pair<int,int>,double>& map_2D_vt_charge,std::map<std::pair<int,int>,double>& map_2D_vt_charge_err, std::map<std::pair<int,int>,double>& map_2D_wt_charge,std::map<std::pair<int,int>,double>& map_2D_wt_charge_err, int flag_lambda, double init_lambda){
+
+  std::vector<double> distances;
+  for (size_t i=0;i+1!=ps_vec.size();i++){
+    distances.push_back(sqrt(pow(ps_vec.at(i+1).x-ps_vec.at(i).x,2) +
+			     pow(ps_vec.at(i+1).y-ps_vec.at(i).y,2) +
+			     pow(ps_vec.at(i+1).z-ps_vec.at(i).z,2)));
+  }
   
   // map 2D points to its index
   std::vector<std::pair<std::pair<int,int>,int>> vec_2DU_index;
@@ -658,10 +681,9 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,  std::vector<double>& dist
 
 
 
-void PR3DCluster::organize_ps_path(PointVector& ps_vec, std::vector<double>& distances, double low_dis_limit, std::vector<int>& record_vec){
+void PR3DCluster::organize_ps_path(PointVector& ps_vec,  double low_dis_limit, std::vector<int>& record_vec){
 
   ps_vec.clear();
-  distances.clear();
   //  std::vector<std::pair<int,int> > record_vec;
  
   
@@ -674,9 +696,9 @@ void PR3DCluster::organize_ps_path(PointVector& ps_vec, std::vector<double>& dis
       Point p((fine_tracking_path.at(i+1).x+fine_tracking_path.at(i).x)/2.,
 	      (fine_tracking_path.at(i+1).y+fine_tracking_path.at(i).y)/2.,
 	      (fine_tracking_path.at(i+1).z+fine_tracking_path.at(i).z)/2.);
-      if (ps_vec.size()!=0){
-	distances.push_back(sqrt(pow(p.x-ps_vec.back().x,2)+pow(p.y-ps_vec.back().y,2)+pow(p.z-ps_vec.back().z,2)));
-      }
+      /* if (ps_vec.size()!=0){ */
+      /* 	distances.push_back(sqrt(pow(p.x-ps_vec.back().x,2)+pow(p.y-ps_vec.back().y,2)+pow(p.z-ps_vec.back().z,2))); */
+      /* } */
       ps_vec.push_back(p);
       record_vec.push_back(1);
     }
@@ -715,8 +737,7 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
   // organize trajectory point based on graph-based solution 
   double low_dis_limit = 0.6*units::cm;
   std::vector<WCPointCloud<double>::WCPoint> path_wcps_vec;
-  std::vector<double> distances;
-  organize_wcps_path(path_wcps_vec,distances,low_dis_limit);
+  organize_wcps_path(path_wcps_vec,low_dis_limit);
 
 
   if (path_wcps_vec.size()>=num_pts_cut){
@@ -737,7 +758,7 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     std::map<std::pair<int,int>,std::set<int>> map_2DU_3D_set;
     std::map<std::pair<int,int>,std::set<int>> map_2DV_3D_set;
     std::map<std::pair<int,int>,std::set<int>> map_2DW_3D_set;
-    form_map_graph_based(path_wcps_vec, distances,
+    form_map_graph_based(path_wcps_vec,
 			 map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
 			 map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set);
     
@@ -751,7 +772,7 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     //  double first_t_dis = path_wcps_vec.at(0).mcell->GetTimeSlice()*time_slice_width - path_wcps_vec.at(0).x;
     
     // trajectory fitting 
-    trajectory_fit(ps_vec, distances,
+    trajectory_fit(ps_vec, 
 		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
 		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
 		   map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge,
@@ -761,22 +782,32 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     /*   std::cout << sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2)+pow(path_wcps_vec.at(i+1).y-path_wcps_vec.at(i).y,2)+pow(path_wcps_vec.at(i+1).z-path_wcps_vec.at(i).z,2))/units::cm << " " << sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2))/units::cm << std::endl; */
     /* } */
     
-    
-
-    
-    // Add a new round of fit ...
-    PointVector fine_tracking_path_1st = fine_tracking_path;
-    std::vector<int> record_vec;
-    organize_ps_path(ps_vec, distances, low_dis_limit, record_vec);
-
-    fine_tracking_path = ps_vec;
+    ps_vec = fine_tracking_path;
     // form association ...
-    form_map_projection_based(ps_vec, distances, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set,
+    form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set,
 			      map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
 			      map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge,
 			      0.9, 0.9, 4, 4);
     // fit again ... 
-    trajectory_fit(ps_vec, distances,
+    trajectory_fit(ps_vec, 
+    		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
+    		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
+    		   map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge,
+    		   map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err);
+    
+    // Add a new round of fit ...
+    PointVector fine_tracking_path_1st = fine_tracking_path;
+    std::vector<int> record_vec;
+    organize_ps_path(ps_vec,  low_dis_limit, record_vec);
+
+    //    fine_tracking_path = ps_vec;
+    // form association ...
+    form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set,
+			      map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
+			      map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge,
+			      0.9, 0.9, 4, 4);
+    // fit again ... 
+    trajectory_fit(ps_vec, 
     		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
     		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
     		   map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge,
