@@ -25,7 +25,7 @@ void PR3DCluster::organize_wcps_path(std::vector<WCPointCloud<double>::WCPoint>&
       //  std::cout << dis/units::cm << std::endl;
       
       if (dis > low_dis_limit ||
-	  (dis1 > low_dis_limit * 1.7
+	  (dis1 > low_dis_limit * 2.0
 	  && dis > low_dis_limit * 0.5)){
 	path_wcps_vec.push_back(temp_wcps_vec.at(i));
 	distances.push_back(dis);
@@ -563,9 +563,9 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
       Point p(path_wcps_vec.at(i).x, path_wcps_vec.at(i).y, path_wcps_vec.at(i).z);
       ps_vec.push_back(p);
     }
-    TPCParams& mp = Singleton<TPCParams>::Instance();
-    double time_slice_width = mp.get_ts_width();
-    //double first_t_dis = path_wcps_vec.at(0).mcell->GetTimeSlice()*time_slice_width - path_wcps_vec.at(0).x;
+    //  TPCParams& mp = Singleton<TPCParams>::Instance();
+    //  double time_slice_width = mp.get_ts_width();
+    //  double first_t_dis = path_wcps_vec.at(0).mcell->GetTimeSlice()*time_slice_width - path_wcps_vec.at(0).x;
     
     // trajectory fitting 
     trajectory_fit(ps_vec, distances,
@@ -574,9 +574,38 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
 		   map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge,
 		   map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err);
 
-    for (int i=0;i+1!=path_wcps_vec.size();i++){
-      std::cout << sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2)+pow(path_wcps_vec.at(i+1).y-path_wcps_vec.at(i).y,2)+pow(path_wcps_vec.at(i+1).z-path_wcps_vec.at(i).z,2))/units::cm << " " << sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2))/units::cm << std::endl;
+    /* for (int i=0;i+1!=path_wcps_vec.size();i++){ */
+    /*   std::cout << sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2)+pow(path_wcps_vec.at(i+1).y-path_wcps_vec.at(i).y,2)+pow(path_wcps_vec.at(i+1).z-path_wcps_vec.at(i).z,2))/units::cm << " " << sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2))/units::cm << std::endl; */
+    /* } */
+
+    
+    // Add a new round of fit ...
+    PointVector fine_tracking_path_1st = fine_tracking_path;
+    std::vector<int> record_vec;
+    organize_ps_path(ps_vec, distances, low_dis_limit, record_vec);
+
+    
+    fine_tracking_path = ps_vec;
+
+    
+
+    PointVector fine_tracking_path_2nd = fine_tracking_path;
+    fine_tracking_path.clear();
+    int counter_1st = 0;
+    int counter_2nd = 0;
+    for (auto it = record_vec.begin(); it!=record_vec.end(); it++){
+      if (*it==0){
+    	fine_tracking_path.push_back(fine_tracking_path_1st.at(counter_1st));
+    	counter_1st ++;
+      }else{
+    	fine_tracking_path.push_back(fine_tracking_path_2nd.at(counter_2nd));
+    	counter_2nd ++;
+      }
     }
+    //    std::cout << fine_tracking_path_1st.size() << " " << fine_tracking_path_2nd.size() << " " << fine_tracking_path.size() << " " << record_vec.size() << std::endl;
+    
+    //  fine_tracking_path = fine_tracking_path_1st;
+    
     
   }else if (path_wcps_vec.size()>0){
     // for now, very short track, just copy .... 
@@ -612,4 +641,37 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     }
   }
   // std::cout << path_wcps_vec.size() << " " << fine_tracking_path.size() << std::endl;
+}
+
+
+
+void PR3DCluster::organize_ps_path(PointVector& ps_vec, std::vector<double>& distances, double low_dis_limit, std::vector<int>& record_vec){
+
+  ps_vec.clear();
+  distances.clear();
+  //  std::vector<std::pair<int,int> > record_vec;
+ 
+  
+  for (int i=0;i+1!=fine_tracking_path.size();i++){
+    double dis = sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2));
+
+    record_vec.push_back(0);
+    
+    if (dis >  low_dis_limit * 1.2){
+      Point p((fine_tracking_path.at(i+1).x+fine_tracking_path.at(i).x)/2.,
+	      (fine_tracking_path.at(i+1).y+fine_tracking_path.at(i).y)/2.,
+	      (fine_tracking_path.at(i+1).z+fine_tracking_path.at(i).z)/2.);
+      if (ps_vec.size()!=0){
+	distances.push_back(sqrt(pow(p.x-ps_vec.back().x,2)+pow(p.y-ps_vec.back().y,2)+pow(p.z-ps_vec.back().z,2)));
+      }
+      ps_vec.push_back(p);
+      record_vec.push_back(1);
+    }
+  }
+  record_vec.push_back(0);
+    
+  fine_tracking_path.clear();
+    // std::cout << ps_vec.size() << " " << distances.size() << std::endl;
+
+  
 }
