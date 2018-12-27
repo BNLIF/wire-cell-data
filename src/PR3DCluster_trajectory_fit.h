@@ -149,6 +149,8 @@ void PR3DCluster::form_map_projection_based(PointVector& ps_vec,std::map<int,std
     }else{
       dis_cut = std::min(std::max(distances.at(i-1)*mid_point_factor,distances.at(i)*mid_point_factor),4/3.*mid_point_factor*units::cm);
     }
+    //    std::cout << i <<  " " << dis_cut/units::cm << std::endl;
+    
 
     std::set<std::pair<int,int>> T2DU_set;
     std::set<std::pair<int,int>> T2DV_set;
@@ -684,31 +686,44 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::set<std::
 void PR3DCluster::organize_ps_path(PointVector& ps_vec,  double low_dis_limit, std::vector<int>& record_vec){
 
   ps_vec.clear();
-  //  std::vector<std::pair<int,int> > record_vec;
- 
+
+  // deal with the beginning ... 
+  double dis1 = sqrt(pow(fine_tracking_path.at(1).x-fine_tracking_path.at(0).x,2)+pow(fine_tracking_path.at(1).y-fine_tracking_path.at(0).y,2)+pow(fine_tracking_path.at(1).z-fine_tracking_path.at(0).z,2));
+  Point p1 = fine_tracking_path.at(0);
+  p1.x += (fine_tracking_path.at(0).x-fine_tracking_path.at(1).x)/dis1;
+  p1.y += (fine_tracking_path.at(0).y-fine_tracking_path.at(1).y)/dis1;
+  p1.z += (fine_tracking_path.at(0).z-fine_tracking_path.at(1).z)/dis1;
+  ps_vec.push_back(p1);
+  record_vec.push_back(1);
+  
   
   for (int i=0;i+1!=fine_tracking_path.size();i++){
     double dis = sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2));
-
-    record_vec.push_back(0);
     
+    record_vec.push_back(0);
     if (dis >  low_dis_limit * 1.4){
       Point p((fine_tracking_path.at(i+1).x+fine_tracking_path.at(i).x)/2.,
 	      (fine_tracking_path.at(i+1).y+fine_tracking_path.at(i).y)/2.,
 	      (fine_tracking_path.at(i+1).z+fine_tracking_path.at(i).z)/2.);
-      /* if (ps_vec.size()!=0){ */
-      /* 	distances.push_back(sqrt(pow(p.x-ps_vec.back().x,2)+pow(p.y-ps_vec.back().y,2)+pow(p.z-ps_vec.back().z,2))); */
-      /* } */
       ps_vec.push_back(p);
       record_vec.push_back(1);
     }
   }
   record_vec.push_back(0);
-    
-  fine_tracking_path.clear();
-    // std::cout << ps_vec.size() << " " << distances.size() << std::endl;
-
   
+  // deal with the end points ...
+
+  double dis2 = sqrt(pow(fine_tracking_path.at(fine_tracking_path.size()-1).x-fine_tracking_path.at(fine_tracking_path.size()-2).x,2)+pow(fine_tracking_path.at(fine_tracking_path.size()-1).y-fine_tracking_path.at(fine_tracking_path.size()-2).y,2)+pow(fine_tracking_path.at(fine_tracking_path.size()-1).z-fine_tracking_path.at(fine_tracking_path.size()-2).z,2));
+  Point p2 = fine_tracking_path.at(fine_tracking_path.size()-1);
+  p2.x += (fine_tracking_path.at(fine_tracking_path.size()-1).x-fine_tracking_path.at(fine_tracking_path.size()-2).x)/dis2;
+  p2.y += (fine_tracking_path.at(fine_tracking_path.size()-1).y-fine_tracking_path.at(fine_tracking_path.size()-2).y)/dis2;
+  p2.z += (fine_tracking_path.at(fine_tracking_path.size()-1).z-fine_tracking_path.at(fine_tracking_path.size()-2).z)/dis2;
+  ps_vec.push_back(p2);
+  record_vec.push_back(1);
+  
+ 
+  
+  fine_tracking_path.clear();
 }
 
 void PR3DCluster::merge_path(PointVector& fine_tracking_path_1st, PointVector& fine_tracking_path_2nd, std::vector<int>& record_vec){
@@ -781,7 +796,8 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     /* for (int i=0;i+1!=path_wcps_vec.size();i++){ */
     /*   std::cout << sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2)+pow(path_wcps_vec.at(i+1).y-path_wcps_vec.at(i).y,2)+pow(path_wcps_vec.at(i+1).z-path_wcps_vec.at(i).z,2))/units::cm << " " << sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2))/units::cm << std::endl; */
     /* } */
-    
+
+    // do a 2nd round iteration on the fit ... 
     ps_vec = fine_tracking_path;
     // form association ...
     form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set,
@@ -795,17 +811,15 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     		   map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge,
     		   map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err);
     
-    // Add a new round of fit ...
+    // Add a new round of fit to fill in the gap ... 
     PointVector fine_tracking_path_1st = fine_tracking_path;
     std::vector<int> record_vec;
     organize_ps_path(ps_vec,  low_dis_limit, record_vec);
-
-    //    fine_tracking_path = ps_vec;
     // form association ...
     form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set,
 			      map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
 			      map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge,
-			      0.9, 0.9, 4, 4);
+			      0.22, 0.22, 4, 4);
     // fit again ... 
     trajectory_fit(ps_vec, 
     		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
@@ -817,7 +831,6 @@ void PR3DCluster::fine_tracking(int num_pts_cut){
     PointVector fine_tracking_path_2nd = fine_tracking_path;
     merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec);    
     
-    // fine_tracking_path = fine_tracking_path_1st;
     std::cout << fine_tracking_path_1st.size() << " " << fine_tracking_path_2nd.size() << " " << fine_tracking_path.size() << " " << record_vec.size() << std::endl;
     
   }else if (path_wcps_vec.size()>0){
@@ -848,8 +861,10 @@ void PR3DCluster::examine_path(double low_dis_limit){
       double dis = sqrt(pow(temp_fine_tracking_path.at(i).x - fine_tracking_path.back().x,2)
   			+pow(temp_fine_tracking_path.at(i).y - fine_tracking_path.back().y,2)
   			+pow(temp_fine_tracking_path.at(i).z - fine_tracking_path.back().z,2));
-      if (dis > low_dis_limit * 0.33)
-  	fine_tracking_path.push_back(temp_fine_tracking_path.at(i));
+      if (dis < low_dis_limit * 0.5){
+	fine_tracking_path.pop_back();
+	fine_tracking_path.push_back(temp_fine_tracking_path.at(i));
+      }
     }else {
       double dis = sqrt(pow(temp_fine_tracking_path.at(i).x - fine_tracking_path.back().x,2)
   			+pow(temp_fine_tracking_path.at(i).y - fine_tracking_path.back().y,2)
