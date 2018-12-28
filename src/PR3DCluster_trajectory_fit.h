@@ -54,18 +54,27 @@ void PR3DCluster::organize_wcps_path(std::vector<WCPointCloud<double>::WCPoint>&
   
 }
 
-void PR3DCluster::fill_2d_charge(std::map<std::pair<int,int>,double>& map_2D_ut_charge,std::map<std::pair<int,int>,double>& map_2D_ut_charge_err, std::map<std::pair<int,int>,double>& map_2D_vt_charge,std::map<std::pair<int,int>,double>& map_2D_vt_charge_err, std::map<std::pair<int,int>,double>& map_2D_wt_charge,std::map<std::pair<int,int>,double>& map_2D_wt_charge_err){
+void PR3DCluster::fill_2d_charge(std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map, std::map<std::pair<int,int>,double>& map_2D_ut_charge,std::map<std::pair<int,int>,double>& map_2D_ut_charge_err, std::map<std::pair<int,int>,double>& map_2D_vt_charge,std::map<std::pair<int,int>,double>& map_2D_vt_charge_err, std::map<std::pair<int,int>,double>& map_2D_wt_charge,std::map<std::pair<int,int>,double>& map_2D_wt_charge_err){
 
+  std::set<SlimMergeGeomCell*> cluster_mcells_set;
+  for (auto it = mcells.begin(); it!=mcells.end(); it++){
+    SlimMergeGeomCell *mcell = *it;
+    cluster_mcells_set.insert(mcell);
+  }
+  
+  
   for (auto it=mcells.begin();it!=mcells.end();it++){
     SlimMergeGeomCell *mcell = (*it);
     int time_slice = mcell->GetTimeSlice();
+    std::map<const GeomWire*, SMGCSelection >& timeslice_wc_map = global_wc_map[time_slice];
+
     WireChargeMap& wire_charge_map = mcell->get_wirecharge_map();
     WireChargeMap& wire_charge_err_map = mcell->get_wirechargeerr_map();
     for (auto it = wire_charge_map.begin(); it!= wire_charge_map.end(); it++){
       const GeomWire* wire = it->first;
       double charge = it->second;
       double charge_err = wire_charge_err_map[wire];
-      //      std::cout << wire << " " << charge << " " << charge_err << std::endl;
+      // 
 
       // hack the charge ... 
       if (charge <=0){
@@ -73,6 +82,16 @@ void PR3DCluster::fill_2d_charge(std::map<std::pair<int,int>,double>& map_2D_ut_
 	//charge = 1000;
 	//charge_err = 1000;
       }
+
+      if (timeslice_wc_map[wire].size()>1){
+	for (auto it1 = timeslice_wc_map[wire].begin(); it1!=timeslice_wc_map[wire].end(); it1++){
+	  SlimMergeGeomCell *mcell1 = *it1;
+	  if (cluster_mcells_set.find(mcell1)==cluster_mcells_set.end())
+	    charge_err = 8000;
+	    }
+      }
+
+      //  std::cout << wire << " " << charge << " " << charge_err << std::endl;
       
       if (wire->iplane()==0){
 	map_2D_ut_charge[std::make_pair(wire->index(),time_slice)] = charge;
@@ -767,7 +786,7 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     std::map<std::pair<int,int>,double> map_2D_ut_charge, map_2D_ut_charge_err;
     std::map<std::pair<int,int>,double> map_2D_vt_charge, map_2D_vt_charge_err;
     std::map<std::pair<int,int>,double> map_2D_wt_charge, map_2D_wt_charge_err;
-    fill_2d_charge(map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge, map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err);
+    fill_2d_charge(global_wc_map, map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge, map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err);
     
     
     // map index ... 
