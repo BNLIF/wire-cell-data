@@ -750,7 +750,7 @@ void PR3DCluster::merge_path(PointVector& fine_tracking_path_1st, PointVector& f
 
 
 
-void PR3DCluster::fine_tracking(int num_pts_cut){
+void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map, int num_pts_cut){
 
   // first round tracking with graph-based solution
   // if (path_wcps.size() < num_pts_cut) return;
