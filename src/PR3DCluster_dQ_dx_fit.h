@@ -120,6 +120,8 @@ double PR3DCluster::cal_gaus_integral(int tbin, int wbin, double t_center, doubl
 
 void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map, double flash_time){
 
+  if (fine_tracking_path.size()<=1) return;
+  
   // std::cout <<  fine_tracking_path.size() << std::endl;
   
   // Need to take into account the time, so one can properly calculate X value for diffusion ...
@@ -579,16 +581,18 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 
   Eigen::SparseMatrix<double> FMatrix(n_3D_pos, n_3D_pos) ;
   for (size_t i=0;i!=n_3D_pos;i++){
-    if (i==0){
-      FMatrix.insert(0,0) = -1;
-      FMatrix.insert(0,1) = 1.;
-    }else if (i==n_3D_pos-1){
-      FMatrix.insert(i,i) = -1.;
-      FMatrix.insert(i,i-1) = 1.;
-    }else{
-      FMatrix.insert(i,i)=-2.;
-      FMatrix.insert(i,i+1)=1.;
-      FMatrix.insert(i,i-1)=1.;
+    if (n_3D_pos!=1){
+      if (i==0){
+	FMatrix.insert(0,0) = -1;
+	FMatrix.insert(0,1) = 1.;
+      }else if (i==n_3D_pos-1){
+	FMatrix.insert(i,i) = -1.;
+	FMatrix.insert(i,i-1) = 1.;
+      }else{
+	FMatrix.insert(i,i)=-2.;
+	FMatrix.insert(i,i+1)=1.;
+	FMatrix.insert(i,i-1)=1.;
+      }
     }
   }
   double lambda = 0.0;
