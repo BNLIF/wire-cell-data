@@ -1,3 +1,5 @@
+#include <Eigen/SVD>
+
 
 double PR3DCluster::cal_gaus_integral_seg(int tbin, int wbin, std::vector<double>& t_centers, std::vector<double>& t_sigmas, std::vector<double>& w_centers, std::vector<double>& w_sigmas, std::vector<double>& weights, int flag, double nsigma){
   double result = 0;
@@ -612,6 +614,77 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
     pos_3D = solver.solve(b);
   }
 
+  /* { */
+  /*   Eigen::MatrixXd C2 = Eigen::MatrixXd(FMatrix); */
+  /*   Eigen::MatrixXd IC2 = C2; */
+  /*   { */
+  /*     Eigen::MatrixXd C2U = C2.bdcSvd(Eigen::ComputeFullU).matrixU(); */
+  /*     Eigen::MatrixXd C2V = C2.bdcSvd(Eigen::ComputeFullV).matrixV(); */
+  /*     Eigen::VectorXd C2d = C2.bdcSvd().singularValues(); */
+  /*     Eigen::MatrixXd C2UT = C2U.transpose(); */
+  /*     Eigen::MatrixXd C2Id = Eigen::MatrixXd::Zero(n_3D_pos,n_3D_pos); */
+  /*     for (int i=0;i!=n_3D_pos;i++){ */
+  /* 	C2Id(i,i) = 1./C2d(i); */
+  /* 	// std::cout << i << " " << C2d(i) << std::endl; */
+  /*     } */
+  /*     IC2 = C2V * C2Id * C2UT; */
+
+  /*     /\* Eigen::VectorXd exp_sig1 = pos_3D; *\/ */
+  /*     /\* Eigen::VectorXd exp_sig2 = IC2 * C2 * pos_3D; *\/ */
+      
+  /*     /\* for (int i=0;i!=n_3D_pos;i++){ *\/ */
+  /*     /\* 	std::cout << i << " " << exp_sig1(i) << " " << exp_sig2(i) << std::endl; *\/ */
+  /*     /\* } *\/ */
+  /*   } */
+    
+           
+  /*   // try Wiener-C2-SVD stuff ...  */
+  /*   Eigen::MatrixXd dAC = Eigen::MatrixXd(A) * IC2;  */
+  /*   Eigen::MatrixXd dVC = dAC.bdcSvd(Eigen::ComputeFullV).matrixV();  */
+  /*   Eigen::MatrixXd dVCT = dVC.transpose();  */
+  /*   Eigen::VectorXd dC = dAC.bdcSvd().singularValues();  */
+    
+  /*   Eigen::VectorXd exp_sig = pos_3D; */
+  /*   for (int i=0;i!=n_3D_pos;i++){ */
+  /*     exp_sig(i) = 50000/units::cm * dx.at(i); */
+  /*     if (i%2==0){ */
+  /* 	exp_sig(i) *= (1-0.08); */
+  /*     }else{ */
+  /* 	exp_sig(i) *= (1+0.08); */
+  /*     } */
+  /*   } */
+  /*   exp_sig = dVCT * C2 * exp_sig;  */
+  /*   Eigen::MatrixXd W=Eigen::MatrixXd::Zero(n_3D_pos,n_3D_pos);   */
+  /*   for (int i=0;i!=n_3D_pos;i++){ */
+  /*     W(i,i) = pow(dC(i),2)*pow(exp_sig(i),2)/(pow(dC(i),2)*pow(exp_sig(i),2)+0.01); */
+  /*     //  std::cout << i << " " << dC(i) << " " << exp_sig(i) << " " << pos_3D(i) << " " << W(i,i) << std::endl; */
+  /*   } */
+    
+  /*   dAC = IC2 * dVC * W * dVCT * C2;   */
+  /*   pos_3D = dAC * pos_3D; */
+  /* } */
+  /* { */
+  /*   // try Wiener-SVD stuff ... */
+  /*   Eigen::MatrixXd dA = Eigen::MatrixXd(A); */
+  /*   Eigen::MatrixXd dV = dA.bdcSvd(Eigen::ComputeFullV).matrixV(); */
+  /*   Eigen::MatrixXd dVT = dV.transpose(); */
+  /*   Eigen::VectorXd dd = dA.bdcSvd().singularValues(); */
+    
+  /*   Eigen::VectorXd exp_sig = pos_3D; */
+  /*   for (int i=0;i!=n_3D_pos;i++){ */
+  /*     exp_sig(i) = 50000/units::cm * dx.at(i); */
+  /*   } */
+  /*   exp_sig = dVT * exp_sig; */
+  /*   Eigen::MatrixXd W=Eigen::MatrixXd::Zero(n_3D_pos,n_3D_pos); */
+  /*   for (int i=0;i!=n_3D_pos;i++){ */
+  /*     W(i,i) = pow(dd(i),2)*pow(exp_sig(i),2)/(pow(dd(i),2)*pow(exp_sig(i),2)+1e-4); */
+  /*   } */
+    
+  /*   dA =  dV * W * dVT; */
+  /*   pos_3D = dA * pos_3D; */
+  /* } */
+  
+  
   double sum = 0 ;
   for (int i=0;i!=n_3D_pos;i++){
     /* std::cout << i << " "<< pos_3D(i) << " " << dx.at(i)/units::cm << " " << pos_3D(i)/dx.at(i)*units::cm << std::endl; */
