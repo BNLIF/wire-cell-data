@@ -446,7 +446,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 			   pow(prev_rec_pos.z-curr_rec_pos.z,2));
 
       double drift_time = reco_pos.x/time_slice_width * nrebin * 0.5*units::microsecond  - flash_time ;
-      if (drift_time <10 *units::microsecond ) drift_time = 10* units::microsecond;
+      if (drift_time <50 *units::microsecond ) drift_time = 50* units::microsecond;
       
       //  std::cout << drift_time/units::microsecond << std::endl;
       double diff_sigma_L = sqrt(2* DL * drift_time);
@@ -482,6 +482,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 		    pow(next_rec_pos.z-curr_rec_pos.z,2));
       
       drift_time = reco_pos.x/time_slice_width * nrebin * 0.5*units::microsecond  - flash_time ;
+      if (drift_time <50 *units::microsecond ) drift_time = 50* units::microsecond;
       //  std::cout << drift_time/units::microsecond << std::endl;
       diff_sigma_L = sqrt(2* DL * drift_time);
       diff_sigma_T = sqrt(2* DT * drift_time);
