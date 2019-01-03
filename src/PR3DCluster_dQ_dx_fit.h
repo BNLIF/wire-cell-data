@@ -210,8 +210,6 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   /* /\* std::cout << diff_sigma_T/units::mm << " " << col_sigma_w_T/units::mm << std::endl; *\/ */
   /* std::cout << central_T << " " << central_W << " " << central_U << " " << central_V << std::endl;  */
 
-
-
   /* // short track segmentation ...  */
   /* // Now, a segment ... */
   /* std::vector<double> centers_U ; */
@@ -254,12 +252,6 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   /*   sigmas_T.push_back(sigma_L); */
   /* } */
 
-
-  
-  
-
-
-  
   /* for (auto it = proj_data_map.begin(); it!=proj_data_map.end(); it++){ */
   /*   /\* if (it->first.first>=4800){ *\/ */
   /*   /\*   double value = cal_gaus_integral(it->first.second, it->first.first,central_T, sigma_L, central_W, sigma_T_w,0,4)*500000; *\/ */
@@ -283,70 +275,87 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   /*     std::cout << it->first.first << " " << it->first.second << " " << it->second << " " << value <<  std::endl; */
   /*   } */
   /* } */
- 
-  // Now, need to add the calculations ...
-  std::vector<int> proj_channel;
-  std::vector<int> proj_timeslice;
-  std::vector<int> proj_charge;
-  std::vector<int> proj_charge_err;
-  get_projection(proj_channel,proj_timeslice,proj_charge, proj_charge_err, global_wc_map);
-  // condense the information ...
-  //  std::map<std::pair<int,int>, std::pair<double,double> > proj_data_u_map, proj_data_v_map, proj_data_w_map;
-  proj_data_u_map.clear();
-  proj_data_v_map.clear();
-  proj_data_w_map.clear();
+
+
+  std::set<int> good_channels_set;
   
-  for (size_t i=0;i!=proj_charge.size(); i++){
-    // std::cout << proj_channel.at(i) << " " << proj_timeslice.at(i) << " " << proj_charge.at(i) << " " << proj_charge_err.at(i) << std::endl;
+  {
+    // Now, need to add the calculations ...
+    std::vector<int> proj_channel;
+    std::vector<int> proj_timeslice;
+    std::vector<int> proj_charge;
+    std::vector<int> proj_charge_err;
+    get_projection(proj_channel,proj_timeslice,proj_charge, proj_charge_err, global_wc_map);
+    // condense the information ...
+    //  std::map<std::pair<int,int>, std::pair<double,double> > proj_data_u_map, proj_data_v_map, proj_data_w_map;
+    proj_data_u_map.clear();
+    proj_data_v_map.clear();
+    proj_data_w_map.clear();
     
-    if (proj_channel.at(i) < 2400){
-      auto it = proj_data_u_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
-      if (it == proj_data_u_map.end()){
-	proj_data_u_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
+    for (size_t i=0;i!=proj_charge.size(); i++){
+      // std::cout << proj_channel.at(i) << " " << proj_timeslice.at(i) << " " << proj_charge.at(i) << " " << proj_charge_err.at(i) << std::endl;
+      good_channels_set.insert(proj_channel.at(i));
+      
+      if (proj_channel.at(i) < 2400){
+  	auto it = proj_data_u_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
+  	if (it == proj_data_u_map.end()){
+  	  proj_data_u_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
+  	}else{
+  	  std::get<0>(it->second) += proj_charge.at(i);
+  	  std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
+  	}
+      }else if (proj_channel.at(i) < 4800){
+  	auto it = proj_data_v_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
+  	if (it == proj_data_v_map.end()){
+  	  proj_data_v_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
+  	}else{
+  	  std::get<0>(it->second) += proj_charge.at(i);
+  	  std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
+  	}
       }else{
-	std::get<0>(it->second) += proj_charge.at(i);
-	std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
+  	auto it = proj_data_w_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
+  	if (it == proj_data_w_map.end()){
+  	  proj_data_w_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
+  	}else{
+  	  std::get<0>(it->second) += proj_charge.at(i);
+  	  std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
+  	}
       }
-    }else if (proj_channel.at(i) < 4800){
-      auto it = proj_data_v_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
-      if (it == proj_data_v_map.end()){
-	proj_data_v_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
-      }else{
-	std::get<0>(it->second) += proj_charge.at(i);
-	std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
-      }
-    }else{
-      auto it = proj_data_w_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
-      if (it == proj_data_w_map.end()){
-	proj_data_w_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
-      }else{
-	std::get<0>(it->second) += proj_charge.at(i);
-	std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
-      }
+    }
+    
+    //  std::vector<std::pair<int,int> > to_be_removed;
+    for (auto it = proj_data_u_map.begin(); it!=proj_data_u_map.end(); ){
+      //  std::cout << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
+      if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
+  	it = proj_data_u_map.erase(it);
+      else
+  	++it;
+    }
+    for (auto it = proj_data_v_map.begin(); it!=proj_data_v_map.end();){
+      if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
+  	it = proj_data_v_map.erase(it);
+      else
+  	++it;
+    }
+    for (auto it = proj_data_w_map.begin(); it!=proj_data_w_map.end();){
+      if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
+  	it = proj_data_w_map.erase(it);
+      else
+  	++it;
     }
   }
 
-  //  std::vector<std::pair<int,int> > to_be_removed;
-  for (auto it = proj_data_u_map.begin(); it!=proj_data_u_map.end(); ){
-    //  std::cout << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
-    if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
-      it = proj_data_u_map.erase(it);
-    else
-      ++it;
-  }
-  for (auto it = proj_data_v_map.begin(); it!=proj_data_v_map.end();){
-    if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
-      it = proj_data_v_map.erase(it);
-    else
-      ++it;
-  }
-  for (auto it = proj_data_w_map.begin(); it!=proj_data_w_map.end();){
-    if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
-      it = proj_data_w_map.erase(it);
-    else
-      ++it;
-  }
+  /* { */
+  /*   std::map<std::pair<int,int>,double> map_2D_ut_charge, map_2D_ut_charge_err; */
+  /*   std::map<std::pair<int,int>,double> map_2D_vt_charge, map_2D_vt_charge_err; */
+  /*   std::map<std::pair<int,int>,double> map_2D_wt_charge, map_2D_wt_charge_err; */
+  /*   fill_2d_charge(global_wc_map, map_2D_ut_charge, map_2D_ut_charge_err, map_2D_vt_charge, map_2D_vt_charge_err, map_2D_wt_charge, map_2D_wt_charge_err); */
+
+  /*   for  */
+    
+  /* } */
   
+    
 
   std::cout << "dQ/dx fit: " << fine_tracking_path.size() << " " << proj_data_u_map.size() << " " << proj_data_v_map.size() << " " << proj_data_w_map.size() << std::endl;
   
@@ -582,7 +591,11 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   Eigen::SparseMatrix<double> RVT = Eigen::SparseMatrix<double>(RV.transpose());
   Eigen::SparseMatrix<double> RWT = Eigen::SparseMatrix<double>(RW.transpose());
 
-  Eigen::SparseMatrix<double> FMatrix(n_3D_pos, n_3D_pos) ;
+  Eigen::SparseMatrix<double> FMatrix(n_3D_pos, n_3D_pos);
+
+  std::cout << n_3D_pos << " " << pu.size() << " " << pv.size() << " " << pt.size() << std::endl;
+
+  
   for (size_t i=0;i!=n_3D_pos;i++){
     if (n_3D_pos!=1){
       if (i==0){
@@ -598,6 +611,8 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
       }
     }
   }
+
+  
   double lambda = 0.0;
   FMatrix *= lambda;
   Eigen::SparseMatrix<double> FMatrixT = Eigen::SparseMatrix<double>(FMatrix.transpose());
