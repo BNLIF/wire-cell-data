@@ -345,6 +345,7 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
   /*   } */
   /* } */
 
+  // if there is anything not in the good_channels_set, it is dead channels ... 
   {
     std::map<std::pair<int,int>, std::pair<double, double> > map_2D_ut_charge;
     std::map<std::pair<int,int>, std::pair<double, double> > map_2D_vt_charge;
@@ -606,27 +607,138 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 
   Eigen::SparseMatrix<double> FMatrix(n_3D_pos, n_3D_pos);
 
-  std::cout << n_3D_pos << " " << pu.size() << " " << pv.size() << " " << pt.size() << std::endl;
+  //std::cout << n_3D_pos << " " << pu.size() << " " << pv.size() << " " << pt.size() << std::endl;
 
   
+  double reg_cut = 3*units::mm;
+  double ind_weight = 0.2;
+  double col_weight = 1;
   for (size_t i=0;i!=n_3D_pos;i++){
+    bool flag_u = false;
+    bool flag_v = false;
+    bool flag_w = false;
+
+    // std::cout << pu.at(i) << " " << pv.at(i) << " " << pw.at(i) << std::endl;
+    
     if (n_3D_pos!=1){
       if (i==0){
-	FMatrix.insert(0,0) = -1;
-	FMatrix.insert(0,1) = 1.;
+    	/* FMatrix.insert(0,0) = -1; */
+    	/* FMatrix.insert(0,1) = 1.; */
+	
+	// examine the dead channels in U plane 
+	if (good_channels_set.find(std::round(pu.at(i)))   != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pu.at(i+1))) != good_channels_set.end()){
+	  if (sqrt(pow((pu.at(i)-pu.at(i+1))*pitch_u,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2)) < reg_cut){
+	    flag_u = true;
+	  }
+	}
+	if (good_channels_set.find(std::round(pv.at(i)))   != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pv.at(i+1))) != good_channels_set.end()){
+	  if (sqrt(pow((pv.at(i)-pv.at(i+1))*pitch_v,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2)) < reg_cut){
+	    flag_v = true;
+	  }
+	}
+	if (good_channels_set.find(std::round(pw.at(i)))   != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pw.at(i+1))) != good_channels_set.end()){
+	  if (sqrt(pow((pw.at(i)-pw.at(i+1))*pitch_w,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2)) < reg_cut){
+	    flag_w = true;
+	  }
+	}
+
+	/* if (cluster_id == 9) */
+	/*   std::cout << i << " " << sqrt(pow((pu.at(i)-pu.at(i+1))*pitch_u,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pv.at(i)-pv.at(i+1))*pitch_v,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pw.at(i)-pw.at(i+1))*pitch_w,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm << std::endl; */
+	
+	double weight = 0;
+	if (flag_u) weight += ind_weight;
+	if (flag_v) weight += ind_weight;
+	if (flag_w) weight += col_weight;
+
+	FMatrix.insert(0,0) = -weight; 
+	FMatrix.insert(0,1) = weight;
       }else if (i==n_3D_pos-1){
-	FMatrix.insert(i,i) = -1.;
-	FMatrix.insert(i,i-1) = 1.;
+    	/* FMatrix.insert(i,i) = -1.; */
+    	/* FMatrix.insert(i,i-1) = 1.; */
+
+	
+	if (good_channels_set.find(std::round(pu.at(i)))   != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pu.at(i-1))) != good_channels_set.end()){
+	  if (sqrt(pow((pu.at(i)-pu.at(i-1))*pitch_u,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2)) < reg_cut){
+	    flag_u = true;
+	  }
+	}
+	if (good_channels_set.find(std::round(pv.at(i)))   != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pv.at(i-1))) != good_channels_set.end()){
+	  if (sqrt(pow((pv.at(i)-pv.at(i-1))*pitch_v,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2)) < reg_cut){
+	    flag_v = true;
+	  }
+	}
+	if (good_channels_set.find(std::round(pw.at(i)))   != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pw.at(i-1))) != good_channels_set.end()){
+	  if (sqrt(pow((pw.at(i)-pw.at(i-1))*pitch_w,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2)) < reg_cut){
+	    flag_w = true;
+	  }
+	}
+	/* if (cluster_id == 9) */
+	/*   std::cout << i << " " << sqrt(pow((pu.at(i)-pu.at(i-1))*pitch_u,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << " " <<  sqrt(pow((pv.at(i)-pv.at(i-1))*pitch_v,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << " " <<  sqrt(pow((pw.at(i)-pw.at(i-1))*pitch_w,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << std::endl; */
+
+	
+	double weight = 0;
+	if (flag_u) weight += ind_weight;
+	if (flag_v) weight += ind_weight;
+	if (flag_w) weight += col_weight;
+
+	FMatrix.insert(i,i) = -weight; 
+	FMatrix.insert(i,i-1) = weight;
       }else{
-	FMatrix.insert(i,i)=-2.;
-	FMatrix.insert(i,i+1)=1.;
-	FMatrix.insert(i,i-1)=1.;
+    	/* FMatrix.insert(i,i)=-2.; */
+    	/* FMatrix.insert(i,i+1)=1.; */
+    	/* FMatrix.insert(i,i-1)=1.; */
+
+	// examine the dead channels in U plane 
+	if (good_channels_set.find(std::round(pu.at(i)))   != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pu.at(i+1))) != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pu.at(i-1))) != good_channels_set.end() 
+	    ){
+	  if (sqrt(pow((pu.at(i)-pu.at(i+1))*pitch_u,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2)) < reg_cut ||
+	      sqrt(pow((pu.at(i)-pu.at(i+1))*pitch_u,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2)) < reg_cut ){
+	    flag_u = true;
+	  }
+	}
+	if (good_channels_set.find(std::round(pv.at(i)))   != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pv.at(i+1))) != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pv.at(i-1))) != good_channels_set.end()){
+	  if (sqrt(pow((pv.at(i)-pv.at(i+1))*pitch_v,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2)) < reg_cut ||
+	      sqrt(pow((pv.at(i)-pv.at(i-1))*pitch_v,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2)) < reg_cut){
+	    flag_v = true;
+	  }
+	}
+	if (good_channels_set.find(std::round(pw.at(i)))   != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pw.at(i+1))) != good_channels_set.end() ||
+	    good_channels_set.find(std::round(pw.at(i-1))) != good_channels_set.end()){
+	  if (sqrt(pow((pw.at(i)-pw.at(i+1))*pitch_w,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2)) < reg_cut || 
+	      sqrt(pow((pw.at(i)-pw.at(i-1))*pitch_w,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2)) < reg_cut){
+	    flag_w = true;
+	  }
+	}
+	
+	/* if (cluster_id == 9) */
+	/*   std::cout << i << " " << sqrt(pow((pu.at(i)-pu.at(i+1))*pitch_u,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pv.at(i)-pv.at(i+1))*pitch_v,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pw.at(i)-pw.at(i+1))*pitch_w,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm */
+	/* 	    << " " << sqrt(pow((pu.at(i)-pu.at(i-1))*pitch_u,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pv.at(i)-pv.at(i-1))*pitch_v,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pw.at(i)-pw.at(i-1))*pitch_w,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << std::endl; */
+	
+	double weight = 0;
+	if (flag_u) weight += ind_weight;
+	if (flag_v) weight += ind_weight;
+	if (flag_w) weight += col_weight;
+
+	FMatrix.insert(i,i)=-2.*weight; 
+	FMatrix.insert(i,i+1)=weight; 
+	FMatrix.insert(i,i-1)=weight; 
       }
     }
   }
 
   
-  double lambda = 0.0;
+  double lambda = 0.001;
   FMatrix *= lambda;
   Eigen::SparseMatrix<double> FMatrixT = Eigen::SparseMatrix<double>(FMatrix.transpose());
   
