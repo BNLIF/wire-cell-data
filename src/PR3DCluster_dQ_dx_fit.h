@@ -279,96 +279,96 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 
   std::set<int> good_channels_set;
   
-  {
-    // Now, need to add the calculations ...
-    std::vector<int> proj_channel;
-    std::vector<int> proj_timeslice;
-    std::vector<int> proj_charge;
-    std::vector<int> proj_charge_err;
-    std::vector<int> proj_flag;
-    get_projection(proj_channel,proj_timeslice,proj_charge, proj_charge_err, proj_flag, global_wc_map);
-    // condense the information ...
-    //  std::map<std::pair<int,int>, std::pair<double,double> > proj_data_u_map, proj_data_v_map, proj_data_w_map;
-    proj_data_u_map.clear();
-    proj_data_v_map.clear();
-    proj_data_w_map.clear();
-    
-    for (size_t i=0;i!=proj_charge.size(); i++){
-      // std::cout << proj_channel.at(i) << " " << proj_timeslice.at(i) << " " << proj_charge.at(i) << " " << proj_charge_err.at(i) << std::endl;
-      good_channels_set.insert(proj_channel.at(i));
-      
-      if (proj_channel.at(i) < 2400){
-  	auto it = proj_data_u_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
-  	if (it == proj_data_u_map.end()){
-  	  proj_data_u_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
-  	}else{
-  	  std::get<0>(it->second) += proj_charge.at(i);
-  	  std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
-  	}
-      }else if (proj_channel.at(i) < 4800){
-  	auto it = proj_data_v_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
-  	if (it == proj_data_v_map.end()){
-  	  proj_data_v_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
-  	}else{
-  	  std::get<0>(it->second) += proj_charge.at(i);
-  	  std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
-  	}
-      }else{
-  	auto it = proj_data_w_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i)));
-  	if (it == proj_data_w_map.end()){
-  	  proj_data_w_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0);
-  	}else{
-  	  std::get<0>(it->second) += proj_charge.at(i);
-  	  std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2));
-  	}
-      }
-    }
-    
-    //  std::vector<std::pair<int,int> > to_be_removed;
-    for (auto it = proj_data_u_map.begin(); it!=proj_data_u_map.end(); ){
-      //  std::cout << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl;
-      if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
-  	it = proj_data_u_map.erase(it);
-      else
-  	++it;
-    }
-    for (auto it = proj_data_v_map.begin(); it!=proj_data_v_map.end();){
-      if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
-  	it = proj_data_v_map.erase(it);
-      else
-  	++it;
-    }
-    for (auto it = proj_data_w_map.begin(); it!=proj_data_w_map.end();){
-      if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0)
-  	it = proj_data_w_map.erase(it);
-      else
-  	++it;
-    }
-  }
-
-  /* // if there is anything not in the good_channels_set, it is dead channels ... */
   /* { */
-  /*   std::map<std::pair<int,int>, std::tuple<double, double, int> > map_2D_ut_charge; */
-  /*   std::map<std::pair<int,int>, std::tuple<double, double, int> > map_2D_vt_charge; */
-  /*   std::map<std::pair<int,int>, std::tuple<double, double, int> > map_2D_wt_charge; */
-  /*   fill_2d_charge(global_wc_map, map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge); */
+  /*   // Now, need to add the calculations ... */
+  /*   std::vector<int> proj_channel; */
+  /*   std::vector<int> proj_timeslice; */
+  /*   std::vector<int> proj_charge; */
+  /*   std::vector<int> proj_charge_err; */
+  /*   std::vector<int> proj_flag; */
+  /*   get_projection(proj_channel,proj_timeslice,proj_charge, proj_charge_err, proj_flag, global_wc_map); */
+  /*   // condense the information ... */
+  /*   //  std::map<std::pair<int,int>, std::pair<double,double> > proj_data_u_map, proj_data_v_map, proj_data_w_map; */
   /*   proj_data_u_map.clear(); */
   /*   proj_data_v_map.clear(); */
   /*   proj_data_w_map.clear(); */
-
-  /*   for (auto it = map_2D_ut_charge.begin(); it!=map_2D_ut_charge.end(); it++){ */
-  /*     good_channels_set.insert(it->first.first); */
-  /*     proj_data_u_map[it->first] = std::make_tuple(std::get<0>(it->second),std::get<1>(it->second),0); */
+    
+  /*   for (size_t i=0;i!=proj_charge.size(); i++){ */
+  /*     // std::cout << proj_channel.at(i) << " " << proj_timeslice.at(i) << " " << proj_charge.at(i) << " " << proj_charge_err.at(i) << std::endl; */
+  /*     good_channels_set.insert(proj_channel.at(i)); */
+      
+  /*     if (proj_channel.at(i) < 2400){ */
+  /* 	auto it = proj_data_u_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i))); */
+  /* 	if (it == proj_data_u_map.end()){ */
+  /* 	  proj_data_u_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0); */
+  /* 	}else{ */
+  /* 	  std::get<0>(it->second) += proj_charge.at(i); */
+  /* 	  std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2)); */
+  /* 	} */
+  /*     }else if (proj_channel.at(i) < 4800){ */
+  /* 	auto it = proj_data_v_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i))); */
+  /* 	if (it == proj_data_v_map.end()){ */
+  /* 	  proj_data_v_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0); */
+  /* 	}else{ */
+  /* 	  std::get<0>(it->second) += proj_charge.at(i); */
+  /* 	  std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2)); */
+  /* 	} */
+  /*     }else{ */
+  /* 	auto it = proj_data_w_map.find(std::make_pair(proj_channel.at(i),proj_timeslice.at(i))); */
+  /* 	if (it == proj_data_w_map.end()){ */
+  /* 	  proj_data_w_map[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_tuple(proj_charge.at(i),proj_charge_err.at(i),0); */
+  /* 	}else{ */
+  /* 	  std::get<0>(it->second) += proj_charge.at(i); */
+  /* 	  std::get<1>(it->second) = sqrt(pow(std::get<1>(it->second),2) + pow(proj_charge_err.at(i),2)); */
+  /* 	} */
+  /*     } */
   /*   } */
-  /*   for (auto it = map_2D_vt_charge.begin(); it!=map_2D_vt_charge.end(); it++){ */
-  /*     good_channels_set.insert(it->first.first+2400); */
-  /*     proj_data_v_map[std::make_pair(it->first.first+2400,it->first.second)] = std::make_tuple(std::get<0>(it->second),std::get<1>(it->second),0); */
+    
+  /*   //  std::vector<std::pair<int,int> > to_be_removed; */
+  /*   for (auto it = proj_data_u_map.begin(); it!=proj_data_u_map.end(); ){ */
+  /*     //  std::cout << std::get<0>(it->second) << " " << std::get<1>(it->second) << std::endl; */
+  /*     if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0) */
+  /* 	it = proj_data_u_map.erase(it); */
+  /*     else */
+  /* 	++it; */
   /*   } */
-  /*   for (auto it = map_2D_wt_charge.begin(); it!=map_2D_wt_charge.end(); it++){ */
-  /*     good_channels_set.insert(it->first.first+4800); */
-  /*     proj_data_w_map[std::make_pair(it->first.first+4800,it->first.second)] = std::make_tuple(std::get<0>(it->second),std::get<1>(it->second),0); */
+  /*   for (auto it = proj_data_v_map.begin(); it!=proj_data_v_map.end();){ */
+  /*     if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0) */
+  /* 	it = proj_data_v_map.erase(it); */
+  /*     else */
+  /* 	++it; */
+  /*   } */
+  /*   for (auto it = proj_data_w_map.begin(); it!=proj_data_w_map.end();){ */
+  /*     if (std::get<0>(it->second)==0 && std::get<1>(it->second)==0) */
+  /* 	it = proj_data_w_map.erase(it); */
+  /*     else */
+  /* 	++it; */
   /*   } */
   /* } */
+
+  // if there is anything not in the good_channels_set, it is dead channels ...
+  {
+    std::map<std::pair<int,int>, std::tuple<double, double, int> > map_2D_ut_charge;
+    std::map<std::pair<int,int>, std::tuple<double, double, int> > map_2D_vt_charge;
+    std::map<std::pair<int,int>, std::tuple<double, double, int> > map_2D_wt_charge;
+    fill_2d_charge(global_wc_map, map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
+    proj_data_u_map.clear();
+    proj_data_v_map.clear();
+    proj_data_w_map.clear();
+
+    for (auto it = map_2D_ut_charge.begin(); it!=map_2D_ut_charge.end(); it++){
+      good_channels_set.insert(it->first.first);
+      proj_data_u_map[it->first] = std::make_tuple(std::get<0>(it->second),std::get<1>(it->second),0);
+    }
+    for (auto it = map_2D_vt_charge.begin(); it!=map_2D_vt_charge.end(); it++){
+      good_channels_set.insert(it->first.first+2400);
+      proj_data_v_map[std::make_pair(it->first.first+2400,it->first.second)] = std::make_tuple(std::get<0>(it->second),std::get<1>(it->second),0);
+    }
+    for (auto it = map_2D_wt_charge.begin(); it!=map_2D_wt_charge.end(); it++){
+      good_channels_set.insert(it->first.first+4800);
+      proj_data_w_map[std::make_pair(it->first.first+4800,it->first.second)] = std::make_tuple(std::get<0>(it->second),std::get<1>(it->second),0);
+    }
+  }
   
     
 

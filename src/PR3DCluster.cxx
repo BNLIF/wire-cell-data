@@ -109,11 +109,16 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
       for (int i=0;i!=uwires.size();i++){
 	const GeomWire *wire = uwires.at(i);
 	int ch = wire->channel();
+	int temp_flag = 1;
 	int charge = mcell->Get_Wire_Charge(wire);
-	if (charge<=0)
+	int charge_err = mcell->Get_Wire_Charge_Err(wire);
+	
+	if (charge<=0){
 	  charge = mcell->get_q()*1.0/uwires.size();
-	int charge_err = sqrt(pow(charge*0.1,2)+pow(600,2)); // assume 30% error
-	  
+	  charge_err = sqrt(pow(charge*0.1,2)+pow(600,2)); // assume 30% error
+	  temp_flag = 0;
+	}
+	
 	//	if(cluster_id==18)
 	//std::cout << ch << " " << time_slice << " " << charge << std::endl;
 	//	if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
@@ -121,7 +126,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	proj_timeslice.push_back(time_slice);
 	proj_charge.push_back(charge);
 	proj_charge_err.push_back(charge_err);
-	proj_flag.push_back(0);
+	proj_flag.push_back(temp_flag);
 	// saved_time_channel.insert(std::make_pair(time_slice,ch));
 	  //}
       }
@@ -169,19 +174,23 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
       for (int i=0;i!=vwires.size();i++){
 	const GeomWire *wire = vwires.at(i);
 	int ch = wire->channel();
+	int temp_flag=1;
 	int charge = mcell->Get_Wire_Charge(wire);
-	if (charge<=0)
+	int charge_err = mcell->Get_Wire_Charge_Err(wire);
+	if (charge<=0){
 	  charge = mcell->get_q()*1.0/vwires.size();
+	  charge_err = sqrt(pow(charge*0.1,2)+pow(600,2));
+	  temp_flag= 0;
+	}
 	
 	
-	int charge_err = sqrt(pow(charge*0.1,2)+pow(600,2));
 	
 	//if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
 	proj_channel.push_back(ch);
 	proj_timeslice.push_back(time_slice);
 	proj_charge.push_back(charge);
 	proj_charge_err.push_back(charge_err);
-	proj_flag.push_back(0);
+	proj_flag.push_back(temp_flag);
 	//saved_time_channel.insert(std::make_pair(time_slice,ch));
 	  //}
       }
@@ -229,16 +238,20 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
       for (int i=0;i!=wwires.size();i++){
 	const GeomWire *wire = wwires.at(i);
 	int ch = wire->channel();
+	int temp_flag=1;
 	int charge = mcell->Get_Wire_Charge(wire);
-	if (charge<=0)
+	int charge_err = mcell->Get_Wire_Charge_Err(wire);
+	if (charge<=0){
 	  charge = mcell->get_q()*1.0/wwires.size();
-	int charge_err = sqrt(pow(charge*0.1,2) + pow(100,2));
+	  charge_err = sqrt(pow(charge*0.1,2) + pow(100,2));
+	  temp_flag = 0;
+	}
 	//	if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
 	proj_channel.push_back(ch);
 	proj_timeslice.push_back(time_slice);
 	proj_charge.push_back(charge);
 	proj_charge_err.push_back(charge_err);
-	proj_flag.push_back(0);
+	proj_flag.push_back(temp_flag);
 	  //	  saved_time_channel.insert(std::make_pair(time_slice,ch));
 	  //	}
       }
