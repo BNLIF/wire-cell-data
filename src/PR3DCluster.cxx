@@ -101,6 +101,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	  proj_timeslice.push_back(time_slice);
 	  proj_charge.push_back(charge);
 	  proj_charge_err.push_back(charge_err);
+	  proj_flag.push_back(1);
 	  saved_time_channel.insert(std::make_pair(time_slice,ch));
 	}
       }
@@ -120,6 +121,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	proj_timeslice.push_back(time_slice);
 	proj_charge.push_back(charge);
 	proj_charge_err.push_back(charge_err);
+	proj_flag.push_back(0);
 	// saved_time_channel.insert(std::make_pair(time_slice,ch));
 	  //}
       }
@@ -159,6 +161,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	  proj_timeslice.push_back(time_slice);
 	  proj_charge.push_back(charge);
 	  proj_charge_err.push_back(charge_err);
+	  proj_flag.push_back(1);
 	  saved_time_channel.insert(std::make_pair(time_slice,ch));
 	}
       }
@@ -178,6 +181,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	proj_timeslice.push_back(time_slice);
 	proj_charge.push_back(charge);
 	proj_charge_err.push_back(charge_err);
+	proj_flag.push_back(0);
 	//saved_time_channel.insert(std::make_pair(time_slice,ch));
 	  //}
       }
@@ -217,6 +221,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	  proj_timeslice.push_back(time_slice);
 	  proj_charge.push_back(charge);
 	  proj_charge_err.push_back(charge_err);
+	  proj_flag.push_back(1);
 	  saved_time_channel.insert(std::make_pair(time_slice,ch));
 	}
       }
@@ -233,6 +238,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	proj_timeslice.push_back(time_slice);
 	proj_charge.push_back(charge);
 	proj_charge_err.push_back(charge_err);
+	proj_flag.push_back(0);
 	  //	  saved_time_channel.insert(std::make_pair(time_slice,ch));
 	  //	}
       }
@@ -248,6 +254,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
     proj_timeslice.push_back(time_slice);
     proj_charge.push_back(charge);
     proj_charge_err.push_back(charge_err);
+    proj_flag.push_back(1);
   }
   
 }

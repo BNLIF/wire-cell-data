@@ -348,9 +348,9 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 
   /* // if there is anything not in the good_channels_set, it is dead channels ... */
   /* { */
-  /*   std::map<std::pair<int,int>, std::pair<double, double> > map_2D_ut_charge; */
-  /*   std::map<std::pair<int,int>, std::pair<double, double> > map_2D_vt_charge; */
-  /*   std::map<std::pair<int,int>, std::pair<double, double> > map_2D_wt_charge; */
+  /*   std::map<std::pair<int,int>, std::tuple<double, double, int> > map_2D_ut_charge; */
+  /*   std::map<std::pair<int,int>, std::tuple<double, double, int> > map_2D_vt_charge; */
+  /*   std::map<std::pair<int,int>, std::tuple<double, double, int> > map_2D_wt_charge; */
   /*   fill_2d_charge(global_wc_map, map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge); */
   /*   proj_data_u_map.clear(); */
   /*   proj_data_v_map.clear(); */
@@ -358,15 +358,15 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 
   /*   for (auto it = map_2D_ut_charge.begin(); it!=map_2D_ut_charge.end(); it++){ */
   /*     good_channels_set.insert(it->first.first); */
-  /*     proj_data_u_map[it->first] = std::make_tuple(it->second.first,it->second.second,0); */
+  /*     proj_data_u_map[it->first] = std::make_tuple(std::get<0>(it->second),std::get<1>(it->second),0); */
   /*   } */
   /*   for (auto it = map_2D_vt_charge.begin(); it!=map_2D_vt_charge.end(); it++){ */
   /*     good_channels_set.insert(it->first.first+2400); */
-  /*     proj_data_v_map[std::make_pair(it->first.first+2400,it->first.second)] = std::make_tuple(it->second.first,it->second.second,0); */
+  /*     proj_data_v_map[std::make_pair(it->first.first+2400,it->first.second)] = std::make_tuple(std::get<0>(it->second),std::get<1>(it->second),0); */
   /*   } */
   /*   for (auto it = map_2D_wt_charge.begin(); it!=map_2D_wt_charge.end(); it++){ */
   /*     good_channels_set.insert(it->first.first+4800); */
-  /*     proj_data_w_map[std::make_pair(it->first.first+4800,it->first.second)] = std::make_tuple(it->second.first,it->second.second,0); */
+  /*     proj_data_w_map[std::make_pair(it->first.first+4800,it->first.second)] = std::make_tuple(std::get<0>(it->second),std::get<1>(it->second),0); */
   /*   } */
   /* } */
   
