@@ -44,7 +44,7 @@ void PR3DCluster::Del_graph(){
   }
 }
 
-void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int>& proj_timeslice, std::vector<int>& proj_charge, std::vector<int>& proj_charge_err, std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map){
+void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int>& proj_timeslice, std::vector<int>& proj_charge, std::vector<int>& proj_charge_err, std::vector<int>& proj_flag, std::map<int,std::map<const GeomWire*, SMGCSelection > >& global_wc_map){
   // std::vector<int> proj_charge_err;
   
   std::set<SlimMergeGeomCell*> cluster_mcells_set;
@@ -111,7 +111,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	int charge = mcell->Get_Wire_Charge(wire);
 	if (charge<=0)
 	  charge = mcell->get_q()*1.0/uwires.size();
-	int charge_err = sqrt(pow(charge/2.,2)+pow(2000,2)); // assume 30% error
+	int charge_err = sqrt(pow(charge*0.1,2)+pow(600,2)); // assume 30% error
 	  
 	//	if(cluster_id==18)
 	//std::cout << ch << " " << time_slice << " " << charge << std::endl;
@@ -171,7 +171,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	  charge = mcell->get_q()*1.0/vwires.size();
 	
 	
-	int charge_err = sqrt(pow(charge/2.,2)+pow(2000,2));
+	int charge_err = sqrt(pow(charge*0.1,2)+pow(600,2));
 	
 	//if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
 	proj_channel.push_back(ch);
@@ -227,7 +227,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	int charge = mcell->Get_Wire_Charge(wire);
 	if (charge<=0)
 	  charge = mcell->get_q()*1.0/wwires.size();
-	int charge_err = sqrt(pow(charge/2.,2) + pow(2000,2));
+	int charge_err = sqrt(pow(charge*0.1,2) + pow(100,2));
 	//	if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
 	proj_channel.push_back(ch);
 	proj_timeslice.push_back(time_slice);

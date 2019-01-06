@@ -241,7 +241,7 @@ void PR3DCluster::form_map_projection_based(PointVector& ps_vec,std::map<int,std
   
 }
 
-void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set, double end_point_factor, double mid_point_factor, int nlevel, double time_cut){
+void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::map<std::pair<int,int>,std::pair<double,double> >& map_2D_ut_charge, std::map<std::pair<int,int>,std::pair<double,double> >& map_2D_vt_charge, std::map<std::pair<int,int>,std::pair<double,double> >& map_2D_wt_charge, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set, double end_point_factor, double mid_point_factor, int nlevel, double time_cut){
 
   std::vector<double> distances;
   for (size_t i=0;i+1!=path_wcps_vec.size();i++){
@@ -396,59 +396,119 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
 
     	  // if (abs(cur_time_slice-1261)==0)
     	  //   std::cout << low_u_limit << " " << high_u_limit << " " << low_v_limit << " " << high_v_limit << " " << low_w_limit << " " << high_w_limit << std::endl;
-	  
-    	  WireChargeMap& wire_charge_map = mcell->get_wirecharge_map();
-    	  for (auto it1 = wire_charge_map.begin(); it1!= wire_charge_map.end(); it1++){
-	    const GeomWire *wire = it1->first;
-	    if (it1->second >0){
-	      //if (1>0){
-	      if (wire->iplane()==0){
-		// U plane ...
-		if (wire->index() >= low_u_limit && wire->index() <= high_u_limit){
-		  map_3D_2DU_set[i].insert(std::make_pair(wire->index(),this_time_slice));
-		  if (map_2DU_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DU_3D_set.end()){
-		    std::set<int>  temp_set;
-		    temp_set.insert(i);
-		    map_2DU_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
-		  }else{
-		    map_2DU_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i);
-		  }
-		}
-	      }else if (wire->iplane()==1){
-		// V plane ...
-		if (wire->index() >= low_v_limit && wire->index() <= high_v_limit){
-		  map_3D_2DV_set[i].insert(std::make_pair(wire->index(),this_time_slice));
-		  if (map_2DV_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DV_3D_set.end()){
-		    std::set<int>  temp_set;
-		    temp_set.insert(i);
-		    map_2DV_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
-		  }else{
-    		  map_2DV_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i);
-		  }
-		}
-	      }else{
-		// W plane ... 
-		if (wire->index() >= low_w_limit && wire->index() <= high_w_limit){
-		  map_3D_2DW_set[i].insert(std::make_pair(wire->index(),this_time_slice));
-		  if (map_2DW_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DW_3D_set.end()){
-		    std::set<int> temp_set;
-		    temp_set.insert(i);
-		    map_2DW_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set;
-		  }else{
-		    map_2DW_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i);
-		  }
-		}
-	      }
+
+	  for (auto it1 = map_2D_ut_charge.begin(); it1 != map_2D_ut_charge.end(); it1++){
+	    if (it1->first.first >=low_u_limit && it1->first.first <= high_u_limit && this_time_slice == it1->first.second){
+	       map_3D_2DU_set[i].insert(std::make_pair(it1->first.first,it1->first.second)); 
+	       if (map_2DU_3D_set.find(std::make_pair(it1->first.first, it1->first.second))==map_2DU_3D_set.end()){
+		 std::set<int>  temp_set;
+		 temp_set.insert(i);
+		 map_2DU_3D_set[std::make_pair(it1->first.first, it1->first.second)] = temp_set;
+	       }else{
+		 map_2DU_3D_set[std::make_pair(it1->first.first, it1->first.second)].insert(i);
+	       }
 	    }
-    	  }
+	  }
+
+	  for (auto it1 = map_2D_vt_charge.begin(); it1 != map_2D_vt_charge.end(); it1++){
+	    if (it1->first.first >=low_v_limit && it1->first.first <= high_v_limit && this_time_slice == it1->first.second){
+	       map_3D_2DV_set[i].insert(std::make_pair(it1->first.first,it1->first.second)); 
+	       if (map_2DV_3D_set.find(std::make_pair(it1->first.first, it1->first.second))==map_2DV_3D_set.end()){
+		 std::set<int>  temp_set;
+		 temp_set.insert(i);
+		 map_2DV_3D_set[std::make_pair(it1->first.first, it1->first.second)] = temp_set;
+	       }else{
+		 map_2DV_3D_set[std::make_pair(it1->first.first, it1->first.second)].insert(i);
+	       }
+	    }
+	  }
+
+	  for (auto it1 = map_2D_wt_charge.begin(); it1 != map_2D_wt_charge.end(); it1++){
+	    if (it1->first.first >=low_w_limit && it1->first.first <= high_w_limit && this_time_slice == it1->first.second){
+	       map_3D_2DW_set[i].insert(std::make_pair(it1->first.first,it1->first.second)); 
+	       if (map_2DW_3D_set.find(std::make_pair(it1->first.first, it1->first.second))==map_2DW_3D_set.end()){
+		 std::set<int>  temp_set;
+		 temp_set.insert(i);
+		 map_2DW_3D_set[std::make_pair(it1->first.first, it1->first.second)] = temp_set;
+	       }else{
+		 map_2DW_3D_set[std::make_pair(it1->first.first, it1->first.second)].insert(i);
+	       }
+	    }
+	  }
+
+	  
+
+	  
+    	  /* WireChargeMap& wire_charge_map = mcell->get_wirecharge_map(); */
+    	  /* for (auto it1 = wire_charge_map.begin(); it1!= wire_charge_map.end(); it1++){ */
+	  /*   const GeomWire *wire = it1->first; */
+	  /*   if (it1->second >0){ */
+	  /*     if (wire->iplane()==0){ */
+	  /* 	// U plane ... */
+	  /* 	if (wire->index() >= low_u_limit && wire->index() <= high_u_limit){ */
+	  /* 	  map_3D_2DU_set[i].insert(std::make_pair(wire->index(),this_time_slice)); */
+	  /* 	  if (map_2DU_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DU_3D_set.end()){ */
+	  /* 	    std::set<int>  temp_set; */
+	  /* 	    temp_set.insert(i); */
+	  /* 	    map_2DU_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set; */
+	  /* 	  }else{ */
+	  /* 	    map_2DU_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i); */
+	  /* 	  } */
+	  /* 	} */
+	  /*     }else if (wire->iplane()==1){ */
+	  /* 	// V plane ... */
+	  /* 	if (wire->index() >= low_v_limit && wire->index() <= high_v_limit){ */
+	  /* 	  map_3D_2DV_set[i].insert(std::make_pair(wire->index(),this_time_slice)); */
+	  /* 	  if (map_2DV_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DV_3D_set.end()){ */
+	  /* 	    std::set<int>  temp_set; */
+	  /* 	    temp_set.insert(i); */
+	  /* 	    map_2DV_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set; */
+	  /* 	  }else{ */
+    	  /* 	  map_2DV_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i); */
+	  /* 	  } */
+	  /* 	} */
+	  /*     }else{ */
+	  /* 	// W plane ...  */
+	  /* 	if (wire->index() >= low_w_limit && wire->index() <= high_w_limit){ */
+	  /* 	  map_3D_2DW_set[i].insert(std::make_pair(wire->index(),this_time_slice)); */
+	  /* 	  if (map_2DW_3D_set.find(std::make_pair(wire->index(),this_time_slice))==map_2DW_3D_set.end()){ */
+	  /* 	    std::set<int> temp_set; */
+	  /* 	    temp_set.insert(i); */
+	  /* 	    map_2DW_3D_set[std::make_pair(wire->index(),this_time_slice)] = temp_set; */
+	  /* 	  }else{ */
+	  /* 	    map_2DW_3D_set[std::make_pair(wire->index(),this_time_slice)].insert(i); */
+	  /* 	  } */
+	  /* 	} */
+	  /*     } */
+	  /*   } */
+    	  /* } */
+
+	  
+
+	  
 	}
       }
     }
-  } // i loop ... 
+  } // i loop ...
+
+  /* if (cluster_id==9){ */
+  /*   int index = 204; */
+  /*   for (auto it = map_3D_2DU_set[index].begin() ; it!=map_3D_2DU_set[index].end();it++){ */
+  /*     std::cout << "U: " << it->first << " " << it->second << std::endl; */
+  /*   } */
+  /*   for (auto it = map_3D_2DV_set[index].begin() ; it!=map_3D_2DV_set[index].end();it++){ */
+  /*     std::cout << "V: " << it->first+2400 << " " << it->second << std::endl; */
+  /*   } */
+  /*   for (auto it = map_3D_2DW_set[index].begin() ; it!=map_3D_2DW_set[index].end();it++){ */
+  /*     std::cout << "W: " << it->first+4800 << " " << it->second << std::endl; */
+  /*   } */
+  /* } */
+  
 }
 
 
-void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>, std::pair<double, double> >& map_2D_ut_charge, std::map<std::pair<int,int>, std::pair<double, double> >& map_2D_vt_charge, std::map<std::pair<int,int>, std::pair<double, double> >& map_2D_wt_charge, int flag_lambda, double init_lambda){
+void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>, std::pair<double, double> >& map_2D_ut_charge, std::map<std::pair<int,int>, std::pair<double, double> >& map_2D_vt_charge, std::map<std::pair<int,int>, std::pair<double, double> >& map_2D_wt_charge, int flag_lambda, double init_lambda, int flag_scaling){
+  
 
   std::vector<double> distances;
   for (size_t i=0;i+1!=ps_vec.size();i++){
@@ -532,7 +592,15 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::set<std::
     double charge = map_2D_ut_charge[vec_2DU_index.at(index).first].first;
     double charge_err = map_2D_ut_charge[vec_2DU_index.at(index).first].second;
     int n_divide = map_2DU_3D_set[vec_2DU_index.at(index).first].size();
-    double scaling = charge/charge_err/n_divide;
+
+    double scaling = sqrt(charge/n_divide);
+    if (flag_scaling == 1){
+      if (fabs(charge_err-sqrt(pow(charge*0.1,2)+pow(600,2)))<0.005*charge_err )
+	scaling = scaling /sqrt(2.);
+    }else if (flag_scaling == 2){
+      scaling = charge/charge_err/n_divide;
+    }
+    
     data_u_2D(2*index) =  scaling * (vec_2DU_index.at(index).first.first - offset_u);
     data_u_2D(2*index+1) = scaling * (vec_2DU_index.at(index).first.second - offset_t);
 
@@ -554,7 +622,15 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::set<std::
     double charge = map_2D_vt_charge[vec_2DV_index.at(index).first].first;
     double charge_err = map_2D_vt_charge[vec_2DV_index.at(index).first].second;
     int n_divide = map_2DV_3D_set[vec_2DV_index.at(index).first].size();
-    double scaling = charge/charge_err/n_divide;
+
+    double scaling = sqrt(charge/n_divide);
+    if (flag_scaling == 1){
+      if (fabs(charge_err-sqrt(pow(charge*0.1,2)+pow(600,2)))<0.005*charge_err )
+	scaling = scaling /sqrt(2.);
+    }else if (flag_scaling == 2){
+      scaling = charge/charge_err/n_divide;
+    }
+    
     data_v_2D(2*index) =  scaling * (vec_2DV_index.at(index).first.first - offset_v);
     data_v_2D(2*index+1) = scaling * (vec_2DV_index.at(index).first.second - offset_t);
 
@@ -575,7 +651,16 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::set<std::
     double charge = map_2D_wt_charge[vec_2DW_index.at(index).first].first;
     double charge_err = map_2D_wt_charge[vec_2DW_index.at(index).first].second;
     int n_divide = map_2DW_3D_set[vec_2DW_index.at(index).first].size();
-    double scaling = charge/charge_err/n_divide;
+
+    double scaling = sqrt(charge/n_divide);
+    if (flag_scaling == 1){
+      if (fabs(charge_err-sqrt(pow(charge*0.1,2)+pow(100,2)))<0.005*charge_err )
+	scaling = scaling /sqrt(2.);
+    }else if (flag_scaling == 2){
+      scaling = charge/charge_err/n_divide;
+    }
+        
+    
     data_w_2D(2*index) =  scaling * (vec_2DW_index.at(index).first.first - offset_w);
     data_w_2D(2*index+1) = scaling * (vec_2DW_index.at(index).first.second - offset_t);
 
@@ -783,7 +868,25 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     std::map<std::pair<int,int>,std::pair<double,double> > map_2D_ut_charge;
     std::map<std::pair<int,int>,std::pair<double,double> > map_2D_vt_charge;
     std::map<std::pair<int,int>,std::pair<double,double> > map_2D_wt_charge;
-    fill_2d_charge(global_wc_map, map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
+
+    //fill_2d_charge(global_wc_map, map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
+    {
+      std::vector<int> proj_channel;
+      std::vector<int> proj_timeslice;
+      std::vector<int> proj_charge;
+      std::vector<int> proj_charge_err;
+      std::vector<int> proj_flag;
+      get_projection(proj_channel,proj_timeslice,proj_charge, proj_charge_err, proj_flag, global_wc_map);
+      for (size_t i=0;i!=proj_channel.size();i++){
+    	if (proj_channel.at(i)<2400){
+    	  map_2D_ut_charge[std::make_pair(proj_channel.at(i),proj_timeslice.at(i))] = std::make_pair(proj_charge.at(i),proj_charge_err.at(i));
+    	}else if (proj_channel.at(i)<4800){
+    	  map_2D_vt_charge[std::make_pair(proj_channel.at(i)-2400,proj_timeslice.at(i))] = std::make_pair(proj_charge.at(i),proj_charge_err.at(i));
+    	}else{
+    	  map_2D_wt_charge[std::make_pair(proj_channel.at(i)-4800,proj_timeslice.at(i))] = std::make_pair(proj_charge.at(i),proj_charge_err.at(i));
+    	}
+      }
+    }
     
     
     // map index ... 
@@ -795,7 +898,7 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     std::map<std::pair<int,int>,std::set<int>> map_2DU_3D_set;
     std::map<std::pair<int,int>,std::set<int>> map_2DV_3D_set;
     std::map<std::pair<int,int>,std::set<int>> map_2DW_3D_set;
-    form_map_graph_based(path_wcps_vec,
+    form_map_graph_based(path_wcps_vec, map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge,
 			 map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
 			 map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set);
     
@@ -812,45 +915,45 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     trajectory_fit(ps_vec, 
 		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
 		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
-		   map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
+		   map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge,0,0,2);
 
-    /* for (int i=0;i+1!=path_wcps_vec.size();i++){ */
-    /*   std::cout << sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2)+pow(path_wcps_vec.at(i+1).y-path_wcps_vec.at(i).y,2)+pow(path_wcps_vec.at(i+1).z-path_wcps_vec.at(i).z,2))/units::cm << " " << sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2))/units::cm << std::endl; */
-    /* } */
+    /* /\* for (int i=0;i+1!=path_wcps_vec.size();i++){ *\/ */
+    /* /\*   std::cout << sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2)+pow(path_wcps_vec.at(i+1).y-path_wcps_vec.at(i).y,2)+pow(path_wcps_vec.at(i+1).z-path_wcps_vec.at(i).z,2))/units::cm << " " << sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2))/units::cm << std::endl; *\/ */
+    /* /\* } *\/ */
 
-    // do a 2nd round iteration on the fit ... 
-    ps_vec = fine_tracking_path;
-    // form association ...
-    form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set,
-			      map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
-			      map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge,
-			      0.9, 0.9, 4, 4);
-    // fit again ... 
-    trajectory_fit(ps_vec, 
-    		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
-    		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
-    		   map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
+    /* // do a 2nd round iteration on the fit ... */
+    /* ps_vec = fine_tracking_path; */
+    /* // form association ... */
+    /* form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set, */
+    /* 			      map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
+    /* 			      map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge, */
+    /* 			      0.9, 0.9, 4, 4); */
+    /* // fit again ... */
+    /* trajectory_fit(ps_vec, */
+    /* 		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set, */
+    /* 		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
+    /* 		   map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge,0,0,2); */
     
-    //Add a new round of fit to fill in the gap ...
-    PointVector fine_tracking_path_1st = fine_tracking_path;
-    std::vector<int> record_vec;
-    organize_ps_path(ps_vec,  low_dis_limit, record_vec);
-    //form association ...
-    form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set,
-    			      map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
-    			      map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge,
-    			      0.25, 0.9, 4, 4);
-    // fit again ...
-    trajectory_fit(ps_vec,
-    		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
-    		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
-    		   map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
+    /* //Add a new round of fit to fill in the gap ... */
+    /* PointVector fine_tracking_path_1st = fine_tracking_path; */
+    /* std::vector<int> record_vec; */
+    /* organize_ps_path(ps_vec,  low_dis_limit, record_vec); */
+    /* //form association ... */
+    /* form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set, */
+    /* 			      map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
+    /* 			      map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge, */
+    /* 			      0.25, 0.9, 4, 4); */
+    /* // fit again ... */
+    /* trajectory_fit(ps_vec, */
+    /* 		   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set, */
+    /* 		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
+    /* 		   map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge,0,0,2); */
     
 
-    PointVector fine_tracking_path_2nd = fine_tracking_path;
-    merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec);
+    /* PointVector fine_tracking_path_2nd = fine_tracking_path; */
+    /* merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec); */
     
-     std::cout << fine_tracking_path_1st.size() << " " << fine_tracking_path_2nd.size() << " " << fine_tracking_path.size() << " " << record_vec.size() << std::endl;
+    //   std::cout << fine_tracking_path_1st.size() << " " << fine_tracking_path_2nd.size() << " " << fine_tracking_path.size() << " " << record_vec.size() << std::endl;
     
   }else if (path_wcps_vec.size()>0){
     // for now, very short track, just copy .... 
