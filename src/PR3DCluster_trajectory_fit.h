@@ -1,5 +1,41 @@
 #include "TVector3.h"
 
+void PR3DCluster::organize_wcps_vec_path(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec,  double low_dis_limit){
+  std::vector<WCPointCloud<double>::WCPoint> temp_wcps_vec = path_wcps_vec;
+  path_wcps_vec.clear();
+
+  for (size_t i=0;i!=temp_wcps_vec.size();i++){
+    if (path_wcps_vec.size()==0){
+      path_wcps_vec.push_back(temp_wcps_vec.at(i));
+    }else if (i+1==temp_wcps_vec.size()){
+      double dis = sqrt(pow(temp_wcps_vec.at(i).x - path_wcps_vec.back().x,2)
+			+pow(temp_wcps_vec.at(i).y - path_wcps_vec.back().y,2)
+			+pow(temp_wcps_vec.at(i).z - path_wcps_vec.back().z,2));
+      if (dis > low_dis_limit * 0.5){
+	path_wcps_vec.push_back(temp_wcps_vec.at(i));
+	//	distances.push_back(dis);
+      }
+    }else{
+      double dis = sqrt(pow(temp_wcps_vec.at(i).x - path_wcps_vec.back().x,2)
+			+pow(temp_wcps_vec.at(i).y - path_wcps_vec.back().y,2)
+			+pow(temp_wcps_vec.at(i).z - path_wcps_vec.back().z,2));
+      double dis1 = sqrt(pow(temp_wcps_vec.at(i+1).x - path_wcps_vec.back().x,2)
+			 +pow(temp_wcps_vec.at(i+1).y - path_wcps_vec.back().y,2)
+			 +pow(temp_wcps_vec.at(i+1).z - path_wcps_vec.back().z,2));
+      
+      //  std::cout << dis/units::cm << std::endl;
+      
+      if (dis > low_dis_limit ||
+	  (dis1 > low_dis_limit * 1.7
+	   && dis > low_dis_limit * 0.5)){
+	path_wcps_vec.push_back(temp_wcps_vec.at(i));
+	//	distances.push_back(dis);
+      }
+    }
+  }
+}
+
+
 void PR3DCluster::organize_wcps_path(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, double low_dis_limit){
   
   // copy list into a vector
@@ -1009,6 +1045,33 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     /*   std::cout << sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2)+pow(path_wcps_vec.at(i+1).y-path_wcps_vec.at(i).y,2)+pow(path_wcps_vec.at(i+1).z-path_wcps_vec.at(i).z,2))/units::cm << " " << sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2))/units::cm << std::endl; */
     /* } */
 
+    /* // second round fit ... */
+    /* if (fine_tracking_path.size()>=5){ */
+    /*   path_wcps_vec.clear(); */
+    /*   for (size_t i=0;i!=fine_tracking_path.size();i++){ */
+    /* 	WireCell::WCPointCloud<double>::WCPoint& wcp = point_cloud->get_closest_wcpoint(fine_tracking_path.at(i)); */
+    /* 	path_wcps_vec.push_back(wcp); */
+    /*   } */
+    /*   organize_wcps_vec_path(path_wcps_vec,low_dis_limit); */
+      
+    /*   //      std::cout << path_wcps_vec.size() << std::endl; */
+      
+    /*   form_map_graph_based(path_wcps_vec, map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge, */
+    /* 			   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set, */
+    /* 			   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set); */
+      
+    /*   ps_vec.clear(); */
+    /*   for (size_t i=0;i!=path_wcps_vec.size();i++){ */
+    /* 	Point p(path_wcps_vec.at(i).x, path_wcps_vec.at(i).y, path_wcps_vec.at(i).z); */
+    /* 	ps_vec.push_back(p); */
+    /*   } */
+    /*   trajectory_fit(ps_vec, */
+    /* 		     map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set, */
+    /* 		     map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
+    /* 		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge); */
+    /* } */
+    
+    
     /* // do a 2nd round iteration on the fit ... */
     /* ps_vec = fine_tracking_path; */
     /* // form association ... */
