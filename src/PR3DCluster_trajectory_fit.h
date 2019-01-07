@@ -412,7 +412,51 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
     std::set<int> temp_types_u;
     std::set<int> temp_types_v;
     std::set<int> temp_types_w;
-     
+
+
+      /* if (i==138&&cluster_id==2) */
+    /*   std::cout << temp_types_w.size() << " " << *temp_types_w.begin() << std::endl; */
+
+    double dis_cut_u = dis_cut;
+    double dis_cut_v = dis_cut;
+    double dis_cut_w = dis_cut;
+    
+    /* if (i==6 && cluster_id==18){ */
+    double max_time_slice_u = 0;
+    double max_time_slice_v = 0;
+    double max_time_slice_w = 0;
+    for (auto it = nearby_mcells_set.begin(); it!=nearby_mcells_set.end(); it++){
+      SlimMergeGeomCell *mcell = *it;
+      int this_time_slice = mcell->GetTimeSlice();
+      GeomWireSelection uwires = mcell->get_uwires();
+      GeomWireSelection vwires = mcell->get_vwires();
+    	GeomWireSelection wwires = mcell->get_wwires();
+    	for (auto it1 = uwires.begin(); it1!=uwires.end(); it1++){
+    	  if (fabs((*it1)->index()-cur_wire_u)<=1)
+    	    if (fabs(this_time_slice-cur_time_slice)>max_time_slice_u)
+    	      max_time_slice_u = fabs(this_time_slice-cur_time_slice);
+    	}
+    	for (auto it1 = vwires.begin(); it1!=vwires.end(); it1++){
+    	  if (fabs((*it1)->index()-cur_wire_v)<=1)
+    	    if (fabs(this_time_slice-cur_time_slice)>max_time_slice_v)
+    	      max_time_slice_v = fabs(this_time_slice-cur_time_slice);
+    	}
+    	for (auto it1 = wwires.begin(); it1!=wwires.end(); it1++){
+    	  if (fabs((*it1)->index()-cur_wire_w)<=1)
+    	    if (fabs(this_time_slice-cur_time_slice)>max_time_slice_w)
+    	      max_time_slice_w = fabs(this_time_slice-cur_time_slice);
+    	}
+	
+    }
+    //std::cout << max_time_slice_u << " " << max_time_slice_v << " " << max_time_slice_w << " " << dis_cut/time_slice_width << std::endl;
+    if (max_time_slice_u * time_slice_width*1.2 < dis_cut_u)
+      dis_cut_u = max_time_slice_u * time_slice_width*1.2;
+    if (max_time_slice_v * time_slice_width*1.2 < dis_cut_v)
+      dis_cut_v = max_time_slice_v * time_slice_width*1.2;
+    if (max_time_slice_w * time_slice_width*1.2 < dis_cut_w)
+      dis_cut_w = max_time_slice_w * time_slice_width*1.2;
+    /* } */
+    
     // Now fill the other maps ...
     for (auto it = nearby_mcells_set.begin(); it!=nearby_mcells_set.end(); it++){
       SlimMergeGeomCell *mcell = *it;
@@ -420,8 +464,10 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
 
      
       
-      double rem_dis_cut = pow(dis_cut,2) - pow((cur_time_slice - this_time_slice)*time_slice_width,2);
-      if (rem_dis_cut >0 && fabs(cur_time_slice-this_time_slice)<=time_cut){
+      double rem_dis_cut_u = pow(dis_cut_u,2) - pow((cur_time_slice - this_time_slice)*time_slice_width,2);
+      double rem_dis_cut_v = pow(dis_cut_v,2) - pow((cur_time_slice - this_time_slice)*time_slice_width,2);
+      double rem_dis_cut_w = pow(dis_cut_w,2) - pow((cur_time_slice - this_time_slice)*time_slice_width,2);
+      if ((rem_dis_cut_u>0 || rem_dis_cut_v >0 || rem_dis_cut_w > 0 ) && fabs(cur_time_slice-this_time_slice)<=time_cut){
     	//	std::cout << this_time_slice << std::endl;
     	GeomWireSelection uwires = mcell->get_uwires();
     	GeomWireSelection vwires = mcell->get_vwires();
@@ -460,9 +506,9 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
 
 	// Note this assumes w is vertical wires, U and V have equal angle between then ...
 
-    	float range_u = rem_dis_cut*coef1 - pow(min_v_dis*pitch_v,2) - coef2*pow(min_w_dis*pitch_w,2);
-    	float range_v = rem_dis_cut*coef1 - pow(min_u_dis*pitch_u,2) - coef2*pow(min_w_dis*pitch_w,2);
-    	float range_w = (rem_dis_cut*coef1 - pow(min_u_dis*pitch_u,2) - pow(min_v_dis*pitch_v,2))/coef2;
+    	float range_u = rem_dis_cut_u*coef1 - pow(min_v_dis*pitch_v,2) - coef2*pow(min_w_dis*pitch_w,2);
+    	float range_v = rem_dis_cut_v*coef1 - pow(min_u_dis*pitch_u,2) - coef2*pow(min_w_dis*pitch_w,2);
+    	float range_w = (rem_dis_cut_w*coef1 - pow(min_u_dis*pitch_u,2) - pow(min_v_dis*pitch_v,2))/coef2;
 	//std::cout << coef1 << " " << coef2 << std::endl;
 
     	// if (abs(cur_time_slice-1261)==0)
@@ -523,50 +569,9 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
       }
     }
 
-    /* if (i==138&&cluster_id==2) */
-    /*   std::cout << temp_types_w.size() << " " << *temp_types_w.begin() << std::endl; */
-
-    double dis_cut_u = dis_cut;
-    double dis_cut_v = dis_cut;
-    double dis_cut_w = dis_cut;
+  
     
-    /* if (i==6 && cluster_id==18){ */
-      double max_time_slice_u = 0;
-      double max_time_slice_v = 0;
-      double max_time_slice_w = 0;
-      for (auto it = nearby_mcells_set.begin(); it!=nearby_mcells_set.end(); it++){
-    	SlimMergeGeomCell *mcell = *it;
-    	int this_time_slice = mcell->GetTimeSlice();
-    	GeomWireSelection uwires = mcell->get_uwires();
-    	GeomWireSelection vwires = mcell->get_vwires();
-    	GeomWireSelection wwires = mcell->get_wwires();
-    	for (auto it1 = uwires.begin(); it1!=uwires.end(); it1++){
-    	  if (fabs((*it1)->index()-cur_wire_u)<=1)
-    	    if (fabs(this_time_slice-cur_time_slice)>max_time_slice_u)
-    	      max_time_slice_u = fabs(this_time_slice-cur_time_slice);
-    	}
-    	for (auto it1 = vwires.begin(); it1!=vwires.end(); it1++){
-    	  if (fabs((*it1)->index()-cur_wire_v)<=1)
-    	    if (fabs(this_time_slice-cur_time_slice)>max_time_slice_v)
-    	      max_time_slice_v = fabs(this_time_slice-cur_time_slice);
-    	}
-    	for (auto it1 = wwires.begin(); it1!=wwires.end(); it1++){
-    	  if (fabs((*it1)->index()-cur_wire_w)<=1)
-    	    if (fabs(this_time_slice-cur_time_slice)>max_time_slice_w)
-    	      max_time_slice_w = fabs(this_time_slice-cur_time_slice);
-    	}
-	
-      }
-      //std::cout << max_time_slice_u << " " << max_time_slice_v << " " << max_time_slice_w << " " << dis_cut/time_slice_width << std::endl;
-      if (max_time_slice_u * time_slice_width*1.2 < dis_cut_u)
-    	dis_cut_u = max_time_slice_u * time_slice_width*1.2;
-      if (max_time_slice_v * time_slice_width*1.2 < dis_cut_v)
-    	dis_cut_v = max_time_slice_v * time_slice_width*1.2;
-      if (max_time_slice_w * time_slice_width*1.2 < dis_cut_w)
-    	dis_cut_w = max_time_slice_w * time_slice_width*1.2;
-    /* } */
-
-     // Now fill the other maps ...
+    // Now fill the other maps ...
     for (auto it = nearby_mcells_set.begin(); it!=nearby_mcells_set.end(); it++){
       SlimMergeGeomCell *mcell = *it;
       int this_time_slice = mcell->GetTimeSlice();
