@@ -1131,50 +1131,50 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     /*   std::cout << sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2)+pow(path_wcps_vec.at(i+1).y-path_wcps_vec.at(i).y,2)+pow(path_wcps_vec.at(i+1).z-path_wcps_vec.at(i).z,2))/units::cm << " " << sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2))/units::cm << std::endl; */
     /* } */
 
-    /* // second round fit ... */
-    /* path_wcps_vec.clear(); */
-    /* for (size_t i=0;i!=fine_tracking_path.size();i++){ */
-    /*   WireCell::WCPointCloud<double>::WCPoint& wcp = point_cloud->get_closest_wcpoint(fine_tracking_path.at(i)); */
-    /*   if (wcp.index!= path_wcps_vec.back().index) */
-    /* 	path_wcps_vec.push_back(wcp); */
-    /* } */
-    /* organize_wcps_vec_path(path_wcps_vec,low_dis_limit); */
+    // second round fit ...
+    path_wcps_vec.clear();
+    for (size_t i=0;i!=fine_tracking_path.size();i++){
+      WireCell::WCPointCloud<double>::WCPoint& wcp = point_cloud->get_closest_wcpoint(fine_tracking_path.at(i));
+      if (wcp.index!= path_wcps_vec.back().index)
+    	path_wcps_vec.push_back(wcp);
+    }
+    organize_wcps_vec_path(path_wcps_vec,low_dis_limit);
 
-    /* if (path_wcps_vec.size()>1){ */
-    /*   form_map_graph_based(path_wcps_vec, map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge, */
-    /* 			   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set, */
-    /* 			   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set); */
+    if (path_wcps_vec.size()>1){
+      form_map_graph_based(path_wcps_vec, map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge,
+    			   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
+    			   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set);
       
-    /*   ps_vec.clear(); */
-    /*   for (size_t i=0;i!=path_wcps_vec.size();i++){ */
-    /* 	Point p(path_wcps_vec.at(i).x, path_wcps_vec.at(i).y, path_wcps_vec.at(i).z); */
-    /* 	ps_vec.push_back(p); */
-    /*   } */
-    /*   trajectory_fit(ps_vec, */
-    /* 		     map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set, */
-    /* 		     map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
-    /* 		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge); */
+      ps_vec.clear();
+      for (size_t i=0;i!=path_wcps_vec.size();i++){
+    	Point p(path_wcps_vec.at(i).x, path_wcps_vec.at(i).y, path_wcps_vec.at(i).z);
+    	ps_vec.push_back(p);
+      }
+      trajectory_fit(ps_vec,
+    		     map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
+    		     map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
+    		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
 
       
-    /*   /\* PointVector fine_tracking_path_1st = fine_tracking_path; *\/ */
-    /*   /\* std::vector<int> record_vec; *\/ */
-    /*   /\* organize_ps_path(ps_vec,  low_dis_limit, record_vec); *\/ */
-    /*   /\* //form association ... *\/ */
-    /*   /\* form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set, *\/ */
-    /*   /\* 				map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, *\/ */
-    /*   /\* 				map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge, *\/ */
-    /*   /\* 				0.25, 0.9, 4, 4); *\/ */
-    /*   /\* // fit again ... *\/ */
-    /*   /\* trajectory_fit(ps_vec, *\/ */
-    /*   /\* 		     map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set, *\/ */
-    /*   /\* 		     map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, *\/ */
-    /*   /\* 		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge); *\/ */
+      /* PointVector fine_tracking_path_1st = fine_tracking_path; */
+      /* std::vector<int> record_vec; */
+      /* organize_ps_path(ps_vec,  low_dis_limit, record_vec); */
+      /* //form association ... */
+      /* form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set, */
+      /* 				map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
+      /* 				map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge, */
+      /* 				0.25, 0.9, 4, 4); */
+      /* // fit again ... */
+      /* trajectory_fit(ps_vec, */
+      /* 		     map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set, */
+      /* 		     map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
+      /* 		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge); */
       
       
-    /*   /\* PointVector fine_tracking_path_2nd = fine_tracking_path; *\/ */
-    /*   /\* merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec); *\/ */
+      /* PointVector fine_tracking_path_2nd = fine_tracking_path; */
+      /* merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec); */
       
-    /* } */
+    }
     
     
     /* // do a 2nd round iteration on the fit ... */
