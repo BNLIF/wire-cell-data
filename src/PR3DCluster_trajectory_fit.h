@@ -243,6 +243,17 @@ void PR3DCluster::form_map_projection_based(PointVector& ps_vec,std::map<int,std
 
 void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint>& path_wcps_vec, std::map<std::pair<int,int>,std::tuple<double,double, int> >& map_2D_ut_charge, std::map<std::pair<int,int>,std::tuple<double,double, int> >& map_2D_vt_charge, std::map<std::pair<int,int>,std::tuple<double,double, int> >& map_2D_wt_charge, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set, double end_point_factor, double mid_point_factor, int nlevel, double time_cut){
 
+
+  for (auto it = mcells.begin(); it!=mcells.end(); it++){
+    SlimMergeGeomCell *mcell = *it;
+    int this_time_slice = mcell->GetTimeSlice();
+    GeomWireSelection uwires = mcell->get_uwires();
+    GeomWireSelection vwires = mcell->get_vwires();
+    GeomWireSelection wwires = mcell->get_wwires();
+    if (this_time_slice == 2387 && cluster_id == 18)
+      std::cout << this_time_slice << " " << uwires.front()->index() << " " << uwires.back()->index() << " " << vwires.front()->index()+2400 << " " << vwires.back()->index()+2400 << " " << wwires.front()->index()+4800 << " " << wwires.back()->index()+4800 << std::endl;
+  }
+  
   std::vector<double> distances;
   for (size_t i=0;i+1!=path_wcps_vec.size();i++){
     distances.push_back(sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2) +
@@ -333,8 +344,8 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
     int cur_wire_v = cloud.pts[current_index].index_v;
     int cur_wire_w = cloud.pts[current_index].index_w;
 
-    /* if (i==138&&cluster_id==2) */
-    /*   std::cout << cur_time_slice << " " << cur_wire_u << " " << cur_wire_v << " " << cur_wire_w << std::endl; */
+    if (i==25 && cluster_id==18)
+      std::cout << cur_time_slice << " " << cur_wire_u << " " << cur_wire_v+2400 << " " << cur_wire_w+4800 << std::endl;
     
     // if (abs(cur_time_slice-1261)==0)
     //   std::cout << "Center: " << i << " " << path_wcps_vec.at(i).mcell << " " << current_index <<  " " << cloud.pts[current_index].index << " " <<
@@ -349,6 +360,9 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
     for (auto it = nearby_mcells_set.begin(); it!=nearby_mcells_set.end(); it++){
       SlimMergeGeomCell *mcell = *it;
       int this_time_slice = mcell->GetTimeSlice();
+
+     
+      
       double rem_dis_cut = pow(dis_cut,2) - pow((cur_time_slice - this_time_slice)*time_slice_width,2);
       if (rem_dis_cut >0 && fabs(cur_time_slice-this_time_slice)<=time_cut){
     	//	std::cout << this_time_slice << std::endl;
@@ -356,6 +370,10 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
     	GeomWireSelection vwires = mcell->get_vwires();
     	GeomWireSelection wwires = mcell->get_wwires();
 	float min_u_dis;
+
+	if (i==25 && cluster_id==18)
+	  std::cout << this_time_slice << " " << uwires.front()->index() << " " << uwires.back()->index() << " " << vwires.front()->index()+2400 << " " << vwires.back()->index()+2400 << " " << wwires.front()->index()+4800 << " " << wwires.back()->index()+4800 << std::endl;
+	
     	if (cur_wire_u < uwires.front()->index()){
     	  min_u_dis = uwires.front()->index()-cur_wire_u;
     	}else if (cur_wire_u >= uwires.front()->index() &&
@@ -567,18 +585,18 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
     
   } // i loop ...
 
-  /* if (cluster_id==2){ */
-  /*   int index = 138; */
-  /*   for (auto it = map_3D_2DU_set[index].begin() ; it!=map_3D_2DU_set[index].end();it++){ */
-  /*     std::cout << "U: " << it->first << " " << it->second << std::endl; */
-  /*   } */
-  /*   for (auto it = map_3D_2DV_set[index].begin() ; it!=map_3D_2DV_set[index].end();it++){ */
-  /*     std::cout << "V: " << it->first+2400 << " " << it->second << std::endl; */
-  /*   } */
-  /*   for (auto it = map_3D_2DW_set[index].begin() ; it!=map_3D_2DW_set[index].end();it++){ */
-  /*     std::cout << "W: " << it->first+4800 << " " << it->second << std::endl; */
-  /*   } */
-  /* } */
+  if (cluster_id==18){
+    int index = 25;
+    for (auto it = map_3D_2DU_set[index].begin() ; it!=map_3D_2DU_set[index].end();it++){
+      std::cout << "U: " << it->first << " " << it->second << std::endl;
+    }
+    for (auto it = map_3D_2DV_set[index].begin() ; it!=map_3D_2DV_set[index].end();it++){
+      std::cout << "V: " << it->first+2400 << " " << it->second << std::endl;
+    }
+    for (auto it = map_3D_2DW_set[index].begin() ; it!=map_3D_2DW_set[index].end();it++){
+      std::cout << "W: " << it->first+4800 << " " << it->second << std::endl;
+    }
+  }
   
 }
 
