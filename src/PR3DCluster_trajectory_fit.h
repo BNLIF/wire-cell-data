@@ -106,7 +106,7 @@ void PR3DCluster::fill_2d_charge(std::map<int,std::map<const GeomWire*, SMGCSele
   }
 }
 
-void PR3DCluster::form_map_projection_based(PointVector& ps_vec,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_ut_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_vt_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_wt_charge, double end_point_factor, double mid_point_factor, int nlevel, double time_cut){
+void PR3DCluster::form_map_projection_based(PointVector& ps_vec,std::map<int,std::set<std::pair<int,int>>>& map_3D_2DU_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DV_set, std::map<int,std::set<std::pair<int,int>>>& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_ut_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_vt_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_wt_charge, double end_point_factor, double mid_point_factor, int nlevel, double time_cut, double charge_cut){
 
   std::vector<double> distances;
   for (size_t i=0;i+1!=ps_vec.size();i++){
@@ -188,7 +188,8 @@ void PR3DCluster::form_map_projection_based(PointVector& ps_vec,std::map<int,std
       // U plane ...
       for (int k=central_U - nlevel-1;k<=central_U+nlevel+1;k++){
 	if (sqrt(pow((j-central_T)*time_slice_width,2)+pow((k-central_U)*pitch_u,2)) <= dis_cut){
-	  if (map_2D_ut_charge.find(std::make_pair(k,j))!=map_2D_ut_charge.end()){
+	  auto it1 = map_2D_ut_charge.find(std::make_pair(k,j));
+	  if (it1!=map_2D_ut_charge.end() && std::get<0>(it1->second) > charge_cut){
 	    map_3D_2DU_set[i].insert(std::make_pair(k,j));
 	    if (map_2DU_3D_set.find(std::make_pair(k,j))==map_2DU_3D_set.end()){
 	      std::set<int>  temp_set;
@@ -204,7 +205,8 @@ void PR3DCluster::form_map_projection_based(PointVector& ps_vec,std::map<int,std
       // V plane ...
       for (int k=central_V - nlevel-1;k<=central_V+nlevel+1;k++){
 	if (sqrt(pow((j-central_T)*time_slice_width,2)+pow((k-central_V)*pitch_v,2)) <= dis_cut){
-	  if (map_2D_vt_charge.find(std::make_pair(k,j))!=map_2D_vt_charge.end()){
+	  auto it1 = map_2D_vt_charge.find(std::make_pair(k,j));
+	  if (it1!=map_2D_vt_charge.end() && std::get<0>(it1->second) > charge_cut ){
 	    map_3D_2DV_set[i].insert(std::make_pair(k,j));
 	    if (map_2DV_3D_set.find(std::make_pair(k,j))==map_2DV_3D_set.end()){
 	      std::set<int>  temp_set;
@@ -220,7 +222,8 @@ void PR3DCluster::form_map_projection_based(PointVector& ps_vec,std::map<int,std
       // W plane ...
       for (int k=central_W - nlevel-1;k<=central_W+nlevel+1;k++){
 	if (sqrt(pow((j-central_T)*time_slice_width,2)+pow((k-central_W)*pitch_w,2)) <= dis_cut){
-	  if (map_2D_wt_charge.find(std::make_pair(k,j))!=map_2D_wt_charge.end()){
+	  auto it1 = map_2D_wt_charge.find(std::make_pair(k,j));
+	  if (it1 !=map_2D_wt_charge.end() && std::get<0>(it1->second) > charge_cut ){
 	    map_3D_2DW_set[i].insert(std::make_pair(k,j));
 	    if (map_2DW_3D_set.find(std::make_pair(k,j))==map_2DW_3D_set.end()){
 	      std::set<int>  temp_set;
@@ -1055,7 +1058,7 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
 
   
   // examine ...
-  // examine_path(low_dis_limit);
+  examine_path(low_dis_limit);
 }
 
 
