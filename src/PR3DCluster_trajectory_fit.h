@@ -948,11 +948,16 @@ void PR3DCluster::organize_ps_path(PointVector& ps_vec,  double low_dis_limit, s
     
     record_vec.push_back(0);
     if (dis >  low_dis_limit * 1.6){
-      Point p((fine_tracking_path.at(i+1).x+fine_tracking_path.at(i).x)/2.,
-	      (fine_tracking_path.at(i+1).y+fine_tracking_path.at(i).y)/2.,
-	      (fine_tracking_path.at(i+1).z+fine_tracking_path.at(i).z)/2.);
-      ps_vec.push_back(p);
-      record_vec.push_back(1);
+      int npoints = std::round(dis/low_dis_limit)-1;
+      // double length = sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2));
+      
+      for (int j=0;j!=npoints;j++){
+	Point p(fine_tracking_path.at(i).x + (fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x)/(npoints+1.)*(j+1.),
+		fine_tracking_path.at(i).y + (fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y)/(npoints+1.)*(j+1.),
+		fine_tracking_path.at(i).z + (fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z)/(npoints+1.)*(j+1.));
+	ps_vec.push_back(p);
+	record_vec.push_back(1);
+      }
     }
   }
   record_vec.push_back(0);
@@ -1089,23 +1094,24 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     		     map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
     		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
 
-      PointVector fine_tracking_path_1st = fine_tracking_path;
-      std::vector<int> record_vec;
-      organize_ps_path(ps_vec,  low_dis_limit, record_vec);
-      //form association ...
-      form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set,
-				map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
-				map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge,
-				0.25, 0.9, 4, 4);
-      // fit again ...
-      trajectory_fit(ps_vec,
-		     map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
-		     map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
-		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
+      
+      /* PointVector fine_tracking_path_1st = fine_tracking_path; */
+      /* std::vector<int> record_vec; */
+      /* organize_ps_path(ps_vec,  low_dis_limit, record_vec); */
+      /* //form association ... */
+      /* form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set, */
+      /* 				map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
+      /* 				map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge, */
+      /* 				0.25, 0.9, 4, 4); */
+      /* // fit again ... */
+      /* trajectory_fit(ps_vec, */
+      /* 		     map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set, */
+      /* 		     map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
+      /* 		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge); */
       
       
-      PointVector fine_tracking_path_2nd = fine_tracking_path;
-      merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec);
+      /* PointVector fine_tracking_path_2nd = fine_tracking_path; */
+      /* merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec); */
       
     }
     
