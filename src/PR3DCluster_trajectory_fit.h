@@ -525,7 +525,7 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
 	  
 	  for (int j = std::round(low_u_limit); j<= std::round(high_u_limit); j++){
 	    auto it1 = map_2D_ut_charge.find(std::make_pair(j,this_time_slice));
-	    if (it1!=map_2D_ut_charge.end() && std::get<0>(it1->second) > charge_cut ){
+	    if (it1!=map_2D_ut_charge.end() && std::get<0>(it1->second) > 0 ){
 	      temp_types_u.insert(std::get<2>(it1->second));
 	    }
 	  }
@@ -537,7 +537,7 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
 	  /* } */
 	  for (int j=std::round(low_v_limit); j<=std::round(high_v_limit); j++){
 	    auto it1 = map_2D_vt_charge.find(std::make_pair(j,this_time_slice));
-	    if (it1!=map_2D_vt_charge.end() && std::get<0>(it1->second) > charge_cut){
+	    if (it1!=map_2D_vt_charge.end() && std::get<0>(it1->second) > 0){
 	      temp_types_v.insert(std::get<2>(it1->second));
 	    }
 	  }
@@ -551,7 +551,7 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
 	  for (int j=std::round(low_w_limit); j<=std::round(high_w_limit); j++){
 	    auto it1 = map_2D_wt_charge.find(std::make_pair(j,this_time_slice));
 	    
-	    if (it1!=map_2D_wt_charge.end() && std::get<0>(it1->second) > charge_cut){
+	    if (it1!=map_2D_wt_charge.end() && std::get<0>(it1->second) > 0){
 	      /* if (i==138&&cluster_id==2) */
 	      /* 	std::cout << it1->first.first << " " << it1->first.second << " " << std::get<0>(it1->second) << " " << std::get<1>(it1->second) << " " << std::get<2>(it1->second) << std::endl; */
 	      temp_types_w.insert(std::get<2>(it1->second));
@@ -633,7 +633,7 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
 	      auto it1 = map_2D_ut_charge.find(std::make_pair(j,this_time_slice));
 	      if (it1!=map_2D_ut_charge.end()&& std::get<0>(it1->second) > charge_cut){
 		map_3D_2DU_set[i].first.insert(std::make_pair(it1->first.first,it1->first.second)); 
-		if (temp_types_u.size()==2) map_3D_2DU_set[i].second = 1;
+		if (temp_types_u.size()==2 ) map_3D_2DU_set[i].second = 1;
 		if (map_2DU_3D_set.find(std::make_pair(it1->first.first, it1->first.second))==map_2DU_3D_set.end()){
 		  std::set<int>  temp_set;
 		  temp_set.insert(i);
@@ -975,6 +975,73 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
 	fine_tracking_path.push_back(p);
       }
     }
+
+    /* // if (cluster_id==5){ */
+    /*   for (size_t i=0;i!=fine_tracking_path.size();i++){ */
+    /* 	double cur_t = slope_x * fine_tracking_path.at(i).x + offset_t; */
+    /* 	double cur_u = slope_yu *fine_tracking_path.at(i).y + slope_zu * fine_tracking_path.at(i).z + offset_u; */
+    /* 	double cur_v = slope_yv *fine_tracking_path.at(i).y + slope_zv * fine_tracking_path.at(i).z + offset_v; */
+    /* 	double cur_w = slope_yw *fine_tracking_path.at(i).y + slope_zw * fine_tracking_path.at(i).z + offset_w; */
+
+    /* 	// calculate average ...  */
+    /* 	double ave_ut=0, ave_uc=0, ave_us=0; */
+    /* 	double ave_vt=0, ave_vc=0, ave_vs=0; */
+    /* 	double ave_wt=0, ave_wc=0, ave_ws=0; */
+
+    /* 	for (auto it = map_3D_2DU_set[i].first.begin(); it!= map_3D_2DU_set[i].first.end(); it++){ */
+    /* 	  double charge = std::get<0>(map_2D_ut_charge[*it]); */
+    /* 	  double charge_err = std::get<1>(map_2D_ut_charge[*it]); */
+    /* 	  int n_divide =  map_2DU_3D_set[*it].size(); */
+    /* 	  double scaling = charge/charge_err/n_divide*scale_ind_to_col; */
+    /* 	  if (map_3D_2DU_set[i].second==1)       scaling /= scale_ind_to_col; */
+
+    /* 	  ave_ut += it->second * scaling; */
+    /* 	  ave_uc += it->first * scaling; */
+    /* 	  ave_us += scaling; */
+    /* 	  //	  std::cout << i << " " << charge << " " << charge_err << " " << n_divide << std::endl; */
+    /* 	} */
+
+    /* 	for (auto it = map_3D_2DV_set[i].first.begin(); it!= map_3D_2DV_set[i].first.end(); it++){ */
+    /* 	  double charge = std::get<0>(map_2D_vt_charge[*it]); */
+    /* 	  double charge_err = std::get<1>(map_2D_vt_charge[*it]); */
+    /* 	  int n_divide =  map_2DV_3D_set[*it].size(); */
+    /* 	  double scaling = charge/charge_err/n_divide*scale_ind_to_col; */
+    /* 	  if (map_3D_2DV_set[i].second==1)       scaling /= scale_ind_to_col; */
+
+    /* 	  ave_vt += it->second * scaling; */
+    /* 	  ave_vc += it->first * scaling; */
+    /* 	  ave_vs += scaling; */
+    /* 	  //	  std::cout << i << " " << charge << " " << charge_err << " " << n_divide << std::endl; */
+    /* 	} */
+
+    /* 	for (auto it = map_3D_2DW_set[i].first.begin(); it!= map_3D_2DW_set[i].first.end(); it++){ */
+    /* 	  double charge = std::get<0>(map_2D_wt_charge[*it]); */
+    /* 	  double charge_err = std::get<1>(map_2D_wt_charge[*it]); */
+    /* 	  int n_divide =  map_2DW_3D_set[*it].size(); */
+    /* 	  double scaling = charge/charge_err/n_divide; */
+	  
+    /* 	  ave_wt += it->second * scaling; */
+    /* 	  ave_wc += it->first * scaling; */
+    /* 	  ave_ws += scaling; */
+    /* 	  //	  std::cout << i << " " << charge << " " << charge_err << " " << n_divide << std::endl; */
+    /* 	} */
+
+    /* 	double sum = 0; */
+    /* 	if (ave_us > 0 && map_3D_2DU_set[i].second == 0) */
+    /* 	  sum += pow(cur_t-ave_ut/ave_us,2)+pow(cur_u-ave_uc/ave_us,2); */
+    /* 	if (ave_vs > 0 && map_3D_2DV_set[i].second == 0) */
+    /* 	  sum += pow(cur_t-ave_vt/ave_vs,2)+pow(cur_v-ave_vc/ave_vs,2); */
+    /* 	if (ave_ws > 0 && map_3D_2DW_set[i].second == 0) */
+    /* 	  sum += pow(cur_t-ave_wt/ave_ws,2)+pow(cur_w-ave_wc/ave_ws,2); */
+    /* 	//	 */
+    /* 	if (sqrt(sum)>1.2) */
+    /* 	  std::cout << cluster_id << " " << i << " " << sqrt(pow(cur_t-ave_ut/ave_us,2)+pow(cur_u-ave_uc/ave_us,2)) << " " << sqrt(pow(cur_t-ave_vt/ave_vs,2)+pow(cur_v-ave_vc/ave_vs,2)) << " " << sqrt(pow(cur_t-ave_wt/ave_ws,2)+pow(cur_w-ave_wc/ave_ws,2)) <<  " " << map_3D_2DU_set[i].second << " " << map_3D_2DV_set[i].second << " " << map_3D_2DW_set[i].second << std::endl; */
+    /* 	//	  std::cout << cluster_id << " " << i << " " << sqrt(sum) << std::endl; */
+	
+    /*   } */
+    /*   //   } */
+    
+    
     // std::cout << p.x << " " << p.y << " " << p.z << " " << path_wcps_vec.at(i).x << " " << path_wcps_vec.at(i).y << " " << path_wcps_vec.at(i).z << std::endl;
     /* if (cluster_id==18){ */
     /*   std::cout << slope_x * fine_tracking_path.at(6).x + offset_t << " "  */
@@ -1225,7 +1292,7 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
 
   
   // examine ...
-  examine_path(low_dis_limit);
+  //  examine_path(low_dis_limit);
 }
 
 

@@ -722,9 +722,9 @@ void PR3DCluster::dQ_dx_fit(std::map<int,std::map<const GeomWire*, SMGCSelection
 	  }
 	}
 	
-	if (cluster_id == 2)
-	  std::cout << i << " " << sqrt(pow((pu.at(i)-pu.at(i+1))*pitch_u,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pv.at(i)-pv.at(i+1))*pitch_v,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pw.at(i)-pw.at(i+1))*pitch_w,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm
-		    << " " << sqrt(pow((pu.at(i)-pu.at(i-1))*pitch_u,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pv.at(i)-pv.at(i-1))*pitch_v,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pw.at(i)-pw.at(i-1))*pitch_w,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << " " << flag_u << " " << flag_v << " " << flag_w << std::endl;
+	/* if (cluster_id == 2) */
+	/*   std::cout << i << " " << sqrt(pow((pu.at(i)-pu.at(i+1))*pitch_u,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pv.at(i)-pv.at(i+1))*pitch_v,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pw.at(i)-pw.at(i+1))*pitch_w,2)+pow((pt.at(i)-pt.at(i+1))*time_slice_width,2))/units::mm */
+	/* 	    << " " << sqrt(pow((pu.at(i)-pu.at(i-1))*pitch_u,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pv.at(i)-pv.at(i-1))*pitch_v,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << " " << sqrt(pow((pw.at(i)-pw.at(i-1))*pitch_w,2)+pow((pt.at(i)-pt.at(i-1))*time_slice_width,2))/units::mm << " " << flag_u << " " << flag_v << " " << flag_w << std::endl; */
 	
 	double weight = 0;
 	if (flag_u) weight += ind_weight;
