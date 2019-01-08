@@ -1292,7 +1292,7 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
 
   
   // examine ...
-  //  examine_path(low_dis_limit);
+  examine_path(low_dis_limit);
 }
 
 
