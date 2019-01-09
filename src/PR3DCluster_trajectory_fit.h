@@ -160,7 +160,7 @@ void PR3DCluster::fill_2d_charge(std::map<int,std::map<const GeomWire*, SMGCSele
   }
 }
 
-void PR3DCluster::form_map_projection_based(PointVector& ps_vec,std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DU_set, std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DV_set, std::map<int, std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_ut_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_vt_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_wt_charge, double end_point_factor, double mid_point_factor, int nlevel, double time_cut, double charge_cut){
+void PR3DCluster::form_map_projection_based(PointVector& ps_vec, std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DU_set, std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DV_set, std::map<int, std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_ut_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_vt_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_wt_charge, double end_point_factor, double mid_point_factor, int nlevel, double time_cut, double charge_cut){
 
   std::vector<double> distances;
   for (size_t i=0;i+1!=ps_vec.size();i++){
@@ -288,7 +288,6 @@ void PR3DCluster::form_map_projection_based(PointVector& ps_vec,std::map<int,std
 	  }
 	}
       } //  W plane
-      
     }
   }
 
@@ -1055,10 +1054,9 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
 
 
 
-void PR3DCluster::organize_ps_path(PointVector& ps_vec,  double low_dis_limit, std::vector<int>& record_vec){
+void PR3DCluster::organize_ps_path(PointVector& ps_vec,  double low_dis_limit, std::vector<int>& record_vec, std::map<std::pair<int,int>, std::tuple<double, double, int > >& map_2D_ut_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_vt_charge, std::map<std::pair<int,int>,std::tuple<double, double, int> >& map_2D_wt_charge, double end_point_factor, double mid_point_factor, int nlevel, double time_cut, double charge_cut){
 
   ps_vec.clear();
-
   // deal with the beginning ... 
   double dis1 = sqrt(pow(fine_tracking_path.at(1).x-fine_tracking_path.at(0).x,2)+pow(fine_tracking_path.at(1).y-fine_tracking_path.at(0).y,2)+pow(fine_tracking_path.at(1).z-fine_tracking_path.at(0).z,2));
   Point p1 = fine_tracking_path.at(0);
@@ -1223,9 +1221,10 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
 
       
-      /* PointVector fine_tracking_path_1st = fine_tracking_path; */
-      /* std::vector<int> record_vec; */
-      /* organize_ps_path(ps_vec,  low_dis_limit, record_vec); */
+      PointVector fine_tracking_path_1st = fine_tracking_path;
+      std::vector<int> record_vec;
+      organize_ps_path(ps_vec,  low_dis_limit, record_vec,
+		       map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
       /* //form association ... */
       /* form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set, */
       /* 				map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
