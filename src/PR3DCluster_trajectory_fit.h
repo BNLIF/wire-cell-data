@@ -755,7 +755,7 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
   
 }
 
-void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DU_set, std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DV_set, std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_ut_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_vt_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_wt_charge, int flag_lambda, double init_lambda){
+void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DU_set, std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DV_set, std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DW_set, std::map<std::pair<int,int>,std::set<int>>& map_2DU_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DV_3D_set, std::map<std::pair<int,int>,std::set<int>>& map_2DW_3D_set,std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_ut_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_vt_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_wt_charge){
   
 
   std::vector<double> distances;
@@ -929,50 +929,58 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
   // distances[i]
   // 2nd order ...
   for (size_t i=0;i!=ps_vec.size();i++){
-    // PMatrix.insert(3*i,3*i)=1;
-    // PMatrix.insert(3*i+1,3*i+1)=1;
-    // PMatrix.insert(3*i+2,3*i+2)=1;
+    
     if (i==0){
-      FMatrix.insert(0,0) = -1./distances.at(0); // X
-      FMatrix.insert(0,3) = 1./distances.at(0);
-      FMatrix.insert(1,1) = -1./distances.at(0); // Y
-      FMatrix.insert(1,4) = 1./distances.at(0);
-      FMatrix.insert(2,2) = -1./distances.at(0); // Z
-      FMatrix.insert(2,5) = 1./distances.at(0);
+      if (map_3D_2DU_set[i].first.size()==0 && map_3D_2DV_set[i].first.size()==0 ||
+	  map_3D_2DU_set[i].first.size()==0 && map_3D_2DW_set[i].first.size()==0 ||
+	  map_3D_2DW_set[i].first.size()==0 && map_3D_2DV_set[i].first.size()==0 ){
+	FMatrix.insert(0,0) = -1./distances.at(0); // X
+	FMatrix.insert(0,3) = 1./distances.at(0);
+	
+	FMatrix.insert(1,1) = -1./distances.at(0); // Y
+	FMatrix.insert(1,4) = 1./distances.at(0);
+	
+	FMatrix.insert(2,2) = -1./distances.at(0); // Z
+	FMatrix.insert(2,5) = 1./distances.at(0);
+      }
     }else if (i+1==ps_vec.size()){
-      FMatrix.insert(3*i,3*i) = -1./distances.at(ps_vec.size()-2); // X
-      FMatrix.insert(3*i,3*i-3) = 1./distances.at(ps_vec.size()-2);
-      FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(ps_vec.size()-2);
-      FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(ps_vec.size()-2);
-      FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(ps_vec.size()-2);
-      FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(ps_vec.size()-2);
+      if (map_3D_2DU_set[i].first.size()==0 && map_3D_2DV_set[i].first.size()==0 ||
+	  map_3D_2DU_set[i].first.size()==0 && map_3D_2DW_set[i].first.size()==0 ||
+	  map_3D_2DW_set[i].first.size()==0 && map_3D_2DV_set[i].first.size()==0 ){
+	FMatrix.insert(3*i,3*i) = -1./distances.at(ps_vec.size()-2); // X
+	FMatrix.insert(3*i,3*i-3) = 1./distances.at(ps_vec.size()-2);
+
+	FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(ps_vec.size()-2);
+	FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(ps_vec.size()-2);
+
+	FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(ps_vec.size()-2);
+	FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(ps_vec.size()-2);
+      }
     }else{
-      FMatrix.insert(3*i,3*i-3) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
-      FMatrix.insert(3*i,3*i) = -1./distances.at(i-1)/distances.at(i);
-      FMatrix.insert(3*i,3*i+3) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
-      FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
-      FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(i-1)/distances.at(i);
-      FMatrix.insert(3*i+1,3*i+4) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
-      FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
-      FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(i-1)/distances.at(i);
-      FMatrix.insert(3*i+2,3*i+5) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+      if (map_3D_2DU_set[i].first.size()==0 && map_3D_2DV_set[i].first.size()==0 ||
+	  map_3D_2DU_set[i].first.size()==0 && map_3D_2DW_set[i].first.size()==0 ||
+	  map_3D_2DW_set[i].first.size()==0 && map_3D_2DV_set[i].first.size()==0 ){
+	FMatrix.insert(3*i,3*i-3) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+	FMatrix.insert(3*i,3*i) = -1./distances.at(i-1)/distances.at(i);
+	FMatrix.insert(3*i,3*i+3) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+	
+	FMatrix.insert(3*i+1,3*i-2) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+	FMatrix.insert(3*i+1,3*i+1) = -1./distances.at(i-1)/distances.at(i);
+	FMatrix.insert(3*i+1,3*i+4) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+	
+	FMatrix.insert(3*i+2,3*i-1) = 1./distances.at(i-1)/(distances.at(i)+distances.at(i-1));
+	FMatrix.insert(3*i+2,3*i+2) = -1./distances.at(i-1)/distances.at(i);
+	FMatrix.insert(3*i+2,3*i+5) = 1./distances.at(i)/(distances.at(i)+distances.at(i-1));
+      }
     }
   }
 
   double lambda = 0;
-
-  if (flag_lambda ==0){
-    lambda = 0;
-  }else if (flag_lambda==1){
-    lambda = init_lambda;
-  }else if (flag_lambda==2){
-    lambda = 2 // strength 
+  lambda = 2 // strength 
     * sqrt(9. //  average chi2 guessted
  	   * (vec_2DU_index.size() + vec_2DV_index.size() + vec_2DW_index.size()) // how many of them
  	   * 6 * 6 // charge/charge_err estimation ... 
  	   /(ps_vec.size() * 1.)); //weighting
-  }
-  //double dis_range = 0.5*units::cm/sqrt(3.);
   double angle_range = 0.25;
   FMatrix *= lambda/angle_range ; // disable the angue cut ... 
   
