@@ -982,7 +982,7 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
  	   * 6 * 6 // charge/charge_err estimation ... 
  	   /(ps_vec.size() * 1.)); //weighting
   double angle_range = 0.25;
-  FMatrix *= lambda/angle_range ; // disable the angue cut ... 
+  FMatrix *= lambda/angle_range ; // disable the angle cut ... 
   
   
   Eigen::SparseMatrix<double> FMatrixT = Eigen::SparseMatrix<double>(FMatrix.transpose());
@@ -1129,8 +1129,8 @@ void PR3DCluster::organize_ps_path(PointVector& ps_vec,  double low_dis_limit, s
     double dis = sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2));
     
     record_vec.push_back(0);
-    if (dis >  low_dis_limit * 1.6){
-      int npoints = std::round(dis/low_dis_limit)-1;
+    if (dis >  low_dis_limit * 3.2){
+      int npoints = std::round(dis/low_dis_limit/2.)-1;
       // double length = sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2));
       
       for (int j=0;j!=npoints;j++){
@@ -1161,7 +1161,7 @@ void PR3DCluster::organize_ps_path(PointVector& ps_vec,  double low_dis_limit, s
   fine_tracking_path.clear();
 }
 
-void PR3DCluster::merge_path(PointVector& fine_tracking_path_1st, PointVector& fine_tracking_path_2nd, std::vector<int>& record_vec){
+void PR3DCluster::merge_path(PointVector& fine_tracking_path_1st, PointVector& fine_tracking_path_2nd, std::vector<int>& record_vec, std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DU_set, std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DV_set, std::map<int,std::pair<std::set<std::pair<int,int>>, int> >& map_3D_2DW_set){
 
   fine_tracking_path.clear();
   int counter_1st = 0;
@@ -1170,10 +1170,23 @@ void PR3DCluster::merge_path(PointVector& fine_tracking_path_1st, PointVector& f
     if (*it==0){
       fine_tracking_path.push_back(fine_tracking_path_1st.at(counter_1st));
       counter_1st ++;
-    }else{
-      fine_tracking_path.push_back(fine_tracking_path_2nd.at(counter_2nd));
+    }else if (*it==1){
+      int sum = 0;
+      
+      if (map_3D_2DU_set[counter_2nd].first.size()!=0 && map_3D_2DU_set[counter_2nd].second == 0 ) sum ++;
+      if (map_3D_2DV_set[counter_2nd].first.size()!=0 && map_3D_2DV_set[counter_2nd].second == 0 ) sum ++;
+      if (map_3D_2DW_set[counter_2nd].first.size()!=0 && map_3D_2DW_set[counter_2nd].second == 0 ) sum ++;
+      if ((counter_2nd == 0 || counter_2nd == fine_tracking_path_2nd.size()-1)){
+	if (sum>1)
+	  fine_tracking_path.push_back(fine_tracking_path_2nd.at(counter_2nd));
+      }else{
+	if (sum>0){
+	  fine_tracking_path.push_back(fine_tracking_path_2nd.at(counter_2nd));	  
+	}
+      }
       counter_2nd ++;
     }
+
   }
 }
 
@@ -1289,12 +1302,14 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
       trajectory_fit(ps_vec,
       		     map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
       		     map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
-      		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
-      
+      		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);      
       
       PointVector fine_tracking_path_2nd = fine_tracking_path;
-      merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec);
+
+      //      std::cout << fine_tracking_path_1st.size() << " " << fine_tracking_path_2nd.size() << " " << record_vec.size() << std::endl;
       
+      merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec,
+		 map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set);
     }
     
     
