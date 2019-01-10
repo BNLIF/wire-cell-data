@@ -1054,7 +1054,7 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
 
 
 
-void PR3DCluster::organize_ps_path(PointVector& ps_vec,  double low_dis_limit, std::vector<int>& record_vec, std::map<std::pair<int,int>, std::tuple<double, double, int > >& map_2D_ut_charge, std::map<std::pair<int,int>, std::tuple<double, double, int> >& map_2D_vt_charge, std::map<std::pair<int,int>,std::tuple<double, double, int> >& map_2D_wt_charge, double end_point_factor, double mid_point_factor, int nlevel, double time_cut, double charge_cut){
+void PR3DCluster::organize_ps_path(PointVector& ps_vec,  double low_dis_limit, std::vector<int>& record_vec){
 
   ps_vec.clear();
   // deal with the beginning ... 
@@ -1223,8 +1223,7 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
       
       PointVector fine_tracking_path_1st = fine_tracking_path;
       std::vector<int> record_vec;
-      organize_ps_path(ps_vec,  low_dis_limit, record_vec,
-		       map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
+      organize_ps_path(ps_vec,  low_dis_limit, record_vec);
       /* //form association ... */
       /* form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set, */
       /* 				map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set, */
