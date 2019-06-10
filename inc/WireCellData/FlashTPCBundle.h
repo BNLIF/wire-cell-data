@@ -83,24 +83,34 @@ namespace WireCell{
 
   struct FlashTPCBundleComparePtr {
 	bool operator() (FlashTPCBundle* a, FlashTPCBundle* b) {
-	    if (a && b) {
-	      if (a->get_flash() && b->get_flash()){
-		if (a->get_flash()->get_flash_id() < b->get_flash()->get_flash_id()){
+	  if (a && b) {
+	    if (a->get_flash() && b->get_flash()){
+	      if (a->get_flash()->get_flash_id() < b->get_flash()->get_flash_id()){
+		return true;
+	      }else if (a->get_flash()->get_flash_id() == b->get_flash()->get_flash_id()){
+		if (a->get_main_cluster()->get_cluster_id() < b->get_main_cluster()->get_cluster_id()){
 		  return true;
-		}else if (a->get_flash()->get_flash_id() == b->get_flash()->get_flash_id()){
-		  if (a->get_main_cluster()->get_cluster_id() < b->get_main_cluster()->get_cluster_id()){
-		    return true;
-		  }else{
-		    return false;
-		  }
 		}else{
 		  return false;
 		}
 	      }else{
 		return false;
 	      }
+	    }else if (a->get_flash()==0 && b->get_flash()){
+	      return false;
+	    }else if (a->get_flash() && b->get_flash()==0){
+	      return true;
+	    }else if (a->get_flash()==0 && b->get_flash()==0){
+	      if (a->get_main_cluster()->get_cluster_id() < b->get_main_cluster()->get_cluster_id()){
+		return true;
+	      }else{
+		return false;
+	      }
+	    }else{
+	      return false;
 	    }
-	    return false;
+	  }
+	  return false;
 	}
     };
 
