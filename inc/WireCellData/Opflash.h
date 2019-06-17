@@ -15,6 +15,9 @@ namespace WireCell{
     void Add_l1info(TH1F* hist1, TH1F *hist2, double start_time , int start_bin, int end_bin, float bin_width=6*15.625/1000.);
 
     void set_flash_id(int value){flash_id = value;};
+    //added by London
+    void set_flash_type(int value){type = value;};
+
     int get_flash_id(){return flash_id;};
     
     double get_time(){return time;};
