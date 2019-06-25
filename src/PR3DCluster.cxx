@@ -118,7 +118,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 	  charge_err = sqrt(pow(charge*0.1,2)+pow(600,2)); // assume 30% error
 	  temp_flag = 0;
 	}
-	
+	 
 	//	if(cluster_id==18)
 	//std::cout << ch << " " << time_slice << " " << charge << std::endl;
 	//	if (saved_time_channel.find(std::make_pair(time_slice,ch))==saved_time_channel.end()){
@@ -390,9 +390,7 @@ void PR3DCluster::get_projection(std::vector<int>& proj_channel, std::vector<int
 //     //   // double angle2 = dir4.Angle(dir_cros)/3.1415926*180.;
 
 //     //   std::cout << i << " " << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << " " << (3.1415926-dir1.Angle(dir2))/3.1415926*180.<< " " << dir1.Angle(dir3)/3.1415926*180. << " " << dir2.Angle(dir4)/3.1415926*180 << " " << (3.1415926 - dir3.Angle(dir4))/3.1415926*180. <<" " << drift_dir.Angle(dir3-dir4)/3.1415926*180.<< " " << angle1 <<  std::endl;
-//     // }
-    
-    
+//     // }    
 //     if (cut1>=3 && cut2>=2){
 //       count ++;
 //       if (count >=3){
