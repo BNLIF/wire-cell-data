@@ -47,7 +47,7 @@ WireCell::Opflash::Opflash(TH1F **hist, double start_time, int start_bin, int en
   }
   
   double max = 0;
-  int max_bin = 0;
+  int max_bin = start_bin;
 
   for (int i=start_bin; i!=end_bin;i++){
     double peak = 0;
@@ -73,8 +73,9 @@ WireCell::Opflash::Opflash(TH1F **hist, double start_time, int start_bin, int en
   time = start_time + (max_bin+0.5) * bin_width;
 
   total_PE = 0;
+  double pe_noise_scaled = 1.875*(end_bin-std::max(start_bin,0))/78.;
   for (int i=0;i!=32;i++){
-    PE[i] -= 1.875; // 7.5 us * random noise ... 
+    PE[i] -= pe_noise_scaled;
     if (PE[i]<0) PE[i] = 0;
     total_PE += PE[i];
 
@@ -83,7 +84,7 @@ WireCell::Opflash::Opflash(TH1F **hist, double start_time, int start_bin, int en
     }
 
     PE_err[i] = sqrt(pow(PE_err[i],2) // standard error
-		     + (PE[i] + 1.875*2) //statistical term
+		     + (PE[i] + pe_noise_scaled*2) //statistical term
 		     + pow(PE[i]*0.02,2) // 2% base systematic uncertainties
 		     );
     
