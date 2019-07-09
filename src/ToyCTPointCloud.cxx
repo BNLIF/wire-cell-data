@@ -249,6 +249,67 @@ bool ToyCTPointCloud::is_good_point(WireCell::Point& p, double radius, int ch_ra
   
 }
 
+std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_time, int max_time, int min_ch, int max_ch, int plane_no){
+  int ch_offset = 0;
+  if (plane_no == 1){
+    ch_offset = u_max_ch - u_min_ch + 1;
+  }else if (plane_no==2){
+    ch_offset = v_max_ch - v_min_ch + 1 + u_max_ch - u_min_ch + 1;
+  }
+
+  double min_xpos = (min_time-offset_t)/slope_t;
+  double max_xpos = (max_time-offset_t)/slope_t;
+  
+  std::set<int> dead_chs;
+  // U plane
+  if (plane_no==0){
+    for (auto it = dead_uchs.begin(); it!=dead_uchs.end(); it++){
+      int temp_ch = it->first+ch_offset;
+      double temp_min_xpos = it->second.first;
+      double temp_max_xpos = it->second.second;
+      if (temp_ch>=min_ch && temp_ch<=max_ch &&
+	  max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
+	dead_chs.insert(temp_ch);
+    }
+    
+  }else if (plane_no==1){ // V plane
+    for (auto it = dead_vchs.begin(); it!=dead_vchs.end(); it++){
+      int temp_ch = it->first+ch_offset;
+      double temp_min_xpos = it->second.first;
+      double temp_max_xpos = it->second.second;
+      if (temp_ch>=min_ch && temp_ch<=max_ch &&
+	  max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
+	dead_chs.insert(temp_ch);
+    }
+    
+  }else if (plane_no==2){ // W plane 
+    for (auto it = dead_wchs.begin(); it!=dead_wchs.end(); it++){
+      int temp_ch = it->first+ch_offset;
+      double temp_min_xpos = it->second.first;
+      double temp_max_xpos = it->second.second;
+      if (temp_ch>=min_ch && temp_ch<=max_ch &&
+	  max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
+	dead_chs.insert(temp_ch);
+    }
+    
+  }
+
+  std::vector<std::pair<int, int> > dead_ch_range;
+  for (auto it = dead_chs.begin(); it!=dead_chs.end(); it++){
+    if (dead_ch_range.size()==0){
+      dead_ch_range.push_back(std::make_pair(*it, *it));
+    }else{
+      if (*it-dead_ch_range.back().second==1){
+	dead_ch_range.back().second = *it;
+      }else{
+	dead_ch_range.push_back(std::make_pair(*it, *it));
+      }
+    }
+  }
+  
+  return dead_ch_range;
+}
+
 
 bool ToyCTPointCloud::get_closest_dead_chs(WireCell::Point& p, int plane, int ch_range){
 
