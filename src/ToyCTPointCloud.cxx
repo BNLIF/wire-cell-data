@@ -249,6 +249,44 @@ bool ToyCTPointCloud::is_good_point(WireCell::Point& p, double radius, int ch_ra
   
 }
 
+
+std::map<std::pair<int,int>, std::pair<double,double> > ToyCTPointCloud::get_overlap_good_ch_charge(int min_time, int max_time, int min_ch, int max_ch, int plane_no){
+  int ch_offset = 0;
+  if (plane_no == 1){
+    ch_offset = u_max_ch - u_min_ch + 1;
+  }else if (plane_no==2){
+    ch_offset = v_max_ch - v_min_ch + 1 + u_max_ch - u_min_ch + 1;
+  }
+  // time channel, charge, charge_err ...
+  std::map<std::pair<int,int>, std::pair<double, double> > map_time_ch_charge;
+  if (plane_no==0){
+    for (size_t i=0;i!=cloud_u.pts.size();i++){
+       
+      if (cloud_u.pts.at(i).time_slice>=min_time && cloud_u.pts.at(i).time_slice <= max_time &&
+	  cloud_u.pts.at(i).channel >= min_ch && cloud_u.pts.at(i).channel <= max_ch)
+	map_time_ch_charge[std::make_pair(cloud_u.pts.at(i).time_slice, cloud_u.pts.at(i).channel)] = std::make_pair(cloud_u.pts.at(i).charge, cloud_u.pts.at(i).charge_err);
+    }
+	   
+  }else if (plane_no == 1){
+    for (size_t i=0;i!=cloud_v.pts.size();i++){
+      if (cloud_v.pts.at(i).time_slice>=min_time && cloud_v.pts.at(i).time_slice <= max_time &&
+	  cloud_v.pts.at(i).channel >= min_ch && cloud_v.pts.at(i).channel <= max_ch)
+	map_time_ch_charge[std::make_pair(cloud_v.pts.at(i).time_slice, cloud_v.pts.at(i).channel)] = std::make_pair(cloud_v.pts.at(i).charge, cloud_v.pts.at(i).charge_err);
+    }
+  }else if (plane_no == 2){
+    for (size_t i=0;i!=cloud_w.pts.size();i++){
+      //std::cout << cloud_w.pts.at(i).channel << " haha " << min_ch << " " << max_ch << std::endl;
+      if (cloud_w.pts.at(i).time_slice>=min_time && cloud_w.pts.at(i).time_slice <= max_time &&
+	  cloud_w.pts.at(i).channel >= min_ch && cloud_w.pts.at(i).channel <= max_ch)
+	map_time_ch_charge[std::make_pair(cloud_w.pts.at(i).time_slice, cloud_w.pts.at(i).channel)] = std::make_pair(cloud_w.pts.at(i).charge, cloud_w.pts.at(i).charge_err);
+    }
+  }
+  
+  return map_time_ch_charge;
+  
+}
+
+
 std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_time, int max_time, int min_ch, int max_ch, int plane_no){
   int ch_offset = 0;
   if (plane_no == 1){
