@@ -198,18 +198,21 @@ void WireCell::SlimMergeGeomCell::AddWire(const GeomWire *wire, WirePlaneType_t 
       uwires.push_back(wire);
       wirechargemap[wire] = charge;
       wirechargeerrmap[wire] = charge_err;
+      map_index_uwire[wire->index()] = wire;
     }
   }else if (plane == WirePlaneType_t(1)){
     if (find(vwires.begin(),vwires.end(),wire)==vwires.end()){
       vwires.push_back(wire);
       wirechargemap[wire] = charge;
       wirechargeerrmap[wire] = charge_err;
+      map_index_vwire[wire->index()] = wire;
     }
   }else if (plane == WirePlaneType_t(2)){
     if (find(wwires.begin(),wwires.end(),wire)==wwires.end()){
       wwires.push_back(wire);
       wirechargemap[wire] = charge;
       wirechargeerrmap[wire] = charge_err;
+      map_index_wwire[wire->index()] = wire;
     }
   }
 }
@@ -342,6 +345,28 @@ bool WireCell::SlimMergeGeomCell::Overlap_fast( WireCell::SlimMergeGeomCell* cel
   if (w_low_index > w1_high_index+offset || w1_low_index > w_high_index+offset) return false;
   
   return true;   
+}
+
+bool WireCell::SlimMergeGeomCell::IsPointGood(int index_u, int index_v, int index_w, int ncut){
+  float charge_u = 0;
+  float charge_v = 0;
+  float charge_w = 0;
+  if (map_index_uwire.find(index_u)!=map_index_uwire.end()){
+    charge_u = wirechargemap[map_index_uwire[index_u]];
+  }
+  if (map_index_vwire.find(index_v)!=map_index_vwire.end()){
+    charge_v = wirechargemap[map_index_vwire[index_v]];
+  }
+  if (map_index_wwire.find(index_w)!=map_index_wwire.end()){
+    charge_w = wirechargemap[map_index_wwire[index_w]];
+  }
+  int ncount = 0;
+  if (charge_u > 0 ) ncount ++;
+  if (charge_v > 0 ) ncount ++;
+  if (charge_w > 0 ) ncount ++;
+
+  if (ncount >= ncut) return true;
+  return false;
 }
 
 bool WireCell::SlimMergeGeomCell::Adjacent( WireCell::SlimMergeGeomCell* cell)  {

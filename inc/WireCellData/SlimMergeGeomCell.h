@@ -46,6 +46,8 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
    
    float Estimate_total_charge();
    float Estimate_minimum_charge();
+   
+   bool IsPointGood(int index_u, int index_v, int index_w, int ncut = 3);
 
    float get_uq(){return uq;};
    float get_vq(){return vq;};
@@ -85,6 +87,7 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     std::vector<std::tuple<int,int,int>> sample_points_wires;
     int max_wire_interval, min_wire_interval;
     WirePlaneType_t max_wire_type, min_wire_type;
+
     
     //int order_boundary();
     WireCell::GeomWireSelection uwires;
@@ -95,6 +98,9 @@ class SlimMergeGeomCell : public WireCell::GeomCell{
     WireCell::WireChargeMap wirechargemap;
     WireCell::WireChargeMap wirechargeerrmap;
     
+    std::map<int, const WireCell::GeomWire* > map_index_uwire;
+    std::map<int, const WireCell::GeomWire* > map_index_vwire;
+    std::map<int, const WireCell::GeomWire* > map_index_wwire;
     
   };
  typedef std::vector<SlimMergeGeomCell*> SMGCSelection;
