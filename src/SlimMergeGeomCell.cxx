@@ -361,9 +361,9 @@ bool WireCell::SlimMergeGeomCell::IsPointGood(int index_u, int index_v, int inde
     charge_w = wirechargemap[map_index_wwire[index_w]];
   }
   int ncount = 0;
-  if (charge_u > 0 ) ncount ++;
-  if (charge_v > 0 ) ncount ++;
-  if (charge_w > 0 ) ncount ++;
+  if (charge_u > 10 ) ncount ++;
+  if (charge_v > 10 ) ncount ++;
+  if (charge_w > 10 ) ncount ++;
 
   if (ncount >= ncut) return true;
   return false;
