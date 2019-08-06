@@ -16,6 +16,11 @@ WireCell::SlimMergeGeomCell::~SlimMergeGeomCell(){
   uwires.clear();
   vwires.clear();
   wwires.clear();
+  sample_points.clear();
+  sample_points_wires.clear();
+  bad_planes.clear();
+  wirechargemap.clear();
+  wirechargeerrmap.clear();
 }
 
 // Point SlimMergeGeomCell::get_sampling_points_center(){
