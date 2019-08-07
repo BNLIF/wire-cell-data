@@ -377,6 +377,29 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_2d_in
   return results;
 }
 
+double WireCell::ToyPointCloud::get_closest_2d_dis(double x, double y, int plane){
+  double query_pt[2];
+  query_pt[0] = x;
+  query_pt[1] = y;
+  int N = 1;
+  std::vector<size_t> ret_index(N);
+  std::vector<double> out_dist_sqr(N);
+  if (plane==0){
+    N = index_u->knnSearch(&query_pt[0], N, &ret_index[0], &out_dist_sqr[0]);
+  }else if (plane==1){
+    N = index_v->knnSearch(&query_pt[0], N, &ret_index[0], &out_dist_sqr[0]);
+  }else{
+    N = index_w->knnSearch(&query_pt[0], N, &ret_index[0], &out_dist_sqr[0]);
+  }
+  ret_index.resize(N);
+  out_dist_sqr.resize(N);
+
+  if (N>0)
+    return sqrt(out_dist_sqr[0]);
+  else
+    return 1e9;
+}
+
 std::pair<int,double> WireCell::ToyPointCloud::get_closest_2d_dis(WireCell::Point& p, int plane){
    double x, y;
   if (plane==0){

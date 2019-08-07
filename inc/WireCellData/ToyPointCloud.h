@@ -53,6 +53,8 @@ namespace WireCell{
     std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> get_closest_points(WireCell::Point& p, double radius);
 
     double get_closest_dis(WireCell::Point& p);
+    double get_closest_2d_dis(double x, double y, int plane);
+    
     std::pair<double, WireCell::Point> get_closest_point(WireCell::Point& p);
     
     WireCell::WCPointCloud<double>::WCPoint& get_closest_wcpoint(WireCell::WCPointCloud<double>::WCPoint& wcp);

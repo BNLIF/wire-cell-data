@@ -37,6 +37,7 @@ namespace WireCell{
     void Print(WireCell::Point &p);
 
     std::vector<int> convert_3Dpoint_time_ch(WireCell::Point& p);
+    std::pair<double,double> convert_time_ch_2Dpoint(int timeslice, int channel, int plane);
 
     std::pair<int,int> get_uch_limits(){return std::make_pair(u_min_ch, u_max_ch);};
     std::pair<int,int> get_vch_limits(){return std::make_pair(v_min_ch, v_max_ch);};

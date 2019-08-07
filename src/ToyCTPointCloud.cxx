@@ -78,6 +78,19 @@ void ToyCTPointCloud::AddPoint(int ch, int time_slice, int charge, int charge_er
   }
 }
 
+std::pair<double,double> ToyCTPointCloud::convert_time_ch_2Dpoint(int timeslice, int channel, int plane){
+  double x = (timeslice - offset_t)/slope_t;
+  double y;
+  if (plane==0){
+    y = (channel - u_min_ch - offset_u)/slope_u;
+  }else if(plane==1){
+    y = (channel - v_min_ch - offset_v)/slope_v;
+  }else if(plane==2){
+    y = (channel - w_min_ch - offset_w)/slope_w;
+  }
+  return std::make_pair(x,y);
+}
+
 std::vector<int> ToyCTPointCloud::convert_3Dpoint_time_ch(WireCell::Point& p){
   std::vector<int> results(4,0);
 
