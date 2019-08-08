@@ -22,6 +22,7 @@ namespace WireCell{
     double get_total_pred_light();
     
     PR3DCluster* get_main_cluster(){return main_cluster;};
+    void set_main_cluster(PR3DCluster* cluster){main_cluster = cluster;};
     PR3DClusterSelection& get_other_clusters(){return other_clusters;};
     PR3DClusterSelection& get_more_clusters(){return more_clusters;};
 
