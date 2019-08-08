@@ -1930,17 +1930,17 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
 	    }
   	  }
 
-	  if (p1.x>0*units::cm && p1.x < 100*units::cm &&
-	      p1.y>0*units::cm &&
-	      p1.z>440*units::cm && p1.z < 460*units::cm &&
-	      p2.x>0*units::cm && p2.x < 100*units::cm &&
-	      p2.y>0*units::cm &&
-	      p2.z>440*units::cm && p2.z < 460*units::cm
-	      ){
-	    std::cout << j << " " << pt_clouds.at(j)->get_num_points() << " " << k << " " << pt_clouds.at(k)->get_num_points() << " " << num_bad << " " << num_steps << " " <<
-	      p1 << " " << p2 << " " << std::get<0>(index_index_dis[j][k]) << " " <<
-	      std::get<1>(index_index_dis[j][k]) << " " << std::get<2>(index_index_dis[j][k]) << std::endl;
-	  }
+	  // if (p1.x>0*units::cm && p1.x < 100*units::cm &&
+	  //     p1.y>0*units::cm &&
+	  //     p1.z>440*units::cm && p1.z < 460*units::cm &&
+	  //     p2.x>0*units::cm && p2.x < 100*units::cm &&
+	  //     p2.y>0*units::cm &&
+	  //     p2.z>440*units::cm && p2.z < 460*units::cm
+	  //     ){
+	  //   std::cout << j << " " << pt_clouds.at(j)->get_num_points() << " " << k << " " << pt_clouds.at(k)->get_num_points() << " " << num_bad << " " << num_steps << " " <<
+	  //     p1 << " " << p2 << " " << std::get<0>(index_index_dis[j][k]) << " " <<
+	  //     std::get<1>(index_index_dis[j][k]) << " " << std::get<2>(index_index_dis[j][k]) << std::endl;
+	  // }
 	  
   	  if (num_bad > 7 ||
   	      num_bad > 2 && num_bad >=0.75*num_steps){
@@ -2150,7 +2150,7 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
       } // k
     } // j
 
-    std::cout << "AA" << std::endl;
+    //    std::cout << "AA" << std::endl;
     // delete newly created point cloud
     for (int i=0;i!=num;i++){
       delete pt_clouds.at(i);
