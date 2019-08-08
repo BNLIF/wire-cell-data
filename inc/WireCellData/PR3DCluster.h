@@ -60,12 +60,19 @@ namespace WireCell{
     void Create_graph();
     void Create_graph(WireCell::ToyCTPointCloud& ct_point_cloud);
     
+    
     void Establish_close_connected_graph();
     void Connect_graph();
     void Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud);
 
     
     void Del_graph();
+
+    // protect against over clustering
+    std::vector<SMGCSelection> Examine_graph(WireCell::ToyCTPointCloud& ct_point_cloud);
+
+    // new set of function ...
+    
     void dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp_source);
     void dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp_source, WireCell::ToyCTPointCloud& ct_point_cloud);
     void cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target);

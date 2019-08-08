@@ -1805,6 +1805,49 @@ void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
   }
 }
 
+std::vector<SMGCSelection> PR3DCluster::Examine_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
+  if (graph!=(MCUGraph*)0)
+    delete graph;
+  if (point_cloud==(ToyPointCloud*)0)
+    Create_point_cloud();
+
+  // form connected_pieces ...
+  const int N = point_cloud->get_num_points();
+  graph = new MCUGraph(N);
+  Establish_close_connected_graph();
+
+  Connect_graph(ct_point_cloud);
+  std::vector<int> component(num_vertices(*graph));
+  const int num = connected_components(*graph,&component[0]);
+
+  std::vector<SMGCSelection> sep_mcells;
+  std::set<SlimMergeGeomCell*> used_mcells;
+  for (int i=0;i!=num;i++){
+    SMGCSelection mcells;
+    sep_mcells.push_back(mcells);
+  }
+
+  
+  
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  std::vector<int>::size_type i;
+  for (i=0;i!=component.size(); ++i){
+    SlimMergeGeomCell *mcell = cloud.pts[i].mcell;
+    if (used_mcells.find(mcell)==used_mcells.end()){
+      used_mcells.insert(mcell);
+      sep_mcells[component[i]].push_back(mcell);
+    }
+    //pt_clouds.at(component[i])->AddPoint(cloud.pts[i],cloud_u.pts[i],cloud_v.pts[i],cloud_w.pts[i]);
+  }
+
+  // std::cout << num << std::endl;
+  // for (int i=0;i!=num;i++){
+  //   std::cout << i << " " << sep_mcells.at(i).size() << std::endl;
+  // }
+  
+  
+  return sep_mcells;
+}
 
 void PR3DCluster::Create_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
   if (graph!=(MCUGraph*)0)
