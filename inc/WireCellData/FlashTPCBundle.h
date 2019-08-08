@@ -17,6 +17,7 @@ namespace WireCell{
     bool get_flag_at_x_boundary(){return flag_at_x_boundary;};
 
     std::vector<double>& get_pred_pmt_light(){return pred_pmt_light;};
+    void set_pred_pmt_light(std::vector<double> values){pred_pmt_light = values;};
     Opflash* get_flash(){return flash;};
     void set_flash(Opflash* flash1){flash=flash1;};
     double get_total_pred_light();
@@ -25,7 +26,10 @@ namespace WireCell{
     void set_main_cluster(PR3DCluster* cluster){main_cluster = cluster;};
     PR3DClusterSelection& get_other_clusters(){return other_clusters;};
     PR3DClusterSelection& get_more_clusters(){return more_clusters;};
-
+    void clear_other_clusters(){other_clusters.clear();};
+    void clear_more_clusters(){more_clusters.clear();};
+    void add_other_cluster(PR3DCluster* cluster){other_clusters.push_back(cluster);};
+    
     bool examine_bundle(Double_t *cos_pe_low, Double_t *cos_pe_mid);
     bool examine_bundle(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
     bool examine_bundle_rank(FlashTPCBundle* bundle, Double_t *cos_pe_low, Double_t *cos_pe_mid);
@@ -36,19 +40,26 @@ namespace WireCell{
     
     
     double get_chi2(){return chi2;};
+    void set_chi2(double value){chi2 = value;}; 
     int get_ndf(){return ndf;};
+    void set_ndf(int value){ndf = value;};
     double get_ks_dis(){return ks_dis;};
+    void set_ks_dis(double value){ks_dis = value;};
     void set_consistent_flag(bool value){flag_high_consistent = value;};
     bool get_consistent_flag(){return flag_high_consistent;};
 
     void set_spec_end_flag(bool value){flag_spec_end = value;};
     bool get_spec_end_flag(){return flag_spec_end;};
     bool get_potential_bad_match_flag(){return flag_potential_bad_match;};
-
+    void set_potential_bad_match_flag(bool value){flag_potential_bad_match = value;};
+      
     double get_strength(){return strength;};
     void set_strength(double value){ strength = value;};
 
     void examine_merge_clusters(double dis_cut = 3.6*units::cm);
+
+    int get_flash_index_id(){return flash_index_id;};
+    int get_cluster_index_id(){return cluster_index_id;};
     
   private:
     Opflash *flash;
