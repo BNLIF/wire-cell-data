@@ -64,6 +64,7 @@ namespace WireCell{
     void Establish_close_connected_graph();
     void Connect_graph();
     void Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud);
+    void Connect_graph_overclustering_protection(WireCell::ToyCTPointCloud& ct_point_cloud);
 
     
     void Del_graph();

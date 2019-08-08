@@ -1453,6 +1453,9 @@ void PR3DCluster::Establish_close_connected_graph(){
   // end of copying ... 
 }
 
+
+
+
 void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   WireCell::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
@@ -1691,20 +1694,33 @@ void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
     	}
       }
 
-      std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
-      
-      prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(1));
-      
-      for (size_t j=0;j!=predecessors.size();++j){
-	if (predecessors[j]!=j){
-	  if (j < predecessors[j]){
-	    index_index_dis_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
-	  }else{
-	    index_index_dis_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+      {
+	std::vector<int> possible_root_vertex;
+	std::vector<int> component(num_vertices(temp_graph));
+	const int num1 = connected_components(temp_graph,&component[0]);
+	possible_root_vertex.resize(num1);
+	std::vector<int>::size_type i;
+	for (i=0;i!=component.size(); ++i){
+	  possible_root_vertex.at(component[i]) = i;
+	}
+	
+	for (size_t i=0;i!=possible_root_vertex.size();i++){
+	  std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
+	  
+	  prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(possible_root_vertex.at(i)));
+	  
+	  for (size_t j=0;j!=predecessors.size();++j){
+	    if (predecessors[j]!=j){
+	      if (j < predecessors[j]){
+		index_index_dis_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
+	      }else{
+		index_index_dis_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+	      }
+	      //std::cout << j << " " << predecessors[j] << " " << std::endl;
+	    }else{
+	      //std::cout << j << " " << std::endl;
+	    }
 	  }
-	  //std::cout << j << " " << predecessors[j] << " " << std::endl;
-	}else{
-	  //std::cout << j << " " << std::endl;
 	}
       }
     }
@@ -1725,18 +1741,31 @@ void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
     	}
       }
 
-      std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
-      prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(1));
-      for (size_t j=0;j!=predecessors.size();++j){
-	if (predecessors[j]!=j){
-	  if (j < predecessors[j]){
-	    index_index_dis_dir_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
-	  }else{
-	    index_index_dis_dir_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+      {
+	std::vector<int> possible_root_vertex;
+	std::vector<int> component(num_vertices(temp_graph));
+	const int num1 = connected_components(temp_graph,&component[0]);
+	possible_root_vertex.resize(num1);
+	std::vector<int>::size_type i;
+	for (i=0;i!=component.size(); ++i){
+	  possible_root_vertex.at(component[i]) = i;
+	}
+	
+	for (size_t i=0;i!=possible_root_vertex.size();i++){
+	  std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
+	  prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(possible_root_vertex.at(i)));
+	  for (size_t j=0;j!=predecessors.size();++j){
+	    if (predecessors[j]!=j){
+	      if (j < predecessors[j]){
+		index_index_dis_dir_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
+	      }else{
+		index_index_dis_dir_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+	      }
+	      //std::cout << j << " " << predecessors[j] << " " << std::endl;
+	    }else{
+	      //std::cout << j << " " << std::endl;
+	    }
 	  }
-	  //std::cout << j << " " << predecessors[j] << " " << std::endl;
-	}else{
-	  //std::cout << j << " " << std::endl;
 	}
       }
     }
@@ -1805,6 +1834,335 @@ void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
   }
 }
 
+
+
+void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCloud& ct_point_cloud){
+  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WireCell::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
+  WireCell::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
+  WireCell::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
+
+  // now form the connected components
+  std::vector<int> component(num_vertices(*graph));
+  const int num = connected_components(*graph,&component[0]);
+  if (num > 1){
+    std::vector<ToyPointCloud*> pt_clouds;
+    for (int j=0;j!=num;j++){
+      ToyPointCloud *pt_cloud = new ToyPointCloud();
+      pt_clouds.push_back(pt_cloud);
+    }
+    
+    std::vector<int>::size_type i;
+    for (i=0;i!=component.size(); ++i){
+      pt_clouds.at(component[i])->AddPoint(cloud.pts[i],cloud_u.pts[i],cloud_v.pts[i],cloud_w.pts[i]);
+    }
+    for (int j=0;j!=num;j++){
+      pt_clouds.at(j)->build_kdtree_index();
+    }
+    
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis(num, std::vector< std::tuple<int,int,double> >(num));
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_mst(num, std::vector< std::tuple<int,int,double> >(num));
+    
+    
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_dir1(num, std::vector< std::tuple<int,int,double> >(num));
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_dir2(num, std::vector< std::tuple<int,int,double> >(num));
+    std::vector< std::vector< std::tuple<int,int,double> > > index_index_dis_dir_mst(num, std::vector< std::tuple<int,int,double> >(num));
+    
+    for (int j=0;j!=num;j++){
+      for (int k=0;k!=num;k++){
+  	index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+  	index_index_dis_mst[j][k] = std::make_tuple(-1,-1,1e9);
+	
+  	index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
+  	index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
+	index_index_dis_dir_mst[j][k] = std::make_tuple(-1,-1,1e9);
+      }
+    }
+    
+    // check against the closest distance ...
+    // no need to have MST ... 
+    for (int j=0;j!=num;j++){
+      for (int k=j+1;k!=num;k++){
+  	index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
+  	if (num < 100 && pt_clouds.at(j)->get_num_points()>100 && pt_clouds.at(k)->get_num_points()>100 &&
+  	    (pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 400 ||
+  	    pt_clouds.at(j)->get_num_points()>500 && pt_clouds.at(k)->get_num_points()>500){
+  	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
+  	  WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
+  	  Point p1(wp1.x,wp1.y,wp1.z);
+  	  Point p2(wp2.x,wp2.y,wp2.z);
+	  
+  	  TVector3 dir1 = VHoughTrans(p1, 30*units::cm, pt_clouds.at(j));
+  	  TVector3 dir2 = VHoughTrans(p2, 30*units::cm, pt_clouds.at(k));
+  	  dir1 *= -1;
+  	  dir2 *= -1;
+	  
+  	  std::pair<int,double> result1 = pt_clouds.at(k)->get_closest_point_along_vec(p1, dir1, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
+	  
+  	  if (result1.first >=0){
+	    index_index_dis_dir1[j][k] = std::make_tuple(std::get<0>(index_index_dis[j][k]), result1.first, result1.second);
+  	  }
+	  
+  	  std::pair<int,double> result2 = pt_clouds.at(j)->get_closest_point_along_vec(p2, dir2, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
+	  if (result2.first >=0){
+	    index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);
+  	  }
+  	}
+
+	// Now check the path ... 
+  	{
+  	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
+  	  WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
+  	  Point p1(wp1.x,wp1.y,wp1.z);
+  	  Point p2(wp2.x,wp2.y,wp2.z);
+	  
+  	  double dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+  	  double step_dis = 1.0*units::cm;
+  	  int num_steps = dis/step_dis + 1;
+  	  int num_bad = 0;
+  	  for (int ii=0;ii!=num_steps;ii++){
+  	    Point test_p;
+  	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
+  	    test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
+  	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
+  	    if (!ct_point_cloud.is_good_point_wc(test_p)){
+  	      num_bad ++;
+	    }
+  	  }
+
+	  if (p1.x>0*units::cm && p1.x < 100*units::cm &&
+	      p1.y>0*units::cm &&
+	      p1.z>440*units::cm && p1.z < 460*units::cm &&
+	      p2.x>0*units::cm && p2.x < 100*units::cm &&
+	      p2.y>0*units::cm &&
+	      p2.z>440*units::cm && p2.z < 460*units::cm
+	      ){
+	    std::cout << j << " " << pt_clouds.at(j)->get_num_points() << " " << k << " " << pt_clouds.at(k)->get_num_points() << " " << num_bad << " " << num_steps << " " <<
+	      p1 << " " << p2 << " " << std::get<0>(index_index_dis[j][k]) << " " <<
+	      std::get<1>(index_index_dis[j][k]) << " " << std::get<2>(index_index_dis[j][k]) << std::endl;
+	  }
+	  
+  	  if (num_bad > 7 ||
+  	      num_bad > 2 && num_bad >=0.75*num_steps){
+  	    index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+  	  }
+	  
+  	}
+	
+  	// Now check the path ... 
+  	if (std::get<0>(index_index_dis_dir1[j][k])>=0){
+  	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis_dir1[j][k]));
+  	  WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis_dir1[j][k]));
+  	  Point p1(wp1.x,wp1.y,wp1.z);
+  	  Point p2(wp2.x,wp2.y,wp2.z);
+	  
+  	  double dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+  	  double step_dis = 1.0*units::cm;
+  	  int num_steps = dis/step_dis + 1;
+  	  int num_bad = 0;
+  	  for (int ii=0;ii!=num_steps;ii++){
+  	    Point test_p;
+  	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
+  	    test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
+  	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
+  	    if (!ct_point_cloud.is_good_point_wc(test_p))
+  	      num_bad ++;
+  	  }
+	  
+	  
+  	  if (num_bad > 7 ||
+  	      num_bad > 2 && num_bad >=0.75*num_steps){
+  	    index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
+  	  }
+	}
+	
+	
+  	// Now check the path ... 
+  	if (std::get<0>(index_index_dis_dir2[j][k])>=0){
+  	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis_dir2[j][k]));
+  	  WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis_dir2[j][k]));
+  	  Point p1(wp1.x,wp1.y,wp1.z);
+  	  Point p2(wp2.x,wp2.y,wp2.z);
+	  
+  	  double dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+  	  double step_dis = 1.0*units::cm;
+  	  int num_steps = dis/step_dis + 1;
+  	  int num_bad = 0;
+  	  for (int ii=0;ii!=num_steps;ii++){
+  	    Point test_p;
+  	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
+  	    test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
+  	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
+  	    if (!ct_point_cloud.is_good_point_wc(test_p))
+  	      num_bad ++;
+  	  }
+	 
+	  
+  	  if (num_bad > 7 ||
+  	      num_bad > 2 && num_bad >=0.75*num_steps){
+  	    index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
+  	  }
+
+  	}
+      }
+    }
+
+     // deal with MST of first type
+    {
+      const int N = num;
+      boost::adjacency_list<boost::setS, boost::vecS, boost::undirectedS,
+    	boost::no_property, boost::property<boost::edge_weight_t, double>>
+    	temp_graph(N);
+      
+      for (int j=0;j!=num;j++){
+    	for (int k=j+1;k!=num;k++){
+	  int index1 = j;
+	  int index2 = k;
+    	  if (std::get<0>(index_index_dis[j][k])>=0){
+	    //	    std::cout << "A: " << index1 << " " << index2 << std::endl;
+	    auto edge = add_edge(index1,index2, std::get<2>(index_index_dis[j][k]), temp_graph);
+	  }
+	}
+      }
+
+      {
+	std::vector<int> possible_root_vertex;
+	std::vector<int> component(num_vertices(temp_graph));
+	const int num1 = connected_components(temp_graph,&component[0]);
+	possible_root_vertex.resize(num1);
+	std::vector<int>::size_type i;
+	for (i=0;i!=component.size(); ++i){
+	  possible_root_vertex.at(component[i]) = i;
+	}
+	
+	for (size_t i=0;i!=possible_root_vertex.size();i++){
+	  std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
+      
+	  prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(possible_root_vertex.at(i)));
+      
+	  for (size_t j=0;j!=predecessors.size();++j){
+	    if (predecessors[j]!=j){
+	      if (j < predecessors[j]){
+		index_index_dis_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
+	      }else{
+		index_index_dis_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+	      }
+	      //	      std::cout << j << " " << predecessors[j] << " " << std::endl;
+	    }else{
+	      //std::cout << j << " " << std::endl;
+	    }
+	  }
+	}
+      }
+    }
+
+    // MST of the direction ... 
+    {
+      const int N = num;
+      boost::adjacency_list<boost::setS, boost::vecS, boost::undirectedS,
+    	boost::no_property, boost::property<boost::edge_weight_t, double>>
+    	temp_graph(N);
+      
+      for (int j=0;j!=num;j++){
+    	for (int k=j+1;k!=num;k++){
+	  int index1 = j;
+	  int index2 = k;
+    	  if (std::get<0>(index_index_dis_dir1[j][k])>=0 || std::get<0>(index_index_dis_dir2[j][k])>=0)
+    	    auto edge = add_edge(index1,index2, std::min(std::get<2>(index_index_dis_dir1[j][k]), std::get<2>(index_index_dis_dir2[j][k])), temp_graph);
+    	}
+      }
+
+      {
+	std::vector<int> possible_root_vertex;
+	std::vector<int> component(num_vertices(temp_graph));
+	const int num1 = connected_components(temp_graph,&component[0]);
+	possible_root_vertex.resize(num1);
+	std::vector<int>::size_type i;
+	for (i=0;i!=component.size(); ++i){
+	  possible_root_vertex.at(component[i]) = i;
+	}
+	for (size_t i=0;i!=possible_root_vertex.size();i++){
+	  std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
+	  prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(possible_root_vertex.at(i)));
+	  for (size_t j=0;j!=predecessors.size();++j){
+	    if (predecessors[j]!=j){
+	      if (j < predecessors[j]){
+		index_index_dis_dir_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
+	      }else{
+		index_index_dis_dir_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+	      }
+	      //std::cout << j << " " << predecessors[j] << " " << std::endl;
+	    }else{
+	      //std::cout << j << " " << std::endl;
+	    }
+	  }
+	}
+      }
+    }
+
+	
+    for (int j=0;j!=num;j++){
+      for (int k=j+1;k!=num;k++){
+	if (std::get<2>(index_index_dis[j][k])<3*units::cm){
+	  index_index_dis_mst[j][k] = index_index_dis[j][k];
+	}
+    
+	
+  	// establish the path ... 
+  	if (std::get<0>(index_index_dis_mst[j][k])>=0){
+  	  auto edge = add_edge(std::get<0>(index_index_dis_mst[j][k]),std::get<1>(index_index_dis_mst[j][k]),*graph);
+	  //std::cout << j << " " << k << std::endl;
+  	  if (edge.second){
+  	    if (std::get<2>(index_index_dis_mst[j][k])>5*units::cm){
+  	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
+  	    }else{
+  	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
+  	    }
+  	  }
+  	}
+
+
+	if (std::get<0>(index_index_dis_dir_mst[j][k])>=0){
+	  //std::cout << j << " " << k << std::endl;
+	  if (std::get<0>(index_index_dis_dir1[j][k])>=0){
+	    auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
+	    if (edge.second){
+	      if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
+		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.1;
+	      }else{
+		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
+	      }
+	    }
+	  }
+	  if (std::get<0>(index_index_dis_dir2[j][k])>=0){
+	    //std::cout << j << " " << k << std::endl;
+	    auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
+	    if (edge.second){
+	      if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
+		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.1;
+	      }else{
+		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
+	      }
+	    }
+	  }
+	}
+	
+      } // k
+    } // j
+
+    std::cout << "AA" << std::endl;
+    // delete newly created point cloud
+    for (int i=0;i!=num;i++){
+      delete pt_clouds.at(i);
+    }
+    pt_clouds.clear();
+  }
+}
+
+
+
+
+
 std::vector<SMGCSelection> PR3DCluster::Examine_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
   if (graph!=(MCUGraph*)0)
     delete graph;
@@ -1816,7 +2174,7 @@ std::vector<SMGCSelection> PR3DCluster::Examine_graph(WireCell::ToyCTPointCloud&
   graph = new MCUGraph(N);
   Establish_close_connected_graph();
 
-  Connect_graph(ct_point_cloud);
+  Connect_graph_overclustering_protection(ct_point_cloud);
   std::vector<int> component(num_vertices(*graph));
   const int num = connected_components(*graph,&component[0]);
 
@@ -1938,20 +2296,32 @@ void PR3DCluster::Connect_graph(){
       }
     }
     
-    std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
+
+    {
+      std::vector<int> possible_root_vertex;
+      std::vector<int> component(num_vertices(temp_graph));
+      const int num1 = connected_components(temp_graph,&component[0]);
+      possible_root_vertex.resize(num1);
+      std::vector<int>::size_type i;
+      for (i=0;i!=component.size(); ++i){
+	possible_root_vertex.at(component[i]) = i;
+      }
     
-    prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(1));
-    
-    for (size_t j=0;j!=predecessors.size();++j){
-      if (predecessors[j]!=j){
-	if (j < predecessors[j]){
-	  index_index_dis_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
-	}else{
-	  index_index_dis_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+      for (size_t i=0;i!=possible_root_vertex.size();i++){
+	std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
+	prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(possible_root_vertex.at(i)));
+	for (size_t j=0;j!=predecessors.size();++j){
+	  if (predecessors[j]!=j){
+	    if (j < predecessors[j]){
+	      index_index_dis_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
+	    }else{
+	      index_index_dis_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+	    }
+	    //std::cout << j << " " << predecessors[j] << " " << std::endl;
+	  }else{
+	    //std::cout << j << " " << std::endl;
+	  }
 	}
-	//std::cout << j << " " << predecessors[j] << " " << std::endl;
-      }else{
-	//std::cout << j << " " << std::endl;
       }
     }
     //end of mst ...
@@ -2039,22 +2409,34 @@ void PR3DCluster::Connect_graph(){
     	}
       }
 
-      std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
-      prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(1));
-      for (size_t j=0;j!=predecessors.size();++j){
-	if (predecessors[j]!=j){
-	  if (j < predecessors[j]){
-	    index_index_dis_dir_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
-	  }else{
-	    index_index_dis_dir_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+      
+      {
+	std::vector<int> possible_root_vertex;
+	std::vector<int> component(num_vertices(temp_graph));
+	const int num1 = connected_components(temp_graph,&component[0]);
+	possible_root_vertex.resize(num1);
+	std::vector<int>::size_type i;
+	for (i=0;i!=component.size(); ++i){
+	  possible_root_vertex.at(component[i]) = i;
+	}
+	for (size_t i=0;i!=possible_root_vertex.size();i++){
+	  std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
+	  prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(possible_root_vertex.at(i)));
+	  for (size_t j=0;j!=predecessors.size();++j){
+	    if (predecessors[j]!=j){
+	      if (j < predecessors[j]){
+		index_index_dis_dir_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
+	      }else{
+		index_index_dis_dir_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+	      }
+	      //std::cout << j << " " << predecessors[j] << " " << std::endl;
+	    }else{
+	      //std::cout << j << " " << std::endl;
+	    }
 	  }
-	  //std::cout << j << " " << predecessors[j] << " " << std::endl;
-	}else{
-	  //std::cout << j << " " << std::endl;
 	}
       }
     }
-    
     
     // now complete graph according to the direction
     // according to direction ...
