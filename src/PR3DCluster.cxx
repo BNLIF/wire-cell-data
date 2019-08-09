@@ -1927,19 +1927,35 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
   	  double dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
   	  double step_dis = 1.0*units::cm;
   	  int num_steps = dis/step_dis + 1;
-  	  int num_bad = 0;
-	  int num_bad1 = 0;
+
+	  // int num_bad = 0;
+	  // int num_bad1 = 0;
+	  int num_bad[4]={0,0,0,0}; // more than one of three are bad
+	  int num_bad1[4]={0,0,0,0}; // at least one of three are bad 
   	  for (int ii=0;ii!=num_steps;ii++){
   	    Point test_p;
   	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
   	    test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
   	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
-  	    if (!ct_point_cloud.is_good_point_wc(test_p)) num_bad ++;
-	    if (!ct_point_cloud.is_good_point_wc(test_p,0.6*units::cm,1,0)) num_bad1 ++;
+
+	    std::tuple<int,int,int> scores = ct_point_cloud.test_good_point(test_p);
+	    if (std::get<0>(scores) + std::get<1>(scores) + std::get<2>(scores)*2 <3){ // num_bad
+	      num_bad[0]++;
+	    }
+	    if (std::get<0>(scores)==0) num_bad[1]++;
+	    if (std::get<1>(scores)==0) num_bad[2]++;
+	    if (std::get<2>(scores)==0) num_bad[3]++;
+	      
+	    if (std::get<0>(scores) + std::get<1>(scores) + std::get<2>(scores) <3){ // num_bad1
+	      num_bad1[0]++;
+	    }
+	    if (std::get<0>(scores)==0) num_bad1[1]++;
+	    if (std::get<1>(scores)==0) num_bad1[2]++;
+	    if (std::get<2>(scores)==0) num_bad1[3]++;
+	    // if (!ct_point_cloud.is_good_point_wc(test_p)) num_bad ++;
+	    // if (!ct_point_cloud.is_good_point_wc(test_p,0.6*units::cm,1,0)) num_bad1 ++;
 	  }
-
-	 
-
+	  
 	  TVector3 tempV1(0, p2.y - p1.y, p2.z - p1.z);
 	  TVector3 tempV5;
 	  double angle1 = tempV1.Angle(U_dir);
@@ -1954,26 +1970,43 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
 	  angle1p = tempV5.Angle(drift_dir);
 	  double angle3 = tempV5.Angle(drift_dir);
 	  
-
-	   // if (p1.y>=-50*units::cm && p2.y > -50*units::cm &&
-	   //    p1.y<=-40*units::cm && p2.y <=-40*units::cm &&
-	   //    p1.z > 960*units::cm && p2.z >960*units::cm &&
-	   //    p1.z < 980*units::cm && p2.z <980*units::cm){
-	   //   std::cout << j << " " << pt_clouds.at(j)->get_num_points() << " " << k << " " << pt_clouds.at(k)->get_num_points() << " " << num_bad << " " << " " << num_bad1 << " " << num_steps << " " <<
-	   //     p1 << " " << p2 << " " << std::get<0>(index_index_dis[j][k]) << " " <<
-	   //     std::get<1>(index_index_dis[j][k]) << " " << std::get<2>(index_index_dis[j][k]) << " " << angle3/3.1415926*180. << " " << angle1/3.1415926*180. << " " << angle2/3.1415926*180. << " " << angle1p/3.1415926*180. << std::endl;
-	   // }
-	  
-	  if (fabs(angle3-3.1415926/2.)<10/180.*3.1415926 || angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p < 7.5/180.*3.1415926){
-	    // parallel or prolonged case
-	    if (num_bad > 7 || num_bad > 2 && num_bad >=0.75*num_steps) {
+	  bool flag_strong_check = true;
+	  if (fabs(angle3-3.1415926/2.)<10/180.*3.1415926){
+	    TVector3 tempV2 = VHoughTrans(p1, 15*units::cm);
+	    TVector3 tempV3 = VHoughTrans(p2, 15*units::cm);
+	    if ( fabs(tempV2.Angle(drift_dir)-3.1415926/2.)<10/180.*3.1415926 &&
+		 fabs(tempV3.Angle(drift_dir)-3.1415926/2.)<10/180.*3.1415926)
+	      flag_strong_check = false;
+	  }else if ( angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p < 7.5/180.*3.1415926){
+	    flag_strong_check = false;
+	  }
+	  	  
+	  if (flag_strong_check){
+	    if (num_bad1[0] >= 7 || num_bad1[0] > 2 && num_bad1[0] >=0.75*num_steps){
 	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
 	    }
 	  }else{
-	    if (num_bad1 > 7 || num_bad1 > 2 && num_bad1 >=0.75*num_steps){
+	    if (num_bad[0] >= 7 || num_bad[0] > 2 && num_bad[0] >=0.75*num_steps) {
+	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+	    }else if (angle1<12.5/180.*3.1415926 && (num_bad[2]+num_bad[3] >= 5 || num_bad[2]+num_bad[3] >=0.75*num_steps || num_bad[3]>=3)){
+	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+	    }else if (angle2<12.5/180.*3.1415926 && (num_bad[1]+num_bad[3] >= 5 || num_bad[1]+num_bad[3] >=0.75*num_steps || num_bad[3]>=3)){
+	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+	    }else if (angle1p < 7.5/180.*3.1415926 && (num_bad[2]+num_bad[1] >= 5 || num_bad[2]+num_bad[1] >=0.75*num_steps )){
 	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
 	    }
 	  }
+
+	  // if ((p1.x>=180*units::cm && p1.x<=220*units::cm && p1.z > 680*units::cm && p1.z < 720*units::cm)&&
+	  //     (!(p2.x > 180*units::cm && p2.x <=220*units::cm && p2.z >680*units::cm && p2.z <720*units::cm))||
+	  //     (p2.x > 180*units::cm && p2.x <=220*units::cm && p2.z >680*units::cm && p2.z <720*units::cm) &&
+	  //     (!(p1.x>=180*units::cm && p1.x<=220*units::cm && p1.z > 680*units::cm && p1.z < 720*units::cm))){
+	  //   if (std::get<0>(index_index_dis[j][k])!=-1)
+	  //     std::cout << flag_strong_check << " " << j << " " << pt_clouds.at(j)->get_num_points() << " " << k << " " << pt_clouds.at(k)->get_num_points() << " " << num_bad[0] << " " << num_bad[1] << " " << num_bad[2] << " " << num_bad[3] << " " << num_bad1[0] << " " << num_steps << " " <<
+	  //      p1 << " " << p2 << " " << std::get<0>(index_index_dis[j][k]) << " " <<
+	  //      std::get<1>(index_index_dis[j][k]) << " " << std::get<2>(index_index_dis[j][k]) << " " << angle3/3.1415926*180. << " " << angle1/3.1415926*180. << " " << angle2/3.1415926*180. << " " << angle1p/3.1415926*180. << std::endl;
+	  // }
+      
 	}
 	
   	// Now check the path ... 
@@ -2012,6 +2045,7 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
 	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1p),0);
 	  angle1p = tempV5.Angle(drift_dir);
 
+
 	  if (fabs(angle3-3.1415926/2.)<10/180.*3.1415926 || angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p < 7.5/180.*3.1415926){
 	    // parallel or prolonged case
 	    if (num_bad > 7 || num_bad > 2 && num_bad >=0.75*num_steps) {
@@ -2022,6 +2056,7 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
 	      index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
 	    }
 	  }
+	  	  
 	}
 
 
