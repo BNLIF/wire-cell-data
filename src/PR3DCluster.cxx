@@ -1842,6 +1842,14 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
   WireCell::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
   WireCell::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
 
+  // parallel case 1 and perpendicular case 2 
+  TVector3 drift_dir(1,0,0);
+  // pronlonged case for U 3 and V 4 ...
+  TVector3 U_dir(0,cos(60./180.*3.1415926),sin(60./180.*3.1415926));
+  TVector3 V_dir(0,cos(60./180.*3.1415926),-sin(60./180.*3.1415926));
+  TVector3 W_dir(0,1,0);
+  
+  
   // now form the connected components
   std::vector<int> component(num_vertices(*graph));
   const int num = connected_components(*graph,&component[0]);
@@ -1920,34 +1928,53 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
   	  double step_dis = 1.0*units::cm;
   	  int num_steps = dis/step_dis + 1;
   	  int num_bad = 0;
+	  int num_bad1 = 0;
   	  for (int ii=0;ii!=num_steps;ii++){
   	    Point test_p;
   	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
   	    test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
   	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
-  	    if (!ct_point_cloud.is_good_point_wc(test_p)){
-  	      num_bad ++;
-	    }
-  	  }
+  	    if (!ct_point_cloud.is_good_point_wc(test_p)) num_bad ++;
+	    if (!ct_point_cloud.is_good_point_wc(test_p,0.6*units::cm,1,0)) num_bad1 ++;
+	  }
 
-	  // if (p1.x>0*units::cm && p1.x < 100*units::cm &&
-	  //     p1.y>0*units::cm &&
-	  //     p1.z>440*units::cm && p1.z < 460*units::cm &&
-	  //     p2.x>0*units::cm && p2.x < 100*units::cm &&
-	  //     p2.y>0*units::cm &&
-	  //     p2.z>440*units::cm && p2.z < 460*units::cm
-	  //     ){
-	  //   std::cout << j << " " << pt_clouds.at(j)->get_num_points() << " " << k << " " << pt_clouds.at(k)->get_num_points() << " " << num_bad << " " << num_steps << " " <<
-	  //     p1 << " " << p2 << " " << std::get<0>(index_index_dis[j][k]) << " " <<
-	  //     std::get<1>(index_index_dis[j][k]) << " " << std::get<2>(index_index_dis[j][k]) << std::endl;
-	  // }
+	 
+
+	  TVector3 tempV1(0, p2.y - p1.y, p2.z - p1.z);
+	  TVector3 tempV5;
+	  double angle1 = tempV1.Angle(U_dir);
+	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1),0);
+	  angle1 = tempV5.Angle(drift_dir);
+	  double angle2 = tempV1.Angle(V_dir);
+	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle2),0);
+	  angle2 = tempV5.Angle(drift_dir);
+	  tempV5.SetXYZ(p2.x-p1.x,p2.y-p1.y,p2.z-p1.z);
+	  double angle1p = tempV1.Angle(W_dir);
+	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1p),0);
+	  angle1p = tempV5.Angle(drift_dir);
+	  double angle3 = tempV5.Angle(drift_dir);
 	  
-  	  if (num_bad > 7 ||
-  	      num_bad > 2 && num_bad >=0.75*num_steps){
-  	    index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-  	  }
+
+	   // if (p1.y>=-50*units::cm && p2.y > -50*units::cm &&
+	   //    p1.y<=-40*units::cm && p2.y <=-40*units::cm &&
+	   //    p1.z > 960*units::cm && p2.z >960*units::cm &&
+	   //    p1.z < 980*units::cm && p2.z <980*units::cm){
+	   //   std::cout << j << " " << pt_clouds.at(j)->get_num_points() << " " << k << " " << pt_clouds.at(k)->get_num_points() << " " << num_bad << " " << " " << num_bad1 << " " << num_steps << " " <<
+	   //     p1 << " " << p2 << " " << std::get<0>(index_index_dis[j][k]) << " " <<
+	   //     std::get<1>(index_index_dis[j][k]) << " " << std::get<2>(index_index_dis[j][k]) << " " << angle3/3.1415926*180. << " " << angle1/3.1415926*180. << " " << angle2/3.1415926*180. << " " << angle1p/3.1415926*180. << std::endl;
+	   // }
 	  
-  	}
+	  if (fabs(angle3-3.1415926/2.)<10/180.*3.1415926 || angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p < 7.5/180.*3.1415926){
+	    // parallel or prolonged case
+	    if (num_bad > 7 || num_bad > 2 && num_bad >=0.75*num_steps) {
+	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+	    }
+	  }else{
+	    if (num_bad1 > 7 || num_bad1 > 2 && num_bad1 >=0.75*num_steps){
+	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+	    }
+	  }
+	}
 	
   	// Now check the path ... 
   	if (std::get<0>(index_index_dis_dir1[j][k])>=0){
@@ -1960,6 +1987,7 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
   	  double step_dis = 1.0*units::cm;
   	  int num_steps = dis/step_dis + 1;
   	  int num_bad = 0;
+	  int num_bad1 = 0;
   	  for (int ii=0;ii!=num_steps;ii++){
   	    Point test_p;
   	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
@@ -1967,14 +1995,36 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
   	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
   	    if (!ct_point_cloud.is_good_point_wc(test_p))
   	      num_bad ++;
+	    if (!ct_point_cloud.is_good_point_wc(test_p,0.6*units::cm,1,0)) num_bad1 ++;
   	  }
 	  
-	  
-  	  if (num_bad > 7 ||
-  	      num_bad > 2 && num_bad >=0.75*num_steps){
-  	    index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
-  	  }
+	  TVector3 tempV1(0, p2.y - p1.y, p2.z - p1.z);
+	  TVector3 tempV5;
+	  double angle1 = tempV1.Angle(U_dir);
+	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1),0);
+	  angle1 = tempV5.Angle(drift_dir);
+	  double angle2 = tempV1.Angle(V_dir);
+	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle2),0);
+	  angle2 = tempV5.Angle(drift_dir);
+	  tempV5.SetXYZ(p2.x-p1.x,p2.y-p1.y,p2.z-p1.z);
+	  double angle3 = tempV5.Angle(drift_dir);
+	  double angle1p = tempV1.Angle(W_dir);
+	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1p),0);
+	  angle1p = tempV5.Angle(drift_dir);
+
+	  if (fabs(angle3-3.1415926/2.)<10/180.*3.1415926 || angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p < 7.5/180.*3.1415926){
+	    // parallel or prolonged case
+	    if (num_bad > 7 || num_bad > 2 && num_bad >=0.75*num_steps) {
+	      index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
+	    }
+	  }else{
+	    if (num_bad1 > 7 || num_bad1 > 2 && num_bad1 >=0.75*num_steps){
+	      index_index_dis_dir1[j][k] = std::make_tuple(-1,-1,1e9);
+	    }
+	  }
 	}
+
+
 	
 	
   	// Now check the path ... 
@@ -1988,22 +2038,47 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
   	  double step_dis = 1.0*units::cm;
   	  int num_steps = dis/step_dis + 1;
   	  int num_bad = 0;
-  	  for (int ii=0;ii!=num_steps;ii++){
+	  int num_bad1 = 0;
+	  for (int ii=0;ii!=num_steps;ii++){
   	    Point test_p;
   	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
   	    test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
   	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
   	    if (!ct_point_cloud.is_good_point_wc(test_p))
   	      num_bad ++;
+	    if (!ct_point_cloud.is_good_point_wc(test_p,0.6*units::cm,1,0)) num_bad1 ++;
   	  }
 	 
-	  
-  	  if (num_bad > 7 ||
-  	      num_bad > 2 && num_bad >=0.75*num_steps){
-  	    index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
-  	  }
+	  TVector3 tempV1(0, p2.y - p1.y, p2.z - p1.z);
+	  TVector3 tempV5;
+	  double angle1 = tempV1.Angle(U_dir);
+	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1),0);
+	  angle1 = tempV5.Angle(drift_dir);
+	  double angle2 = tempV1.Angle(V_dir);
+	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle2),0);
+	  angle2 = tempV5.Angle(drift_dir);
+	  tempV5.SetXYZ(p2.x-p1.x,p2.y-p1.y,p2.z-p1.z);
+	  double angle3 = tempV5.Angle(drift_dir);
+	  double angle1p = tempV1.Angle(W_dir);
+	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1p),0);
+	  angle1p = tempV5.Angle(drift_dir);
 
-  	}
+	  if (fabs(angle3-3.1415926/2.)<10/180.*3.1415926 || angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p<7.5/180.*3.1415926){
+	    // parallel or prolonged case
+	    if (num_bad > 7 || num_bad > 2 && num_bad >=0.75*num_steps) {
+	      index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
+	      
+	    }
+	  }else{
+	    if (num_bad1 > 7 || num_bad1 > 2 && num_bad1 >=0.75*num_steps){
+	      index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
+
+	    }
+	  }
+	}
+
+
+
       }
     }
 
