@@ -366,7 +366,7 @@ std::map<std::pair<int,int>, std::pair<double,double> > ToyCTPointCloud::get_ove
 }
 
 
-std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_time, int max_time, int min_ch, int max_ch, int plane_no){
+std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_time, int max_time, int min_ch, int max_ch, int plane_no, bool flag_ignore_time){
   int ch_offset = 0;
   if (plane_no == 1){
     ch_offset = u_max_ch - u_min_ch + 1;
@@ -384,9 +384,14 @@ std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_
       int temp_ch = it->first+ch_offset;
       double temp_min_xpos = it->second.first;
       double temp_max_xpos = it->second.second;
-      if (temp_ch>=min_ch && temp_ch<=max_ch &&
-	  max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
-	dead_chs.insert(temp_ch);
+      if (flag_ignore_time){
+	if (temp_ch>=min_ch && temp_ch<=max_ch)
+	  dead_chs.insert(temp_ch);
+      }else{
+	if (temp_ch>=min_ch && temp_ch<=max_ch &&
+	    max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
+	  dead_chs.insert(temp_ch);
+      }
     }
     
   }else if (plane_no==1){ // V plane
@@ -394,9 +399,14 @@ std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_
       int temp_ch = it->first+ch_offset;
       double temp_min_xpos = it->second.first;
       double temp_max_xpos = it->second.second;
-      if (temp_ch>=min_ch && temp_ch<=max_ch &&
-	  max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
-	dead_chs.insert(temp_ch);
+      if (flag_ignore_time){
+	if (temp_ch>=min_ch && temp_ch<=max_ch)
+	  dead_chs.insert(temp_ch);
+      }else{
+	if (temp_ch>=min_ch && temp_ch<=max_ch &&
+	    max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
+	  dead_chs.insert(temp_ch);
+      }
     }
     
   }else if (plane_no==2){ // W plane 
@@ -404,9 +414,14 @@ std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_
       int temp_ch = it->first+ch_offset;
       double temp_min_xpos = it->second.first;
       double temp_max_xpos = it->second.second;
-      if (temp_ch>=min_ch && temp_ch<=max_ch &&
-	  max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
-	dead_chs.insert(temp_ch);
+      if (flag_ignore_time){
+	if (temp_ch>=min_ch && temp_ch<=max_ch)
+	  dead_chs.insert(temp_ch);
+      }else{
+	if (temp_ch>=min_ch && temp_ch<=max_ch &&
+	    max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
+	  dead_chs.insert(temp_ch);
+      }
     }
     
   }

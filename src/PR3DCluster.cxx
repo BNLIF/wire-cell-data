@@ -1977,36 +1977,44 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
 	    if ( fabs(tempV2.Angle(drift_dir)-3.1415926/2.)<10/180.*3.1415926 &&
 		 fabs(tempV3.Angle(drift_dir)-3.1415926/2.)<10/180.*3.1415926)
 	      flag_strong_check = false;
-	  }else if ( angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p < 7.5/180.*3.1415926){
+	  }else if ( angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p < 12.5/180.*3.1415926){
 	    flag_strong_check = false;
 	  }
 	  	  
 	  if (flag_strong_check){
-	    if (num_bad1[0] >= 7 || num_bad1[0] > 2 && num_bad1[0] >=0.75*num_steps){
+	    if (num_bad1[0] > 7 || num_bad1[0] > 2 && num_bad1[0] >=0.75*num_steps){
 	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
 	    }
 	  }else{
-	    if (num_bad[0] >= 7 || num_bad[0] > 2 && num_bad[0] >=0.75*num_steps) {
+	    if ((angle1<12.5/180.*3.1415926 && angle2<12.5/180.*3.1415926 ||
+		 angle1p < 12.5/180.*3.1415926 && angle1<12.5/180.*3.1415926 ||
+		 angle1p < 12.5/180.*3.1415926 && angle2<12.5/180.*3.1415926)){
+	      if (num_bad[0] > 7 || num_bad[0] > 2 && num_bad[0] >=0.75*num_steps)
+		index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+	    }else if (angle1<12.5/180.*3.1415926 && (num_bad[2]+num_bad[3] > 9 || num_bad[2]+num_bad[3] > 2 && num_bad[2]+num_bad[3] >=0.75*num_steps || num_bad[3]>=3)){
 	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-	    }else if (angle1<12.5/180.*3.1415926 && (num_bad[2]+num_bad[3] >= 5 || num_bad[2]+num_bad[3] >=0.75*num_steps || num_bad[3]>=3)){
+	    }else if (angle2<12.5/180.*3.1415926 && (num_bad[1]+num_bad[3] > 9 || num_bad[1]+num_bad[3]>2  && num_bad[1]+num_bad[3] >=0.75*num_steps || num_bad[3]>=3)){
 	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-	    }else if (angle2<12.5/180.*3.1415926 && (num_bad[1]+num_bad[3] >= 5 || num_bad[1]+num_bad[3] >=0.75*num_steps || num_bad[3]>=3)){
+	    }else if (angle1p < 12.5/180.*3.1415926 && (num_bad[2]+num_bad[1] > 9 || num_bad[2]+num_bad[1]>2 && num_bad[2]+num_bad[1] >=0.75*num_steps )){
 	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-	    }else if (angle1p < 7.5/180.*3.1415926 && (num_bad[2]+num_bad[1] >= 5 || num_bad[2]+num_bad[1] >=0.75*num_steps )){
-	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+	    }else{
+	      if (num_bad[0] > 7 || num_bad[0] > 2 && num_bad[0] >=0.75*num_steps) {
+		index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+	      }
 	    }
 	  }
-
-	  // if ((p1.x>=180*units::cm && p1.x<=220*units::cm && p1.z > 680*units::cm && p1.z < 720*units::cm)&&
-	  //     (!(p2.x > 180*units::cm && p2.x <=220*units::cm && p2.z >680*units::cm && p2.z <720*units::cm))||
-	  //     (p2.x > 180*units::cm && p2.x <=220*units::cm && p2.z >680*units::cm && p2.z <720*units::cm) &&
-	  //     (!(p1.x>=180*units::cm && p1.x<=220*units::cm && p1.z > 680*units::cm && p1.z < 720*units::cm))){
-	  //   if (std::get<0>(index_index_dis[j][k])!=-1)
+	  // if ((p1.x>=-170*units::cm && p1.x<=-120*units::cm && p1.z > 440*units::cm && p1.z < 460*units::cm)&&
+	  //     ((p2.x > -170*units::cm && p2.x <=-120*units::cm && p2.z >440*units::cm && p2.z <460*units::cm))
+	  //     // ||
+	  //     //(p2.x > 180*units::cm && p2.x <=220*units::cm && p2.z >680*units::cm && p2.z <720*units::cm) &&
+	  //     //(!(p1.x>=180*units::cm && p1.x<=220*units::cm && p1.z > 680*units::cm && p1.z < 720*units::cm))
+	  //     ){
+	    
 	  //     std::cout << flag_strong_check << " " << j << " " << pt_clouds.at(j)->get_num_points() << " " << k << " " << pt_clouds.at(k)->get_num_points() << " " << num_bad[0] << " " << num_bad[1] << " " << num_bad[2] << " " << num_bad[3] << " " << num_bad1[0] << " " << num_steps << " " <<
 	  //      p1 << " " << p2 << " " << std::get<0>(index_index_dis[j][k]) << " " <<
 	  //      std::get<1>(index_index_dis[j][k]) << " " << std::get<2>(index_index_dis[j][k]) << " " << angle3/3.1415926*180. << " " << angle1/3.1415926*180. << " " << angle2/3.1415926*180. << " " << angle1p/3.1415926*180. << std::endl;
 	  // }
-      
+	    
 	}
 	
   	// Now check the path ... 

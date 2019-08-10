@@ -34,7 +34,7 @@ namespace WireCell{
     WireCell::CTPointCloud<double> get_closest_points(WireCell::Point& p, double radius, int plane);
     bool get_closest_dead_chs(WireCell::Point& p, int plane, int ch_range=1);
 
-    std::vector<std::pair<int,int> > get_overlap_dead_chs(int min_time, int max_time, int min_ch, int max_ch, int plane_no);
+    std::vector<std::pair<int,int> > get_overlap_dead_chs(int min_time, int max_time, int min_ch, int max_ch, int plane_no, bool flag_ignore_time=false);
     std::map<std::pair<int,int>, std::pair<double,double> > get_overlap_good_ch_charge(int min_time, int max_time, int min_ch, int max_ch, int plane_no);
     
     void Print(WireCell::Point &p);
