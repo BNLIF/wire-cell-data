@@ -414,6 +414,7 @@ std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_
       int temp_ch = it->first+ch_offset;
       double temp_min_xpos = it->second.first;
       double temp_max_xpos = it->second.second;
+      //  std::cout << temp_ch << " " << min_ch << " " << max_ch << std::endl;
       if (flag_ignore_time){
 	if (temp_ch>=min_ch && temp_ch<=max_ch)
 	  dead_chs.insert(temp_ch);
