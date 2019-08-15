@@ -29,7 +29,7 @@ namespace WireCell{
     bool is_good_point(WireCell::Point& p, double radius = 0.6*units::cm, int ch_range = 1, int allowed_bad = 1);
     bool is_good_point_wc(WireCell::Point& p, double radius = 0.6*units::cm, int ch_range = 1, int allowed_bad = 1);
     
-    std::tuple<int,int,int> test_good_point(WireCell::Point& p, double radius = 0.6*units::cm, int ch_range = 1);
+    std::vector<int> test_good_point(WireCell::Point& p, double radius = 0.6*units::cm, int ch_range = 1);
     
     WireCell::CTPointCloud<double> get_closest_points(WireCell::Point& p, double radius, int plane);
     bool get_closest_dead_chs(WireCell::Point& p, int plane, int ch_range=1);
