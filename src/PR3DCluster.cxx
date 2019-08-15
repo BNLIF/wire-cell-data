@@ -2025,6 +2025,13 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
 	    if (num_bad1[0] > 7 || num_bad1[0] > 2 && num_bad1[0] >=0.75*num_steps){
 	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
 	    }
+
+	    // if ((num_bad2[0]==num_steps && num_bad2[1] == num_steps ||
+	    // 	 num_bad2[0]==num_steps && num_bad2[2] == num_steps ||
+	    // 	 num_bad2[1]==num_steps && num_bad2[2] == num_steps ) &&
+	    // 	dis > 5*units::cm && num_bad1[0] ==0 )
+	    //   index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+	    
 	  }else{
 	    if ((angle1<12.5/180.*3.1415926 && angle2<12.5/180.*3.1415926 ||
 		 angle1p < 12.5/180.*3.1415926 && angle1<12.5/180.*3.1415926 ||
@@ -2042,8 +2049,6 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
 		index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
 	      }
 	    }
-
-	    
 	    
 	  }
 	  // if ((p1.x>=130*units::cm && p1.x<=155*units::cm && p1.z > 815*units::cm && p1.z < 830*units::cm)&&
