@@ -19,6 +19,9 @@ namespace WireCell {
     ~Slim3DCluster();
 
     int AddCell(SlimMergeGeomCell &cell, int offset=1); // add a cell, 0, no need to add, 1 add in
+    void DirectAddCell(SlimMergeGeomCell &cell);
+    void DirectOrderCells();
+    
     GeomCellSelection& get_allcell();
     SlimMergeCellCluster& get_ordercell(){return cluster;};
 

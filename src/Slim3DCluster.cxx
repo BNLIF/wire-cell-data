@@ -123,6 +123,28 @@ void Slim3DCluster::Calc_Projection(){
   // w_proj->Print();
 }
 
+void Slim3DCluster::DirectAddCell(SlimMergeGeomCell &cell){
+  gcluster.push_back(&cell);
+}
+void Slim3DCluster::DirectOrderCells(){
+  std::map<int,std::set<SlimMergeGeomCell*> > temp_map;
+  for (auto it = gcluster.begin(); it!=gcluster.end(); it++){
+    SlimMergeGeomCell* mcell = (SlimMergeGeomCell*)(*it);
+    int time_slice = mcell->GetTimeSlice();
+    if (temp_map.find(time_slice)==temp_map.end()){
+      std::set<SlimMergeGeomCell*> temp_set;
+      temp_set.insert(mcell);
+      temp_map[time_slice] = temp_set;
+    }else{
+      temp_map[time_slice].insert(mcell);
+    }
+  }
+
+  for (auto it = temp_map.begin(); it!=temp_map.end(); it++){
+    cluster.push_back(it->second);
+  }
+  
+}
 
 int Slim3DCluster::AddCell(SlimMergeGeomCell &cell,int offset){
   std::set<SlimMergeGeomCell*>&  abc = cluster.at(cluster.size()-1);
