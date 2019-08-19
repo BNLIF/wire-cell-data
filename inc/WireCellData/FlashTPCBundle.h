@@ -24,6 +24,10 @@ namespace WireCell{
     
     PR3DCluster* get_main_cluster(){return main_cluster;};
     void set_main_cluster(PR3DCluster* cluster){main_cluster = cluster;};
+
+    PR3DCluster* get_orig_cluster(){return orig_main_cluster;};
+    void set_orig_cluster(PR3DCluster* cluster){orig_main_cluster = cluster;};
+    
     PR3DClusterSelection& get_other_clusters(){return other_clusters;};
     PR3DClusterSelection& get_more_clusters(){return more_clusters;};
     void clear_other_clusters(){other_clusters.clear();};
@@ -64,6 +68,7 @@ namespace WireCell{
   private:
     Opflash *flash;
     PR3DCluster *main_cluster;
+    PR3DCluster *orig_main_cluster;
 
     double strength;
     

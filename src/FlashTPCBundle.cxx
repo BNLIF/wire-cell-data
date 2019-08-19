@@ -5,6 +5,7 @@ using namespace WireCell;
 FlashTPCBundle::FlashTPCBundle(Opflash* flash, PR3DCluster *main_cluster, int flash_index_id, int cluster_index_id)
   : flash(flash)
   , main_cluster(main_cluster)
+  , orig_main_cluster(0)
   , flash_index_id(flash_index_id)
   , cluster_index_id(cluster_index_id)
   , flag_close_to_PMT(false)

@@ -3517,9 +3517,16 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
   
   // form a trajectory according to dis and fine tracking?
   PointVector traj_pts;
-  PointVector& pts = get_fine_tracking_path();
+  //  PointVector& pts = get_fine_tracking_path();
 
-  //std::list<WCPointCloud<double>::WCPoint>& path_wcps = get_path_wcps();
+  // not using fine tracking results ... 
+  PointVector pts;
+  std::list<WCPointCloud<double>::WCPoint>& path_wcps = get_path_wcps();
+  for (auto it = path_wcps.begin(); it!=path_wcps.end(); it++){
+    Point p((*it).x, (*it).y, (*it).z);
+    pts.push_back(p);
+  }
+  
   //std::cout << "trajectory points " << pts.size() << std::endl;
 
   // if (cluster_id==13){

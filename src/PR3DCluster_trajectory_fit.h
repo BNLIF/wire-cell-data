@@ -439,7 +439,8 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
       SlimMergeGeomCell *mcell = cloud.pts[*it].mcell;
       nearby_mcells_set.insert(mcell);
     }
-    // std::cout << i << " " << total_vertices_found.size() << " " << nearby_mcells_set.size() << std::endl;
+    
+    //    std::cout << i << " " << total_vertices_found.size() << " " << nearby_mcells_set.size() << std::endl;
     
 
     int cur_time_slice = cloud.pts[current_index].mcell->GetTimeSlice();
@@ -764,6 +765,8 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
 			     pow(ps_vec.at(i+1).y-ps_vec.at(i).y,2) +
 			     pow(ps_vec.at(i+1).z-ps_vec.at(i).z,2)));
   }
+
+  std::cout << "haha " << std::endl;
   
   // map 2D points to its index
   std::vector<std::pair<std::pair<int,int>,int>> vec_2DU_index;
@@ -835,6 +838,8 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
     pos_3D_init(3*i+2) = ps_vec.at(i).z;
   }
 
+  std::cout << "haha1 " << " " << vec_2DU_index.size() << std::endl;
+
   double scale_ind_to_col = 4.0;
   
   // fill in the measurement ...
@@ -845,16 +850,19 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
     // induction plane error is large, so they have less weights in the fit to decide X position
     // for trajectory fit, we can scale it back ...
     double scaling = charge/charge_err/n_divide*scale_ind_to_col;
-    /* if (cluster_id==9) */
-    /*   std::cout << index << " " << map_3D_2DU_set[index].second << " " << map_3D_2DV_set[index].second << std::endl; */
+    /* if (cluster_id==34)  */
+    //    std::cout << index << " " << map_3D_2DU_set[index].second << " " << map_3D_2DV_set[index].second " " << charge << std::endl; 
+
     int index_3D = vec_2DU_index.at(index).second; // 3*index_3D -->x  3*index_3D+1 --> y 3*index_3D+2 --> z    
     if (map_3D_2DU_set[index_3D].second==1)       scaling /= scale_ind_to_col;
-    
+
+
     
     data_u_2D(2*index) =  scaling * (vec_2DU_index.at(index).first.first - offset_u);
     data_u_2D(2*index+1) = scaling * (vec_2DU_index.at(index).first.second - offset_t);
 
-
+    //    std::cout << index << " " << index_3D << " " << charge << " " << data_u_2D(2*index) << " " << data_u_2D(2*index+1) << std::endl;
+    
     RU.insert(2*index,3*index_3D+1) = scaling * slope_yu; // Y--> U
     RU.insert(2*index,3*index_3D+2) = scaling * slope_zu; // Z--> U
     RU.insert(2*index+1,3*index_3D) = scaling * slope_x; // X --> T
@@ -868,6 +876,9 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
 
     //std::cout << index << " " << index_3D << std::endl;
   }
+
+  std::cout << "haha11 " << " " << vec_2DV_index.size() << std::endl;
+  
   for (size_t index = 0; index!=vec_2DV_index.size(); index++){
     double charge = std::get<0>(map_2D_vt_charge[vec_2DV_index.at(index).first]);
     double charge_err = std::get<1>(map_2D_vt_charge[vec_2DV_index.at(index).first]);
@@ -893,6 +904,9 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
     // 	std::isnan(scaling * slope_x))
     //   std::cout << "Wrong V" << " " << charge << " " << charge_err << " " << n_divide << std::endl;
   }
+
+  std::cout << "haha12 " << " " << vec_2DW_index.size() << std::endl;
+  
   for (size_t index = 0; index!=vec_2DW_index.size(); index++){
     double charge = std::get<0>(map_2D_wt_charge[vec_2DW_index.at(index).first]);
     double charge_err = std::get<1>(map_2D_wt_charge[vec_2DW_index.at(index).first]);
@@ -920,7 +934,8 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
   Eigen::SparseMatrix<double> RVT = Eigen::SparseMatrix<double>(RV.transpose());
   Eigen::SparseMatrix<double> RWT = Eigen::SparseMatrix<double>(RW.transpose());
 
-  
+
+  std::cout << "haha2 " << n_3D_pos << " " << ps_vec.size() << std::endl;
  
   //std::cout << lambda/ dis_range << std::endl;
   
@@ -990,13 +1005,17 @@ void PR3DCluster::trajectory_fit(PointVector& ps_vec,std::map<int,std::pair<std:
   Eigen::BiCGSTAB<Eigen::SparseMatrix<double>> solver;
   Eigen::VectorXd b = RUT * data_u_2D + RVT * data_v_2D + RWT * data_w_2D;// + PMatrixT * pos_3D_init * pow(lambda/dis_range,2);
 
-   Eigen::SparseMatrix<double> A =   RUT * RU + RVT * RV + RWT * RW + FMatrixT * FMatrix;// + PMatrixT * PMatrix * pow(lambda/dis_range,2);
+  Eigen::SparseMatrix<double> A =   RUT * RU + RVT * RV + RWT * RW + FMatrixT * FMatrix;// + PMatrixT * PMatrix * pow(lambda/dis_range,2);
 
-   solver.compute(A);
+  std::cout << "Solve1 " << std::endl;
+  
+  solver.compute(A);
+
+  std::cout << "Solve " << std::endl;
   
   pos_3D = solver.solveWithGuess(b,pos_3D_init);
-
-   if (std::isnan(solver.error())){
+  
+  if (std::isnan(solver.error())){
     pos_3D = solver.solve(b);
     //std::cout << "#iterations: " << solver.iterations() << std::endl;
     //std::cout << "#estimated error: " << solver.error() << std::endl;
@@ -1202,7 +1221,12 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
   std::vector<WCPointCloud<double>::WCPoint> path_wcps_vec;
   organize_wcps_path(path_wcps_vec,low_dis_limit);
 
+  std::cout << "temp " << std::endl;
 
+  /* for (size_t i=0;i!=path_wcps_vec.size();i++){ */
+  /*   std::cout << path_wcps_vec.at(i).x/units::cm << " " << path_wcps_vec.at(i).y/units::cm << " " << path_wcps_vec.at(i).z/units::cm << std::endl; */
+  /* } */
+  
   if (path_wcps_vec.size()>=num_pts_cut){
     // fill initial charge ...
     // ignore the dead channels here ... 
@@ -1232,6 +1256,7 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
       }
     }
     
+    std::cout << "temp1 " << std::endl;
     
     // map index ... 
     // map 3D index to set of 2D points
@@ -1245,6 +1270,8 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     form_map_graph_based(path_wcps_vec, map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge,
 			 map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
 			 map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set);
+
+    std::cout << "temp2 " << " " << path_wcps_vec.size() << std::endl;
     
     PointVector ps_vec;
     for (size_t i=0;i!=path_wcps_vec.size();i++){
@@ -1261,6 +1288,14 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     		   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
     		   map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
 
+    /* for (size_t i=0;i!=ps_vec.size();i++){ */
+    /*   std::cout << i << " " << ps_vec.at(i).x/units::cm << " " << ps_vec.at(i).y/units::cm */
+    /* 		<< " " << ps_vec.at(i).z/units::cm << std::endl; */
+    /* } */
+
+    return;
+    std::cout << "temp3 " << std::endl;
+    
     /* for (int i=0;i+1!=path_wcps_vec.size();i++){ */
     /*   std::cout << sqrt(pow(path_wcps_vec.at(i+1).x-path_wcps_vec.at(i).x,2)+pow(path_wcps_vec.at(i+1).y-path_wcps_vec.at(i).y,2)+pow(path_wcps_vec.at(i+1).z-path_wcps_vec.at(i).z,2))/units::cm << " " << sqrt(pow(fine_tracking_path.at(i+1).x-fine_tracking_path.at(i).x,2)+pow(fine_tracking_path.at(i+1).y-fine_tracking_path.at(i).y,2)+pow(fine_tracking_path.at(i+1).z-fine_tracking_path.at(i).z,2))/units::cm << std::endl; */
     /* } */
@@ -1268,41 +1303,66 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     // second round fit ...
     path_wcps_vec.clear();
     for (size_t i=0;i!=fine_tracking_path.size();i++){
+      /* std::cout << i << " " << fine_tracking_path.at(i).x/units::cm << */
+      /* 	" " << fine_tracking_path.at(i).y/units::cm << " " */
+      /* 		<< fine_tracking_path.at(i).z/units::cm << std::endl; */
       WireCell::WCPointCloud<double>::WCPoint& wcp = point_cloud->get_closest_wcpoint(fine_tracking_path.at(i));
       if (wcp.index!= path_wcps_vec.back().index)
     	path_wcps_vec.push_back(wcp);
     }
     organize_wcps_vec_path(path_wcps_vec,low_dis_limit);
 
+    std::cout << "temp4 " << " " << path_wcps_vec.size() << std::endl;
+
+    /* for (size_t i=0;i!=path_wcps_vec.size();i++){ */
+    /*   std::cout << path_wcps_vec.at(i).x/units::cm << " " */
+    /* 		<< path_wcps_vec.at(i).y/units::cm << " " */
+    /* 		<< path_wcps_vec.at(i).z/units::cm << std::endl; */
+    /* } */
+    
     if (path_wcps_vec.size()>1){
       form_map_graph_based(path_wcps_vec, map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge,
     			   map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
     			   map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set);
+
+
       
       ps_vec.clear();
       for (size_t i=0;i!=path_wcps_vec.size();i++){
     	Point p(path_wcps_vec.at(i).x, path_wcps_vec.at(i).y, path_wcps_vec.at(i).z);
     	ps_vec.push_back(p);
       }
+      std::cout << "temp4_0" << " " << ps_vec.size() << std::endl;
       trajectory_fit(ps_vec,
     		     map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
     		     map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
     		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
 
+      std::cout << "temp4_1" << " " << ps_vec.size() << std::endl;
+
+      //      for (size_t i=0;i!=ps_vec.size();i++){
+      //	std::cout << i << " " << ps_vec.at(i).x/units::cm << " " <<
+      //	  ps_vec.at(i).y/units::cm << " " << ps_vec.at(i).z/units::cm << std::endl;
+      //}
       
       PointVector fine_tracking_path_1st = fine_tracking_path;
       std::vector<int> record_vec;
       organize_ps_path(ps_vec,  low_dis_limit, record_vec);
+      std::cout << "temp4_1.3" << " " << ps_vec.size() << std::endl;
       //form association ...
       form_map_projection_based(ps_vec, map_3D_2DU_set, map_3D_2DV_set,  map_3D_2DW_set,
       				map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
       				map_2D_ut_charge,  map_2D_vt_charge, map_2D_wt_charge,
       				0.25, 0.9, 3, 4);
+      
+      std::cout << "temp4_1.5" << " " << ps_vec.size() << std::endl;
       // fit again ...
       trajectory_fit(ps_vec,
       		     map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
       		     map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set,
-      		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);      
+      		     map_2D_ut_charge, map_2D_vt_charge, map_2D_wt_charge);
+
+      std::cout << "temp4_2" << std::endl;
       
       PointVector fine_tracking_path_2nd = fine_tracking_path;
 
@@ -1310,6 +1370,8 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
       
       merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec,
 		 map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set);
+
+      std::cout << "temp4_3" << std::endl;
     }
     
     
@@ -1358,7 +1420,7 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
     }
   }
 
-
+  std::cout << "temp5 " << std::endl;
   
   // examine ...
   examine_path(low_dis_limit);
