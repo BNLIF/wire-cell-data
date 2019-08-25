@@ -677,7 +677,7 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
     	  float low_w_limit = cur_wire_w - sqrt(range_w)/pitch_w;
     	  float high_w_limit = cur_wire_w + sqrt(range_w)/pitch_w;
 
-	  
+	  // all dead or overlap cases
 	  if (temp_types_u.find(0)!=temp_types_u.end() && temp_types_u.size()==1){
 	  }else{
 	    for (int j=std::round(low_u_limit); j<=std::round(high_u_limit);j++){
