@@ -1274,6 +1274,8 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
 			 map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set,
 			 map_2DU_3D_set, map_2DV_3D_set, map_2DW_3D_set);
 
+
+    
     /* for (int i=0;i!=path_wcps_vec.size();i++){ */
     /*   Point p(path_wcps_vec.at(i).x, path_wcps_vec.at(i).y, path_wcps_vec.at(i).z); */
     /*   std::cout << i <<  " " << map_3D_2DU_set[i].first.size() << " " << map_3D_2DV_set[i].first.size() << " " << map_3D_2DW_set[i].first.size() << " " << p << " " << path_wcps_vec.at(i).mcell << std::endl; */
