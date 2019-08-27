@@ -1379,7 +1379,7 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
       //      std::cout << fine_tracking_path_1st.size() << " " << fine_tracking_path_2nd.size() << " " << record_vec.size() << std::endl;
       
       merge_path(fine_tracking_path_1st, fine_tracking_path_2nd, record_vec,
-		 map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set);
+    		 map_3D_2DU_set, map_3D_2DV_set, map_3D_2DW_set);
 
       //      std::cout << "temp4_3" << std::endl;
     }
