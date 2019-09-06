@@ -366,6 +366,33 @@ std::map<std::pair<int,int>, std::pair<double,double> > ToyCTPointCloud::get_ove
   
 }
 
+std::map<int, std::pair<int, int> > ToyCTPointCloud::get_all_dead_chs(){
+  std::map<int, std::pair<int, int> > results;
+  
+  int ch_offset = 0;
+  for (auto it = dead_uchs.begin(); it!=dead_uchs.end(); it++){
+    int temp_ch = it->first+ch_offset;
+    int min_time = it->second.first * slope_t + offset_t - 3;
+    int max_time = it->second.second * slope_t + offset_t + 3;
+    results[temp_ch] = std::make_pair(min_time, max_time);
+  }
+  ch_offset = u_max_ch - u_min_ch + 1;
+  for (auto it = dead_vchs.begin(); it!=dead_vchs.end(); it++){
+    int temp_ch = it->first+ch_offset;
+    int min_time = it->second.first * slope_t + offset_t - 3;
+    int max_time = it->second.second * slope_t + offset_t + 3;
+    results[temp_ch] = std::make_pair(min_time, max_time);
+  }
+  ch_offset = v_max_ch - v_min_ch + 1 + u_max_ch - u_min_ch + 1;
+  for (auto it = dead_wchs.begin(); it!=dead_wchs.end(); it++){
+    int temp_ch = it->first+ch_offset;
+    int min_time = it->second.first * slope_t + offset_t - 3;
+    int max_time = it->second.second * slope_t + offset_t + 3;
+    results[temp_ch] = std::make_pair(min_time, max_time);
+  }
+
+  return results;
+}
 
 std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_time, int max_time, int min_ch, int max_ch, int plane_no, bool flag_ignore_time){
   int ch_offset = 0;
