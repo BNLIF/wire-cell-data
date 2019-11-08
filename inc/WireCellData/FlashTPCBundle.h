@@ -132,7 +132,7 @@ namespace WireCell{
     };
 
   struct OpflashComparePtr {
-    bool operator() (Opflash* a, Opflash* b) {
+    bool operator() (Opflash* a, Opflash* b) const {
       if (a && b) {
 	if (a->get_flash_id() < b->get_flash_id()){
 	  return true;
@@ -145,7 +145,7 @@ namespace WireCell{
   };
 
    struct PR3DClusterComparePtr {
-    bool operator() (PR3DCluster* a, PR3DCluster* b) {
+    bool operator() (PR3DCluster* a, PR3DCluster* b) const {
       if (a && b) {
 	if (a->get_cluster_id() < b->get_cluster_id()){
 	  return true;
