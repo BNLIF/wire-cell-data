@@ -4,6 +4,23 @@
 
 using namespace WireCell;
 
+WireCell::Opflash::Opflash(int type, int flash_id, double low_time, double high_time, double time, double total_PE, std::vector<int>& fired_channels, double* temp_PE, double* temp_PE_err, std::vector<double>& l1_fired_time, std::vector<double>& l1_fired_pe)
+  : type(type)
+  , flash_id(flash_id)
+  , low_time(low_time)
+  , high_time(high_time)
+  , time(time)
+  , total_PE(total_PE)
+  , fired_channels(fired_channels)
+  , l1_fired_time(l1_fired_time)
+  , l1_fired_pe(l1_fired_pe)
+{
+  for (int i=0;i!=32;i++){
+    PE[i] = *(temp_PE+i);
+    PE_err[i] = *(temp_PE_err+i);
+  }
+}
+
 WireCell::Opflash::Opflash(COphitSelection &ophits)
   : type(1)
   , flash_id (-1)

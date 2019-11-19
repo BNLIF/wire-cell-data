@@ -10,6 +10,7 @@ namespace WireCell{
   public:
     Opflash(COphitSelection &ophits);
     Opflash(TH1F **hist, double start_time, int start_bin, int end_bin, float bin_width=6*15.625/1000.);
+    Opflash(int type, int flash_id, double low_time, double high_time, double time, double total_PE, std::vector<int>& fired_channels, double* temp_PE, double* temp_PE_err, std::vector<double>& l1_fired_time, std::vector<double>& l1_fired_pe);
     ~Opflash();
 
     void Add_l1info(TH1F* hist1, TH1F *hist2, double start_time , int start_bin, int end_bin, float bin_width=6*15.625/1000.);
