@@ -1,3 +1,6 @@
+#ifndef WIRECELL_PHOTON_LIBRARY_H
+#define WIRECELL_PHOTON_LIBRARY_H
+
 #include <vector>
 #include <map>
 #include <list>
@@ -13,3 +16,5 @@ namespace WireCell{
   };
   
 }
+
+#endif
