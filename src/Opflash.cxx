@@ -1,10 +1,10 @@
-#include "WireCellData/Opflash.h"
+#include "WCPData/Opflash.h"
 #include <algorithm>
 #include <iostream>
 
-using namespace WireCell;
+using namespace WCP;
 
-WireCell::Opflash::Opflash(int type, int flash_id, double low_time, double high_time, double time, double total_PE, std::vector<int>& fired_channels, double* temp_PE, double* temp_PE_err, std::vector<double>& l1_fired_time, std::vector<double>& l1_fired_pe)
+WCP::Opflash::Opflash(int type, int flash_id, double low_time, double high_time, double time, double total_PE, std::vector<int>& fired_channels, double* temp_PE, double* temp_PE_err, std::vector<double>& l1_fired_time, std::vector<double>& l1_fired_pe)
   : type(type)
   , flash_id(flash_id)
   , low_time(low_time)
@@ -21,7 +21,7 @@ WireCell::Opflash::Opflash(int type, int flash_id, double low_time, double high_
   }
 }
 
-WireCell::Opflash::Opflash(COphitSelection &ophits)
+WCP::Opflash::Opflash(COphitSelection &ophits)
   : type(1)
   , flash_id (-1)
 {
@@ -51,7 +51,7 @@ WireCell::Opflash::Opflash(COphitSelection &ophits)
   
 }
 
-WireCell::Opflash::Opflash(TH1F **hist, double start_time, int start_bin, int end_bin, float bin_width)
+WCP::Opflash::Opflash(TH1F **hist, double start_time, int start_bin, int end_bin, float bin_width)
   : type(2)
   , flash_id (-1)
 {
@@ -118,11 +118,11 @@ WireCell::Opflash::Opflash(TH1F **hist, double start_time, int start_bin, int en
   
 }
 
-WireCell::Opflash::~Opflash(){
+WCP::Opflash::~Opflash(){
   
 }
 
-void WireCell::Opflash::swap_channels(){
+void WCP::Opflash::swap_channels(){
   //harded coded for now ... 
   for (auto it = fired_channels.begin(); it!=fired_channels.end(); it++){
     if (*it == 26) *it = 27;
@@ -151,7 +151,7 @@ void WireCell::Opflash::swap_channels(){
   PE_err[26] = temp;
 }
 
-void WireCell::Opflash::Add_l1info(TH1F *hist_tot_pe, TH1F *hist_mult, double start_time, int start_bin, int end_bin, float bin_width){
+void WCP::Opflash::Add_l1info(TH1F *hist_tot_pe, TH1F *hist_mult, double start_time, int start_bin, int end_bin, float bin_width){
   std::vector<int> fired_bin;
   std::vector<double> fired_pe;
   for (int i=start_bin; i!=end_bin;i++){
@@ -187,7 +187,7 @@ void WireCell::Opflash::Add_l1info(TH1F *hist_tot_pe, TH1F *hist_mult, double st
 }
 
 
-bool WireCell::Opflash::get_fired(int ch){
+bool WCP::Opflash::get_fired(int ch){
   if (std::find(fired_channels.begin(),fired_channels.end(),ch)==fired_channels.end()){
     return false;
   }else{

@@ -1,6 +1,6 @@
-#include "WireCellData/ToyCTPointCloud.h"
+#include "WCPData/ToyCTPointCloud.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 ToyCTPointCloud::ToyCTPointCloud(int u_min_ch, int u_max_ch, int v_min_ch, int v_max_ch, int w_min_ch, int w_max_ch, double offset_t, double offset_u, double offset_v, double offset_w, double slope_t, double slope_u, double slope_v, double slope_w, double angle_u, double angle_v, double angle_w)
   : u_min_ch(u_min_ch)
@@ -36,7 +36,7 @@ ToyCTPointCloud::~ToyCTPointCloud(){
   cloud_w.pts.clear();
 }
 
-void ToyCTPointCloud::Print(WireCell::Point &p){
+void ToyCTPointCloud::Print(WCP::Point &p){
   std::cout << p.x/units::cm << " " << p.y/units::cm << " " << p.z/units::cm << std::endl;
   std::cout << p.x*slope_t+offset_t << std::endl;
   std::cout << (cos(angle_u) * p.z - sin(angle_u) *p.y)*slope_u+offset_u << std::endl;
@@ -91,7 +91,7 @@ std::pair<double,double> ToyCTPointCloud::convert_time_ch_2Dpoint(int timeslice,
   return std::make_pair(x,y);
 }
 
-std::vector<int> ToyCTPointCloud::convert_3Dpoint_time_ch(WireCell::Point& p){
+std::vector<int> ToyCTPointCloud::convert_3Dpoint_time_ch(WCP::Point& p){
   std::vector<int> results(4,0);
 
   int time_slice = std::round(p.x * slope_t + offset_t);
@@ -195,7 +195,7 @@ CTPointCloud<double>& ToyCTPointCloud::get_cloud(int plane){
 }
 
 
-std::vector<std::pair<size_t,double>> ToyCTPointCloud::get_closest_index(WireCell::Point& p, double search_radius, int plane){
+std::vector<std::pair<size_t,double>> ToyCTPointCloud::get_closest_index(WCP::Point& p, double search_radius, int plane){
   double x, y;
   if (plane==0){
     x = p.x;
@@ -223,11 +223,11 @@ std::vector<std::pair<size_t,double>> ToyCTPointCloud::get_closest_index(WireCel
   return ret_matches;
 }
 
-std::vector<int>  ToyCTPointCloud::test_good_point(WireCell::Point& p, double radius, int ch_range){
+std::vector<int>  ToyCTPointCloud::test_good_point(WCP::Point& p, double radius, int ch_range){
   std::vector<int> num_planes;//[6]={0,0,0,0,0,0};
   num_planes.resize(6,0);
   {
-    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 0);
+    WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 0);
     if (pts.pts.size()>0){
       num_planes[0] ++;
     }else{
@@ -236,7 +236,7 @@ std::vector<int>  ToyCTPointCloud::test_good_point(WireCell::Point& p, double ra
     }
   }
   {
-    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 1);
+    WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 1);
     if (pts.pts.size()>0){
       num_planes[1] ++;
     }else{
@@ -245,7 +245,7 @@ std::vector<int>  ToyCTPointCloud::test_good_point(WireCell::Point& p, double ra
     }
   }
   {
-    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 2);
+    WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 2);
     if (pts.pts.size()>0){
       num_planes[2] ++;
     }else{
@@ -257,10 +257,10 @@ std::vector<int>  ToyCTPointCloud::test_good_point(WireCell::Point& p, double ra
   return num_planes;//std::make_tuple(num_planes[0],num_planes[1],num_planes[2]);
 }
 
-bool ToyCTPointCloud::is_good_point_wc(WireCell::Point& p, double radius, int ch_range, int allowed_bad){
+bool ToyCTPointCloud::is_good_point_wc(WCP::Point& p, double radius, int ch_range, int allowed_bad){
   int num_planes = 0;
   {
-    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 0);
+    WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 0);
     if (pts.pts.size()>0){
       num_planes ++;
     }else{
@@ -269,7 +269,7 @@ bool ToyCTPointCloud::is_good_point_wc(WireCell::Point& p, double radius, int ch
     }
   }
   {
-    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 1);
+    WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 1);
     if (pts.pts.size()>0){
       num_planes ++;
     }else{
@@ -278,7 +278,7 @@ bool ToyCTPointCloud::is_good_point_wc(WireCell::Point& p, double radius, int ch
     }
   }
   {
-    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 2);
+    WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 2);
     if (pts.pts.size()>0){
       num_planes +=2;
     }else{
@@ -293,10 +293,10 @@ bool ToyCTPointCloud::is_good_point_wc(WireCell::Point& p, double radius, int ch
   
 }
 
-bool ToyCTPointCloud::is_good_point(WireCell::Point& p, double radius, int ch_range, int allowed_bad){
+bool ToyCTPointCloud::is_good_point(WCP::Point& p, double radius, int ch_range, int allowed_bad){
   int num_planes = 0;
   {
-    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 0);
+    WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 0);
     if (pts.pts.size()>0){
       num_planes ++;
     }else{
@@ -305,7 +305,7 @@ bool ToyCTPointCloud::is_good_point(WireCell::Point& p, double radius, int ch_ra
     }
   }
   {
-    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 1);
+    WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 1);
     if (pts.pts.size()>0){
       num_planes ++;
     }else{
@@ -314,7 +314,7 @@ bool ToyCTPointCloud::is_good_point(WireCell::Point& p, double radius, int ch_ra
     }
   }
   {
-    WireCell::CTPointCloud<double> pts = get_closest_points(p, radius, 2);
+    WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 2);
     if (pts.pts.size()>0){
       num_planes ++;
     }else{
@@ -472,7 +472,7 @@ std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_
 }
 
 
-bool ToyCTPointCloud::get_closest_dead_chs(WireCell::Point& p, int plane, int ch_range){
+bool ToyCTPointCloud::get_closest_dead_chs(WCP::Point& p, int plane, int ch_range){
 
   std::vector<int> results = convert_3Dpoint_time_ch(p);
 
@@ -521,8 +521,8 @@ bool ToyCTPointCloud::get_closest_dead_chs(WireCell::Point& p, int plane, int ch
   return false;
 }
 
-WireCell::CTPointCloud<double> ToyCTPointCloud::get_closest_points(WireCell::Point& p, double radius, int plane){
-  WireCell::CTPointCloud<double> nearby_points;
+WCP::CTPointCloud<double> ToyCTPointCloud::get_closest_points(WCP::Point& p, double radius, int plane){
+  WCP::CTPointCloud<double> nearby_points;
 
   std::vector<std::pair<size_t,double>> indices = get_closest_index(p, radius, plane);
   for (size_t i=0;i!=indices.size();i++){

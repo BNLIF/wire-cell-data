@@ -1,9 +1,9 @@
-#include "WireCellData/WCTrack.h"
-#include "WireCellData/Plane.h"
-#include "WireCellData/Singleton.h"
-#include "WireCellData/TPCParams.h"
+#include "WCPData/WCTrack.h"
+#include "WCPData/Plane.h"
+#include "WCPData/Singleton.h"
+#include "WCPData/TPCParams.h"
 #include "TVector3.h" 
-using namespace WireCell;
+using namespace WCP;
 
 std::vector<float> WCTrack::get_position(){
   TVector3 pos(0,0,0);

@@ -1,6 +1,6 @@
-#include "WireCellData/CellCharge.h"
+#include "WCPData/CellCharge.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 double Cell::charge(const Cell::Group& group)
 {

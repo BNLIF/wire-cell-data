@@ -1,9 +1,9 @@
-#include "WireCellData/GeomWire.h"
+#include "WCPData/GeomWire.h"
 
 #include <algorithm>    // std::sort
 
 
-using namespace WireCell;
+using namespace WCP;
 
 /*
 GeomWire::GeomWire(int ident,
@@ -56,10 +56,10 @@ GeomWire::~GeomWire()
 {
 }
 
-std::ostream & WireCell::operator<<(std::ostream &os, const GeomWire& gw)
+std::ostream & WCP::operator<<(std::ostream &os, const GeomWire& gw)
 {
     char plane_name[] = {'U', 'V', 'W'};
-    return os << "<WireCell::GeomWire"
+    return os << "<WCP::GeomWire"
 	      << " " << plane_name[gw.iplane()] << " "
 	      << "id:" << gw.ident() << " "
 	      << "ch:" << gw.channel() << " "
@@ -77,7 +77,7 @@ bool _by_planeindex(const GeomWire* a, const GeomWire* b)
     return a->index() < b->index();
 }
 
-void WireCell::sort_by_planeindex(GeomWireSelection& ws)
+void WCP::sort_by_planeindex(GeomWireSelection& ws)
 {
     std::sort(ws.begin(), ws.end(), _by_planeindex);
 }
@@ -88,7 +88,7 @@ bool _by_ident(const GeomWire* a, const GeomWire* b)
     return a->ident() < b->ident();
 }
 
-void WireCell::sort_by_ident(GeomWireSelection& ws)
+void WCP::sort_by_ident(GeomWireSelection& ws)
 {
     std::sort(ws.begin(), ws.end(), _by_ident);
 }
@@ -98,12 +98,12 @@ static bool _by_channel(const GeomWire* a, const GeomWire* b)
     return a->channel() < b->channel();
 }
 
-void WireCell::sort_by_channel(GeomWireSelection& ws)
+void WCP::sort_by_channel(GeomWireSelection& ws)
 {
     std::sort(ws.begin(), ws.end(), _by_channel);
 }
 
-double WireCell::GeomWire::length() const {
+double WCP::GeomWire::length() const {
   double lsquare = TMath::Power((_point1.x - _point2.x),2) 
     + TMath::Power((_point1.y - _point2.y),2)
     + TMath::Power((_point1.z - _point2.z),2);

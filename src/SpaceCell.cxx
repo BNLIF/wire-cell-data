@@ -1,6 +1,6 @@
-#include "WireCellData/SpaceCell.h"
+#include "WCPData/SpaceCell.h"
 #include <vector>
-using namespace WireCell;
+using namespace WCP;
 
 // SpaceCell::SpaceCell(int ncluster, const GeomCell& cell, double x, double q, double thickness)
 //   : _x(x),

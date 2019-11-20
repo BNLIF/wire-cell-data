@@ -1,10 +1,10 @@
-#include "WireCellData/Singleton.h"
-#include "WireCellData/TPCParams.h"
+#include "WCPData/Singleton.h"
+#include "WCPData/TPCParams.h"
 
-#include "WireCellData/MergeClusterTrack.h"
+#include "WCPData/MergeClusterTrack.h"
 
 #include "TVector3.h"
-using namespace WireCell;
+using namespace WCP;
 
 MergeClusterTrack::MergeClusterTrack(MergeSpaceCellSelection& mcells){
   all_mcells_list.assign(mcells.begin(),mcells.end());

@@ -1,6 +1,6 @@
-#include "WireCellData/FlashTPCBundle.h"
+#include "WCPData/FlashTPCBundle.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 FlashTPCBundle::FlashTPCBundle(Opflash* flash, PR3DCluster *main_cluster, int flash_index_id, int cluster_index_id)
   : flash(flash)
@@ -118,7 +118,7 @@ bool FlashTPCBundle::examine_bundle(FlashTPCBundle *bundle, Double_t *cos_pe_low
   
 }
 
-// bool FlashTPCBundle::check_tgm( WireCell2dToy::ToyFiducial *fid, double offset_x){
+// bool FlashTPCBundle::check_tgm( WCP2dToy::ToyFiducial *fid, double offset_x){
 //   if (flash!=0){
 //     // check the fiducial volume ...
 //     std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> wcps = main_cluster->get_main_axis_wcps();

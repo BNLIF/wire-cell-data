@@ -1,6 +1,6 @@
-#include "WireCellData/LMBDT.h"
+#include "WCPData/LMBDT.h"
 
-using namespace WireCell;
+using namespace WCP;
 using namespace TMVA;
 
 LMBDT::LMBDT(float pred_PE, float flash_PE, float max_PE, float ks_dis,

@@ -1,7 +1,7 @@
-#include "WireCellData/Slim3DDeadCluster.h"
+#include "WCPData/Slim3DDeadCluster.h"
 
 using namespace std;
-using namespace WireCell;
+using namespace WCP;
 
 Slim3DDeadCluster::Slim3DDeadCluster(SlimMergeGeomCell &cell, int time_slice){
   GeomCellSetp cells;

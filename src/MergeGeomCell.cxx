@@ -1,6 +1,6 @@
-#include "WireCellData/MergeGeomCell.h"
-#include "WireCellData/Singleton.h"
-#include "WireCellData/TPCParams.h"
+#include "WCPData/MergeGeomCell.h"
+#include "WCPData/Singleton.h"
+#include "WCPData/TPCParams.h"
 
 #include <vector>
 #include <cmath>
@@ -8,7 +8,7 @@
 #include "TVector3.h"
 
 using namespace std;
-using namespace WireCell;
+using namespace WCP;
 
 void MergeGeomCell::FindCorners(GeomCellMap& cmap, GeomWireMap& wmap){
   // find edge wires
@@ -528,7 +528,7 @@ MergeGeomCell::MergeGeomCell()
   area = 0;
 }
 
-MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
+MergeGeomCell::MergeGeomCell(int ident, const WCP::GeomCell& cell)
 {
   flag_corner = false;
   flag_edge = false;
@@ -557,7 +557,7 @@ MergeGeomCell::MergeGeomCell(int ident, const WireCell::GeomCell& cell)
   area = 0;
 }
 
-MergeGeomCell::MergeGeomCell(int ident, const WireCell::MergeGeomCell& cell)
+MergeGeomCell::MergeGeomCell(int ident, const WCP::MergeGeomCell& cell)
 {
   flag_corner = false;
   flag_edge = false;
@@ -637,7 +637,7 @@ Point MergeGeomCell::center() const
   return ret;
 }
 
-bool MergeGeomCell::Connected(const WireCell::GeomCell& cell1,const WireCell::GeomCell& cell2){
+bool MergeGeomCell::Connected(const WCP::GeomCell& cell1,const WCP::GeomCell& cell2){
   Point c1 = cell1.center();
   Point c2 = cell2.center();
   if (fabs(c1.y-c2.y) > Singleton<TPCParams>::Instance().get_pitch()*3.3) return false;
@@ -660,7 +660,7 @@ bool MergeGeomCell::Connected(const WireCell::GeomCell& cell1,const WireCell::Ge
   return false;
 }
 
-void MergeGeomCell::AddNewCell(const WireCell::GeomCell& cell){
+void MergeGeomCell::AddNewCell(const WCP::GeomCell& cell){
   PointVector boundary = cell.boundary();
   //EdgeVector edge = cell.edge();
   // Need to improve
@@ -687,7 +687,7 @@ void MergeGeomCell::AddNewCell(const WireCell::GeomCell& cell){
 }
 
 
-int MergeGeomCell::AddCell(const WireCell::GeomCell& cell, double dis){
+int MergeGeomCell::AddCell(const WCP::GeomCell& cell, double dis){
   // check if there are too or more shared boundary points
   // if less than two shared points, not merge
   // if there are just two, and reduce two to one, and merge
@@ -739,7 +739,7 @@ int MergeGeomCell::AddCell(const WireCell::GeomCell& cell, double dis){
     
 }
 
-int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell, double dis){
+int MergeGeomCell::AddCell(WCP::MergeGeomCell& cell, double dis){
 
   // check if there are too or more shared boundary points
   // if less than two shared points, not merge
@@ -786,7 +786,7 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell, double dis){
 	  }
 
 
-	  WireCell::GeomCellSelection temp = cell.get_allcell();
+	  WCP::GeomCellSelection temp = cell.get_allcell();
 	  cell_all.insert(cell_all.end(),temp.begin(),temp.end());
 	  return 1;
 	}
@@ -799,7 +799,7 @@ int MergeGeomCell::AddCell(WireCell::MergeGeomCell& cell, double dis){
 
 
 
-bool MergeGeomCell::CheckContainTruthCell(WireCell::CellChargeMap &ccmap){
+bool MergeGeomCell::CheckContainTruthCell(WCP::CellChargeMap &ccmap){
   truth_charge = 0;
   for (auto it = ccmap.begin();it!=ccmap.end(); it++){
     auto itt = find(cell_all.begin(),cell_all.end(),it->first);

@@ -1,6 +1,6 @@
-#include "WireCellData/PR3DCluster.h"
-#include "WireCellData/TPCParams.h"
-#include "WireCellData/Singleton.h"
+#include "WCPData/PR3DCluster.h"
+#include "WCPData/TPCParams.h"
+#include "WCPData/Singleton.h"
 
 #include "TMatrixDEigen.h"
 #include "TH2F.h"
@@ -13,7 +13,7 @@
 #include <Eigen/IterativeLinearSolvers>
 
  
-using namespace WireCell;
+using namespace WCP;
 
 #include "PR3DCluster_dQ_dx_fit.h"
 #include "PR3DCluster_trajectory_fit.h"
@@ -926,7 +926,7 @@ std::pair<int,int> PR3DCluster::get_num_points(Point& p, TVector3& dir){
 
   // loop through all the points
   const int N = point_cloud->get_num_points();
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   for (int i=0;i!=N;i++){
     TVector3 dir1(cloud.pts[i].x - p.x, cloud.pts[i].y - p.y, cloud.pts[i].z - p.z);
     if (dir1.Dot(dir)>=0){
@@ -945,7 +945,7 @@ std::pair<int,int> PR3DCluster::get_num_points(Point& p, TVector3& dir, double d
 
   // loop through all the points
   const int N = point_cloud->get_num_points();
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   for (int i=0;i!=N;i++){
     TVector3 dir1(cloud.pts[i].x - p.x, cloud.pts[i].y - p.y, cloud.pts[i].z - p.z);
     if (dir1.Mag() < dis){
@@ -961,14 +961,14 @@ std::pair<int,int> PR3DCluster::get_num_points(Point& p, TVector3& dir, double d
 }
 
 
-void PR3DCluster::Update_mcell_cluster_map(std::map<WireCell::SlimMergeGeomCell*,WireCell::PR3DCluster*>& mcell_cluster_map){
+void PR3DCluster::Update_mcell_cluster_map(std::map<WCP::SlimMergeGeomCell*,WCP::PR3DCluster*>& mcell_cluster_map){
   for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = (*it);
     mcell_cluster_map[mcell] = this;
   }
 }
  
-void PR3DCluster::Create_point_cloud(WireCell::ToyPointCloud *global_point_cloud){
+void PR3DCluster::Create_point_cloud(WCP::ToyPointCloud *global_point_cloud){
   if (point_cloud!=(ToyPointCloud*)0)
     return;
 
@@ -996,7 +996,7 @@ void PR3DCluster::Create_point_cloud(WireCell::ToyPointCloud *global_point_cloud
 
 
 void PR3DCluster::Establish_close_connected_graph(){
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   
   std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_uindex_wcps;
   std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_vindex_wcps;
@@ -1470,11 +1470,11 @@ void PR3DCluster::Establish_close_connected_graph(){
 
 
 
-void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
-  WireCell::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
-  WireCell::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
-  WireCell::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
+void PR3DCluster::Connect_graph(WCP::ToyCTPointCloud& ct_point_cloud){
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
+  WCP::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
+  WCP::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
 
   // now form the connected components
   std::vector<int> component(num_vertices(*graph));
@@ -1850,11 +1850,11 @@ void PR3DCluster::Connect_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
 
 
 
-void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCloud& ct_point_cloud){
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
-  WireCell::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
-  WireCell::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
-  WireCell::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
+void PR3DCluster::Connect_graph_overclustering_protection(WCP::ToyCTPointCloud& ct_point_cloud){
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
+  WCP::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
+  WCP::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
 
   // parallel case 1 and perpendicular case 2 
   TVector3 drift_dir(1,0,0);
@@ -2329,7 +2329,7 @@ void PR3DCluster::Connect_graph_overclustering_protection(WireCell::ToyCTPointCl
 
 
 
-std::vector<SMGCSelection> PR3DCluster::Examine_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
+std::vector<SMGCSelection> PR3DCluster::Examine_graph(WCP::ToyCTPointCloud& ct_point_cloud){
   if (graph!=(MCUGraph*)0)
     delete graph;
   if (point_cloud==(ToyPointCloud*)0)
@@ -2353,7 +2353,7 @@ std::vector<SMGCSelection> PR3DCluster::Examine_graph(WireCell::ToyCTPointCloud&
 
   
   
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   std::vector<int>::size_type i;
   for (i=0;i!=component.size(); ++i){
     SlimMergeGeomCell *mcell = cloud.pts[i].mcell;
@@ -2373,7 +2373,7 @@ std::vector<SMGCSelection> PR3DCluster::Examine_graph(WireCell::ToyCTPointCloud&
   return sep_mcells;
 }
 
-void PR3DCluster::Create_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
+void PR3DCluster::Create_graph(WCP::ToyCTPointCloud& ct_point_cloud){
   if (graph!=(MCUGraph*)0)
     return;
 
@@ -2393,10 +2393,10 @@ void PR3DCluster::Create_graph(WireCell::ToyCTPointCloud& ct_point_cloud){
 
 
 void PR3DCluster::Connect_graph(){
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
-  WireCell::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
-  WireCell::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
-  WireCell::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WC2DPointCloud<double>& cloud_u = point_cloud->get_cloud_u();
+  WCP::WC2DPointCloud<double>& cloud_v = point_cloud->get_cloud_v();
+  WCP::WC2DPointCloud<double>& cloud_w = point_cloud->get_cloud_w();
 
   
   std::vector<int> component(num_vertices(*graph));
@@ -2706,7 +2706,7 @@ void PR3DCluster::dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp){
 				 );
 }
 
-void PR3DCluster::dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp, WireCell::ToyCTPointCloud& ct_point_cloud){
+void PR3DCluster::dijkstra_shortest_paths(WCPointCloud<double>::WCPoint& wcp, WCP::ToyCTPointCloud& ct_point_cloud){
   if (graph==(MCUGraph*)0)
     Create_graph(ct_point_cloud);
   if (wcp.index==source_wcp_index)
@@ -2729,7 +2729,7 @@ void PR3DCluster::cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target){
   path_wcps.clear();
   path_mcells.clear();
 
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   int prev_i = -1;
   for(int i = dest_wcp_index; i!=source_wcp_index; i = parents[i]) {
     if (path_wcps.size()==0){
@@ -2754,7 +2754,7 @@ void PR3DCluster::cal_shortest_path(WCPointCloud<double>::WCPoint& wcp_target){
 //   // cut ... 
 //   if (path_wcps.size() < num_pts_cut) return;
 
-//   WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+//   WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
 
 //   // find the trajectory ... 
 //   //skip anypoint which is further away than 0.5 cm
@@ -3564,7 +3564,7 @@ void PR3DCluster::collect_charge_trajectory(ToyCTPointCloud& ct_point_cloud, dou
   // collect the nearby points, and compare with existing maps
   for (size_t i=0;i!=traj_pts.size();i++){
     //std::cout << i << " " << traj_pts.at(i).x/units::cm << " " << traj_pts.at(i).y/units::cm << " " << traj_pts.at(i).z/units::cm << " " << range_cut << std::endl;
-    WireCell::CTPointCloud<double> nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,0);
+    WCP::CTPointCloud<double> nearby_points = ct_point_cloud.get_closest_points(traj_pts.at(i),range_cut,0);
 
     //    std::cout << "0 " << nearby_points.pts.size() << std::endl;
     
@@ -3614,7 +3614,7 @@ TVector3 PR3DCluster::get_ft_dir_end(float mean_dis, float dis_cut){
 
 std::pair<Point,Point> PR3DCluster::get_two_extreme_points(){
   Create_point_cloud();
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   WCPointCloud<double>::WCPoint extreme_wcp[6];
   for (int i=0;i!=6;i++){
     extreme_wcp[i] = cloud.pts[0];
@@ -3686,7 +3686,7 @@ bool PR3DCluster::judge_vertex(Point& p_test, double asy_cut, double occupied_cu
       Point pt(p_test.x + i*0.5*units::cm * dir.X(),
 	       p_test.y + i*0.5*units::cm * dir.Y(),
 	       p_test.z + i*0.5*units::cm * dir.Z());
-      WireCell::WCPointCloud<double>::WCPoint& wcp = point_cloud->get_closest_wcpoint(pt);
+      WCP::WCPointCloud<double>::WCPoint& wcp = point_cloud->get_closest_wcpoint(pt);
 
       if (sqrt(pow(wcp.x-pt.x,2) + pow(wcp.y-pt.y,2)+pow(wcp.z-pt.z,2)) < std::max(1.8*units::cm,i*0.5*units::cm*sin(18./180.*3.1415926))){
 	pt.x = wcp.x;
@@ -3698,7 +3698,7 @@ bool PR3DCluster::judge_vertex(Point& p_test, double asy_cut, double occupied_cu
 	Point pt1(p_test.x - i*0.5*units::cm * dir.X(),
 		  p_test.y - i*0.5*units::cm * dir.Y(),
 		  p_test.z - i*0.5*units::cm * dir.Z());
-	WireCell::WCPointCloud<double>::WCPoint& wcp1 = point_cloud->get_closest_wcpoint(pt1);
+	WCP::WCPointCloud<double>::WCPoint& wcp1 = point_cloud->get_closest_wcpoint(pt1);
 	if (sqrt(pow(wcp1.x-pt1.x,2) + pow(wcp1.y-pt1.y,2)+pow(wcp1.z-pt1.z,2)) < std::max(1.8*units::cm,i*0.5*units::cm*sin(18./180.*3.1415926))){
 	  pt1.x = wcp1.x;
 	  pt1.y = wcp1.y;
@@ -3714,7 +3714,7 @@ bool PR3DCluster::judge_vertex(Point& p_test, double asy_cut, double occupied_cu
     int temp_num_occupied_points = 0;
 
     const int N = point_cloud->get_num_points();
-    WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+    WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
     for (int i=0;i!=N;i++){
       TVector3 dir1(cloud.pts[i].x - p_test.x, cloud.pts[i].y - p_test.y, cloud.pts[i].z - p_test.z);
       
@@ -3753,7 +3753,7 @@ bool PR3DCluster::judge_vertex(Point& p_test, double asy_cut, double occupied_cu
 
 std::vector<std::vector<WCPointCloud<double>::WCPoint>> PR3DCluster::get_extreme_wcps(){
   
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   Calc_PCA();
   WCPointCloud<double>::WCPoint wcps[8];
   for (int i=0;i!=8;i++){
@@ -3881,7 +3881,7 @@ std::vector<std::vector<WCPointCloud<double>::WCPoint>> PR3DCluster::get_extreme
 }
 
 std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_main_axis_wcps(){
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   Calc_PCA();
   WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
   WCPointCloud<double>::WCPoint lowest_wcp = cloud.pts[0];
@@ -3913,7 +3913,7 @@ std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DClust
 
 
 std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_highest_lowest_wcps(){
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
   WCPointCloud<double>::WCPoint lowest_wcp = cloud.pts[0];
   for (size_t i=1;i<cloud.pts.size();i++){
@@ -3926,7 +3926,7 @@ std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DClust
 }
 
 std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_front_back_wcps(){
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
   WCPointCloud<double>::WCPoint lowest_wcp = cloud.pts[0];
   for (size_t i=1;i<cloud.pts.size();i++){
@@ -3940,7 +3940,7 @@ std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DClust
 
 
 std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DCluster::get_earliest_latest_wcps(){
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
   WCPointCloud<double>::WCPoint lowest_wcp = cloud.pts[0];
   for (size_t i=1;i<cloud.pts.size();i++){
@@ -3954,7 +3954,7 @@ std::pair<WCPointCloud<double>::WCPoint,WCPointCloud<double>::WCPoint> PR3DClust
 
 
 Point PR3DCluster::calc_ave_pos(Point&p, int N){
-  std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,N);
+  std::map<WCP::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,N);
   Point pt(0,0,0);
   double charge = 0;
   //std::cout << pts.size() << std::endl;
@@ -3978,7 +3978,7 @@ Point PR3DCluster::calc_ave_pos(Point&p, int N){
 }
 
 Point PR3DCluster::calc_ave_pos(Point& p, double dis){
-  std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
+  std::map<WCP::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
   Point pt(0,0,0);
   double charge = 0;
   //std::cout << pts.size() << std::endl;
@@ -4084,7 +4084,7 @@ TVector3 PR3DCluster::calc_PCA_dir(Point&p, PointVector& ps){
 }
 
 TVector3 PR3DCluster::calc_PCA_dir(Point& p, double dis){
-  std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
+  std::map<WCP::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
   Point center1(0,0,0);
   // double charge=0;
   // for (auto it = pts.begin(); it!= pts.end(); it++){
@@ -4145,7 +4145,7 @@ TVector3 PR3DCluster::calc_PCA_dir(Point& p, double dis){
 }
 
 TVector3 PR3DCluster::calc_dir(Point& p_test, Point& p, double dis){
-  std::map<WireCell::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
+  std::map<WCP::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
   TVector3 dir(0,0,0);
   for (auto it = pts.begin(); it!= pts.end(); it++){
     SlimMergeGeomCell *mcell = (*it).first;
@@ -4175,7 +4175,7 @@ std::pair<double,double> PR3DCluster::HoughTrans(Point&p , double dis, ToyPointC
   double y0 = p.y;
   double z0 = p.z;
   
-  std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>>pts = point_cloud1->get_closest_points(p,dis);
+  std::vector<std::pair<WCP::SlimMergeGeomCell*,Point>>pts = point_cloud1->get_closest_points(p,dis);
 
   // std::cout << "Num " <<  pts.size() << std::endl;
     
@@ -4221,7 +4221,7 @@ std::pair<double,double> PR3DCluster::HoughTrans(Point&p , double dis){
   double y0 = p.y;
   double z0 = p.z;
   
-  std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>>pts = point_cloud->get_closest_points(p,dis);
+  std::vector<std::pair<WCP::SlimMergeGeomCell*,Point>>pts = point_cloud->get_closest_points(p,dis);
 
   // std::cout << "Num " <<  pts.size() << std::endl;
     
@@ -4324,12 +4324,12 @@ void PR3DCluster::Calc_PCA(PointVector& points){
   }
 }
 
-bool PR3DCluster::Construct_skeleton(WireCell::ToyCTPointCloud& ct_point_cloud){
+bool PR3DCluster::Construct_skeleton(WCP::ToyCTPointCloud& ct_point_cloud){
   if (path_wcps.size()>0)
     return false;
   Calc_PCA();
   
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
   WCPointCloud<double>::WCPoint lowest_wcp = cloud.pts[0];
 
@@ -4373,7 +4373,7 @@ bool PR3DCluster::Construct_skeleton(){
     return false;
   Calc_PCA();
   
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   WCPointCloud<double>::WCPoint highest_wcp = cloud.pts[0];
   WCPointCloud<double>::WCPoint lowest_wcp = cloud.pts[0];
 

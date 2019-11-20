@@ -1,11 +1,11 @@
-#include "WireCellData/Vector.h"
-#include "WireCellData/Intersection.h"
+#include "WCPData/Vector.h"
+#include "WCPData/Intersection.h"
 
 #include <iostream>
 #include <cmath>
 #include <map>
 
-using namespace WireCell;
+using namespace WCP;
 using namespace std;
 
 

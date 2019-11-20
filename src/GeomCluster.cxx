@@ -1,7 +1,7 @@
-#include "WireCellData/GeomCluster.h"
+#include "WCPData/GeomCluster.h"
 
 using namespace std;
-using namespace WireCell;
+using namespace WCP;
 
 void GeomCluster::MergeCluster(GeomCluster& cluster_to_merge){
   //need to write a merge cluster alg. 

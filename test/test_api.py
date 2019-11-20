@@ -1,21 +1,21 @@
 #!/usr/bin/env python
 
-def WireCell():
+def WCP():
     import ROOT
-    return ROOT.WireCell
+    return ROOT.WCP
 
 def test_make_wire():
-    val = WireCell().GeomWire()
+    val = WCP().GeomWire()
     assert val
     print val
 def test_make_cell():
-    val = WireCell().GeomCell()
+    val = WCP().GeomCell()
     assert val
     print val
 
 def test_make_point():
-    Point = WireCell().Point
-    PointVector = WireCell().PointVector
+    Point = WCP().Point
+    PointVector = WCP().PointVector
     assert Point()
     p = Point(1.0,2.0,3.0)
     assert p

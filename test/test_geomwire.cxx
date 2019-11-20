@@ -1,10 +1,10 @@
-#include "WireCellData/GeomWire.h"
+#include "WCPData/GeomWire.h"
 
 #include <cassert>
 #include <iostream>
 
 using namespace std;
-using namespace WireCell;
+using namespace WCP;
 
 int main()
 {

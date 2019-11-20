@@ -1,8 +1,8 @@
-#include "WireCellData/ToyPointCloud.h"
+#include "WCPData/ToyPointCloud.h"
 
-using namespace WireCell;
+using namespace WCP;
 
-WireCell::ToyPointCloud::ToyPointCloud(double angle_u, double angle_v, double angle_w)
+WCP::ToyPointCloud::ToyPointCloud(double angle_u, double angle_v, double angle_w)
   : angle_u(angle_u)
   , angle_v(angle_v)
   , angle_w(angle_w)
@@ -10,7 +10,7 @@ WireCell::ToyPointCloud::ToyPointCloud(double angle_u, double angle_v, double an
   index = 0;
 }
 
-WireCell::ToyPointCloud::~ToyPointCloud(){
+WCP::ToyPointCloud::~ToyPointCloud(){
   if (index!=0){
     delete index;
     delete index_u;
@@ -24,7 +24,7 @@ WireCell::ToyPointCloud::~ToyPointCloud(){
   cloud_w.pts.clear();
 }
 
-std::pair<int,double> WireCell::ToyPointCloud::get_closest_point_along_vec(Point& p_test1, TVector3& dir, double test_dis, double dis_step, double angle_cut, double dis_cut){
+std::pair<int,double> WCP::ToyPointCloud::get_closest_point_along_vec(Point& p_test1, TVector3& dir, double test_dis, double dis_step, double angle_cut, double dis_cut){
   if (dir.Mag()!=1)
     dir.SetMag(1);
   
@@ -38,7 +38,7 @@ std::pair<int,double> WireCell::ToyPointCloud::get_closest_point_along_vec(Point
     p_test.y = p_test1.y + dir.Y() * i * dis_step;
     p_test.z = p_test1.z + dir.Z() * i * dis_step;
     
-    WireCell::WCPointCloud<double>::WCPoint& closest_pt = get_closest_wcpoint(p_test);
+    WCP::WCPointCloud<double>::WCPoint& closest_pt = get_closest_wcpoint(p_test);
     double dis = sqrt(pow(p_test.x - closest_pt.x,2)+pow(p_test.y - closest_pt.y,2)+pow(p_test.z - closest_pt.z,2));
     double dis1 = sqrt(pow(p_test1.x - closest_pt.x,2)+pow(p_test1.y - closest_pt.y,2)+pow(p_test1.z - closest_pt.z,2));
 
@@ -62,15 +62,15 @@ std::pair<int,double> WireCell::ToyPointCloud::get_closest_point_along_vec(Point
   return std::make_pair(min_index,min_dis1);
 }
 
-std::tuple<int,int,double> WireCell::ToyPointCloud::get_closest_points(ToyPointCloud *point_cloud){
+std::tuple<int,int,double> WCP::ToyPointCloud::get_closest_points(ToyPointCloud *point_cloud){
 
   //std::cout << cloud.pts.size() << " " << point_cloud->get_cloud().pts.size() << std::endl;
    
   
-  WireCell::WCPointCloud<double>::WCPoint p1 = cloud.pts.front();
-  WireCell::WCPointCloud<double>::WCPoint p2 = point_cloud->get_cloud().pts.front();
-  WireCell::WCPointCloud<double>::WCPoint p1_save;
-  WireCell::WCPointCloud<double>::WCPoint p2_save;
+  WCP::WCPointCloud<double>::WCPoint p1 = cloud.pts.front();
+  WCP::WCPointCloud<double>::WCPoint p2 = point_cloud->get_cloud().pts.front();
+  WCP::WCPointCloud<double>::WCPoint p1_save;
+  WCP::WCPointCloud<double>::WCPoint p2_save;
   double min_dis = 1e9;
   
   int prev_index1 = -1;
@@ -145,19 +145,19 @@ std::tuple<int,int,double> WireCell::ToyPointCloud::get_closest_points(ToyPointC
   return std::make_tuple(p1_save.index,p2_save.index,min_dis);
 }
 
-WireCell::WCPointCloud<double>::WCPoint& WireCell::ToyPointCloud::get_closest_wcpoint(WireCell::WCPointCloud<double>::WCPoint& wcp){
+WCP::WCPointCloud<double>::WCPoint& WCP::ToyPointCloud::get_closest_wcpoint(WCP::WCPointCloud<double>::WCPoint& wcp){
   Point p(wcp.x,wcp.y,wcp.z);
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
   return cloud.pts[results.front().first];
 }
 
-WireCell::WCPointCloud<double>::WCPoint& WireCell::ToyPointCloud::get_closest_wcpoint(WireCell::Point& p){
+WCP::WCPointCloud<double>::WCPoint& WCP::ToyPointCloud::get_closest_wcpoint(WCP::Point& p){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
   return cloud.pts[results.front().first];
 }
 
 
-void WireCell::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& wcp, WC2DPointCloud<double>::WC2DPoint& wcp_u, WC2DPointCloud<double>::WC2DPoint& wcp_v, WC2DPointCloud<double>::WC2DPoint& wcp_w){
+void WCP::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& wcp, WC2DPointCloud<double>::WC2DPoint& wcp_u, WC2DPointCloud<double>::WC2DPoint& wcp_v, WC2DPointCloud<double>::WC2DPoint& wcp_w){
   SlimMergeGeomCell *mcell = wcp.mcell;
   int index = wcp.index;
   
@@ -180,7 +180,7 @@ void WireCell::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& wcp, WC2DP
 }
 
 
-void WireCell::ToyPointCloud::AddPoint(Point& p, std::tuple<int,int,int>& wires_index, SlimMergeGeomCell *mcell){
+void WCP::ToyPointCloud::AddPoint(Point& p, std::tuple<int,int,int>& wires_index, SlimMergeGeomCell *mcell){
   WCPointCloud<double>::WCPoint point;
   point.x = p.x;
   point.y = p.y;
@@ -226,7 +226,7 @@ void WireCell::ToyPointCloud::AddPoint(Point& p, std::tuple<int,int,int>& wires_
 
 
 
-void WireCell::ToyPointCloud::AddPoints(PointVector& ps){
+void WCP::ToyPointCloud::AddPoints(PointVector& ps){
   size_t current_size = cloud.pts.size();
   cloud.pts.resize(current_size + ps.size());
   cloud_u.pts.resize(current_size + ps.size());
@@ -260,7 +260,7 @@ void WireCell::ToyPointCloud::AddPoints(PointVector& ps){
 }
 
 
-void WireCell::ToyPointCloud::AddPoints(PointVector& ps, std::vector<std::tuple<int,int,int>>& wires_indices, SlimMergeGeomCell *mcell){
+void WCP::ToyPointCloud::AddPoints(PointVector& ps, std::vector<std::tuple<int,int,int>>& wires_indices, SlimMergeGeomCell *mcell){
   size_t current_size = cloud.pts.size();
   cloud.pts.resize(current_size + ps.size());
   cloud_u.pts.resize(current_size + ps.size());
@@ -300,13 +300,13 @@ void WireCell::ToyPointCloud::AddPoints(PointVector& ps, std::vector<std::tuple<
   }
 }
 
-void WireCell::ToyPointCloud::Print(){
+void WCP::ToyPointCloud::Print(){
   for (size_t i=0; i!=cloud.pts.size(); i++){
     std::cout << i << " " << cloud.pts[i].x << " " << cloud.pts[i].y << " " << cloud.pts[i].z << " " << cloud.pts[i].index_u << " " << cloud.pts[i].index_v << " " << cloud.pts[i].index_w << " " << cloud.pts[i].mcell << std::endl;
   }
 }
 
-void WireCell::ToyPointCloud::build_kdtree_index(){
+void WCP::ToyPointCloud::build_kdtree_index(){
   if (index!=(my_kd_tree_t*)0){
     delete index;
     delete index_u;
@@ -329,7 +329,7 @@ void WireCell::ToyPointCloud::build_kdtree_index(){
 
 
 
-std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index(WireCell::Point& p, int N){
+std::vector<std::pair<size_t,double>> WCP::ToyPointCloud::get_closest_index(WCP::Point& p, int N){
   std::vector<size_t> ret_index(N);
   std::vector<double> out_dist_sqr(N);
   
@@ -352,7 +352,7 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index
 
 
 
-std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_2d_index(double x, double y, int N, int plane){
+std::vector<std::pair<size_t,double>> WCP::ToyPointCloud::get_closest_2d_index(double x, double y, int N, int plane){
   std::vector<size_t> ret_index(N);
   std::vector<double> out_dist_sqr(N);
   
@@ -377,7 +377,7 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_2d_in
   return results;
 }
 
-double WireCell::ToyPointCloud::get_closest_2d_dis(double x, double y, int plane){
+double WCP::ToyPointCloud::get_closest_2d_dis(double x, double y, int plane){
   double query_pt[2];
   query_pt[0] = x;
   query_pt[1] = y;
@@ -400,7 +400,7 @@ double WireCell::ToyPointCloud::get_closest_2d_dis(double x, double y, int plane
     return 1e9;
 }
 
-std::pair<int,double> WireCell::ToyPointCloud::get_closest_2d_dis(WireCell::Point& p, int plane){
+std::pair<int,double> WCP::ToyPointCloud::get_closest_2d_dis(WCP::Point& p, int plane){
    double x, y;
   if (plane==0){
     x = p.x;
@@ -436,7 +436,7 @@ std::pair<int,double> WireCell::ToyPointCloud::get_closest_2d_dis(WireCell::Poin
 }
 
 
-std::vector<size_t> WireCell::ToyPointCloud::get_closest_2d_index(Point& p, int N, int plane){
+std::vector<size_t> WCP::ToyPointCloud::get_closest_2d_index(Point& p, int N, int plane){
   double x, y;
   if (plane==0){
     x = p.x;
@@ -471,7 +471,7 @@ std::vector<size_t> WireCell::ToyPointCloud::get_closest_2d_index(Point& p, int 
 
 
 
-std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index(WireCell::Point& p, double search_radius){
+std::vector<std::pair<size_t,double>> WCP::ToyPointCloud::get_closest_index(WCP::Point& p, double search_radius){
   double query_pt[3];
   query_pt[0] = p.x;
   query_pt[1] = p.y;
@@ -484,7 +484,7 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_index
 }
 
 
-std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_2d_index(double x, double y, double search_radius, int plane){
+std::vector<std::pair<size_t,double>> WCP::ToyPointCloud::get_closest_2d_index(double x, double y, double search_radius, int plane){
   double query_pt[2];
   query_pt[0] = x;
   query_pt[1] = y;
@@ -500,7 +500,7 @@ std::vector<std::pair<size_t,double>> WireCell::ToyPointCloud::get_closest_2d_in
   return ret_matches;
 }
 
-std::vector<size_t> WireCell::ToyPointCloud::get_closest_2d_index(Point& p, double search_radius, int plane){
+std::vector<size_t> WCP::ToyPointCloud::get_closest_2d_index(Point& p, double search_radius, int plane){
   double x, y;
   if (plane==0){
     x = p.x;
@@ -534,11 +534,11 @@ std::vector<size_t> WireCell::ToyPointCloud::get_closest_2d_index(Point& p, doub
 }
 
 
-std::map<WireCell::SlimMergeGeomCell*, Point> WireCell::ToyPointCloud::get_closest_mcell(WireCell::Point& p, int N){
+std::map<WCP::SlimMergeGeomCell*, Point> WCP::ToyPointCloud::get_closest_mcell(WCP::Point& p, int N){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,N);
   
-  std::map<WireCell::SlimMergeGeomCell*, Point> mcell_point_map;
-  std::map<WireCell::SlimMergeGeomCell*, double> mcell_dis_map;
+  std::map<WCP::SlimMergeGeomCell*, Point> mcell_point_map;
+  std::map<WCP::SlimMergeGeomCell*, double> mcell_dis_map;
   
   for (auto it = results.begin(); it!= results.end(); it++){
     size_t index = (*it).first;
@@ -564,11 +564,11 @@ std::map<WireCell::SlimMergeGeomCell*, Point> WireCell::ToyPointCloud::get_close
 }
 
 
-std::map<WireCell::SlimMergeGeomCell*, Point> WireCell::ToyPointCloud::get_closest_mcell(WireCell::Point& p, double search_radius){
+std::map<WCP::SlimMergeGeomCell*, Point> WCP::ToyPointCloud::get_closest_mcell(WCP::Point& p, double search_radius){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,search_radius);
   
-  std::map<WireCell::SlimMergeGeomCell*, Point> mcell_point_map;
-  std::map<WireCell::SlimMergeGeomCell*, double> mcell_dis_map;
+  std::map<WCP::SlimMergeGeomCell*, Point> mcell_point_map;
+  std::map<WCP::SlimMergeGeomCell*, double> mcell_dis_map;
   
   for (auto it = results.begin(); it!= results.end(); it++){
     size_t index = (*it).first;
@@ -599,11 +599,11 @@ std::map<WireCell::SlimMergeGeomCell*, Point> WireCell::ToyPointCloud::get_close
   return mcell_point_map;
 }
 
-double WireCell::ToyPointCloud::get_closest_dis(WireCell::Point& p){
+double WCP::ToyPointCloud::get_closest_dis(WCP::Point& p){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
   return sqrt(results.front().second);
 }
-std::pair<double, WireCell::Point> WireCell::ToyPointCloud::get_closest_point(WireCell::Point& p){
+std::pair<double, WCP::Point> WCP::ToyPointCloud::get_closest_point(WCP::Point& p){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
   Point p1;
   int index = results.front().first;
@@ -615,9 +615,9 @@ std::pair<double, WireCell::Point> WireCell::ToyPointCloud::get_closest_point(Wi
 
 
 
-std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> WireCell::ToyPointCloud::get_closest_points(WireCell::Point& p, int N){
+std::vector<std::pair<WCP::SlimMergeGeomCell*,Point>> WCP::ToyPointCloud::get_closest_points(WCP::Point& p, int N){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,N);
-  std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> points;
+  std::vector<std::pair<WCP::SlimMergeGeomCell*,Point>> points;
   for (auto it = results.begin(); it!= results.end(); it++){
     size_t index = (*it).first;
     Point p;
@@ -629,9 +629,9 @@ std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> WireCell::ToyPointClo
   }
   return points;
 }
-std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> WireCell::ToyPointCloud::get_closest_points(WireCell::Point& p, double search_radius){
+std::vector<std::pair<WCP::SlimMergeGeomCell*,Point>> WCP::ToyPointCloud::get_closest_points(WCP::Point& p, double search_radius){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,search_radius);
-  std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> points;
+  std::vector<std::pair<WCP::SlimMergeGeomCell*,Point>> points;
   for (auto it = results.begin(); it!= results.end(); it++){
     size_t index = (*it).first;
     Point p;
@@ -647,7 +647,7 @@ std::vector<std::pair<WireCell::SlimMergeGeomCell*,Point>> WireCell::ToyPointClo
 
 
 
-std::vector<WCPointCloud<double>::WCPoint> WireCell::ToyPointCloud::get_hull(){
+std::vector<WCPointCloud<double>::WCPoint> WCP::ToyPointCloud::get_hull(){
   quickhull::QuickHull<float> qh;
   std::vector<quickhull::Vector3<float>> pc;
   // std::cout << cloud.pts.size() << std::endl;

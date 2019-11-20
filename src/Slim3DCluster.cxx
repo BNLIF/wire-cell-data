@@ -1,7 +1,7 @@
-#include "WireCellData/Slim3DCluster.h"
+#include "WCPData/Slim3DCluster.h"
 
 using namespace std;
-using namespace WireCell;
+using namespace WCP;
 
 Slim3DCluster::Slim3DCluster(SlimMergeGeomCell &cell)
   :u_proj(0)

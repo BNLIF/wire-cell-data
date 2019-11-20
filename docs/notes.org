@@ -9,7 +9,7 @@ that will immediately touch it in the dependency tree.
 Here is the generic workflow or high-level algorithm steps that I see:
 
 1) Get data from some source
-2) Convert it into a WireCell compatible format, assume it comes in per-Wire time slices
+2) Convert it into a WCP compatible format, assume it comes in per-Wire time slices
 3) Sort wire time slices
 4) Bin wire times slices in like times
 5) Iterate over collections of like time bins across all wires.
@@ -26,7 +26,7 @@ Possible reductions:
 Some thing that need to be done with the code in the very near term:
 
 - [X] Rename API header files to drop wirecell prefix in their filenames
-- [X] Install API headers under =include/WireCell/= directory
+- [X] Install API headers under =include/WCP/= directory
 - [-] build
   - [X] Simplify waf build, defining package layout conventions
   - [ ] package build dependencies

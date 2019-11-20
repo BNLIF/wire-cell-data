@@ -1,6 +1,6 @@
-#include "WireCellData/WireCharge.h"
+#include "WCPData/WireCharge.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 double Wire::charge(const Wire::Group& group)
 {

@@ -1,7 +1,7 @@
-#include "WireCellData/Point.h"
+#include "WCPData/Point.h"
 
 namespace instantiations {
 
-    WireCell::Point a_point;
+    WCP::Point a_point;
 
 }

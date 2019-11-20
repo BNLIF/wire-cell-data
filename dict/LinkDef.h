@@ -5,54 +5,54 @@
 //#pragma link off all namespaces;
 #pragma link C++ nestedclass;
 
-#pragma link C++ namespace WireCell;
+#pragma link C++ namespace WCP;
 
 #pragma link C++ namespace units;
 #pragma link C++ defined_in namespace units;
 #pragma link C++ global units::*;
 
 
-#pragma link C++ class WireCell::GeomCell;
-#pragma link C++ class WireCell::MergeGeomCell;
-#pragma link C++ class WireCell::MergeGeomCellSet;
-#pragma link C++ class WireCell::GeomCellMap;
-#pragma link C++ class WireCell::GeomCellSet;
-#pragma link C++ class WireCell::CellChargeMap;
-#pragma link C++ class WireCell::CellIndexMap;
+#pragma link C++ class WCP::GeomCell;
+#pragma link C++ class WCP::MergeGeomCell;
+#pragma link C++ class WCP::MergeGeomCellSet;
+#pragma link C++ class WCP::GeomCellMap;
+#pragma link C++ class WCP::GeomCellSet;
+#pragma link C++ class WCP::CellChargeMap;
+#pragma link C++ class WCP::CellIndexMap;
 // apparently, rootcling doesn't like sets
-// #pragma link C++ class WireCell::GeomCellSet;
-#pragma link C++ class WireCell::GeomCellSelection;
+// #pragma link C++ class WCP::GeomCellSet;
+#pragma link C++ class WCP::GeomCellSelection;
 
-#pragma link C++ class WireCell::GeomWire;
-#pragma link C++ class WireCell::GeomWireSet;
-#pragma link C++ class WireCell::WireChargeMap;
-#pragma link C++ class WireCell::WireIndexMap;
-#pragma link C++ class WireCell::MergeGeomWire;
-#pragma link C++ class WireCell::GeomWireMap;
-#pragma link C++ class WireCell::GeomWireWireMap;
-#pragma link C++ class WireCell::GeomWireWiresMap;
+#pragma link C++ class WCP::GeomWire;
+#pragma link C++ class WCP::GeomWireSet;
+#pragma link C++ class WCP::WireChargeMap;
+#pragma link C++ class WCP::WireIndexMap;
+#pragma link C++ class WCP::MergeGeomWire;
+#pragma link C++ class WCP::GeomWireMap;
+#pragma link C++ class WCP::GeomWireWireMap;
+#pragma link C++ class WCP::GeomWireWiresMap;
 // apparently, rootcling doesn't like sets
-// #pragma link C++ class WireCell::GeomWireSet;
-#pragma link C++ class WireCell::GeomWireSelection;
+// #pragma link C++ class WCP::GeomWireSet;
+#pragma link C++ class WCP::GeomWireSelection;
 
-#pragma link C++ class WireCell::MergeCellCluster;
-#pragma link C++ class WireCell::GeomCluster;
-#pragma link C++ class WireCell::GeomClusterSet;
+#pragma link C++ class WCP::MergeCellCluster;
+#pragma link C++ class WCP::GeomCluster;
+#pragma link C++ class WCP::GeomClusterSet;
 
 
-#pragma link C++ class WireCell::ChargeSequence;
-#pragma link C++ class WireCell::Trace;
-#pragma link C++ class WireCell::Frame;
-//#pragma link C++ class WireCell::WireCharge;
-//#pragma link C++ class WireCell::WireChargeCollection;
-#pragma link C++ class WireCell::Slice;
+#pragma link C++ class WCP::ChargeSequence;
+#pragma link C++ class WCP::Trace;
+#pragma link C++ class WCP::Frame;
+//#pragma link C++ class WCP::WireCharge;
+//#pragma link C++ class WCP::WireChargeCollection;
+#pragma link C++ class WCP::Slice;
 
-#pragma link C++ class WireCell::Point;
-#pragma link C++ class WireCell::PointVector;
+#pragma link C++ class WCP::Point;
+#pragma link C++ class WCP::PointVector;
 
-#pragma link C++ class WireCell::Vector;
-#pragma link C++ class WireCell::VectorPair;
+#pragma link C++ class WCP::Vector;
+#pragma link C++ class WCP::VectorPair;
 
-#pragma link C++ function WireCell::box_intersection;
+#pragma link C++ function WCP::box_intersection;
 
 #endif

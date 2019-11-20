@@ -1,6 +1,6 @@
-#include "WireCellData/Projected2DCluster.h"
+#include "WCPData/Projected2DCluster.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 Projected2DCluster::Projected2DCluster(WirePlaneType_t plane_no, int id)
   : plane_no(plane_no)

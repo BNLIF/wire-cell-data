@@ -1,7 +1,7 @@
-#include "WireCellData/WCShower.h"
+#include "WCPData/WCShower.h"
 #include "TVector3.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 WCShower::WCShower(WCVertex *vertex, WCTrack *track, MergeSpaceCellSelection& exclude_cells,MergeSpaceCellMap& mcells_map)
   : vertex(vertex)

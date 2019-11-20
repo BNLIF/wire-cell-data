@@ -2,7 +2,7 @@
 
 import ROOT
 
-WC = ROOT.WireCell
+WC = ROOT.WCP
 Vector = WC.Vector
 
 def dump(pt):

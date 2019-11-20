@@ -1,6 +1,6 @@
-#include "WireCellData/Plane.h"
+#include "WCPData/Plane.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 Plane::Plane(Point p1, Point p2, Point p3)
   : p1(p1)

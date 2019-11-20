@@ -1,6 +1,6 @@
-#include "WireCellData/Slice.h"
+#include "WCPData/Slice.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 Slice::Slice(int tbin, const Channel::Group& group)
     : _tbin(tbin)

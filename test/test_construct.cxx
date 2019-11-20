@@ -1,9 +1,9 @@
-#include "WireCellData/GeomWire.h"
-#include "WireCellData/GeomCell.h"
-#include "WireCellData/Slice.h"
-#include "WireCellData/Trace.h"
+#include "WCPData/GeomWire.h"
+#include "WCPData/GeomCell.h"
+#include "WCPData/Slice.h"
+#include "WCPData/Trace.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 int main()
 {

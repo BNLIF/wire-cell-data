@@ -1,9 +1,9 @@
-#include "WireCellData/PMTNoiseROI.h"
+#include "WCPData/PMTNoiseROI.h"
 
 #include <algorithm>
 #include <cmath>
 
-using namespace WireCell;
+using namespace WCP;
 
 
 PMTNoiseROI::PMTNoiseROI(int start_bin, int end_bin, int peak, int channel, float peak_height)

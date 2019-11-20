@@ -1,6 +1,6 @@
-#include "WireCellData/Frame.h"
+#include "WCPData/Frame.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 Frame::Frame(int index, const TraceCollection& traces)
     : index(index)

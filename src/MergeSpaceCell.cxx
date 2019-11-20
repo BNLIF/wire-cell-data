@@ -1,9 +1,9 @@
-#include "WireCellData/MergeSpaceCell.h"
-#include "WireCellData/Singleton.h"
-#include "WireCellData/TPCParams.h"
+#include "WCPData/MergeSpaceCell.h"
+#include "WCPData/Singleton.h"
+#include "WCPData/TPCParams.h"
 #include "TVector3.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 float MergeSpaceCell::Get_Charge(){
   float sum = 0;

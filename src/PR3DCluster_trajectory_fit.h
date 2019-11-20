@@ -375,7 +375,7 @@ void PR3DCluster::form_map_graph_based(std::vector<WCPointCloud<double>::WCPoint
   map_2DW_3D_set.clear();
   
   
-  WireCell::WCPointCloud<double>& cloud = point_cloud->get_cloud();
+  WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   
   TPCParams& mp = Singleton<TPCParams>::Instance();
   double pitch_u = mp.get_pitch_u();
@@ -1316,7 +1316,7 @@ void PR3DCluster::fine_tracking(std::map<int,std::map<const GeomWire*, SMGCSelec
       /* std::cout << i << " " << fine_tracking_path.at(i).x/units::cm << */
       /* 	" " << fine_tracking_path.at(i).y/units::cm << " " */
       /* 		<< fine_tracking_path.at(i).z/units::cm << std::endl; */
-      WireCell::WCPointCloud<double>::WCPoint& wcp = point_cloud->get_closest_wcpoint(fine_tracking_path.at(i));
+      WCP::WCPointCloud<double>::WCPoint& wcp = point_cloud->get_closest_wcpoint(fine_tracking_path.at(i));
       if (wcp.index!= path_wcps_vec.back().index)
     	path_wcps_vec.push_back(wcp);
     }

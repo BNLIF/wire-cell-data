@@ -1,6 +1,6 @@
-#include "WireCellData/Line.h"
+#include "WCPData/Line.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 Line::Line(Point& p1, Point& p2)
   : p1(p1)

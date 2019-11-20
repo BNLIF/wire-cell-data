@@ -1,18 +1,18 @@
-#include "WireCellData/Intersection.h"
+#include "WCPData/Intersection.h"
 
 #include <vector>
 #include <iostream>
 using namespace std;
 
-using namespace WireCell;
+using namespace WCP;
 
 
-double WireCell::directional_dot(const Vector& dir1, const Vector& dir2)
+double WCP::directional_dot(const Vector& dir1, const Vector& dir2)
 {
     return dir1.norm().dot(dir2.norm());
 }
 
-double WireCell::dist_to_plane(const Vector& point, const Vector& dir, const Vector& plane)
+double WCP::dist_to_plane(const Vector& point, const Vector& dir, const Vector& plane)
 {
     const Vector norm = plane.norm();
     return norm.dot(point - plane) / directional_dot(plane, dir);
@@ -23,7 +23,7 @@ double WireCell::dist_to_plane(const Vector& point, const Vector& dir, const Vec
 
 
 /// Return 0 if no hit, 1 if hit1, 2 if hit2, 3 if both
-int WireCell::hit_square(int axis0, 
+int WCP::hit_square(int axis0, 
 			 const Vector& bmin, 
 			 const Vector& bmax, 
 			 const Vector& point, 
@@ -88,7 +88,7 @@ int WireCell::hit_square(int axis0,
 }
 		
 /// Return 0 if no hit, 1 if hit1, 2 if hit2, 3 if both
-int WireCell::box_intersection(const Vector& bmin, 
+int WCP::box_intersection(const Vector& bmin, 
 			       const Vector& bmax, 
 			       const Vector& point, 
 			       const Vector& dir,

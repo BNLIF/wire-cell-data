@@ -1,13 +1,13 @@
-#include "WireCellData/LAr.h"
+#include "WCPData/LAr.h"
 
 #include "TMath.h"
 #include <iostream>
 
-using namespace WireCell;
+using namespace WCP;
 using namespace std;
 
 
-double WireCell::LAr::ele_lifetime(double con_ppb, double T, double E, int flag){
+double WCP::LAr::ele_lifetime(double con_ppb, double T, double E, int flag){
   double density = Ldensity(T)/units::g*pow(units::cm,3);
   double Mol = 1e-9 * 1000./39.948*density*con_ppb; // Mole is mole/L
  
@@ -62,7 +62,7 @@ double WireCell::LAr::ele_lifetime(double con_ppb, double T, double E, int flag)
 
 // good ...
 
-double WireCell::LAr::BoilAr(double T){
+double WCP::LAr::BoilAr(double T){
   double results;
   double a1 = -5.9410;
   double a2 = 1.35539;
@@ -73,7 +73,7 @@ double WireCell::LAr::BoilAr(double T){
 			     +a3*pow(phi,2)+a4*pow(phi,4.5)));
   return results;
 }
-double WireCell::LAr::MeltAr(double T){
+double WCP::LAr::MeltAr(double T){
   double results;
   double a1 = -7476.2665;
   double a2 = 9959.0613;
@@ -83,7 +83,7 @@ double WireCell::LAr::MeltAr(double T){
 
 
 
-double WireCell::LAr::SubLimeAr(double T){
+double WCP::LAr::SubLimeAr(double T){
   double results;
   double a1 = -11.391604;
   double a2 = -0.39513;
@@ -93,17 +93,17 @@ double WireCell::LAr::SubLimeAr(double T){
 }
 
 
-double WireCell::LAr::ks_f1(double x, double p0, double p1, double p2, double q1){
+double WCP::LAr::ks_f1(double x, double p0, double p1, double p2, double q1){
   double results;
   results = (p0+p1*x+p2*x*x)/(1+q1*x);
   return results;
 }
-double WireCell::LAr::ks_f2(double x, double p0, double p1, double p2, double q1, double q2){
+double WCP::LAr::ks_f2(double x, double p0, double p1, double p2, double q1, double q2){
   double results;
   results = (p0+p1*x+p2*x*x)/(1+q1*x+q2*x*x);
   return results;
 }
-double WireCell::LAr::ks_f3(double x, double p0, double p1, double p2, double q1, double q2, double q3){
+double WCP::LAr::ks_f3(double x, double p0, double p1, double p2, double q1, double q2, double q3){
   double results;
   results = (p0+p1*x+p2*x*x)/(1+q1*x+q2*x*x+q3*x*x*x);
   return results;
@@ -111,7 +111,7 @@ double WireCell::LAr::ks_f3(double x, double p0, double p1, double p2, double q1
 
 
 
-double WireCell::LAr::recombine_Box(double dEodx,double T, double E, int flag){
+double WCP::LAr::recombine_Box(double dEodx,double T, double E, int flag){
   double density = Ldensity(T)/(units::g/pow(units::cm,3));
   double alpha = 0.93;
   double beta=0.212;
@@ -130,7 +130,7 @@ double WireCell::LAr::recombine_Box(double dEodx,double T, double E, int flag){
 
 
 
-double WireCell::LAr::recombine_Birks(double dEodx, double T, double E, int flag){
+double WCP::LAr::recombine_Birks(double dEodx, double T, double E, int flag){
   double A = 0.8;
   double k = 0.0486;
   double alpha = 0.803;
@@ -151,7 +151,7 @@ double WireCell::LAr::recombine_Birks(double dEodx, double T, double E, int flag
 
 
 
-double WireCell::LAr::Diffusion(double T, double E, int flag){
+double WCP::LAr::Diffusion(double T, double E, int flag){
   double tT = T_t;
   double tC = T_c;
 
@@ -180,18 +180,18 @@ double WireCell::LAr::Diffusion(double T, double E, int flag){
 
 
 
-double WireCell::LAr::fPade(double x, double t0, double p1, double p2, double q1, double q2){
+double WCP::LAr::fPade(double x, double t0, double p1, double p2, double q1, double q2){
   double results ;
   results = (t0 + p1*x + p2*x*x)/(1+q1*x+q2*x*x);
   return results;
 }
 
-double WireCell::LAr::fPoly(double x, double t0, double p1, double p2, double p3){
+double WCP::LAr::fPoly(double x, double t0, double p1, double p2, double p3){
   double results = t0 + p1*x+p2*x*x+p3*x*x*x;
   return results;
 }
 
-double WireCell::LAr::vDrift(double T, double E){
+double WCP::LAr::vDrift(double T, double E){
   
   //E/= units::kilovolt/units::cm;
   double xFit = 0.0938163 - 0.0052563 *(T/units::kelvin-87.302) - 0.000146981 *pow(T/units::kelvin-87.302,2);
@@ -214,7 +214,7 @@ double WireCell::LAr::vDrift(double T, double E){
 
 
 
-double WireCell::LAr::vD(double T, double E, int flag){
+double WCP::LAr::vD(double T, double E, int flag){
   double p1, p2, p3, p4, p5, p6,t0;
   if (flag==1){
     //WalkowiakParameterSet
@@ -269,7 +269,7 @@ double WireCell::LAr::vD(double T, double E, int flag){
 }
 
 
-double WireCell::LAr::RRLAr(double lambda, double T){
+double WCP::LAr::RRLAr(double lambda, double T){
   
   double c = 29979245800.*units::cm/units::second;
   double kB = 1.38065e-16 *1e-7*units::joule/ units::kelvin;
@@ -285,7 +285,7 @@ double WireCell::LAr::RRLAr(double lambda, double T){
   return results;
 }
 
-WireCell::LAr::LAr(){
+WCP::LAr::LAr(){
   T_c = 150.687* units::kelvin; // K 
   p_c = 48.630*units::bar; // bar
   rho_c = 0.5356*units::g/pow(units::cm,3); // g/cm^3
@@ -296,26 +296,26 @@ WireCell::LAr::LAr(){
   T_NBP = 87.3 * units::kelvin; // K
 }
 
-void WireCell::LAr::print_critical(){
+void WCP::LAr::print_critical(){
   cout << "Properties of the critical point: " << endl; 
   cout << "    Temperature: " << T_c/units::kelvin << " K" << endl;
   cout << "    Pressure:    " << p_c/units::bar << " bar or " << p_c/units::bar/10. << " MPa" << endl;
   cout << "    Density:     " << rho_c/ ( units::g/pow(units::cm,3)) << " g/cm^3" << endl; 
 }
 
-void WireCell::LAr::print_triple(){
+void WCP::LAr::print_triple(){
   cout << "Properties of triple point: " << endl;
   cout << "    Temperature: " << T_t/units::kelvin << " K" << endl;
   cout << "    Pressure:    " << p_t/units::bar << " bar or " << p_t/units::bar/10. << " MPa" << endl;  
 }
 
-void WireCell::LAr::print_boiling(){
+void WCP::LAr::print_boiling(){
   cout << "Normal Boiling Point" << endl;
   cout << "    Temperature: " << T_NBP/units::kelvin << " K" << endl; 
 }
 
 
-double WireCell::LAr::LInrf(double lambda, double T){
+double WCP::LAr::LInrf(double lambda, double T){
   //lambda/=units::nm;
   double nG = GInrf(lambda);
   double rhoG = 1.0034*0.0017840 ;
@@ -333,7 +333,7 @@ double WireCell::LAr::LInrf(double lambda, double T){
 
 
 
-double WireCell::LAr::GInrf(double lambda){
+double WCP::LAr::GInrf(double lambda){
   lambda/=units::nm;
   double c0 = 1.2055e-2;
   double a1 = 0.2075;
@@ -353,7 +353,7 @@ double WireCell::LAr::GInrf(double lambda){
 
 
 
-double WireCell::LAr::epsilon(double T){
+double WCP::LAr::epsilon(double T){
   double a = 4.12568;
   double rho = Ldensity(T)/39.948/units::g*pow(units::cm,3);
   double results = (-1.-2.*a*rho)/(-1+a*rho);
@@ -361,7 +361,7 @@ double WireCell::LAr::epsilon(double T){
 }
 
 
-double WireCell::LAr::Enthalpy(double T){
+double WCP::LAr::Enthalpy(double T){
   T/=units::kelvin;
   double a = 7.98304;
   double b = -0.0481275;
@@ -375,7 +375,7 @@ double WireCell::LAr::Enthalpy(double T){
   return H * 1000*units::joule/units::mole;
 }
 
-double WireCell::LAr::IsoCom(double T){
+double WCP::LAr::IsoCom(double T){
   double rcp = Cp(T); // kJ/kg/K
   double rcv = Cv(T); // kJ/kg/K
   double rss = SpeedofSound(T); // m/s
@@ -386,7 +386,7 @@ double WireCell::LAr::IsoCom(double T){
   //units cm^2 * dyne ...
 }
 
-double WireCell::LAr::Cv(double T){
+double WCP::LAr::Cv(double T){
   T/=units::kelvin;
   double a = 0.29934286;
   double b = 8.953781;
@@ -395,7 +395,7 @@ double WireCell::LAr::Cv(double T){
   return results* 1000 * units::joule/ units::kilogram /units::kelvin; 
 }
 
-double WireCell::LAr::Cp(double T){
+double WCP::LAr::Cp(double T){
   T/=units::kelvin;
   double a = 2.126910;
   double b = -0.02416936;
@@ -404,7 +404,7 @@ double WireCell::LAr::Cp(double T){
   return results * 1000 * units::joule/ units::kilogram /units::kelvin;
 }
 
-double WireCell::LAr::SpeedofSound(double T){
+double WCP::LAr::SpeedofSound(double T){
   T/=units::kelvin;
   double a = 1327.6370386;
   double b = -7.4603194;
@@ -413,7 +413,7 @@ double WireCell::LAr::SpeedofSound(double T){
   return results * units::m/units::second;
 }
 
-double WireCell::LAr::Viscosity(double T){
+double WCP::LAr::Viscosity(double T){
   double a = -0.390176214;
   double b = -65.2768756;
   double c = 1.215505389;
@@ -425,13 +425,13 @@ double WireCell::LAr::Viscosity(double T){
 }
 
 
-double WireCell::LAr::vDarIonV(double T, double E){
+double WCP::LAr::vDarIonV(double T, double E){
   
   E = E * 1000. / (units::volt/units::cm);
   double results = 0.432 * E * 0.01 / (Viscosity(T)/(1e-6 * units::pascal * units::second));
   return results * units::mm/units::second;
 }
-double WireCell::LAr::vDarIon(double T, double E){
+double WCP::LAr::vDarIon(double T, double E){
   T = T/units::kelvin;
   E = E * 1000. / (units::volt/units::cm); // V/cm ...
   double a = -1.6024763e-3;
@@ -444,7 +444,7 @@ double WireCell::LAr::vDarIon(double T, double E){
 
 
 
-double WireCell::LAr::VPressure(double T){
+double WCP::LAr::VPressure(double T){
   double a = -5.9409785;
   double b = 1.3553888;
   double c = -0.46497607;
@@ -459,7 +459,7 @@ double WireCell::LAr::VPressure(double T){
   return p;
 }
 
-double WireCell::LAr::Ldensity(double T){
+double WCP::LAr::Ldensity(double T){
   double a = 1.5004262;
   double b = -0.31381290;
   double c = 0.086461622;
@@ -475,7 +475,7 @@ double WireCell::LAr::Ldensity(double T){
   return rho ;
 }
 
-double WireCell::LAr::Gdensity(double T){
+double WCP::LAr::Gdensity(double T){
   double a = -1.70695656;
   double b = -4.02739448;
   double c = 1.55177558;

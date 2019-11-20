@@ -1,11 +1,11 @@
-#include "WireCellData/PhotonLibrary.h"
+#include "WCPData/PhotonLibrary.h"
 
 #include "TGraph.h"
 #include "TChain.h"
 
 #include <iostream>
 
-WireCell::Photon_Library::Photon_Library(int run_no, bool flag_data, bool flag_add_light_yield_err){
+WCP::Photon_Library::Photon_Library(int run_no, bool flag_data, bool flag_add_light_yield_err){
   rel_light_yield_err = 0;
   scaling_light_mag = 0.01 * 1.5;
   Double_t yield_run_no[37]={5590, 5934, 6207, 6427, 6617, 6854, 7059, 7305, 7648, 8199, 8518, 8871, 9209, 9468, 9652, 10478, 10701, 10924, 11197, 11605, 11816, 12021, 12344, 12505, 13521, 13725, 14034, 14256, 14527, 14773, 15013, 15426, 15922, 16218, 16643, 16977, 17417};

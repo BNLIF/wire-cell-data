@@ -1,10 +1,10 @@
-#include "WireCellData/GeomCell.h"
+#include "WCPData/GeomCell.h"
 
 #include <vector>
 #include <cmath>
 
 using namespace std;
-using namespace WireCell;
+using namespace WCP;
 
 GeomCell::GeomCell(int ident, const PointVector& boundary, int flag)
     : _ident(ident)
@@ -92,9 +92,9 @@ GeomCell::~GeomCell()
   //_edge.clear();
 }
 
-std::ostream & WireCell::operator<<(std::ostream &os, const GeomCell& gc)
+std::ostream & WCP::operator<<(std::ostream &os, const GeomCell& gc)
 {
-    return os << "<WireCell::GeomCell " << gc.ident() << ">";
+    return os << "<WCP::GeomCell " << gc.ident() << ">";
 }
 
 double GeomCell::cross_section() const

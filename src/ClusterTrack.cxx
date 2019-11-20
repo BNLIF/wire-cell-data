@@ -1,9 +1,9 @@
-#include "WireCellData/Singleton.h"
-#include "WireCellData/TPCParams.h"
-#include "WireCellData/ClusterTrack.h"
+#include "WCPData/Singleton.h"
+#include "WCPData/TPCParams.h"
+#include "WCPData/ClusterTrack.h"
 #include "TVector3.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 
 ClusterTrack::ClusterTrack(MergeSpaceCell *cell){

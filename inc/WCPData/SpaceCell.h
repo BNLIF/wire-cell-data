@@ -1,0 +1,66 @@
+#ifndef SpaceWCPData_Cell_h
+#define SpaceWCPData_Cell_h
+
+#include "WCPData/Units.h"
+#include "WCPData/Point.h"
+#include "WCPData/GeomCell.h"
+
+#include <set>
+#include <vector>
+#include <iostream>
+#include <list>
+
+namespace WCP {
+
+    /** WCP::Cell - information about one space cell
+     */
+    class SpaceCell {
+    public:
+      SpaceCell(int ncluster, const GeomCell& cell, double x, double q, double thickness);
+
+      ~SpaceCell(){cell = 0;};
+	
+      double x(){return _x;};
+      double y(){return cell->center().y;};
+      double z(){return cell->center().z;};
+      float q(){return _q;};
+      double area(){return cell->cross_section();};
+      //   int ncluster(){return _ncluster;};
+      float thickness(){return _thickness;};
+      PointVector boundary() const{return cell->boundary();};
+      const GeomCell* get_cell(){return cell;};
+      const GeomWire* get_uwire(){return cell->get_uwire();};
+      const GeomWire* get_vwire(){return cell->get_vwire();};
+      const GeomWire* get_wwire(){return cell->get_wwire();};
+      
+      /* double x(){return _x;}; */
+      /* double y(){return _y;}; */
+      /* double z(){return ;}; */
+      /* float q(){return _q;}; */
+      /* double area(){return cell->cross_section();}; */
+      /* //   int ncluster(){return _ncluster;}; */
+      /* float thickness(){return _thickness;}; */
+      /* PointVector boundary() const{return cell->boundary();}; */
+      /* const GeomCell* get_cell(){return cell;}; */
+            
+
+    protected:
+      const GeomCell *cell;
+      float _q;
+      float _thickness;
+      double _x;
+      // int _ncluster;    
+
+
+      /* double _x,_y,_z,_q; */
+      /* double _thickness; */
+      /* double _area; */
+      /* PointVector _boundary; */
+      /* int _ncluster; */
+      
+};
+    
+    /// Used to temporarily collect some subset
+    typedef std::vector<WCP::SpaceCell*> SpaceCellSelection;
+}
+#endif

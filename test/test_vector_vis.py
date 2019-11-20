@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import ROOT
-from ROOT.WireCell import D3FloatVector as Vector, box_intersection
+from ROOT.WCP import D3FloatVector as Vector, box_intersection
 
 
 class Display:

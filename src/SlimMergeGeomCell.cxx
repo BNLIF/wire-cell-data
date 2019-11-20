@@ -1,18 +1,18 @@
-#include "WireCellData/SlimMergeGeomCell.h"
-#include "WireCellData/Singleton.h"
-#include "WireCellData/TPCParams.h"
+#include "WCPData/SlimMergeGeomCell.h"
+#include "WCPData/Singleton.h"
+#include "WCPData/TPCParams.h"
 
 #include "TVector3.h"
 
-using namespace WireCell;
+using namespace WCP;
 
-WireCell::SlimMergeGeomCell::SlimMergeGeomCell(int ident)
+WCP::SlimMergeGeomCell::SlimMergeGeomCell(int ident)
   : _ident(ident)
   , time_slice(-1)
 {
 }
 
-WireCell::SlimMergeGeomCell::~SlimMergeGeomCell(){
+WCP::SlimMergeGeomCell::~SlimMergeGeomCell(){
   uwires.clear();
   vwires.clear();
   wwires.clear();
@@ -81,7 +81,7 @@ bool SlimMergeGeomCell::IsSame(SlimMergeGeomCell *mcell1){
   
 }
 
-float WireCell::SlimMergeGeomCell::Estimate_minimum_charge(){
+float WCP::SlimMergeGeomCell::Estimate_minimum_charge(){
   float u_charge = 0;
   float v_charge = 0;
   float w_charge = 0;
@@ -121,7 +121,7 @@ float WireCell::SlimMergeGeomCell::Estimate_minimum_charge(){
   return min_charge;
 }
 
-float WireCell::SlimMergeGeomCell::Estimate_total_charge(){
+float WCP::SlimMergeGeomCell::Estimate_total_charge(){
   float total_charge = 0;
   float count = 0;
   if (find(bad_planes.begin(),bad_planes.end(),WirePlaneType_t(0))==bad_planes.end()){
@@ -148,7 +148,7 @@ float WireCell::SlimMergeGeomCell::Estimate_total_charge(){
   return total_charge;
 }
 
-float WireCell::SlimMergeGeomCell::Get_Wire_Charge(const GeomWire *wire){
+float WCP::SlimMergeGeomCell::Get_Wire_Charge(const GeomWire *wire){
   if (wirechargemap.find(wire)!=wirechargemap.end()){
     return wirechargemap[wire];
   }else{
@@ -156,7 +156,7 @@ float WireCell::SlimMergeGeomCell::Get_Wire_Charge(const GeomWire *wire){
   }
 }
 
-float WireCell::SlimMergeGeomCell::Get_Wire_Charge_Err(const GeomWire *wire){
+float WCP::SlimMergeGeomCell::Get_Wire_Charge_Err(const GeomWire *wire){
   if (wirechargeerrmap.find(wire)!=wirechargeerrmap.end()){
     return wirechargeerrmap[wire];
   }else{
@@ -165,39 +165,39 @@ float WireCell::SlimMergeGeomCell::Get_Wire_Charge_Err(const GeomWire *wire){
 }
 
 
-void WireCell::SlimMergeGeomCell::add_bad_planes(WirePlaneType_t plane){
+void WCP::SlimMergeGeomCell::add_bad_planes(WirePlaneType_t plane){
   if (find(bad_planes.begin(),bad_planes.end(),plane)!=bad_planes.end()){
   }else{
     bad_planes.push_back(plane);
   }
 }
 
-void WireCell::SlimMergeGeomCell::AddBoundary(const PointVector& boundary){
+void WCP::SlimMergeGeomCell::AddBoundary(const PointVector& boundary){
   _boundary = boundary;
   flag_center = 0;
   order_boundary();
 }
 
-void WireCell::SlimMergeGeomCell::AddSamplingPoints(const PointVector& sampling_points){
+void WCP::SlimMergeGeomCell::AddSamplingPoints(const PointVector& sampling_points){
   sample_points = sampling_points;
 }
 
-void WireCell::SlimMergeGeomCell::AddSamplingPointsWires(std::vector<std::tuple<int,int,int>>& sampling_points_wires){
+void WCP::SlimMergeGeomCell::AddSamplingPointsWires(std::vector<std::tuple<int,int,int>>& sampling_points_wires){
   sample_points_wires = sampling_points_wires;
 }
 
-void WireCell::SlimMergeGeomCell::SetMaxWireInterval(WirePlaneType_t type, int value){
+void WCP::SlimMergeGeomCell::SetMaxWireInterval(WirePlaneType_t type, int value){
   max_wire_interval = value;
   max_wire_type = type;
 }
 
-void WireCell::SlimMergeGeomCell::SetMinWireInterval(WirePlaneType_t type, int value){
+void WCP::SlimMergeGeomCell::SetMinWireInterval(WirePlaneType_t type, int value){
   min_wire_interval = value;
   min_wire_type = type;
 }
 
 
-void WireCell::SlimMergeGeomCell::AddWire(const GeomWire *wire, WirePlaneType_t plane, float charge, float charge_err){
+void WCP::SlimMergeGeomCell::AddWire(const GeomWire *wire, WirePlaneType_t plane, float charge, float charge_err){
   if (plane == WirePlaneType_t(0)){
     if (find(uwires.begin(),uwires.end(),wire)==uwires.end()){
       uwires.push_back(wire);
@@ -223,14 +223,14 @@ void WireCell::SlimMergeGeomCell::AddWire(const GeomWire *wire, WirePlaneType_t 
 }
 
 
-void WireCell::SlimMergeGeomCell::OrderWires(){
-  WireCell::sort_by_ident(uwires);
-  WireCell::sort_by_ident(vwires);
-  WireCell::sort_by_ident(wwires);
+void WCP::SlimMergeGeomCell::OrderWires(){
+  WCP::sort_by_ident(uwires);
+  WCP::sort_by_ident(vwires);
+  WCP::sort_by_ident(wwires);
 }
 
 
-bool WireCell::SlimMergeGeomCell::Overlap(WireCell::SlimMergeGeomCell* cell, float num) {
+bool WCP::SlimMergeGeomCell::Overlap(WCP::SlimMergeGeomCell* cell, float num) {
 
   double cut_limit = 1.2;
   
@@ -321,7 +321,7 @@ bool WireCell::SlimMergeGeomCell::Overlap(WireCell::SlimMergeGeomCell* cell, flo
 }
 
 
-bool WireCell::SlimMergeGeomCell::Overlap_fast( WireCell::SlimMergeGeomCell* cell, int offset) {
+bool WCP::SlimMergeGeomCell::Overlap_fast( WCP::SlimMergeGeomCell* cell, int offset) {
   // std::cout << uwires.size() << " " << vwires.size() << " " << wwires.size() << " "
   // 	    << cell->get_uwires().size() << " " << cell->get_vwires().size() << " " << cell->get_wwires().size() << std::endl;
   
@@ -352,7 +352,7 @@ bool WireCell::SlimMergeGeomCell::Overlap_fast( WireCell::SlimMergeGeomCell* cel
   return true;   
 }
 
-bool WireCell::SlimMergeGeomCell::IsPointGood(int index_u, int index_v, int index_w, int ncut){
+bool WCP::SlimMergeGeomCell::IsPointGood(int index_u, int index_v, int index_w, int ncut){
   float charge_u = 0;
   float charge_v = 0;
   float charge_w = 0;
@@ -374,7 +374,7 @@ bool WireCell::SlimMergeGeomCell::IsPointGood(int index_u, int index_v, int inde
   return false;
 }
 
-bool WireCell::SlimMergeGeomCell::Adjacent( WireCell::SlimMergeGeomCell* cell)  {
+bool WCP::SlimMergeGeomCell::Adjacent( WCP::SlimMergeGeomCell* cell)  {
   int u_low_index = uwires.front()->index();
   int u_high_index = uwires.back()->index();
 

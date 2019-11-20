@@ -1,9 +1,9 @@
-#include "WireCellData/MergeGeomWire.h"
+#include "WCPData/MergeGeomWire.h"
 
 #include <vector>
 #include <cmath>
 using namespace std;
-using namespace WireCell;
+using namespace WCP;
 
 
 MergeGeomWire::MergeGeomWire(int ident, GeomWireSelection wires){
@@ -24,7 +24,7 @@ MergeGeomWire::MergeGeomWire(int ident, GeomWireSelection wires){
   }
 }
 
-MergeGeomWire::MergeGeomWire(int ident, const WireCell::GeomWire& wire)
+MergeGeomWire::MergeGeomWire(int ident, const WCP::GeomWire& wire)
 {
   _ident = ident;
   _plane = wire.plane();
@@ -40,7 +40,7 @@ MergeGeomWire::MergeGeomWire(int ident, const WireCell::GeomWire& wire)
   
 }
 
-MergeGeomWire::MergeGeomWire(const WireCell::MergeGeomWire& wire)
+MergeGeomWire::MergeGeomWire(const WCP::MergeGeomWire& wire)
 {
   _ident = wire.ident();
   _plane = wire.plane();
@@ -55,7 +55,7 @@ MergeGeomWire::MergeGeomWire(const WireCell::MergeGeomWire& wire)
   wire_all = wire.get_allwire();
 }
 
-MergeGeomWire::MergeGeomWire(int ident, const WireCell::MergeGeomWire& wire)
+MergeGeomWire::MergeGeomWire(int ident, const WCP::MergeGeomWire& wire)
 {
   _ident = ident;
   _plane = wire.plane();
@@ -74,7 +74,7 @@ MergeGeomWire::~MergeGeomWire(){
   wire_all.clear();
 }
 
-int MergeGeomWire::AddWire(const WireCell::GeomWire& wire){
+int MergeGeomWire::AddWire(const WCP::GeomWire& wire){
   if (wire.plane() == _plane){
     auto it = find(wire_all.begin(),wire_all.end(),&wire);
     if (it == wire_all.end())
@@ -92,7 +92,7 @@ void MergeGeomWire::order_wires(){
   }
 }
 
-int MergeGeomWire::AddWire(WireCell::MergeGeomWire& wire){
+int MergeGeomWire::AddWire(WCP::MergeGeomWire& wire){
   if (wire.plane() == _plane){
  
     GeomWireSelection wires2 = wire.get_allwire();

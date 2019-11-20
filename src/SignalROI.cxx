@@ -1,8 +1,8 @@
-#include "WireCellData/SignalROI.h"
+#include "WCPData/SignalROI.h"
 
 #include <algorithm>
 
-using namespace WireCell;
+using namespace WCP;
 
 SignalROI::SignalROI(WirePlaneType_t plane, int chid, int start_bin, int end_bin, TH1F *h1)
   : plane(plane)

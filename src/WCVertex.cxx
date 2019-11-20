@@ -1,6 +1,6 @@
-#include "WireCellData/WCVertex.h"
-#include "WireCellData/Singleton.h"
-#include "WireCellData/TPCParams.h"
+#include "WCPData/WCVertex.h"
+#include "WCPData/Singleton.h"
+#include "WCPData/TPCParams.h"
 
 #include "Minuit2/FunctionMinimum.h"
 #include "Minuit2/MnUserParameterState.h"
@@ -10,7 +10,7 @@
 //#include "Minuit2/MnPlot.h"
 #include "TVector3.h"
 
-using namespace WireCell;
+using namespace WCP;
 
 WCVertex::WCVertex(MergeSpaceCell& msc)
   : msc(&msc)
