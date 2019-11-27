@@ -23,6 +23,7 @@ namespace WCP{
     std::vector<double>& get_reduced_chi2(){return reduced_chi2;};
 
     std::pair<double, WCP::Point> get_closest_point(WCP::Point &p); 
+    std::tuple<double, double, double> get_closest_2d_dis(WCP::Point &p); 
     
     WCP::TrackInfo* get_parent_track(){return parent_track;};
     std::vector<WCP::TrackInfo*> get_daughter_tracks(){return daughter_tracks;};

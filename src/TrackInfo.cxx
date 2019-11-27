@@ -27,6 +27,14 @@ std::pair<double, WCP::Point> TrackInfo::get_closest_point(WCP::Point &p){
   return pcloud->get_closest_point(p);
 }
 
+std::tuple<double, double, double> TrackInfo::get_closest_2d_dis(WCP::Point &p){
+  std::pair<int, double> results_u = pcloud->get_closest_2d_dis(p, 0);
+  std::pair<int, double> results_v = pcloud->get_closest_2d_dis(p, 1);
+  std::pair<int, double> results_w = pcloud->get_closest_2d_dis(p, 2);
+
+  return std::make_tuple(results_u.second, results_v.second, results_w.second);
+}
+
 
 bool TrackInfo::AddTrackInfo(WCP::TrackInfo* track, WCP::Point& pos, WCP::Point& self_pos, bool isparent){
   if (isparent){
