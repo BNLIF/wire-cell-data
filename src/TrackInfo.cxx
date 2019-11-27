@@ -26,3 +26,28 @@ TrackInfo::~TrackInfo(){
 std::pair<double, WCP::Point> TrackInfo::get_closest_point(WCP::Point &p){
   return pcloud->get_closest_point(p);
 }
+
+
+bool TrackInfo::AddTrackInfo(WCP::TrackInfo* track, WCP::Point& pos, WCP::Point& self_pos, bool isparent){
+  if (isparent){
+    // parent tracks ...
+    if (parent_track != 0) return false;
+    parent_track = track;
+    map_track_points[track] = std::make_pair(pos, self_pos);
+  }else{
+    //daughter tracks ...
+    daughter_tracks.push_back(track);
+    map_track_points[track] = std::make_pair(pos, self_pos);
+  }
+  return true;
+}
+
+std::pair<bool, std::pair<WCP::Point, WCP::Point> > TrackInfo::get_track_points(WCP::TrackInfo* track){
+  auto it = map_track_points.find(track);
+
+  if (it == map_track_points.end()){
+    return std::make_pair(false,std::make_pair(WCP::Point(0,0,0), WCP::Point(0,0,0)) );
+  }else{
+    return std::make_pair(true, it->second);
+  }
+}

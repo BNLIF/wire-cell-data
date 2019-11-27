@@ -27,8 +27,10 @@ namespace WCP{
     WCP::TrackInfo* get_parent_track(){return parent_track;};
     std::vector<WCP::TrackInfo*> get_daughter_tracks(){return daughter_tracks;};
 
-  
-    
+   bool AddTrackInfo(WCP::TrackInfo* track, WCP::Point& pos, WCP::Point& self_pos, bool isparent=false);
+
+   std::pair<bool, std::pair<WCP::Point, WCP::Point> > get_track_points(WCP::TrackInfo* track);
+   
   protected:
     WCP::PointVector tracking_path;
     std::vector<double> dQ;
@@ -46,7 +48,8 @@ namespace WCP{
     WCP::TrackInfo* parent_track;
     std::vector<WCP::TrackInfo*> daughter_tracks;
 
-
+    // 
+    std::map<WCP::TrackInfo*, std::pair<WCP::Point, WCP::Point> > map_track_points;
     
   };
 
