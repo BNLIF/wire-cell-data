@@ -59,3 +59,30 @@ std::pair<bool, std::pair<WCP::Point, WCP::Point> > TrackInfo::get_track_points(
     return std::make_pair(true, it->second);
   }
 }
+
+double TrackInfo::get_track_length(){
+  double length = 0;
+  for (auto it = dx.begin(); it!= dx.end(); it++){
+    length += *it;
+  }
+  return length;
+}
+
+double TrackInfo::get_medium_dQ_dx(){
+  std::vector<double> vec_dQ_dx;
+  for (size_t i = 0 ; i!=dQ.size(); i++){
+    vec_dQ_dx.push_back(dQ.at(i)/(dx.at(i)+1e-9));
+  }
+  std::nth_element(vec_dQ_dx.begin(), vec_dQ_dx.begin() + vec_dQ_dx.size()/2, vec_dQ_dx.end());
+  return *std::next(vec_dQ_dx.begin(), vec_dQ_dx.size()/2);
+}
+
+double TrackInfo::get_track_length_threshold(double threshold){
+  double length = 0;
+  for (size_t i = 0 ; i!=dQ.size(); i++){
+    double dQ_dx = dQ.at(i)/(dx.at(i)+1e-9);
+    if (dQ_dx > threshold)
+      length += dx.at(i);
+  }
+  return length;
+}

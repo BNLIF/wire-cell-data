@@ -32,6 +32,10 @@ namespace WCP{
 
    std::pair<bool, std::pair<WCP::Point, WCP::Point> > get_track_points(WCP::TrackInfo* track);
    
+   double get_medium_dQ_dx();
+   double get_track_length();
+   double get_track_length_threshold(double dQ_dx=75000./units::cm);
+   
   protected:
     WCP::PointVector tracking_path;
     std::vector<double> dQ;
