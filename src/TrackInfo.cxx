@@ -60,10 +60,20 @@ std::pair<bool, std::pair<WCP::Point, WCP::Point> > TrackInfo::get_track_points(
   }
 }
 
-double TrackInfo::get_track_length(){
+double TrackInfo::get_track_length(int flag){
   double length = 0;
-  for (auto it = dx.begin(); it!= dx.end(); it++){
-    length += *it;
+  if (flag==1){
+    for (auto it = dx.begin(); it!= dx.end(); it++){
+      //std::cout << length << " " << *it << std::endl;
+      length += *it;
+    }
+  }else{
+    for (size_t i=0;i+1<tracking_path.size();i++){
+      length += sqrt(pow(tracking_path.at(i+1).x - tracking_path.at(i).x,2) +
+		     pow(tracking_path.at(i+1).y - tracking_path.at(i).y,2) +
+		     pow(tracking_path.at(i+1).z - tracking_path.at(i).z,2)
+		     );
+    }
   }
   return length;
 }
