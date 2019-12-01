@@ -81,6 +81,7 @@ double TrackInfo::get_track_length_threshold(double threshold){
   double length = 0;
   for (size_t i = 0 ; i!=dQ.size(); i++){
     double dQ_dx = dQ.at(i)/(dx.at(i)+1e-9);
+    //    std::cout << dQ_dx/50000*units::cm << std::endl;
     if (dQ_dx > threshold)
       length += dx.at(i);
   }
