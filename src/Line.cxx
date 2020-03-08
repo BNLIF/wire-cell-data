@@ -8,7 +8,7 @@ Line::Line(Point& p1, Point& p2)
 {
   update_dir();
 }
-
+Line
 Line::Line(Point& p1, TVector3& dir)
   : p1(p1)
   , dir(dir)
