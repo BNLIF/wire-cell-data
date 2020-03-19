@@ -78,9 +78,11 @@ namespace WCP{
     
 
     void Print();
+
+    std::vector<std::pair<size_t,double>> get_closest_index(WCP::Point& p, int N);
     
   protected:
-    std::vector<std::pair<size_t,double>> get_closest_index(WCP::Point& p, int N);
+
     std::vector<std::pair<size_t,double>> get_closest_index(WCP::Point& p, double radius);
 
     
