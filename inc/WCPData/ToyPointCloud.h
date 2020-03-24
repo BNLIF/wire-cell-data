@@ -34,6 +34,8 @@ namespace WCP{
     // build point cloud
     void AddPoint(WCPointCloud<double>::WCPoint& wcp, WC2DPointCloud<double>::WC2DPoint& wcp_u, WC2DPointCloud<double>::WC2DPoint& wcp_v, WC2DPointCloud<double>::WC2DPoint& wcp_w);
     void AddPoint(WCP::Point& p, std::tuple<int,int,int>& wires_index, WCP::SlimMergeGeomCell *mcell);
+    void AddPoint(WCPointCloud<double>::WCPoint& wcp);
+    
     void AddPoints(WCP::PointVector& ps, std::vector<std::tuple<int,int,int>>& wires_indices, WCP::SlimMergeGeomCell *mcell);
     void AddPoints(WCP::PointVector& ps);
     void build_kdtree_index();

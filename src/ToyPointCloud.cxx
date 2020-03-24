@@ -222,7 +222,38 @@ void WCP::ToyPointCloud::AddPoint(Point& p, std::tuple<int,int,int>& wires_index
   
 }
 
+void WCP::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& p){
+  WCPointCloud<double>::WCPoint point;
+  point.x = p.x;
+  point.y = p.y;
+  point.z = p.z;
 
+  point.index_u = 0;
+  point.index_v = 0;
+  point.index_w = 0;
+    
+  point.mcell = 0;
+  point.index =cloud.pts.size();
+  
+  WC2DPointCloud<double>::WC2DPoint point_u;
+  point_u.x = p.x;
+  point_u.y = cos(angle_u) * p.z - sin(angle_u) *p.y;
+  point_u.index = cloud_u.pts.size();
+  WC2DPointCloud<double>::WC2DPoint point_v;
+  point_v.x = p.x;
+  point_v.y = cos(angle_v) * p.z - sin(angle_v) *p.y;
+  point_v.index = cloud_v.pts.size();
+  
+  WC2DPointCloud<double>::WC2DPoint point_w;
+  point_w.x = p.x;
+  point_w.y = cos(angle_w) * p.z - sin(angle_w) *p.y;
+  point_w.index = cloud_w.pts.size();
+  
+  cloud.pts.push_back(point);
+  cloud_u.pts.push_back(point_u);
+  cloud_v.pts.push_back(point_v);
+  cloud_w.pts.push_back(point_w);
+}
 
 void WCP::ToyPointCloud::AddPoints(PointVector& ps){
   size_t current_size = cloud.pts.size();
