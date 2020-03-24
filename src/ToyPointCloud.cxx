@@ -174,8 +174,6 @@ void WCP::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& wcp, WC2DPointC
   cloud_u.pts.push_back(wcp_u);
   cloud_v.pts.push_back(wcp_v);
   cloud_w.pts.push_back(wcp_w);
-
-  
   
 }
 
