@@ -58,6 +58,10 @@ namespace WCP{
     double get_closest_2d_dis(double x, double y, int plane);
     
     std::pair<double, WCP::Point> get_closest_point(WCP::Point& p);
+
+    std::vector<WCP::WCPointCloud<double>::WCPoint > get_closest_wcpoints(WCP::Point& p, int N);
+    std::vector<WCP::WCPointCloud<double>::WCPoint > get_closest_wcpoints(WCP::Point& p, double radius);
+    
     
     WCP::WCPointCloud<double>::WCPoint& get_closest_wcpoint(WCP::WCPointCloud<double>::WCPoint& wcp);
     WCP::WCPointCloud<double>::WCPoint& get_closest_wcpoint(WCP::Point& p);

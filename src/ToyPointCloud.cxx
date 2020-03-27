@@ -642,6 +642,24 @@ std::pair<double, WCP::Point> WCP::ToyPointCloud::get_closest_point(WCP::Point& 
   return std::make_pair(sqrt(results.front().second),p1);
 }
 
+std::vector<WCP::WCPointCloud<double>::WCPoint >  WCP::ToyPointCloud::get_closest_wcpoints(WCP::Point& p, int N){
+  std::vector<std::pair<size_t,double>> results = get_closest_index(p,N);
+  std::vector<WCP::WCPointCloud<double>::WCPoint > results_1;
+  for (auto it = results.begin(); it!= results.end(); it++){
+    size_t index = (*it).first;
+    results_1.push_back(cloud.pts[index]);
+  }
+  return results_1;
+}
+std::vector<WCP::WCPointCloud<double>::WCPoint >  WCP::ToyPointCloud::get_closest_wcpoints(WCP::Point& p, double radius){
+  std::vector<std::pair<size_t,double>> results = get_closest_index(p,radius);
+  std::vector<WCP::WCPointCloud<double>::WCPoint > results_1;
+  for (auto it = results.begin(); it!= results.end(); it++){
+    size_t index = (*it).first;
+    results_1.push_back(cloud.pts[index]);
+  }
+  return results_1;
+}
 
 
 std::vector<std::pair<WCP::SlimMergeGeomCell*,Point>> WCP::ToyPointCloud::get_closest_points(WCP::Point& p, int N){
