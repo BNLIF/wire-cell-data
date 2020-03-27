@@ -1,3 +1,6 @@
+#ifndef WIRECELL_TPCPARAMS_H
+#define WIRECELL_TPCPARAMS_H
+
 namespace WCP{
   class TPCParams {
     double m_pitch_u; // wire pitch u
@@ -83,3 +86,6 @@ namespace WCP{
     // etc for other parameters you need
   };
  }
+
+
+#endif 
