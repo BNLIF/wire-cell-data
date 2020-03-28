@@ -222,6 +222,18 @@ std::vector<std::pair<size_t,double>> ToyCTPointCloud::get_closest_index(WCP::Po
   }
   return ret_matches;
 }
+double ToyCTPointCloud::get_ave_charge(WCP::Point& p, double radius, int plane){
+  double sum_charge = 0;
+  double ncount = 0;
+  WCP::CTPointCloud<double> pts = get_closest_points(p, radius, plane);
+  // std::cout << pts.pts.size() << std::endl;
+  for (size_t i=0;i!=pts.pts.size(); i++){
+    sum_charge += pts.pts.at(i).charge;
+    ncount ++;
+  }
+  if (ncount!=0) sum_charge/=ncount;
+  return sum_charge;
+}
 
 std::vector<int>  ToyCTPointCloud::test_good_point(WCP::Point& p, double radius, int ch_range){
   std::vector<int> num_planes;//[6]={0,0,0,0,0,0};
