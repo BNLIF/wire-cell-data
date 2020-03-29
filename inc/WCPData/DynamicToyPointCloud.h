@@ -29,6 +29,9 @@ namespace WCP{
     ~DynamicToyPointCloud();
 
     void AddPoints(PR3DCluster* cluster, int flag=0, double step = 0.6*units::cm); // flag 1 points, flag 2 scheleton
+    void AddPoints(PointVector& pts, double step = 0.6*units::cm); // directly add points ...
+    void AddPoints(ToyPointCloud* point_cloud, double step = 0.6*units::cm);
+    
     void AddPoints(PR3DCluster* cluster, Point& p_test, TVector3& dir, double range, double step, double angle);
 
     std::tuple<double, PR3DCluster*, size_t> get_closest_point_info(WCP::Point& p);
