@@ -1,6 +1,10 @@
 #ifndef WIRECELL_TPCPARAMS_H
 #define WIRECELL_TPCPARAMS_H
 
+#include "TGraph.h"
+#include "TString.h"
+#include "WCPData/Point.h"
+
 namespace WCP{
   class TPCParams {
     double m_pitch_u; // wire pitch u
@@ -20,23 +24,12 @@ namespace WCP{
     int nrebin;
     int time_offset;
 
-    
+    bool flag_corr;
+    TGraph *gu, *gv, *gw;
     
   public:
-    // set defaults
-  TPCParams() : m_pitch_u(3)
-      , m_pitch_v(3)
-      , m_pitch_w(3)
-      , m_ts_width(3.2)
-      , m_angle_u(1.0472)
-      , m_angle_v(-1.0472)
-      , m_angle_w(0)
-      , first_u_dis(0)
-      , first_v_dis(0)
-      , first_w_dis(0)
-      , nrebin(4) 
-      , time_offset(4)
-      {};
+    TPCParams();
+    ~TPCParams();
 
     //set/get u first dis
     void set_first_u_dis(double p){ first_u_dis = p;}
@@ -49,8 +42,6 @@ namespace WCP{
     //set/get u first dis
     void set_first_w_dis(double p){ first_w_dis = p;}
     double get_first_w_dis(){return first_w_dis;}
-
-    
     
     // set/get u pitches
     void set_pitch_u(double p) { m_pitch_u = p; }
@@ -84,8 +75,12 @@ namespace WCP{
 
     void set_nrebin(int p){nrebin = p;};
     int get_nrebin(){return nrebin;};
+
+    bool get_flag_corr(){return flag_corr;};
     
     // etc for other parameters you need
+    void init_corr_files(TString file_u="input_data_files/calib_u_corr.txt", int ndata_u = 2401, TString file_v="input_data_files/calib_v_corr.txt", int ndata_v = 2401, TString file_w="input_data_files/calib_w_corr.txt", int ndata_w = 3457);
+    double get_corr_factor(WCP::Point& p, double offset_u, double slope_yu, double slope_zu, double offset_v, double slope_yv, double slope_zv, double offset_w, double slope_yw, double slope_zw);
   };
  }
 
