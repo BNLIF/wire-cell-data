@@ -23,7 +23,7 @@ WCP::TPCParams::TPCParams()
   , gv(0)
   , gw(0)
 {
-  init_corr_files();
+  //init_corr_files();
 };
 
 WCP::TPCParams::~TPCParams(){
