@@ -9,6 +9,13 @@ using namespace WCP;
 WCP::SlimMergeGeomCell::SlimMergeGeomCell(int ident)
   : _ident(ident)
   , time_slice(-1)
+  , uq(0)
+  , udq(0)
+  , vq(0)
+  , vdq(0)
+  , wq(0)
+  , wdq(0)
+  , q(0)
 {
 }
 
