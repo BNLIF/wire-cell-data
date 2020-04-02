@@ -31,6 +31,7 @@ namespace WCP{
     
     std::vector<int> test_good_point(WCP::Point& p, double radius = 0.6*units::cm, int ch_range = 1);
     double get_ave_charge(WCP::Point& p, double radius = 0.3*units::cm, int plane = 0);
+    double get_ave_3d_charge(WCP::Point& p, double radius = 0.3*units::cm);
     
     WCP::CTPointCloud<double> get_closest_points(WCP::Point& p, double radius, int plane);
     bool get_closest_dead_chs(WCP::Point& p, int plane, int ch_range=1);
