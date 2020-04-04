@@ -1,4 +1,6 @@
 #include "WCPData/TPCParams.h"
+#include "TFile.h"
+
 #include <fstream>
 #include <iostream>
 
@@ -22,6 +24,10 @@ WCP::TPCParams::TPCParams()
   , gu(0)
   , gv(0)
   , gw(0)
+  , g_proton(0)
+  , g_muon(0)
+  , g_pion(0)
+  , g_kaon(0)
 {
   //init_corr_files();
 };
@@ -30,6 +36,26 @@ WCP::TPCParams::~TPCParams(){
   if (gu!=0) delete gu;
   if (gv!=0) delete gv;
   if (gw!=0) delete gw;
+
+  if (g_proton!=0) delete g_proton;
+  if (g_muon!=0) delete g_muon;
+  if (g_pion!=0) delete g_pion;
+  if (g_kaon!=0) delete g_kaon;
+}
+
+void WCP::TPCParams::init_PID_dq_dx(TString filename){
+  if (g_proton!=0) delete g_proton;
+  if (g_muon!=0) delete g_muon;
+  if (g_pion!=0) delete g_pion;
+  if (g_kaon!=0) delete g_kaon;
+  
+  TFile *file = new TFile("./input_data_files/stopping_ave_dQ_dx.root");
+  g_muon = (TGraph*)file->Get("muon");
+  g_pion = (TGraph*)file->Get("pion");
+  g_kaon = (TGraph*)file->Get("kaon");
+  g_proton = (TGraph*)file->Get("proton");
+
+  file->Close();
 }
 
 void WCP::TPCParams::init_corr_files(TString file_u , int ndata_u, TString file_v, int ndata_v, TString file_w, int ndata_w){

@@ -26,6 +26,9 @@ namespace WCP{
 
     bool flag_corr;
     TGraph *gu, *gv, *gw;
+
+    TGraph *g_proton, *g_muon, *g_pion, *g_kaon;
+    
     
   public:
     TPCParams();
@@ -81,6 +84,14 @@ namespace WCP{
     // etc for other parameters you need
     void init_corr_files(TString file_u="input_data_files/calib_u_corr.txt", int ndata_u = 2401, TString file_v="input_data_files/calib_v_corr.txt", int ndata_v = 2401, TString file_w="input_data_files/calib_w_corr.txt", int ndata_w = 3457);
     double get_corr_factor(WCP::Point& p, double offset_u, double slope_yu, double slope_zu, double offset_v, double slope_yv, double slope_zv, double offset_w, double slope_yw, double slope_zw);
+
+    void init_PID_dq_dx(TString filename = "input_data_files/stopping_ave_dQ_dx.root");
+
+    TGraph* get_pion_dq_dx(){return g_pion;};
+    TGraph* get_proton_dq_dx(){return g_proton;};
+    TGraph* get_muon_dq_dx(){return g_muon;};
+    TGraph* get_kaon_dq_dx(){return g_kaon;};
+    
   };
  }
 
