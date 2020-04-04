@@ -28,6 +28,7 @@ WCP::TPCParams::TPCParams()
   , g_muon(0)
   , g_pion(0)
   , g_kaon(0)
+  , g_electron(0)
 {
   //init_corr_files();
 };
@@ -38,6 +39,7 @@ WCP::TPCParams::~TPCParams(){
   if (gw!=0) delete gw;
 
   if (g_proton!=0) delete g_proton;
+  if (g_electron!=0) delete g_electron;
   if (g_muon!=0) delete g_muon;
   if (g_pion!=0) delete g_pion;
   if (g_kaon!=0) delete g_kaon;
@@ -45,6 +47,7 @@ WCP::TPCParams::~TPCParams(){
 
 void WCP::TPCParams::init_PID_dq_dx(TString filename){
   if (g_proton!=0) delete g_proton;
+  if (g_electron!=0) delete g_electron;
   if (g_muon!=0) delete g_muon;
   if (g_pion!=0) delete g_pion;
   if (g_kaon!=0) delete g_kaon;
@@ -54,7 +57,7 @@ void WCP::TPCParams::init_PID_dq_dx(TString filename){
   g_pion = (TGraph*)file->Get("pion");
   g_kaon = (TGraph*)file->Get("kaon");
   g_proton = (TGraph*)file->Get("proton");
-
+  g_electron = (TGraph*)file->Get("electron");
   file->Close();
 }
 

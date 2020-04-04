@@ -27,7 +27,7 @@ namespace WCP{
     bool flag_corr;
     TGraph *gu, *gv, *gw;
 
-    TGraph *g_proton, *g_muon, *g_pion, *g_kaon;
+    TGraph *g_proton, *g_muon, *g_pion, *g_kaon, *g_electron;
     
     
   public:
@@ -91,7 +91,7 @@ namespace WCP{
     TGraph* get_proton_dq_dx(){return g_proton;};
     TGraph* get_muon_dq_dx(){return g_muon;};
     TGraph* get_kaon_dq_dx(){return g_kaon;};
-    
+    TGraph *get_electron_dq_dx(){return g_electron;};
   };
  }
 
