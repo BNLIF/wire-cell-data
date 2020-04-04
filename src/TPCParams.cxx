@@ -1,5 +1,7 @@
 #include "WCPData/TPCParams.h"
+#include "WCPData/Units.h"
 #include "TFile.h"
+
 
 #include <fstream>
 #include <iostream>
@@ -29,6 +31,17 @@ WCP::TPCParams::TPCParams()
   , g_pion(0)
   , g_kaon(0)
   , g_electron(0)
+  , mass_proton(938.272*units::MeV)
+  , mass_muon(105.658*units::MeV)
+  , mass_pion(139.571*units::MeV)
+  , mass_neutral_pion(134.977*units::MeV)
+  , mass_kaon(493.677*units::MeV)
+  , mass_electron(0.511*units::MeV)
+  , g_proton_r2ke(0)
+  , g_muon_r2ke(0)
+  , g_pion_r2ke(0)
+  , g_kaon_r2ke(0)
+  , g_electron_r2ke(0)
 {
   //init_corr_files();
 };
@@ -43,22 +56,42 @@ WCP::TPCParams::~TPCParams(){
   if (g_muon!=0) delete g_muon;
   if (g_pion!=0) delete g_pion;
   if (g_kaon!=0) delete g_kaon;
+  
+  if (g_proton_r2ke!=0) delete g_proton_r2ke;
+  if (g_electron_r2ke!=0) delete g_electron_r2ke;
+  if (g_muon_r2ke!=0) delete g_muon_r2ke;
+  if (g_pion_r2ke!=0) delete g_pion_r2ke;
+  if (g_kaon_r2ke!=0) delete g_kaon_r2ke;
 }
 
-void WCP::TPCParams::init_PID_dq_dx(TString filename){
+void WCP::TPCParams::init_PID_dq_dx(TString filename, TString filename1){
   if (g_proton!=0) delete g_proton;
   if (g_electron!=0) delete g_electron;
   if (g_muon!=0) delete g_muon;
   if (g_pion!=0) delete g_pion;
   if (g_kaon!=0) delete g_kaon;
+
+  if (g_proton_r2ke!=0) delete g_proton_r2ke;
+  if (g_electron_r2ke!=0) delete g_electron_r2ke;
+  if (g_muon_r2ke!=0) delete g_muon_r2ke;
+  if (g_pion_r2ke!=0) delete g_pion_r2ke;
+  if (g_kaon_r2ke!=0) delete g_kaon_r2ke;
   
-  TFile *file = new TFile("./input_data_files/stopping_ave_dQ_dx.root");
+  TFile *file = new TFile(filename);
   g_muon = (TGraph*)file->Get("muon");
   g_pion = (TGraph*)file->Get("pion");
   g_kaon = (TGraph*)file->Get("kaon");
   g_proton = (TGraph*)file->Get("proton");
   g_electron = (TGraph*)file->Get("electron");
   file->Close();
+
+  TFile *file1 = new TFile(filename1);
+  g_muon_r2ke = (TGraph*)file1->Get("muon");
+  g_pion_r2ke = (TGraph*)file1->Get("pion");
+  g_kaon_r2ke = (TGraph*)file1->Get("kaon");
+  g_proton_r2ke = (TGraph*)file1->Get("proton");
+  g_electron_r2ke = (TGraph*)file1->Get("electron");
+  file1->Close();
 }
 
 void WCP::TPCParams::init_corr_files(TString file_u , int ndata_u, TString file_v, int ndata_v, TString file_w, int ndata_w){

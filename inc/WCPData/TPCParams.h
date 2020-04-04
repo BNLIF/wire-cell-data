@@ -28,11 +28,27 @@ namespace WCP{
     TGraph *gu, *gv, *gw;
 
     TGraph *g_proton, *g_muon, *g_pion, *g_kaon, *g_electron;
+
+    double mass_proton;
+    double mass_muon;
+    double mass_pion;
+    double mass_neutral_pion;
+    double mass_kaon;
+    double mass_electron;
     
+    TGraph *g_proton_r2ke, *g_muon_r2ke, *g_pion_r2ke, *g_kaon_r2ke, *g_electron_r2ke;
     
   public:
     TPCParams();
     ~TPCParams();
+
+    double get_mass_proton(){return mass_proton;};
+    double get_mass_kaon(){return mass_kaon;};
+    double get_mass_pion(){return mass_pion;};
+    double get_mass_muon(){return mass_muon;};
+    double get_mass_pi0(){return mass_neutral_pion;};
+    double get_mass_electron(){return mass_electron;};
+    
 
     //set/get u first dis
     void set_first_u_dis(double p){ first_u_dis = p;}
@@ -85,13 +101,19 @@ namespace WCP{
     void init_corr_files(TString file_u="input_data_files/calib_u_corr.txt", int ndata_u = 2401, TString file_v="input_data_files/calib_v_corr.txt", int ndata_v = 2401, TString file_w="input_data_files/calib_w_corr.txt", int ndata_w = 3457);
     double get_corr_factor(WCP::Point& p, double offset_u, double slope_yu, double slope_zu, double offset_v, double slope_yv, double slope_zv, double offset_w, double slope_yw, double slope_zw);
 
-    void init_PID_dq_dx(TString filename = "input_data_files/stopping_ave_dQ_dx.root");
-
+    void init_PID_dq_dx(TString filename = "input_data_files/stopping_ave_dQ_dx.root", TString filename1 = "input_data_files/ave_range_to_kenergy.root");
+    
     TGraph* get_pion_dq_dx(){return g_pion;};
     TGraph* get_proton_dq_dx(){return g_proton;};
     TGraph* get_muon_dq_dx(){return g_muon;};
     TGraph* get_kaon_dq_dx(){return g_kaon;};
     TGraph *get_electron_dq_dx(){return g_electron;};
+
+    TGraph* get_pion_r2ke(){return g_pion_r2ke;};
+    TGraph* get_proton_r2ke(){return g_proton_r2ke;};
+    TGraph* get_muon_r2ke(){return g_muon_r2ke;};
+    TGraph* get_kaon_r2ke(){return g_kaon_r2ke;};
+    TGraph *get_electron_r2ke(){return g_electron_r2ke;};
   };
  }
 
