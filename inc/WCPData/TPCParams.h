@@ -30,6 +30,7 @@ namespace WCP{
     TGraph *g_proton, *g_muon, *g_pion, *g_kaon, *g_electron;
 
     double mass_proton;
+    double mass_neutron;
     double mass_muon;
     double mass_pion;
     double mass_neutral_pion;
@@ -43,6 +44,7 @@ namespace WCP{
     ~TPCParams();
 
     double get_mass_proton(){return mass_proton;};
+    double get_mass_neutron(){return mass_neutron;};
     double get_mass_kaon(){return mass_kaon;};
     double get_mass_pion(){return mass_pion;};
     double get_mass_muon(){return mass_muon;};
