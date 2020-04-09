@@ -651,6 +651,26 @@ std::vector<WCP::WCPointCloud<double>::WCPoint >  WCP::ToyPointCloud::get_closes
   }
   return results_1;
 }
+
+WCP::Point WCP::ToyPointCloud::get_center_point_radius(WCP::Point& p, double radius){
+  std::vector<std::pair<size_t,double>> results = get_closest_index(p,radius);
+  WCP::Point center(0,0,0);
+  int ncount = 0;
+  for (auto it = results.begin(); it!= results.end(); it++){
+    size_t index = (*it).first;
+    center.x += cloud.pts[index].x;
+    center.y += cloud.pts[index].y;
+    center.z += cloud.pts[index].z;
+    ncount ++;
+  }
+  if (ncount >0){
+    center.x /= ncount;
+    center.y /= ncount;
+    center.z /= ncount;
+  }
+  return center; 
+}
+
 std::vector<WCP::WCPointCloud<double>::WCPoint >  WCP::ToyPointCloud::get_closest_wcpoints(WCP::Point& p, double radius){
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,radius);
   std::vector<WCP::WCPointCloud<double>::WCPoint > results_1;

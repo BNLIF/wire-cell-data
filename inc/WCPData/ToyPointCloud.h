@@ -61,6 +61,8 @@ namespace WCP{
 
     std::vector<WCP::WCPointCloud<double>::WCPoint > get_closest_wcpoints(WCP::Point& p, int N);
     std::vector<WCP::WCPointCloud<double>::WCPoint > get_closest_wcpoints(WCP::Point& p, double radius);
+
+    WCP::Point get_center_point_radius(WCP::Point& p, double radius);
     
     
     WCP::WCPointCloud<double>::WCPoint& get_closest_wcpoint(WCP::WCPointCloud<double>::WCPoint& wcp);
