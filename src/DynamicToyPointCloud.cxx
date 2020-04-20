@@ -27,7 +27,9 @@ WCP::DynamicToyPointCloud::~DynamicToyPointCloud(){
   cloud_w.pts.clear();
 }
 
-
+int WCP::DynamicToyPointCloud::get_num_points(){
+  return cloud.pts.size();
+}
 
 std::vector<std::pair<size_t,double>> WCP::DynamicToyPointCloud::get_closest_index(WCP::Point& p, int N){
   const size_t num_results = N;

@@ -48,6 +48,7 @@ namespace WCP{
     TVector3 VHoughTrans(Point& p, double dis);
 
     WCP::WCPointCloud<double>& get_cloud(){return cloud;};
+    int get_num_points();
     
   protected:
     std::vector<std::pair<size_t,double>> get_closest_index(WCP::Point& p, int N); 
