@@ -47,6 +47,30 @@ double Line::closest_dis(Line &l1){
   return fabs(dis);
 }
 
+std::pair<Point, Point> Line::closest_dis_points(Line &l1){
+  TVector3 d(p1.x-l1.get_p1().x,p1.y-l1.get_p1().y,p1.z-l1.get_p1().z);
+  TVector3 c = dir.Cross(l1.get_dir()).Unit();
+  TVector3 proj = d.Dot(l1.get_dir())/l1.get_dir().Mag() * l1.get_dir().Unit();
+  TVector3 rej = d - proj - d.Dot(c)/c.Mag()*c.Unit();
+  
+  Point tp1;
+  tp1.x = p1.x - rej.Mag() * dir.Unit().X()/dir.Unit().Dot(rej.Unit());
+  tp1.y = p1.y - rej.Mag() * dir.Unit().Y()/dir.Unit().Dot(rej.Unit());
+  tp1.z = p1.z - rej.Mag() * dir.Unit().Z()/dir.Unit().Dot(rej.Unit());
+
+  TVector3 d_p = -d;
+  TVector3 c_p = -c;
+  TVector3 proj_p = d_p.Dot(dir)/dir.Mag() * dir.Unit();
+  TVector3 rej_p = d_p - proj_p - d_p.Dot(c_p)/c_p.Mag()*c_p.Unit();
+  
+  Point tp2;
+  tp2.x = l1.get_p1().x - rej_p.Mag() * l1.get_dir().Unit().X()/l1.get_dir().Unit().Dot(rej_p.Unit());
+  tp2.y = l1.get_p1().y - rej_p.Mag() * l1.get_dir().Unit().Y()/l1.get_dir().Unit().Dot(rej_p.Unit());
+  tp2.z = l1.get_p1().z - rej_p.Mag() * l1.get_dir().Unit().Z()/l1.get_dir().Unit().Dot(rej_p.Unit());
+
+  // std::cout << sqrt(pow(tp1.x-tp2.x,2) + pow(tp1.y-tp2.y,2) + pow(tp1.z-tp2.z,2)) << std::endl;
+  return std::make_pair(tp1, tp2);
+}
 
 void Line::UpdatePoint(int flag, Point &p3){
   if (flag == 1){

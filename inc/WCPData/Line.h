@@ -15,6 +15,7 @@ namespace WCP {
 
     double closest_dis(Point &p3);
     double closest_dis(Line &l1);
+    std::pair<Point, Point> closest_dis_points(Line &l1);
     
     TVector3& get_dir(){return dir;};
     Point& get_p1(){return p1;};
