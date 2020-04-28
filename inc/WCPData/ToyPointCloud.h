@@ -56,6 +56,7 @@ namespace WCP{
 
     double get_closest_dis(WCP::Point& p);
     double get_closest_2d_dis(double x, double y, int plane);
+    std::pair<double, int> get_closest_2d_dis_index(double x, double y, int plane);
     
     std::pair<double, WCP::Point> get_closest_point(WCP::Point& p);
 
