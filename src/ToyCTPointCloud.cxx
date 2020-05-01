@@ -149,11 +149,68 @@ void ToyCTPointCloud::AddPoints(std::vector<int> *timesliceId, std::vector<std::
   
 }
 
+void ToyCTPointCloud::UpdateDeadChs(){
+  std::map<int, std::pair<double, double> > live_uchs;
+  std::map<int, std::pair<double, double> > live_vchs;
+  std::map<int, std::pair<double, double> > live_wchs;
+  for (size_t i=0;i!=cloud_u.pts.size();i++){
+    int ch = std::round(cloud_u.pts.at(i).channel);
+    double xpos = (cloud_u.pts.at(i).time_slice - offset_t)/slope_t;
+    if (live_uchs.find(ch) == live_uchs.find(ch)){
+      live_uchs[ch] = std::make_pair(xpos - 0.1*units::cm, xpos + 0.1*units::cm);
+    }else{
+      if (xpos + 0.1*units::cm > live_uchs[ch].second) live_uchs[ch].second = xpos+0.1*units::cm;
+      if (xpos - 0.1*units::cm < live_uchs[ch].first) live_uchs[ch].first = xpos - 0.1*units::cm;
+    }
+  }
+  for (size_t i=0;i!=cloud_v.pts.size();i++){
+    int ch = std::round(cloud_v.pts.at(i).channel)-2400;
+    double xpos = (cloud_v.pts.at(i).time_slice - offset_t)/slope_t;
+    if (live_vchs.find(ch) == live_vchs.find(ch)){
+      live_vchs[ch] = std::make_pair(xpos - 0.1*units::cm, xpos + 0.1*units::cm);
+    }else{
+      if (xpos + 0.1*units::cm > live_vchs[ch].second) live_vchs[ch].second = xpos+0.1*units::cm;
+      if (xpos - 0.1*units::cm < live_vchs[ch].first) live_vchs[ch].first = xpos - 0.1*units::cm;
+    }
+  }
+ for (size_t i=0;i!=cloud_w.pts.size();i++){
+    int ch = std::round(cloud_w.pts.at(i).channel)-4800;
+    double xpos = (cloud_w.pts.at(i).time_slice - offset_t)/slope_t;
+    if (live_wchs.find(ch) == live_wchs.find(ch)){
+      live_wchs[ch] = std::make_pair(xpos - 0.1*units::cm, xpos + 0.1*units::cm);
+    }else{
+      if (xpos + 0.1*units::cm > live_wchs[ch].second) live_wchs[ch].second = xpos+0.1*units::cm;
+      if (xpos - 0.1*units::cm < live_wchs[ch].first) live_wchs[ch].first = xpos - 0.1*units::cm;
+    }
+  }
+
+ for (auto it = live_vchs.begin(); it != live_vchs.end(); it++){
+   int ch = it->first;
+   //   std::cout << "A: " << ch << std::endl;
+
+   if (dead_vchs.find(ch) != dead_vchs.end())
+     std::cout << ch << " " << it->second.first << " " << it->second.second << " " << dead_vchs[ch].first << " " << dead_vchs[ch].second << std::endl;
+ }
+ 
+
+ for (auto it = dead_vchs.begin(); it != dead_vchs.end(); it++){
+   int ch = it->first;
+   std::cout << "B: " << ch << std::endl;
+ }
+  
+}
 
 void ToyCTPointCloud::AddDeadChs(std::map<int,std::pair<double,double> >& dead_u_index, std::map<int,std::pair<double,double> >& dead_v_index, std::map<int,std::pair<double,double> >& dead_w_index){
   dead_uchs = dead_u_index;
   dead_vchs = dead_v_index;
   dead_wchs = dead_w_index;
+
+
+  // examine a bit dead channels ...
+  //double min_xpos = (min_time-offset_t)/slope_t;
+  //double max_xpos = (max_time-offset_t)/slope_t;
+  // point.channel = ch;
+  //point.time_slice = time_slice;
   
 }
 

@@ -21,6 +21,7 @@ namespace WCP{
     void AddPoint(int ch, int time_sice, int charge, int charge_err);
     void AddPoints(std::vector<int> *timesliceId, std::vector<std::vector<int>> *timesliceChannel, std::vector<std::vector<int>> *raw_charge , std::vector<std::vector<int>> *raw_charge_err);
     void AddDeadChs(std::map<int,std::pair<double,double> >& dead_u_index, std::map<int,std::pair<double,double> >& dead_v_index, std::map<int,std::pair<double,double> >& dead_w_index);
+    void UpdateDeadChs();
     void build_kdtree_index();
 
     int get_num_points(int plane);
