@@ -264,6 +264,8 @@ std::vector<std::pair<size_t,double>> ToyCTPointCloud::get_closest_index(WCP::Po
     x = p.x;
     y = cos(angle_w) * p.z - sin(angle_w) *p.y;
   }
+  //  std::cout << x << " " << y << " " << plane << std::endl;
+  
   double query_pt[2];
   query_pt[0] = x;
   query_pt[1] = y;
