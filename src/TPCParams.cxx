@@ -301,6 +301,46 @@ void WCP::TPCParams::init_Pos_Efield_SCE_correction(TString filename)
 
 }
 
+Point WCP::TPCParams::func_pos_SCE_correction(Point& pos){
+  const double x_length = 256;
+  const double y_length = 232.5;
+  const double z_length = 1037;
+    
+  const double scale_x = 2.50/2.56;
+  const double scale_y = 2.50/2.33;
+  const double scale_z = 10.0/10.37;
+
+  double p1_x = pos.x/units::cm;
+  double p1_y = pos.y/units::cm;
+  double p1_z = pos.z/units::cm;
+  
+  /////////////////////////////////////////////// p1
+
+  p1_y += y_length/2;
+
+  if( p1_x<0.001 )    p1_x = 0.001;
+  if( p1_x>255.999 )  p1_x = 255.999 -0.001;
+  if( p1_y<0.001 )    p1_y = 0.001;
+  if( p1_y>232.499 )  p1_y = 232.499 -0.001;
+  if( p1_z<0.001 )    p1_z = 0.001;
+  if( p1_z>1036.999 ) p1_z = 1036.999 -0.001;
+
+  double CorrWorld_p1_x = 2.50 - scale_x*(p1_x/100.0);
+  double CorrWorld_p1_y = scale_y*( p1_y/100. );
+  double CorrWorld_p1_z = scale_z*( p1_z/100. );
+
+  double corr_p1_x = h3_Dx->Interpolate(CorrWorld_p1_x, CorrWorld_p1_y, CorrWorld_p1_z);
+  double corr_p1_y = h3_Dy->Interpolate(CorrWorld_p1_x, CorrWorld_p1_y, CorrWorld_p1_z);
+  double corr_p1_z = h3_Dz->Interpolate(CorrWorld_p1_x, CorrWorld_p1_y, CorrWorld_p1_z);
+
+  p1_x = p1_x - corr_p1_x/scale_x;
+  p1_y = p1_y + corr_p1_y/scale_y;
+  p1_z = p1_z + corr_p1_z/scale_z;
+
+  Point p(p1_x*units::cm, p1_y*units::cm, p1_z*units::cm);
+  return p;
+}
+
 double WCP::TPCParams::func_dx_after_Pos_Efield_SCE_correction(double p1_x, double p1_y, double p1_z, double pA_x, double pA_y, double pA_z, double p2_x, double p2_y, double p2_z)// unit:: cm,  p1 --> pA --> p2
 {
   double result = 1;
