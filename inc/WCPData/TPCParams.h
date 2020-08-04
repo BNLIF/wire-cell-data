@@ -5,6 +5,8 @@
 #include "TString.h"
 #include "WCPData/Point.h"
 
+#include "TH3.h"
+
 namespace WCP{
   class TPCParams {
     double m_pitch_u; // wire pitch u
@@ -38,11 +40,24 @@ namespace WCP{
     double mass_electron;
     
     TGraph *g_proton_r2ke, *g_muon_r2ke, *g_pion_r2ke, *g_kaon_r2ke, *g_electron_r2ke;
-    
+
+    bool flag_PosEfield_corr;
+    /* TH3F *hDx; */
+    /* TH3F *hDy; */
+    /* TH3F *hDz; */
+    /* TH3F *hEx; */
+    /* TH3F *hEy; */
+    /* TH3F *hEz; */    
+    TH3D *h3_Dx;
+    TH3D *h3_Dy;
+    TH3D *h3_Dz;
+    TH3D *h3_Ex;
+    TH3D *h3_Ey;
+    TH3D *h3_Ez;
   public:
     TPCParams();
     ~TPCParams();
-
+    
     double get_mass_proton(){return mass_proton;};
     double get_mass_neutron(){return mass_neutron;};
     double get_mass_kaon(){return mass_kaon;};
@@ -51,6 +66,27 @@ namespace WCP{
     double get_mass_pi0(){return mass_neutral_pion;};
     double get_mass_electron(){return mass_electron;};
     
+    // Position and E-field correction for SCE
+    void init_Pos_Efield_SCE_correction(TString filename="input_data_files/SCEoffsets_dataDriven_combined_bkwd_Jan18.root");
+    bool get_flag_PosEfield_corr() { return flag_PosEfield_corr; }
+    double func_dx_after_Pos_Efield_SCE_correction(double p1_x, double p1_y, double p1_z, double pA_x, double pA_y, double pA_z, double p2_x, double p2_y, double p2_z);// unit:: cm,  p1 --> pA --> p2
+    double func_dx_after_Pos_Efield_SCE_correction(double p1_x, double p1_y, double p1_z, double pA_x, double pA_y, double pA_z);// unit:: cm,  p1 --> pA
+
+
+    double func_dQdx_from_dEdx_by_ArgoNeut_model(double dEdx, double e, double alpha, double beta)
+{
+  double result = log(alpha + beta/1.38/e*dEdx)/(23.6e-6*beta/1.38/e);
+  return result;
+}
+
+    double func_dEdx_from_dQdx(double dQdx, double e, double alpha, double beta)
+{
+  double result = exp( dQdx * beta * 23.6e-6/1.38/e ) - alpha;
+  result = result/( beta/1.38/e );
+  return result;
+}
+
+    double func_dQdx_after_Pos_Efield_SCE_correction(double pA_x, double pA_y, double pA_z, double dQ, double dx);
 
     //set/get u first dis
     void set_first_u_dis(double p){ first_u_dis = p;}
