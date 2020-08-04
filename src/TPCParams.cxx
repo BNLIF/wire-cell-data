@@ -297,7 +297,7 @@ void WCP::TPCParams::init_Pos_Efield_SCE_correction(TString filename)
 
   file->Close();
 
-  flag_PosEfield_corr = true;
+  //flag_PosEfield_corr = true;
 
 }
 
@@ -334,7 +334,7 @@ Point WCP::TPCParams::func_pos_SCE_correction(Point& pos){
   double corr_p1_z = h3_Dz->Interpolate(CorrWorld_p1_x, CorrWorld_p1_y, CorrWorld_p1_z);
 
   p1_x = p1_x - corr_p1_x/scale_x;
-  p1_y = p1_y + corr_p1_y/scale_y;
+  p1_y = p1_y + corr_p1_y/scale_y - y_length/2;
   p1_z = p1_z + corr_p1_z/scale_z;
 
   Point p(p1_x*units::cm, p1_y*units::cm, p1_z*units::cm);

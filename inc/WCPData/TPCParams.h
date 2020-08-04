@@ -72,7 +72,10 @@ namespace WCP{
     double func_dx_after_Pos_Efield_SCE_correction(double p1_x, double p1_y, double p1_z, double pA_x, double pA_y, double pA_z, double p2_x, double p2_y, double p2_z);// unit:: cm,  p1 --> pA --> p2
     double func_dx_after_Pos_Efield_SCE_correction(double p1_x, double p1_y, double p1_z, double pA_x, double pA_y, double pA_z);// unit:: cm,  p1 --> pA
 
+    void set_flag_PosEfield_corr(bool val){flag_PosEfield_corr = val;};
+									
     Point func_pos_SCE_correction(Point& pos);
+    
 
     double func_dQdx_from_dEdx_by_ArgoNeut_model(double dEdx, double e, double alpha, double beta)
 {
