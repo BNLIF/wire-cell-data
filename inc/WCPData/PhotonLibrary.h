@@ -12,7 +12,7 @@ namespace WCP{
     std::vector<std::list<std::pair<int,float>>> library;
     double scaling_light_mag, rel_light_yield_err;
     
-    Photon_Library(int run_no = 0, bool flag_data = true, bool flag_add_light_yield_err = false);
+    Photon_Library(double eventTime, int run_no = 0, bool flag_data = true, bool flag_add_light_yield_err = false, bool flag_timestamp = false);
   };
   
 }
