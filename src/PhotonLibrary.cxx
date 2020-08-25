@@ -135,7 +135,7 @@ WCP::Photon_Library::Photon_Library(double eventTime, int run_no, bool flag_data
       }
     }
 
-    //    std::cout << "kaka: " << scaling_additional << " " << scaling_additional_err << " " << flag_timestamp << std::endl;
+    //std::cout << "kaka: " << scaling_additional << " " << scaling_additional_err << " " << flag_timestamp << std::endl;
     
     scaling_light_mag *= scaling_additional;
     if (flag_add_light_yield_err)
