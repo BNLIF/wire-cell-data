@@ -233,10 +233,10 @@ namespace WCP{
       bool operator() (const PR3DCluster* a, const PR3DCluster* b) const {
 
 	if (a && b){
-	  if (a->get_cluster_id() != b->get_cluster_id())
-	    return a->get_cluster_id() < b->get_cluster_id();
-	  else
-	    return a < b;
+	  /* if (a->get_cluster_id() != b->get_cluster_id()) */
+	  /*   return a->get_cluster_id() < b->get_cluster_id(); */
+	  /* else */
+	  return a < b;
 	}
 	return false;
       }
