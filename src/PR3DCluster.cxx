@@ -999,8 +999,8 @@ void PR3DCluster::Establish_close_connected_graph(){
   WCP::WCPointCloud<double>& cloud = point_cloud->get_cloud();
   
   std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_uindex_wcps;
-  std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_vindex_wcps;
-  std::map<SlimMergeGeomCell*, std::map<int, std::set<int>>> map_mcell_windex_wcps;
+  std::map<SlimMergeGeomCell*, std::map<int, std::set<int>> > map_mcell_vindex_wcps;
+  std::map<SlimMergeGeomCell*, std::map<int, std::set<int>> > map_mcell_windex_wcps;
 
    for (auto it = mcells.begin(); it!=mcells.end(); it++){
     SlimMergeGeomCell *mcell = (*it);

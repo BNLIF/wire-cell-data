@@ -37,7 +37,7 @@ namespace WCP{
     void AddCell(SlimMergeGeomCell* mcell, int time_slice);
     // void AddCell(SlimMergeGeomCell* mcell, int *time_slices, int ntime_slice);
     
-    int get_cluster_id(){return cluster_id;};
+    int get_cluster_id() const{return cluster_id;};
     void set_cluster_id(int value){cluster_id=value;};
     int get_num_mcells(){return mcells.size();};
     int get_num_points(){return point_cloud->get_num_points(); };
@@ -228,7 +228,25 @@ namespace WCP{
     std::map<std::pair<int,int>,std::pair<int,int>> collected_charge_map;
     
   };
+
+  struct PR3DClusterComparep {
+      bool operator() (const PR3DCluster* a, const PR3DCluster* b) const {
+
+	if (a && b){
+	  if (a->get_cluster_id() != b->get_cluster_id())
+	    return a->get_cluster_id() < b->get_cluster_id();
+	  else
+	    return a < b;
+	}
+	return false;
+      }
+    };
+  
   typedef std::vector<PR3DCluster*> PR3DClusterSelection;
+  
+  typedef std::set<PR3DCluster*, PR3DClusterComparep> PR3DClusterSet;
+  typedef std::map<PR3DCluster*, double, PR3DClusterComparep> map_pr3dcluster_double;
+  typedef std::map<PR3DCluster*, std::vector<std::pair<WCP::PR3DCluster*,double>>, PR3DClusterComparep> map_cluster_cluster_vec;
 }
 
 #endif
