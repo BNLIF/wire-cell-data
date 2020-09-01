@@ -131,6 +131,19 @@ namespace WCP {
 	}
     };
 
+    struct GeomWireComparep{
+      	bool operator() (const GeomWire* a, const GeomWire* b) const {
+	    if (a && b) {
+	      if (a->ident() != b->ident())
+		return a->ident() < b->ident();
+	      else
+		return a < b;
+	    }
+	    return false;
+	}
+    };
+    
+    
     typedef std::pair<const GeomWire*, const GeomWire*> GeomWirePair;
 
     /// Used to store definitive, ordered set of wires
@@ -141,11 +154,11 @@ namespace WCP {
     /// Used to temporarily construct some sub-set of cells
     typedef std::vector<const GeomWire*> GeomWireSelection;
     typedef std::list<const GeomWire*> GeomWireList;
-    typedef std::set<const GeomWire*> GeomWireSetp;
+    typedef std::set<const GeomWire*, GeomWireComparep> GeomWireSetp;
 
-    typedef std::map<const GeomWire*, float> WireChargeMap; 
+    typedef std::map<const GeomWire*, float, GeomWireComparep> WireChargeMap; 
 
-    typedef std::map<const GeomWire*, int> WireIndexMap;
+    typedef std::map<const GeomWire*, int, GeomWireComparep> WireIndexMap;
 
     /// Sort a GeomWireSelection by plane+index
     void sort_by_planeindex(GeomWireSelection& ws);

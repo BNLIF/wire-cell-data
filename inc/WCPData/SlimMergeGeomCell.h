@@ -103,8 +103,21 @@ class SlimMergeGeomCell : public WCP::GeomCell{
     std::map<int, const WCP::GeomWire* > map_index_wwire;
     
   };
+
+ struct SlimMergeCellComparep {
+   bool operator() (const SlimMergeGeomCell* a, const SlimMergeGeomCell* b) const {
+     if (a && b){
+       if (a->ident() != b->ident())
+	 return a->ident() < b->ident();
+       else
+	 return a < b;
+     }
+     return false;
+   }
+ };
+ 
  typedef std::vector<SlimMergeGeomCell*> SMGCSelection;
- typedef std::set<SlimMergeGeomCell*> SMGCSet;
+ typedef std::set<SlimMergeGeomCell*, SlimMergeCellComparep> SMGCSet;
  
 }
 

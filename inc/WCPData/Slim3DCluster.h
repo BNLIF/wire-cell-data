@@ -47,7 +47,7 @@ namespace WCP {
     float get_total_charge(){return total_charge;};
     float get_min_total_charge(){return min_total_charge;};
 
-    void Form_maps(int offset, std::map<const GeomCell*, GeomCellSelection>& front_cell_map, std::map<const GeomCell*, GeomCellSelection>& back_cell_map);
+    void Form_maps(int offset, std::map<const GeomCell*, GeomCellSelection, WCP::GeomCellComparep>& front_cell_map, std::map<const GeomCell*, GeomCellSelection, WCP::GeomCellComparep>& back_cell_map);
 
     GeomCellSelection Is_Connected(Slim3DDeadCluster* cluster1 , int offset=1);
     

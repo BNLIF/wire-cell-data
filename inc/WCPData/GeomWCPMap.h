@@ -16,15 +16,15 @@ namespace WCP {
        GeomCellSet and GeomWireSet).
      */
 
-    typedef std::map<const GeomCell*, GeomWireSelection> GeomCellMap;
-    typedef std::map<const GeomWire*, GeomCellSelection> GeomWireMap;
-    typedef std::map<const GeomWire*, GeomCellList> GeomWireLMap;
+  typedef std::map<const GeomCell*, GeomWireSelection, GeomCellComparep > GeomCellMap;
+  typedef std::map<const GeomWire*, GeomCellSelection, GeomWireComparep> GeomWireMap;
+  typedef std::map<const GeomWire*, GeomCellList, GeomWireComparep> GeomWireLMap;
 
-    typedef std::map<const GeomWire*, GeomWire*> GeomWireWireMap;
-    typedef std::map<const GeomWire*, GeomWireSelection> GeomWireWiresMap;
+  typedef std::map<const GeomWire*, GeomWire*, GeomWireComparep> GeomWireWireMap;
+  typedef std::map<const GeomWire*, GeomWireSelection, GeomWireComparep> GeomWireWiresMap;
 
-    typedef std::map<const GeomCell*, GeomCell*> GeomCellCellMap;
-    typedef std::map<const GeomCell*, GeomCellSelection> GeomCellCellsMap;
+  typedef std::map<const GeomCell*, GeomCell*, GeomCellComparep > GeomCellCellMap;
+  typedef std::map<const GeomCell*, GeomCellSelection, GeomCellComparep > GeomCellCellsMap;
 }
 
 #endif

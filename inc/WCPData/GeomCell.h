@@ -80,6 +80,20 @@ namespace WCP {
       
     };
 
+    // ensure the order ...
+    struct GeomCellComparep {
+      bool operator() (const GeomCell* a, const GeomCell* b) const {
+
+	if (a && b){
+	  if (a->ident() != b->ident())
+	    return a->ident() < b->ident();
+	  else
+	    return a < b;
+	}
+	return false;
+      }
+    };
+
     /// Used to store a definitive, ordered set of cells
     typedef std::set<WCP::GeomCell, GeomCellCompare> GeomCellSet;
     
@@ -87,11 +101,11 @@ namespace WCP {
     typedef std::vector<const WCP::GeomCell*> GeomCellSelection;
     typedef std::vector<WCP::GeomCellSelection> GeomCellSelectionV;
     typedef std::list<const WCP::GeomCell*> GeomCellList;
-    typedef std::set<const WCP::GeomCell*> GeomCellSetp;
+    typedef std::set<const WCP::GeomCell*, GeomCellComparep> GeomCellSetp;
 
-    typedef std::map<const GeomCell*, float> CellChargeMap; 
+    typedef std::map<const GeomCell*, float, GeomCellComparep> CellChargeMap; 
 
-    typedef std::map<const GeomCell*, int> CellIndexMap;
+    typedef std::map<const GeomCell*, int, GeomCellComparep> CellIndexMap;
     typedef std::map<const Edge*, const GeomCell*> EdgeCellMap;
 }
 #endif

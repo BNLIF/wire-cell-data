@@ -227,7 +227,7 @@ int Slim3DCluster::AddCell(SlimMergeGeomCell &cell,int offset){
 }
 
 
-void Slim3DCluster::Form_maps(int offset, std::map<const GeomCell*, GeomCellSelection>& front_cell_map, std::map<const GeomCell*, GeomCellSelection>& back_cell_map){
+void Slim3DCluster::Form_maps(int offset, std::map<const GeomCell*, GeomCellSelection, WCP::GeomCellComparep>& front_cell_map, std::map<const GeomCell*, GeomCellSelection, WCP::GeomCellComparep>& back_cell_map){
 
   //  front_cell_map.clear();
   //  back_cell_map.clear();
