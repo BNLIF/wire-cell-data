@@ -2,8 +2,9 @@
 
 using namespace WCP;
 
-Projected2DCluster::Projected2DCluster(WirePlaneType_t plane_no, int id)
-  : plane_no(plane_no)
+Projected2DCluster::Projected2DCluster(int ident, WirePlaneType_t plane_no, int id)
+  : ident(ident)
+  , plane_no(plane_no)
   , parent_cluster_id(id)
   , estimated_total_charge(0)
 {

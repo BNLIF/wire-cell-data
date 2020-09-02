@@ -14,7 +14,7 @@ namespace WCP {
 
   class Slim3DCluster {
   public:
-    Slim3DCluster(SlimMergeGeomCell& cell);
+    Slim3DCluster(int ident, SlimMergeGeomCell& cell);
   
     ~Slim3DCluster();
 
@@ -43,7 +43,8 @@ namespace WCP {
     void set_flag_saved_w(int value){flag_saved_w = value;};
     void set_id(int value){id = value;};
     int get_id(){return id;};
-
+    int get_ident() const{return ident;};
+    
     float get_total_charge(){return total_charge;};
     float get_min_total_charge(){return min_total_charge;};
 
@@ -53,6 +54,8 @@ namespace WCP {
     
   protected:
     int id;
+
+    int ident;
     
     int flag_saved;
     int flag_saved_1;
@@ -76,7 +79,21 @@ namespace WCP {
     
   };
 
-  typedef std::set<Slim3DCluster*> Slim3DClusterSet;
+   struct Slim3DClusterComparep {
+      bool operator() (const Slim3DCluster* a, const Slim3DCluster* b) const {
+
+	if (a && b){
+	  if (a->get_ident() != b->get_ident())
+	    return a->get_ident() < b->get_ident();
+	  else
+	    return a < b;
+	}
+	return false;
+      }
+    };
+
+  
+   typedef std::set<Slim3DCluster*, Slim3DClusterComparep> Slim3DClusterSet;
   typedef std::list<Slim3DCluster*> Slim3DClusterList;
 };
 

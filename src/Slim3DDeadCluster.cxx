@@ -3,7 +3,9 @@
 using namespace std;
 using namespace WCP;
 
-Slim3DDeadCluster::Slim3DDeadCluster(SlimMergeGeomCell &cell, int time_slice){
+Slim3DDeadCluster::Slim3DDeadCluster(int ident, SlimMergeGeomCell &cell, int time_slice)
+  : ident(ident)
+{
   GeomCellSetp cells;
   cells.insert(&cell);
   cluster[time_slice] = cells;

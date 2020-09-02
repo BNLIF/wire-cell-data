@@ -11,7 +11,7 @@
 namespace WCP{
   class Projected2DCluster{
   public:
-    Projected2DCluster(WirePlaneType_t plane_no, int id);
+    Projected2DCluster(int ident, WirePlaneType_t plane_no, int id);
     ~Projected2DCluster();
   
     void AddCell(SlimMergeGeomCell *mcell);
@@ -37,8 +37,10 @@ namespace WCP{
     void set_estimated_total_charge(float value){estimated_total_charge = value;};
     float get_estimated_total_charge(){return estimated_total_charge;};
     int calc_dead_time_wire();
+    int get_ident() const{return ident;};
     
   protected:
+    int ident;
     float estimated_total_charge;
     int parent_cluster_id;
     //GeomCell *parent_cell;
@@ -56,6 +58,19 @@ namespace WCP{
     std::map<int,std::list<std::pair<int,int>>> dead_time_wires_map;
     
     std::map<std::pair<int,int>,float> time_wire_charge_map;
+  };
+
+  struct Projected2DClusterComparep {
+    bool operator() (const Projected2DCluster* a, const Projected2DCluster* b) const {
+      
+      if (a && b){
+	if (a->get_ident() != b->get_ident())
+	  return a->get_ident() < b->get_ident();
+	else
+	  return a < b;
+      }
+      return false;
+    }
   };
 }
 

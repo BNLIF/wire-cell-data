@@ -3,7 +3,7 @@
 using namespace std;
 using namespace WCP;
 
-Slim3DCluster::Slim3DCluster(SlimMergeGeomCell &cell)
+Slim3DCluster::Slim3DCluster(int ident, SlimMergeGeomCell &cell)
   :u_proj(0)
   ,v_proj(0)
   ,w_proj(0)
@@ -13,6 +13,7 @@ Slim3DCluster::Slim3DCluster(SlimMergeGeomCell &cell)
   ,flag_saved_v(0)
   ,flag_saved_w(0)
   ,id(-1)
+  , ident(ident)
   , total_charge (0)
   , min_total_charge(0)
 {
@@ -92,9 +93,9 @@ Projected2DCluster* Slim3DCluster::get_projection(WirePlaneType_t plane){
 }
 
 void Slim3DCluster::Calc_Projection(){
-  u_proj = new Projected2DCluster(WirePlaneType_t(0),id);
-  v_proj = new Projected2DCluster(WirePlaneType_t(1),id);
-  w_proj = new Projected2DCluster(WirePlaneType_t(2),id);
+  u_proj = new Projected2DCluster(ident,WirePlaneType_t(0),id);
+  v_proj = new Projected2DCluster(ident,WirePlaneType_t(1),id);
+  w_proj = new Projected2DCluster(ident,WirePlaneType_t(2),id);
 
   total_charge = 0;
   min_total_charge = 0;
