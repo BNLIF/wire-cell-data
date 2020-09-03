@@ -10,7 +10,7 @@
 #include <vector>
 
 namespace WCP {
-  typedef std::vector<std::set<SlimMergeGeomCell*>> SlimMergeCellCluster;
+  typedef std::vector<SMGCSet> SlimMergeCellCluster;
 
   class Slim3DCluster {
   public:
@@ -94,7 +94,7 @@ namespace WCP {
 
   
    typedef std::set<Slim3DCluster*, Slim3DClusterComparep> Slim3DClusterSet;
-  typedef std::list<Slim3DCluster*> Slim3DClusterList;
+   typedef std::list<Slim3DCluster*> Slim3DClusterList;
 };
 
 #endif

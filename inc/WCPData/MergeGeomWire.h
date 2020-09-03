@@ -12,6 +12,8 @@ namespace WCP{
     MergeGeomWire(const WCP::MergeGeomWire& wire);
     ~MergeGeomWire();
 
+    // int ident() const { return _ident; }
+    
     int AddWire(const WCP::GeomWire& wire);
     int AddWire(WCP::MergeGeomWire& wire);
     int GetTimeSlice() const { return time_slice;};

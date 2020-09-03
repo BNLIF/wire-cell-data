@@ -32,6 +32,7 @@ class SlimMergeGeomCell : public WCP::GeomCell{
    
    void OrderWires();
    
+   //   int ident() const { return _ident; }
    int GetIdent() {return _ident;};
    std::vector<WirePlaneType_t> get_bad_planes(){return bad_planes;};
    void add_bad_planes(WirePlaneType_t type);
@@ -79,7 +80,7 @@ class SlimMergeGeomCell : public WCP::GeomCell{
    WCP::WireChargeMap& get_wirechargeerr_map(){return wirechargeerrmap;};
    
   protected:
-    int _ident;
+   //    int _ident;
     int time_slice;
     float uq, udq, vq, vdq, wq, wdq, q;
 

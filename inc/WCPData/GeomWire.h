@@ -54,7 +54,7 @@ namespace WCP {
 
 	/// Detector-dependent, globally unique ID number.  Negative
 	/// is illegal, not guaranteed consecutive.
-	int ident() const { return _ident; }
+       int ident() const { return _ident; }
 	/// The plane/direction enum of the wire 
 	WirePlaneType_t plane() const { return _plane; }
 	int iplane() const { return (int)_plane; }
