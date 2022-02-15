@@ -99,7 +99,7 @@ namespace WCP{
   typedef std::vector<FlashTPCBundle*> FlashTPCBundleSelection;
 
   struct FlashTPCBundleComparePtr {
-	bool operator() (FlashTPCBundle* a, FlashTPCBundle* b) {
+	bool operator() (FlashTPCBundle* a, FlashTPCBundle* b) const {
 	  if (a && b) {
 	    if (a->get_flash() && b->get_flash()){
 	      if (a->get_flash()->get_flash_id() < b->get_flash()->get_flash_id()){
