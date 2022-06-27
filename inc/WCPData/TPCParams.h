@@ -41,6 +41,10 @@ namespace WCP{
     
     TGraph *g_proton_r2ke, *g_muon_r2ke, *g_pion_r2ke, *g_kaon_r2ke, *g_electron_r2ke;
 
+    
+    double electron_lifetime; // value in ms ...
+
+    
     bool flag_PosEfield_corr;
     /* TH3F *hDx; */
     /* TH3F *hDy; */
@@ -137,6 +141,12 @@ namespace WCP{
     void set_nrebin(int p){nrebin = p;};
     int get_nrebin(){return nrebin;};
 
+
+    void set_electron_lifetime(double p){electron_lifetime = p;};
+    double get_electron_lifetime(){return electron_lifetime;};
+    double get_attenuation_ratio(double drift_time); // in ms ...
+
+    
     bool get_flag_corr(){return flag_corr;};
     
     // etc for other parameters you need

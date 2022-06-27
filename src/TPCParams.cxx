@@ -43,6 +43,7 @@ WCP::TPCParams::TPCParams()
   , g_pion_r2ke(0)
   , g_kaon_r2ke(0)
   , g_electron_r2ke(0)
+  , electron_lifetime(35)
   , h3_Dx(0)
   , h3_Dy(0)
   , h3_Dz(0)
@@ -70,6 +71,17 @@ WCP::TPCParams::~TPCParams(){
   if (g_muon_r2ke!=0) delete g_muon_r2ke;
   if (g_pion_r2ke!=0) delete g_pion_r2ke;
   if (g_kaon_r2ke!=0) delete g_kaon_r2ke;
+}
+
+double WCP::TPCParams::get_attenuation_ratio(double drift_time){
+  double ratio = 1;
+  if (drift_time < 0) drift_time = 0;
+  if (electron_lifetime >= 35){
+    return ratio;
+  }else{
+    ratio = exp(-drift_time/electron_lifetime + drift_time/35.);
+    return ratio;
+  }
 }
 
 void WCP::TPCParams::init_PID_dq_dx(TString filename, TString filename1){
