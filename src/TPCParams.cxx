@@ -43,7 +43,7 @@ WCP::TPCParams::TPCParams()
   , g_pion_r2ke(0)
   , g_kaon_r2ke(0)
   , g_electron_r2ke(0)
-  , electron_lifetime(100)
+  , electron_lifetime(1000)
   , h3_Dx(0)
   , h3_Dy(0)
   , h3_Dz(0)
@@ -76,10 +76,10 @@ WCP::TPCParams::~TPCParams(){
 double WCP::TPCParams::get_attenuation_ratio(double drift_time){
   double ratio = 1;
   if (drift_time < 0) drift_time = 0;
-  if (electron_lifetime >= 100){
+  if (electron_lifetime >= 1000){
     return ratio;
   }else{
-    ratio = exp(-drift_time/electron_lifetime + drift_time/100.);
+    ratio = exp(-drift_time/electron_lifetime + drift_time/1000.);
     return ratio;
   }
 }
