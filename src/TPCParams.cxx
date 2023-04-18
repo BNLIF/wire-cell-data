@@ -79,8 +79,8 @@ double WCP::TPCParams::get_attenuation_ratio(double drift_time){
   if (electron_lifetime >= 1000){
     return ratio;
   }else{
-    //    ratio = exp(-drift_time/electron_lifetime + drift_time/1000.);
-    ratio = exp(-drift_time/electron_lifetime );
+    ratio = exp(-drift_time/electron_lifetime + drift_time/200.);
+    // ratio = exp(-drift_time/electron_lifetime );
     return ratio;
   }
 }
