@@ -3981,6 +3981,12 @@ Point PR3DCluster::calc_ave_pos(Point& p, double dis){
   std::map<WCP::SlimMergeGeomCell*, Point> pts = point_cloud->get_closest_mcell(p,dis);
   Point pt(0,0,0);
   double charge = 0;
+
+  // hack ...
+  //  Point temp_p(2135.94, 707.718, 1531);
+  //temp_p = temp_p - p;
+  //double dis1 = sqrt(pow(temp_p.x,2) + pow(temp_p.y,2) + pow(temp_p.z,2));
+  
   //std::cout << pts.size() << std::endl;
   for (auto it = pts.begin(); it!= pts.end(); it++){
     SlimMergeGeomCell *mcell = (*it).first;
@@ -3990,7 +3996,11 @@ Point PR3DCluster::calc_ave_pos(Point& p, double dis){
     pt.y += pc.y * q;
     pt.z += pc.z * q;
     charge += q;
-    // std::cout << pc.x/units::cm << " " << pc.y/units::cm << " " << pc.z/units::cm << " " << q << " " <<
+
+    // hack
+    //if (dis1 < 1*units::mm){
+    //  std::cout << p << " (" << pc.x/units::cm << " " << pc.y/units::cm << " " << pc.z/units::cm << ") " << q << " " << pts.size() << std::endl;
+    //}
     //  sqrt(pow(pc.x-p.x,2)+pow(pc.y-p.y,2)+pow(pc.z-p.z,2))/units::cm << std::endl;
   }
   if (charge!=0){
