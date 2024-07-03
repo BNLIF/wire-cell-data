@@ -2,6 +2,7 @@
 
 using namespace WCP;
 
+
 WCP::ToyPointCloud::ToyPointCloud(double angle_u, double angle_v, double angle_w)
   : angle_u(angle_u)
   , angle_v(angle_v)
@@ -66,7 +67,6 @@ std::tuple<int,int,double> WCP::ToyPointCloud::get_closest_points(ToyPointCloud 
 
   //std::cout << cloud.pts.size() << " " << point_cloud->get_cloud().pts.size() << std::endl;
    
-  
   WCP::WCPointCloud<double>::WCPoint p1 = cloud.pts.front();
   WCP::WCPointCloud<double>::WCPoint p2 = point_cloud->get_cloud().pts.front();
   WCP::WCPointCloud<double>::WCPoint p1_save;
@@ -147,6 +147,9 @@ std::tuple<int,int,double> WCP::ToyPointCloud::get_closest_points(ToyPointCloud 
 
 WCP::WCPointCloud<double>::WCPoint& WCP::ToyPointCloud::get_closest_wcpoint(WCP::WCPointCloud<double>::WCPoint& wcp){
   Point p(wcp.x,wcp.y,wcp.z);
+
+  //std::cout << p << std::endl;
+
   std::vector<std::pair<size_t,double>> results = get_closest_index(p,1);
   return cloud.pts[results.front().first];
 }

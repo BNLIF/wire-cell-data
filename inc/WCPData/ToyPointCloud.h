@@ -23,6 +23,8 @@ typedef nanoflann::KDTreeSingleIndexAdaptor<
     2 /* dim */
   > my_kd_tree_2d_t;
 
+
+
 namespace WCP{
   
   class ToyPointCloud {
