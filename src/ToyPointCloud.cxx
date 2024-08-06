@@ -107,8 +107,8 @@ std::tuple<int,int,double> WCP::ToyPointCloud::get_closest_points(ToyPointCloud 
 
   prev_index1 = -1;
   prev_index2 = -1;
-  p1 = cloud.pts.back();
-  p2 = point_cloud->get_cloud().pts.front();
+  p1 = cloud.pts.front();
+  p2 = point_cloud->get_cloud().pts.back();
   while(p1.index!=prev_index1 || p2.index!=prev_index2){
     prev_index1 = p1.index;
     prev_index2 = p2.index;
