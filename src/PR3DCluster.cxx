@@ -473,7 +473,7 @@ void PR3DCluster::adjust_wcpoints_parallel(WCPointCloud<double>::WCPoint& start_
       flag_w = false;
     }
   }else{
-    if (high_v_wcp.index_u - low_v_wcp.index_u < high_w_wcp.index_w - low_w_wcp.index_w){
+    if (high_v_wcp.index_v - low_v_wcp.index_v < high_w_wcp.index_w - low_w_wcp.index_w){
       flag_v = false;
     }else{
       flag_w = false;
