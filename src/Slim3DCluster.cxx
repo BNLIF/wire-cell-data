@@ -90,6 +90,7 @@ Projected2DCluster* Slim3DCluster::get_projection(WirePlaneType_t plane){
   }else if(plane==WirePlaneType_t(2)){
     return w_proj;
   }
+  return u_proj;
 }
 
 void Slim3DCluster::Calc_Projection(){

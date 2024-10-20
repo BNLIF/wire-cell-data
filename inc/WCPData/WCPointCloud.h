@@ -60,8 +60,9 @@ namespace WCP{
       //  "if/else's" are actually solved at compile time.
       inline T kdtree_get_pt(const size_t idx, int dim) const
       {
-	if (dim == 0) return pts[idx].x;
-	else if (dim == 1) return pts[idx].y;
+	      if (dim == 0) return pts[idx].x;
+	      else if (dim == 1) return pts[idx].y;
+        return pts[idx].x;
       }
       
       // Optional bounding-box computation: return false to default to a standard bbox computation loop.
@@ -96,8 +97,9 @@ namespace WCP{
       //  "if/else's" are actually solved at compile time.
       inline T kdtree_get_pt(const size_t idx, int dim) const
       {
-	if (dim == 0) return pts[idx].x;
-	else if (dim == 1) return pts[idx].y;
+      	if (dim == 0) return pts[idx].x;
+	      else if (dim == 1) return pts[idx].y;
+        return pts[idx].x;
       }
       
       // Optional bounding-box computation: return false to default to a standard bbox computation loop.

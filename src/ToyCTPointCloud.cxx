@@ -239,6 +239,7 @@ int ToyCTPointCloud::get_num_points(int plane){
   }else if (plane==2){
     return cloud_w.pts.size();
   }
+  return cloud_u.pts.size();
 }
 
 CTPointCloud<double>& ToyCTPointCloud::get_cloud(int plane){
