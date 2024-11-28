@@ -1016,27 +1016,27 @@ void PR3DCluster::Establish_close_connected_graph(){
       auto v = vertex(wcp.index, *graph); // retrieve vertex descriptor
       (*graph)[v].index = wcp.index;
       if (map_uindex_wcps.find(wcp.index_u)==map_uindex_wcps.end()){
-   	std::set<int> wcps;
-   	wcps.insert(wcp.index);
-   	map_uindex_wcps[wcp.index_u] = wcps;
+        std::set<int> wcps;
+        wcps.insert(wcp.index);
+        map_uindex_wcps[wcp.index_u] = wcps;
       }else{
-   	map_uindex_wcps[wcp.index_u].insert(wcp.index);
+   	    map_uindex_wcps[wcp.index_u].insert(wcp.index);
       }
       
       if (map_vindex_wcps.find(wcp.index_v)==map_vindex_wcps.end()){
-  	std::set<int> wcps;
-  	wcps.insert(wcp.index);
-  	map_vindex_wcps[wcp.index_v] = wcps;
+        std::set<int> wcps;
+        wcps.insert(wcp.index);
+        map_vindex_wcps[wcp.index_v] = wcps;
       }else{
-  	map_vindex_wcps[wcp.index_v].insert(wcp.index);
+  	    map_vindex_wcps[wcp.index_v].insert(wcp.index);
       }
 
       if (map_windex_wcps.find(wcp.index_w)==map_windex_wcps.end()){
-  	std::set<int> wcps;
-  	wcps.insert(wcp.index);
-  	map_windex_wcps[wcp.index_w] = wcps;
+        std::set<int> wcps;
+        wcps.insert(wcp.index);
+        map_windex_wcps[wcp.index_w] = wcps;
       }else{
-  	map_windex_wcps[wcp.index_w].insert(wcp.index);
+  	    map_windex_wcps[wcp.index_w].insert(wcp.index);
       }
       
       
@@ -1096,25 +1096,25 @@ void PR3DCluster::Establish_close_connected_graph(){
       
       // go through the first map and find the ones satisfying the condition
       for (auto it2 = map_max_index_wcps->begin(); it2!=map_max_index_wcps->end(); it2++){
-   	if (fabs(it2->first - index_max_wire)<=max_wire_interval){
-   	  max_wcps_set.push_back(&(it2->second));
-   	}
+        if (fabs(it2->first - index_max_wire)<=max_wire_interval){
+          max_wcps_set.push_back(&(it2->second));
+        }
       }
       // go through the second map and find the ones satisfying the condition
       for (auto it2 = map_min_index_wcps->begin(); it2!=map_min_index_wcps->end(); it2++){
-   	if (fabs(it2->first - index_min_wire)<=min_wire_interval){
-   	  min_wcps_set.push_back(&(it2->second));
-   	}
+        if (fabs(it2->first - index_min_wire)<=min_wire_interval){
+          min_wcps_set.push_back(&(it2->second));
+        }
       }
 
       std::set<int> wcps_set1;
       std::set<int> wcps_set2;
 
       for (auto it2 = max_wcps_set.begin(); it2!=max_wcps_set.end(); it2++){
-	wcps_set1.insert((*it2)->begin(), (*it2)->end());
+	      wcps_set1.insert((*it2)->begin(), (*it2)->end());
       }
       for (auto it3 = min_wcps_set.begin(); it3!=min_wcps_set.end(); it3++){
-	wcps_set2.insert((*it3)->begin(), (*it3)->end());
+	      wcps_set2.insert((*it3)->begin(), (*it3)->end());
       }
       
       
@@ -2456,6 +2456,11 @@ void PR3DCluster::Connect_graph(){
     for (int j=0;j!=num;j++){
       for (int k=j+1;k!=num;k++){
 	index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
+
+  // Point test_p1(cloud.pts.at(std::get<0>(index_index_dis[j][k])).x,cloud.pts.at(std::get<0>(index_index_dis[j][k])).y,cloud.pts.at(std::get<0>(index_index_dis[j][k])).z);
+  // Point test_p2(cloud.pts.at(std::get<1>(index_index_dis[j][k])).x,cloud.pts.at(std::get<1>(index_index_dis[j][k])).y,cloud.pts.at(std::get<1>(index_index_dis[j][k])).z);
+  // if (get_num_mcells()==3447) std::cout << "A0: " << test_p1 << " " << test_p2 << " " << j << " " << k << " " << pt_clouds.at(j)->get_num_points() << " " << pt_clouds.at(k)->get_num_points() << " " << std::get<2>(index_index_dis[j][k])/units::cm << std::endl;
+
 	int index1 = j;
 	int index2 = k;
 	auto edge = add_edge(index1,index2, std::get<2>(index_index_dis[j][k]), temp_graph);
@@ -2608,45 +2613,58 @@ void PR3DCluster::Connect_graph(){
     // according to direction ...
     for (int j=0;j!=num;j++){
       for (int k=j+1;k!=num;k++){
-	if (std::get<0>(index_index_dis_mst[j][k])>=0){
-	  auto edge = add_edge(std::get<0>(index_index_dis_mst[j][k]),std::get<1>(index_index_dis_mst[j][k]),*graph);
-	  if (edge.second){
-	    if (std::get<2>(index_index_dis_mst[j][k])>5*units::cm){
-	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
-	    }else{
-	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
-	    }
-	  }
-	}
+        if (std::get<0>(index_index_dis_mst[j][k])>=0){
+          auto edge = add_edge(std::get<0>(index_index_dis_mst[j][k]),std::get<1>(index_index_dis_mst[j][k]),*graph);
 
-	if (std::get<0>(index_index_dis_dir_mst[j][k])>=0){
-	  if (std::get<0>(index_index_dis_dir1[j][k])>=0){
-	    auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
-	    if (edge.second){
-	      if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
-		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.2;
-		// }else if (std::get<2>(index_index_dis_dir1[j][k])>2*units::cm){
-		// 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.1;
-	      }else{
-		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
-	      }
-	    }
-	  }
-	  if (std::get<0>(index_index_dis_dir2[j][k])>=0){
-	    auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
-	    if (edge.second){
-	      if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
-		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.2;
-		// }else if(std::get<2>(index_index_dis_dir2[j][k])>2*units::cm){
-		// 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.1;
-	      }else{
-		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
-	      }
-	    }
-	  }
-	}
-	
-	
+          // Point test_p1(cloud.pts.at(std::get<0>(index_index_dis_mst[j][k])).x,cloud.pts.at(std::get<0>(index_index_dis_mst[j][k])).y,cloud.pts.at(std::get<0>(index_index_dis_mst[j][k])).z);
+          // Point test_p2(cloud.pts.at(std::get<1>(index_index_dis_mst[j][k])).x,cloud.pts.at(std::get<1>(index_index_dis_mst[j][k])).y,cloud.pts.at(std::get<1>(index_index_dis_mst[j][k])).z);
+          // if (get_num_mcells()==3447) std::cout << "A1: " << test_p1 << " " << test_p2 << " " << j << " " << k << " " << pt_clouds.at(j)->get_num_points() << " " << pt_clouds.at(k)->get_num_points() << " " << std::get<2>(index_index_dis_mst[j][k])/units::cm << std::endl;
+
+          if (edge.second){
+            if (std::get<2>(index_index_dis_mst[j][k])>5*units::cm){
+              (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
+            }else{
+              (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
+            }
+          }
+        }
+
+        if (std::get<0>(index_index_dis_dir_mst[j][k])>=0){
+          if (std::get<0>(index_index_dis_dir1[j][k])>=0){
+            auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
+
+            // Point test_p1(cloud.pts.at(std::get<0>(index_index_dis_dir1[j][k])).x,cloud.pts.at(std::get<0>(index_index_dis_dir1[j][k])).y,cloud.pts.at(std::get<0>(index_index_dis_dir1[j][k])).z);
+            // Point test_p2(cloud.pts.at(std::get<1>(index_index_dis_dir1[j][k])).x,cloud.pts.at(std::get<1>(index_index_dis_dir1[j][k])).y,cloud.pts.at(std::get<1>(index_index_dis_dir1[j][k])).z);
+            // if (get_num_mcells()==3447) std::cout << "A2: " << test_p1 << " " << test_p2 << " " << j << " " << k << " " << pt_clouds.at(j)->get_num_points() << " " << pt_clouds.at(k)->get_num_points() << " "<< std::get<2>(index_index_dis_dir1[j][k])/units::cm << std::endl;
+
+            if (edge.second){
+              if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
+                (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.2;
+                // }else if (std::get<2>(index_index_dis_dir1[j][k])>2*units::cm){
+                // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.1;
+              }else{
+               (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
+              }
+            }
+          }
+          if (std::get<0>(index_index_dis_dir2[j][k])>=0){
+            auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
+
+            // Point test_p1(cloud.pts.at(std::get<0>(index_index_dis_dir2[j][k])).x,cloud.pts.at(std::get<0>(index_index_dis_dir2[j][k])).y,cloud.pts.at(std::get<0>(index_index_dis_dir2[j][k])).z);
+            // Point test_p2(cloud.pts.at(std::get<1>(index_index_dis_dir2[j][k])).x,cloud.pts.at(std::get<1>(index_index_dis_dir2[j][k])).y,cloud.pts.at(std::get<1>(index_index_dis_dir2[j][k])).z);
+            // if (get_num_mcells()==3447) std::cout << "A3: " << test_p1 << " " << test_p2 << " " << j << " " << k <<  " " << pt_clouds.at(j)->get_num_points() << " " << pt_clouds.at(k)->get_num_points() << " " << std::get<2>(index_index_dis_dir2[j][k])/units::cm  << std::endl;
+
+            if (edge.second){
+              if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
+                (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.2;
+                // }else if(std::get<2>(index_index_dis_dir2[j][k])>2*units::cm){
+                // 	(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.1;
+              }else{
+                (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
+              }
+            }
+          }
+        }
       }
     }
     
