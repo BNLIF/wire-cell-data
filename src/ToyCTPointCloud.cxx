@@ -99,6 +99,8 @@ std::vector<int> ToyCTPointCloud::convert_3Dpoint_time_ch(WCP::Point& p){
   // U plane ... 
   double y = cos(angle_u) * p.z - sin(angle_u) *p.y;
   int ch_u = std::round(y * slope_u + offset_u + u_min_ch);
+
+  // std::cout << slope_t << " " << offset_t << " " << slope_u << " " << offset_u << " " << slope_v << " " << offset_v << " " << slope_w << " " << offset_w << std::endl;
   
   y = cos(angle_v) * p.z - sin(angle_v) *p.y;
   int ch_v = std::round(y * slope_v + offset_v + v_min_ch);
