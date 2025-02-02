@@ -1147,7 +1147,7 @@ void PR3DCluster::Establish_close_connected_graph(){
   }
 
 
-  //  std::cout << "Xin: " << num_edges << " " << N << std::endl;
+  //  std::cout << "Xin: " << num_edges << std::endl;
   
   
   
@@ -1464,6 +1464,8 @@ void PR3DCluster::Establish_close_connected_graph(){
       num_edges ++;
     }
   }
+
+  // std::cout << "Xin: " << num_edges << std::endl;
   // end of copying ... 
 }
 
@@ -1905,165 +1907,136 @@ void PR3DCluster::Connect_graph_overclustering_protection(WCP::ToyCTPointCloud& 
     // no need to have MST ... 
     for (int j=0;j!=num;j++){
       for (int k=j+1;k!=num;k++){
-  	index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
-  	if (num < 100 && pt_clouds.at(j)->get_num_points()>100 && pt_clouds.at(k)->get_num_points()>100 &&
-  	    (pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 400 ||
-  	    pt_clouds.at(j)->get_num_points()>500 && pt_clouds.at(k)->get_num_points()>500){
-  	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
-  	  WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
-  	  Point p1(wp1.x,wp1.y,wp1.z);
-  	  Point p2(wp2.x,wp2.y,wp2.z);
+        index_index_dis[j][k] = pt_clouds.at(j)->get_closest_points(pt_clouds.at(k));
+        if (num < 100 && pt_clouds.at(j)->get_num_points()>100 && pt_clouds.at(k)->get_num_points()>100 &&
+            (pt_clouds.at(j)->get_num_points()+pt_clouds.at(k)->get_num_points()) > 400 ||
+            pt_clouds.at(j)->get_num_points()>500 && pt_clouds.at(k)->get_num_points()>500){
+          WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
+          WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
+          Point p1(wp1.x,wp1.y,wp1.z);
+          Point p2(wp2.x,wp2.y,wp2.z);
+        
+          TVector3 dir1 = VHoughTrans(p1, 30*units::cm, pt_clouds.at(j));
+          TVector3 dir2 = VHoughTrans(p2, 30*units::cm, pt_clouds.at(k));
+          dir1 *= -1;
+          dir2 *= -1;
 	  
-  	  TVector3 dir1 = VHoughTrans(p1, 30*units::cm, pt_clouds.at(j));
-  	  TVector3 dir2 = VHoughTrans(p2, 30*units::cm, pt_clouds.at(k));
-  	  dir1 *= -1;
-  	  dir2 *= -1;
-	  
-  	  std::pair<int,double> result1 = pt_clouds.at(k)->get_closest_point_along_vec(p1, dir1, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
-	  
-  	  if (result1.first >=0){
-	    index_index_dis_dir1[j][k] = std::make_tuple(std::get<0>(index_index_dis[j][k]), result1.first, result1.second);
-  	  }
-	  
-  	  std::pair<int,double> result2 = pt_clouds.at(j)->get_closest_point_along_vec(p2, dir2, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
-	  if (result2.first >=0){
-	    index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);
-  	  }
-  	}
+          std::pair<int,double> result1 = pt_clouds.at(k)->get_closest_point_along_vec(p1, dir1, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
+        
+          if (result1.first >=0){
+          index_index_dis_dir1[j][k] = std::make_tuple(std::get<0>(index_index_dis[j][k]), result1.first, result1.second);
+          }
+        
+          std::pair<int,double> result2 = pt_clouds.at(j)->get_closest_point_along_vec(p2, dir2, 80*units::cm, 5*units::cm, 7.5, 3*units::cm);
+          if (result2.first >=0){
+            index_index_dis_dir2[j][k] = std::make_tuple(result2.first, std::get<1>(index_index_dis[j][k]), result2.second);
+            }
+  	    }
 
-	// Now check the path ... 
-  	{
-  	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
-  	  WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
-  	  Point p1(wp1.x,wp1.y,wp1.z);
-  	  Point p2(wp2.x,wp2.y,wp2.z);
+	    // Now check the path ... 
+        {
+          WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis[j][k]));
+          WCPointCloud<double>::WCPoint wp2 = cloud.pts.at(std::get<1>(index_index_dis[j][k]));
+          Point p1(wp1.x,wp1.y,wp1.z);
+          Point p2(wp2.x,wp2.y,wp2.z);
+        
+          double dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
+          double step_dis = 1.0*units::cm;
+          int num_steps = dis/step_dis + 1;
+
+        // int num_bad = 0;
+        // int num_bad1 = 0;
+        int num_bad[4]={0,0,0,0}; // more than one of three are bad
+        int num_bad1[4]={0,0,0,0}; // at least one of three are bad
+        int num_bad2[3]={0,0,0}; // number of dead channels
+          for (int ii=0;ii!=num_steps;ii++){
+            Point test_p;
+            test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
+            test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
+            test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
+
+          std::vector<int> scores = ct_point_cloud.test_good_point(test_p);
+          // if ((p1.x>=130*units::cm && p1.x<=155*units::cm && p1.z > 815*units::cm && p1.z < 830*units::cm)&&
+          //   ((p2.x > 130*units::cm && p2.x <=155*units::cm && p2.z >815*units::cm && p2.z <830*units::cm))
+          // 	  ){
+          // 	std::cout << scores[0] << " " << scores[3] << " "
+          // 		  << scores[1] << " " << scores[4] << " "
+          // 		  << scores[2] << " " << scores[5] << std::endl;
+          //   }
+          if (scores[0] + scores[3] + scores[1] + scores[4] + (scores[2]+scores[5])*2 <3){ // num_bad
+            num_bad[0]++;
+          }
+          if (scores[0]+scores[3]==0) num_bad[1]++;
+          if (scores[1]+scores[4]==0) num_bad[2]++;
+          if (scores[2]+scores[5]==0) num_bad[3]++;
+
+          if (scores[3]!=0) num_bad2[0]++;
+          if (scores[4]!=0) num_bad2[1]++;
+          if (scores[5]!=0) num_bad2[2]++;
+            
+          if (scores[0] + scores[3] + scores[1] + scores[4] + (scores[2]+scores[5])<3){ // num_bad1
+            
+            num_bad1[0]++;
+          }
+          if (scores[0]+scores[3]==0) num_bad1[1]++;
+          if (scores[1]+scores[4]==0) num_bad1[2]++;
+          if (scores[2]+scores[5]==0) num_bad1[3]++;
+          // if (!ct_point_cloud.is_good_point_wc(test_p)) num_bad ++;
+          // if (!ct_point_cloud.is_good_point_wc(test_p,0.6*units::cm,1,0)) num_bad1 ++;
+        }
+        
+        TVector3 tempV1(0, p2.y - p1.y, p2.z - p1.z);
+        TVector3 tempV5;
+        double angle1 = tempV1.Angle(U_dir);
+        tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1),0);
+        angle1 = tempV5.Angle(drift_dir);
+        double angle2 = tempV1.Angle(V_dir);
+        tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle2),0);
+        angle2 = tempV5.Angle(drift_dir);
+        tempV5.SetXYZ(p2.x-p1.x,p2.y-p1.y,p2.z-p1.z);
+        double angle1p = tempV1.Angle(W_dir);
+        tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1p),0);
+        angle1p = tempV5.Angle(drift_dir);
+        double angle3 = tempV5.Angle(drift_dir);
+        
+        bool flag_strong_check = true;
+
 	  
-  	  double dis = sqrt(pow(p1.x-p2.x,2)+pow(p1.y-p2.y,2)+pow(p1.z-p2.z,2));
-  	  double step_dis = 1.0*units::cm;
-  	  int num_steps = dis/step_dis + 1;
-
-	  // int num_bad = 0;
-	  // int num_bad1 = 0;
-	  int num_bad[4]={0,0,0,0}; // more than one of three are bad
-	  int num_bad1[4]={0,0,0,0}; // at least one of three are bad
-	  int num_bad2[3]={0,0,0}; // number of dead channels
-  	  for (int ii=0;ii!=num_steps;ii++){
-  	    Point test_p;
-  	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
-  	    test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
-  	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
-
-	    std::vector<int> scores = ct_point_cloud.test_good_point(test_p);
-	    // if ((p1.x>=130*units::cm && p1.x<=155*units::cm && p1.z > 815*units::cm && p1.z < 830*units::cm)&&
-	    //   ((p2.x > 130*units::cm && p2.x <=155*units::cm && p2.z >815*units::cm && p2.z <830*units::cm))
-	    // 	  ){
-	    // 	std::cout << scores[0] << " " << scores[3] << " "
-	    // 		  << scores[1] << " " << scores[4] << " "
-	    // 		  << scores[2] << " " << scores[5] << std::endl;
-	    //   }
-	    if (scores[0] + scores[3] + scores[1] + scores[4] + (scores[2]+scores[5])*2 <3){ // num_bad
-	      num_bad[0]++;
-	    }
-	    if (scores[0]+scores[3]==0) num_bad[1]++;
-	    if (scores[1]+scores[4]==0) num_bad[2]++;
-	    if (scores[2]+scores[5]==0) num_bad[3]++;
-
-	    if (scores[3]!=0) num_bad2[0]++;
-	    if (scores[4]!=0) num_bad2[1]++;
-	    if (scores[5]!=0) num_bad2[2]++;
-	      
-	    if (scores[0] + scores[3] + scores[1] + scores[4] + (scores[2]+scores[5])<3){ // num_bad1
-	      
-	      num_bad1[0]++;
-	    }
-	    if (scores[0]+scores[3]==0) num_bad1[1]++;
-	    if (scores[1]+scores[4]==0) num_bad1[2]++;
-	    if (scores[2]+scores[5]==0) num_bad1[3]++;
-	    // if (!ct_point_cloud.is_good_point_wc(test_p)) num_bad ++;
-	    // if (!ct_point_cloud.is_good_point_wc(test_p,0.6*units::cm,1,0)) num_bad1 ++;
+      if (fabs(angle3-3.1415926/2.)<10/180.*3.1415926){
+        TVector3 tempV2 = VHoughTrans(p1, 15*units::cm);
+        TVector3 tempV3 = VHoughTrans(p2, 15*units::cm);
+        if ( fabs(tempV2.Angle(drift_dir)-3.1415926/2.)<10/180.*3.1415926 &&
+      fabs(tempV3.Angle(drift_dir)-3.1415926/2.)<10/180.*3.1415926)
+          flag_strong_check = false;
+      }else if ( angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p < 12.5/180.*3.1415926){
+          flag_strong_check = false;
+      }
+	  
+      if (flag_strong_check){
+        if (num_bad1[0] > 7 || num_bad1[0] > 2 && num_bad1[0] >=0.75*num_steps){
+          index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+        }
+	    
+      }else{
+        if ((angle1<12.5/180.*3.1415926 && angle2<12.5/180.*3.1415926 ||
+      angle1p < 12.5/180.*3.1415926 && angle1<12.5/180.*3.1415926 ||
+      angle1p < 12.5/180.*3.1415926 && angle2<12.5/180.*3.1415926)){
+          if (num_bad[0] > 7 || num_bad[0] > 2 && num_bad[0] >=0.75*num_steps)
+      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+        }else if (angle1<12.5/180.*3.1415926 && (num_bad[2]+num_bad[3] > 9 || num_bad[2]+num_bad[3] > 2 && num_bad[2]+num_bad[3] >=0.75*num_steps || num_bad[3]>=3)){
+          index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+        }else if (angle2<12.5/180.*3.1415926 && (num_bad[1]+num_bad[3] > 9 || num_bad[1]+num_bad[3]>2  && num_bad[1]+num_bad[3] >=0.75*num_steps || num_bad[3]>=3)){
+          index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+        }else if (angle1p < 12.5/180.*3.1415926 && (num_bad[2]+num_bad[1] > 9 || num_bad[2]+num_bad[1]>2 && num_bad[2]+num_bad[1] >=0.75*num_steps )){
+          index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+        }else{
+          if (num_bad[0] > 7 || num_bad[0] > 2 && num_bad[0] >=0.75*num_steps) {
+      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
+          }
+        }
+        
+      }    
 	  }
-	  
-	  TVector3 tempV1(0, p2.y - p1.y, p2.z - p1.z);
-	  TVector3 tempV5;
-	  double angle1 = tempV1.Angle(U_dir);
-	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1),0);
-	  angle1 = tempV5.Angle(drift_dir);
-	  double angle2 = tempV1.Angle(V_dir);
-	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle2),0);
-	  angle2 = tempV5.Angle(drift_dir);
-	  tempV5.SetXYZ(p2.x-p1.x,p2.y-p1.y,p2.z-p1.z);
-	  double angle1p = tempV1.Angle(W_dir);
-	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1p),0);
-	  angle1p = tempV5.Angle(drift_dir);
-	  double angle3 = tempV5.Angle(drift_dir);
-	  
-	  bool flag_strong_check = true;
-
-	  //	  if (num_bad2[0]>0.95*num_steps || num_bad2[1] > 0.95*num_steps || num_bad2[2] > 0.95*num_steps){
-	    // if (fabs(angle3-3.1415926/2.)<5/180.*3.1415926){
-	    //   TVector3 tempV2 = VHoughTrans(p1, 15*units::cm);
-	    //   TVector3 tempV3 = VHoughTrans(p2, 15*units::cm);
-	    //   if ( fabs(tempV2.Angle(drift_dir)-3.1415926/2.)<5/180.*3.1415926 &&
-	    // 	   fabs(tempV3.Angle(drift_dir)-3.1415926/2.)<5/180.*3.1415926)
-	    // 	flag_strong_check = false;
-	    // }else if ( angle1<5/180.*3.1415926  || angle2<5/180.*3.1415926 || angle1p < 5/180.*3.1415926){
-	    //   flag_strong_check = false;
-	    // }
-	  // }else{
-	  if (fabs(angle3-3.1415926/2.)<10/180.*3.1415926){
-	    TVector3 tempV2 = VHoughTrans(p1, 15*units::cm);
-	    TVector3 tempV3 = VHoughTrans(p2, 15*units::cm);
-	    if ( fabs(tempV2.Angle(drift_dir)-3.1415926/2.)<10/180.*3.1415926 &&
-		 fabs(tempV3.Angle(drift_dir)-3.1415926/2.)<10/180.*3.1415926)
-	      flag_strong_check = false;
-	  }else if ( angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p < 12.5/180.*3.1415926){
-	      flag_strong_check = false;
-	  }
-	  // }
-	  
-	  if (flag_strong_check){
-	    if (num_bad1[0] > 7 || num_bad1[0] > 2 && num_bad1[0] >=0.75*num_steps){
-	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-	    }
-
-	    // if ((num_bad2[0]==num_steps && num_bad2[1] == num_steps ||
-	    // 	 num_bad2[0]==num_steps && num_bad2[2] == num_steps ||
-	    // 	 num_bad2[1]==num_steps && num_bad2[2] == num_steps ) &&
-	    // 	dis > 5*units::cm && num_bad1[0] ==0 )
-	    //   index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-	    
-	  }else{
-	    if ((angle1<12.5/180.*3.1415926 && angle2<12.5/180.*3.1415926 ||
-		 angle1p < 12.5/180.*3.1415926 && angle1<12.5/180.*3.1415926 ||
-		 angle1p < 12.5/180.*3.1415926 && angle2<12.5/180.*3.1415926)){
-	      if (num_bad[0] > 7 || num_bad[0] > 2 && num_bad[0] >=0.75*num_steps)
-		index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-	    }else if (angle1<12.5/180.*3.1415926 && (num_bad[2]+num_bad[3] > 9 || num_bad[2]+num_bad[3] > 2 && num_bad[2]+num_bad[3] >=0.75*num_steps || num_bad[3]>=3)){
-	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-	    }else if (angle2<12.5/180.*3.1415926 && (num_bad[1]+num_bad[3] > 9 || num_bad[1]+num_bad[3]>2  && num_bad[1]+num_bad[3] >=0.75*num_steps || num_bad[3]>=3)){
-	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-	    }else if (angle1p < 12.5/180.*3.1415926 && (num_bad[2]+num_bad[1] > 9 || num_bad[2]+num_bad[1]>2 && num_bad[2]+num_bad[1] >=0.75*num_steps )){
-	      index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-	    }else{
-	      if (num_bad[0] > 7 || num_bad[0] > 2 && num_bad[0] >=0.75*num_steps) {
-		index_index_dis[j][k] = std::make_tuple(-1,-1,1e9);
-	      }
-	    }
-	    
-	  }
-	  // if ((p1.x>=130*units::cm && p1.x<=155*units::cm && p1.z > 815*units::cm && p1.z < 830*units::cm)&&
-	  //     ((p2.x > 130*units::cm && p2.x <=155*units::cm && p2.z >815*units::cm && p2.z <830*units::cm))
-	  //     // ||
-	  //     //(p2.x > 180*units::cm && p2.x <=220*units::cm && p2.z >680*units::cm && p2.z <720*units::cm) &&
-	  //     //(!(p1.x>=180*units::cm && p1.x<=220*units::cm && p1.z > 680*units::cm && p1.z < 720*units::cm))
-	  //     ){
-	    
-	  //     std::cout << flag_strong_check << " " << j << " " << pt_clouds.at(j)->get_num_points() << " " << k << " " << pt_clouds.at(k)->get_num_points() << " " << num_bad[0] << " " << num_bad[1] << " " << num_bad[2] << " " << num_bad[3] << " " << num_bad1[0] << " " << num_steps << " " <<
-	  //      p1 << " " << p2 << " " << std::get<0>(index_index_dis[j][k]) << " " <<
-	  //      std::get<1>(index_index_dis[j][k]) << " " << std::get<2>(index_index_dis[j][k]) << " " << angle3/3.1415926*180. << " " << angle1/3.1415926*180. << " " << angle2/3.1415926*180. << " " << angle1p/3.1415926*180. << std::endl;
-	  // }
-	    
-	}
 	
   	// Now check the path ... 
   	if (std::get<0>(index_index_dis_dir1[j][k])>=0){
@@ -2114,10 +2087,6 @@ void PR3DCluster::Connect_graph_overclustering_protection(WCP::ToyCTPointCloud& 
 	  }
 	  	  
 	}
-
-
-	
-	
   	// Now check the path ... 
   	if (std::get<0>(index_index_dis_dir2[j][k])>=0){
   	  WCPointCloud<double>::WCPoint wp1 = cloud.pts.at(std::get<0>(index_index_dis_dir2[j][k]));
@@ -2129,47 +2098,44 @@ void PR3DCluster::Connect_graph_overclustering_protection(WCP::ToyCTPointCloud& 
   	  double step_dis = 1.0*units::cm;
   	  int num_steps = dis/step_dis + 1;
   	  int num_bad = 0;
-	  int num_bad1 = 0;
-	  for (int ii=0;ii!=num_steps;ii++){
-  	    Point test_p;
-  	    test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
-  	    test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
-  	    test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
-  	    if (!ct_point_cloud.is_good_point_wc(test_p))
-  	      num_bad ++;
-	    if (!ct_point_cloud.is_good_point_wc(test_p,0.6*units::cm,1,0)) num_bad1 ++;
-  	  }
+      int num_bad1 = 0;
+      for (int ii=0;ii!=num_steps;ii++){
+          Point test_p;
+          test_p.x = p1.x + (p2.x-p1.x)/num_steps*(ii+1);
+          test_p.y = p1.y + (p2.y-p1.y)/num_steps*(ii+1);
+          test_p.z = p1.z + (p2.z-p1.z)/num_steps*(ii+1);
+          if (!ct_point_cloud.is_good_point_wc(test_p))
+            num_bad ++;
+        if (!ct_point_cloud.is_good_point_wc(test_p,0.6*units::cm,1,0)) num_bad1 ++;
+        }
 	 
-	  TVector3 tempV1(0, p2.y - p1.y, p2.z - p1.z);
-	  TVector3 tempV5;
-	  double angle1 = tempV1.Angle(U_dir);
-	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1),0);
-	  angle1 = tempV5.Angle(drift_dir);
-	  double angle2 = tempV1.Angle(V_dir);
-	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle2),0);
-	  angle2 = tempV5.Angle(drift_dir);
-	  tempV5.SetXYZ(p2.x-p1.x,p2.y-p1.y,p2.z-p1.z);
-	  double angle3 = tempV5.Angle(drift_dir);
-	  double angle1p = tempV1.Angle(W_dir);
-	  tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1p),0);
-	  angle1p = tempV5.Angle(drift_dir);
+        TVector3 tempV1(0, p2.y - p1.y, p2.z - p1.z);
+        TVector3 tempV5;
+        double angle1 = tempV1.Angle(U_dir);
+        tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1),0);
+        angle1 = tempV5.Angle(drift_dir);
+        double angle2 = tempV1.Angle(V_dir);
+        tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle2),0);
+        angle2 = tempV5.Angle(drift_dir);
+        tempV5.SetXYZ(p2.x-p1.x,p2.y-p1.y,p2.z-p1.z);
+        double angle3 = tempV5.Angle(drift_dir);
+        double angle1p = tempV1.Angle(W_dir);
+        tempV5.SetXYZ(fabs(p2.x-p1.x),sqrt(pow(p2.y - p1.y,2)+pow(p2.z - p1.z,2))*sin(angle1p),0);
+        angle1p = tempV5.Angle(drift_dir);
 
-	  if (fabs(angle3-3.1415926/2.)<10/180.*3.1415926 || angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p<7.5/180.*3.1415926){
-	    // parallel or prolonged case
-	    if (num_bad > 7 || num_bad > 2 && num_bad >=0.75*num_steps) {
-	      index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
-	      
-	    }
-	  }else{
-	    if (num_bad1 > 7 || num_bad1 > 2 && num_bad1 >=0.75*num_steps){
-	      index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
+        if (fabs(angle3-3.1415926/2.)<10/180.*3.1415926 || angle1<12.5/180.*3.1415926  || angle2<12.5/180.*3.1415926 || angle1p<7.5/180.*3.1415926){
+          // parallel or prolonged case
+          if (num_bad > 7 || num_bad > 2 && num_bad >=0.75*num_steps) {
+            index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
+            
+          }
+        }else{
+          if (num_bad1 > 7 || num_bad1 > 2 && num_bad1 >=0.75*num_steps){
+            index_index_dis_dir2[j][k] = std::make_tuple(-1,-1,1e9);
 
-	    }
-	  }
-	}
-
-
-
+          }
+        }
+      }
       }
     }
 
@@ -2181,44 +2147,44 @@ void PR3DCluster::Connect_graph_overclustering_protection(WCP::ToyCTPointCloud& 
     	temp_graph(N);
       
       for (int j=0;j!=num;j++){
-    	for (int k=j+1;k!=num;k++){
-	  int index1 = j;
-	  int index2 = k;
-    	  if (std::get<0>(index_index_dis[j][k])>=0){
-	    //	    std::cout << "A: " << index1 << " " << index2 << std::endl;
-	    auto edge = add_edge(index1,index2, std::get<2>(index_index_dis[j][k]), temp_graph);
-	  }
-	}
+        for (int k=j+1;k!=num;k++){
+          int index1 = j;
+          int index2 = k;
+          if (std::get<0>(index_index_dis[j][k])>=0){
+          //	    std::cout << "A: " << index1 << " " << index2 << std::endl;
+          auto edge = add_edge(index1,index2, std::get<2>(index_index_dis[j][k]), temp_graph);
+          }
+	      }
       }
 
       {
-	std::vector<int> possible_root_vertex;
-	std::vector<int> component(num_vertices(temp_graph));
-	const int num1 = connected_components(temp_graph,&component[0]);
-	possible_root_vertex.resize(num1);
-	std::vector<int>::size_type i;
-	for (i=0;i!=component.size(); ++i){
-	  possible_root_vertex.at(component[i]) = i;
-	}
-	
-	for (size_t i=0;i!=possible_root_vertex.size();i++){
-	  std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
-      
-	  prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(possible_root_vertex.at(i)));
-      
-	  for (size_t j=0;j!=predecessors.size();++j){
-	    if (predecessors[j]!=j){
-	      if (j < predecessors[j]){
-		index_index_dis_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
-	      }else{
-		index_index_dis_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
-	      }
-	      //	      std::cout << j << " " << predecessors[j] << " " << std::endl;
-	    }else{
-	      //std::cout << j << " " << std::endl;
-	    }
-	  }
-	}
+        std::vector<int> possible_root_vertex;
+        std::vector<int> component(num_vertices(temp_graph));
+        const int num1 = connected_components(temp_graph,&component[0]);
+        possible_root_vertex.resize(num1);
+        std::vector<int>::size_type i;
+        for (i=0;i!=component.size(); ++i){
+          possible_root_vertex.at(component[i]) = i;
+        }
+        
+        for (size_t i=0;i!=possible_root_vertex.size();i++){
+          std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
+            
+          prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(possible_root_vertex.at(i)));
+            
+          for (size_t j=0;j!=predecessors.size();++j){
+            if (predecessors[j]!=j){
+              if (j < predecessors[j]){
+          index_index_dis_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
+              }else{
+          index_index_dis_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+              }
+              //	      std::cout << j << " " << predecessors[j] << " " << std::endl;
+            }else{
+              //std::cout << j << " " << std::endl;
+            }
+          }
+        }
       }
     }
 
@@ -2230,88 +2196,88 @@ void PR3DCluster::Connect_graph_overclustering_protection(WCP::ToyCTPointCloud& 
     	temp_graph(N);
       
       for (int j=0;j!=num;j++){
-    	for (int k=j+1;k!=num;k++){
-	  int index1 = j;
-	  int index2 = k;
-    	  if (std::get<0>(index_index_dis_dir1[j][k])>=0 || std::get<0>(index_index_dis_dir2[j][k])>=0)
-    	    auto edge = add_edge(index1,index2, std::min(std::get<2>(index_index_dis_dir1[j][k]), std::get<2>(index_index_dis_dir2[j][k])), temp_graph);
-    	}
+    	  for (int k=j+1;k!=num;k++){
+          int index1 = j;
+          int index2 = k;
+          if (std::get<0>(index_index_dis_dir1[j][k])>=0 || std::get<0>(index_index_dis_dir2[j][k])>=0)
+            auto edge = add_edge(index1,index2, std::min(std::get<2>(index_index_dis_dir1[j][k]), std::get<2>(index_index_dis_dir2[j][k])), temp_graph);
+      	}
       }
 
       {
-	std::vector<int> possible_root_vertex;
-	std::vector<int> component(num_vertices(temp_graph));
-	const int num1 = connected_components(temp_graph,&component[0]);
-	possible_root_vertex.resize(num1);
-	std::vector<int>::size_type i;
-	for (i=0;i!=component.size(); ++i){
-	  possible_root_vertex.at(component[i]) = i;
-	}
-	for (size_t i=0;i!=possible_root_vertex.size();i++){
-	  std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
-	  prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(possible_root_vertex.at(i)));
-	  for (size_t j=0;j!=predecessors.size();++j){
-	    if (predecessors[j]!=j){
-	      if (j < predecessors[j]){
-		index_index_dis_dir_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
-	      }else{
-		index_index_dis_dir_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
-	      }
-	      //std::cout << j << " " << predecessors[j] << " " << std::endl;
-	    }else{
-	      //std::cout << j << " " << std::endl;
-	    }
-	  }
-	}
+        std::vector<int> possible_root_vertex;
+        std::vector<int> component(num_vertices(temp_graph));
+        const int num1 = connected_components(temp_graph,&component[0]);
+        possible_root_vertex.resize(num1);
+        std::vector<int>::size_type i;
+        for (i=0;i!=component.size(); ++i){
+          possible_root_vertex.at(component[i]) = i;
+        }
+        for (size_t i=0;i!=possible_root_vertex.size();i++){
+          std::vector<boost::graph_traits < MCUGraph >::vertex_descriptor> predecessors(num_vertices(temp_graph));
+          prim_minimum_spanning_tree( temp_graph , &predecessors[0], boost::root_vertex(possible_root_vertex.at(i)));
+          for (size_t j=0;j!=predecessors.size();++j){
+            if (predecessors[j]!=j){
+              if (j < predecessors[j]){
+          index_index_dis_dir_mst[j][predecessors[j]] = index_index_dis[j][predecessors[j]];
+              }else{
+          index_index_dis_dir_mst[predecessors[j]][j] = index_index_dis[predecessors[j]][j];
+              }
+              //std::cout << j << " " << predecessors[j] << " " << std::endl;
+            }else{
+              //std::cout << j << " " << std::endl;
+            }
+          }
+        }
       }
     }
 
 	
     for (int j=0;j!=num;j++){
       for (int k=j+1;k!=num;k++){
-	if (std::get<2>(index_index_dis[j][k])<3*units::cm){
-	  index_index_dis_mst[j][k] = index_index_dis[j][k];
-	}
+        if (std::get<2>(index_index_dis[j][k])<3*units::cm){
+          index_index_dis_mst[j][k] = index_index_dis[j][k];
+        }
     
 	
-  	// establish the path ... 
-  	if (std::get<0>(index_index_dis_mst[j][k])>=0){
-  	  auto edge = add_edge(std::get<0>(index_index_dis_mst[j][k]),std::get<1>(index_index_dis_mst[j][k]),*graph);
-	  //std::cout << j << " " << k << std::endl;
-  	  if (edge.second){
-  	    if (std::get<2>(index_index_dis_mst[j][k])>5*units::cm){
-  	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
-  	    }else{
-  	      (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
-  	    }
-  	  }
-  	}
+        // establish the path ... 
+        if (std::get<0>(index_index_dis_mst[j][k])>=0){
+          auto edge = add_edge(std::get<0>(index_index_dis_mst[j][k]),std::get<1>(index_index_dis_mst[j][k]),*graph);
+        //std::cout << j << " " << k << std::endl;
+          if (edge.second){
+            if (std::get<2>(index_index_dis_mst[j][k])>5*units::cm){
+              (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
+            }else{
+              (*graph)[edge.first].dist = std::get<2>(index_index_dis_mst[j][k]);
+            }
+          }
+        }
 
 
-	if (std::get<0>(index_index_dis_dir_mst[j][k])>=0){
-	  //std::cout << j << " " << k << std::endl;
-	  if (std::get<0>(index_index_dis_dir1[j][k])>=0){
-	    auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
-	    if (edge.second){
-	      if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
-		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.1;
-	      }else{
-		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
-	      }
-	    }
-	  }
-	  if (std::get<0>(index_index_dis_dir2[j][k])>=0){
-	    //std::cout << j << " " << k << std::endl;
-	    auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
-	    if (edge.second){
-	      if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
-		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.1;
-	      }else{
-		(*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
-	      }
-	    }
-	  }
-	}
+        if (std::get<0>(index_index_dis_dir_mst[j][k])>=0){
+          //std::cout << j << " " << k << std::endl;
+          if (std::get<0>(index_index_dis_dir1[j][k])>=0){
+            auto edge = add_edge(std::get<0>(index_index_dis_dir1[j][k]),std::get<1>(index_index_dis_dir1[j][k]),*graph);
+            if (edge.second){
+              if (std::get<2>(index_index_dis_dir1[j][k])>5*units::cm){
+          (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k])*1.1;
+              }else{
+          (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir1[j][k]);
+              }
+            }
+          }
+          if (std::get<0>(index_index_dis_dir2[j][k])>=0){
+            //std::cout << j << " " << k << std::endl;
+            auto edge = add_edge(std::get<0>(index_index_dis_dir2[j][k]),std::get<1>(index_index_dis_dir2[j][k]),*graph);
+            if (edge.second){
+              if (std::get<2>(index_index_dis_dir2[j][k])>5*units::cm){
+          (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k])*1.1;
+              }else{
+          (*graph)[edge.first].dist = std::get<2>(index_index_dis_dir2[j][k]);
+              }
+            }
+          }
+        }
 	
       } // k
     } // j
@@ -4098,6 +4064,10 @@ TVector3 PR3DCluster::calc_PCA_dir(Point&p, PointVector& ps){
     }
   }
 
+  // std::cout << p << " " << ps.at(0) << std::endl;
+  // std::cout << p << " " << ps.at(1) << std::endl;
+  // std::cout << p << " " << ps.at(2) << std::endl;
+
   cov_matrix(1,0) = cov_matrix(0,1);
   cov_matrix(2,0) = cov_matrix(0,2);
   cov_matrix(2,1) = cov_matrix(1,2);
@@ -4105,6 +4075,9 @@ TVector3 PR3DCluster::calc_PCA_dir(Point&p, PointVector& ps){
   TMatrixDEigen eigen(cov_matrix);
   TMatrixD eigen_values = eigen.GetEigenValues();
   TMatrixD eigen_vectors = eigen.GetEigenVectors();
+
+  // std::cout << eigen_vectors(0,0) << " " << eigen_vectors(1,0) <<  " " << eigen_vectors(2,0) << std::endl;
+
   TVector3 dir(eigen_vectors(0,0)/sqrt(eigen_vectors(0,0)*eigen_vectors(0,0) + eigen_vectors(1,0)*eigen_vectors(1,0) + eigen_vectors(2,0)*eigen_vectors(2,0)),
 	       eigen_vectors(1,0)/sqrt(eigen_vectors(0,0)*eigen_vectors(0,0) + eigen_vectors(1,0)*eigen_vectors(1,0) + eigen_vectors(2,0)*eigen_vectors(2,0)),
 	       eigen_vectors(2,0)/sqrt(eigen_vectors(0,0)*eigen_vectors(0,0) + eigen_vectors(1,0)*eigen_vectors(1,0) + eigen_vectors(2,0)*eigen_vectors(2,0)));
