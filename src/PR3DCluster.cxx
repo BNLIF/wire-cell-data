@@ -1869,6 +1869,8 @@ void PR3DCluster::Connect_graph_overclustering_protection(WCP::ToyCTPointCloud& 
   // now form the connected components
   std::vector<int> component(num_vertices(*graph));
   const int num = connected_components(*graph,&component[0]);
+
+  // std::cout << "Test: " << num << std::endl;
   if (num > 1){
     std::vector<ToyPointCloud*> pt_clouds;
     for (int j=0;j!=num;j++){
@@ -1944,6 +1946,8 @@ void PR3DCluster::Connect_graph_overclustering_protection(WCP::ToyCTPointCloud& 
           double step_dis = 1.0*units::cm;
           int num_steps = dis/step_dis + 1;
 
+          
+
         // int num_bad = 0;
         // int num_bad1 = 0;
         int num_bad[4]={0,0,0,0}; // more than one of three are bad
@@ -1984,7 +1988,14 @@ void PR3DCluster::Connect_graph_overclustering_protection(WCP::ToyCTPointCloud& 
           // if (!ct_point_cloud.is_good_point_wc(test_p)) num_bad ++;
           // if (!ct_point_cloud.is_good_point_wc(test_p,0.6*units::cm,1,0)) num_bad1 ++;
         }
-        
+
+        // if (get_mcells().size()==244){
+        // std::cout << "Test: Dis: " << p1 << " " << p2 << " " << dis << std::endl;
+        // std::cout << "Test: num_bad1: " << num_bad1[0] << " " << num_bad1[1] << " " << num_bad1[2] << " " << num_bad1[3] << std::endl;
+        // std::cout << "Test: num_bad2: " << num_bad2[0] << " " << num_bad2[1] << " " << num_bad2[2] << std::endl;
+        // std::cout << "Test: num_bad: " << num_bad[0] << " " << num_bad[1] << " " << num_bad[2] << " " << num_bad[3] << std::endl;
+        // }
+
         TVector3 tempV1(0, p2.y - p1.y, p2.z - p1.z);
         TVector3 tempV5;
         double angle1 = tempV1.Angle(U_dir);
@@ -2146,6 +2157,7 @@ void PR3DCluster::Connect_graph_overclustering_protection(WCP::ToyCTPointCloud& 
     	boost::no_property, boost::property<boost::edge_weight_t, double>>
     	temp_graph(N);
       
+      // int temp_count = 0;
       for (int j=0;j!=num;j++){
         for (int k=j+1;k!=num;k++){
           int index1 = j;
@@ -2153,6 +2165,7 @@ void PR3DCluster::Connect_graph_overclustering_protection(WCP::ToyCTPointCloud& 
           if (std::get<0>(index_index_dis[j][k])>=0){
           //	    std::cout << "A: " << index1 << " " << index2 << std::endl;
           auto edge = add_edge(index1,index2, std::get<2>(index_index_dis[j][k]), temp_graph);
+          // temp_count ++;
           }
 	      }
       }

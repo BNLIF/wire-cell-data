@@ -320,6 +320,9 @@ double ToyCTPointCloud::get_ave_charge(WCP::Point& p, double radius, int plane){
 
 std::vector<int>  ToyCTPointCloud::test_good_point(WCP::Point& p, double radius, int ch_range){
   std::vector<int> num_planes;//[6]={0,0,0,0,0,0};
+
+  // std::cout << "abc: " << p << " " << radius << " " << ch_range << std::endl;
+
   num_planes.resize(6,0);
   {
     WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 0);
@@ -327,8 +330,9 @@ std::vector<int>  ToyCTPointCloud::test_good_point(WCP::Point& p, double radius,
       num_planes[0] ++;
     }else{
       if (get_closest_dead_chs(p, 0, ch_range))
-	num_planes[3] ++;
+	      num_planes[3] ++;
     }
+    // std::cout << pts.pts.size() << " " << get_closest_dead_chs(p, 0, ch_range) << " " << num_planes[0] << " " << num_planes[3] << std::endl;
   }
   {
     WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 1);
@@ -338,6 +342,8 @@ std::vector<int>  ToyCTPointCloud::test_good_point(WCP::Point& p, double radius,
       if (get_closest_dead_chs(p, 1, ch_range))
 	num_planes[4] ++;
     }
+    // std::cout << pts.pts.size() << " " << get_closest_dead_chs(p, 1, ch_range) << " " << num_planes[1] << " " << num_planes[4] << std::endl;
+
   }
   {
     WCP::CTPointCloud<double> pts = get_closest_points(p, radius, 2);
@@ -347,6 +353,8 @@ std::vector<int>  ToyCTPointCloud::test_good_point(WCP::Point& p, double radius,
       if (get_closest_dead_chs(p, 2, ch_range))
 	num_planes[5] ++;
     }
+    // std::cout << pts.pts.size() << " " << get_closest_dead_chs(p, 2, ch_range) << " " << num_planes[2] << " " << num_planes[5] << std::endl;
+
   }
 
   return num_planes;//std::make_tuple(num_planes[0],num_planes[1],num_planes[2]);
