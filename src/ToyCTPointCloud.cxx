@@ -516,12 +516,12 @@ std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_
       double temp_min_xpos = it->second.first;
       double temp_max_xpos = it->second.second;
       if (flag_ignore_time){
-	if (temp_ch>=min_ch && temp_ch<=max_ch)
-	  dead_chs.insert(temp_ch);
+        if (temp_ch>=min_ch && temp_ch<=max_ch)
+          dead_chs.insert(temp_ch);
       }else{
-	if (temp_ch>=min_ch && temp_ch<=max_ch &&
-	    max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
-	  dead_chs.insert(temp_ch);
+        if (temp_ch>=min_ch && temp_ch<=max_ch &&
+            max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
+          dead_chs.insert(temp_ch);
       }
     }
     
@@ -531,12 +531,12 @@ std::vector<std::pair<int, int> > ToyCTPointCloud::get_overlap_dead_chs(int min_
       double temp_min_xpos = it->second.first;
       double temp_max_xpos = it->second.second;
       if (flag_ignore_time){
-	if (temp_ch>=min_ch && temp_ch<=max_ch)
-	  dead_chs.insert(temp_ch);
+        if (temp_ch>=min_ch && temp_ch<=max_ch)
+          dead_chs.insert(temp_ch);
       }else{
-	if (temp_ch>=min_ch && temp_ch<=max_ch &&
-	    max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
-	  dead_chs.insert(temp_ch);
+        if (temp_ch>=min_ch && temp_ch<=max_ch &&
+            max_xpos >= temp_min_xpos && min_xpos <= temp_max_xpos)
+          dead_chs.insert(temp_ch);
       }
     }
     
