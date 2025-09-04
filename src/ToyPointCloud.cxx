@@ -252,6 +252,9 @@ void WCP::ToyPointCloud::AddPoint(WCPointCloud<double>::WCPoint& p){
   point_w.y = cos(angle_w) * p.z - sin(angle_w) *p.y;
   point_w.index = cloud_w.pts.size();
   
+  // std::cout << " " << p.x << " " << p.y << " " << p.z << std::endl;
+  // std::cout << angle_u << " " << angle_v << " " << angle_w << " " << point_u.x << " " << point_u.y << " " << point_v.y << " " << point_w.y << std::endl;
+
   cloud.pts.push_back(point);
   cloud_u.pts.push_back(point_u);
   cloud_v.pts.push_back(point_v);
